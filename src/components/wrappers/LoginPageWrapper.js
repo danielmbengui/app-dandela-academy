@@ -22,7 +22,7 @@ const LoginPageWrapper = ({ children }) => {
     //background:'red'
   }}>
     <Stack sx={{ background: '', height: '100%', p: '10px' }} spacing={1}>
-      <Stack direction={'column'} alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', width: '100%', background: '' }}>
+      <Stack direction={'column'} alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', width: '100%', background: 'red' }}>
         <Stack spacing={3} sx={{ py: 3, px: 5, background: 'white', borderRadius: '10px' }}>
           {children}
         </Stack>
