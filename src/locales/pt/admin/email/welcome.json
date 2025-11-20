@@ -1,0 +1,48 @@
+{
+  "subject": "📝 Nova inscrição",
+  "text": "Um utilizador acabou de se inscrever na lista de espera.",
+  "title": "A lista de espera está a crescer!",
+  "paragraph-1": "Um novo utilizador acabou de se inscrever na <strong>lista de espera</strong>:",
+  "form": {
+    "lastname": "Sobrenome",
+    "firstname": "Primeiro nome",
+    "birthday": "Data de nascimento",
+    "email": "Email",
+    "role": "Tipo",
+    "level": "Nível",
+    "goals": "Objetivos",
+    "phone": "Telefone",
+    "lang": "Idioma preferido",
+    "how-know": "Fonte?",
+    "ok-whatsapp": "OK WhatsApp?",
+    "newsletter": "Newsletter?"
+  },
+  "roles": {
+    "student": "Estudante",
+    "professional": "Profissional"
+  },
+  "levels": {
+    "beginner": "Iniciante",
+    "intermediate": "Intermédio",
+    "advanced": "Avançado"
+  },
+  "how-know": {
+    "socials": "Rede social",
+    "friend": "Um amigo ou conhecido",
+    "school": "Escola / Universidade",
+    "work": "Empresa / Empregador",
+    "advertising": "Publicidade",
+    "google": "Pesquisa no Google",
+    "ia": "Uma IA (grok, chatgpt, gemini, etc.)",
+    "other": "Outro (especificar)"
+  },
+  "tips": {
+    "title": "Os utilizadores estão a aumentar 📈",
+    "subtitle": "Atualmente existem <b>{{count}}</b> utilizadores inscritos na lista de espera."
+  },
+  "dashboard": "Ir para o painel",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "Todos os direitos reservados.",
+  "yes": "Sim",
+  "no": "Não"
+}

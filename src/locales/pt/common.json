@@ -1,3 +1,18 @@
 {
-  "title-page": "Dandela Academy App - Início de sessão"
+  "title-page": "Início - Dandela Academy",
+  "description-page": "Uma escola online inovadora que forma estudantes e profissionais nas áreas digitais e de inteligência artificial.",
+  "hello": "Olá",
+  "welcome": "Bem-vindo",
+  "language": "Idioma",
+  "loading": "A carregar...",
+  "day": "Dia",
+  "month": "Mês",
+  "year": "Ano",
+  "yes": "Sim",
+  "no": "Não",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "Todos os direitos reservados.",
+  "and": "e",
+  "light": "Claro",
+  "dark": "Escuro"
 }

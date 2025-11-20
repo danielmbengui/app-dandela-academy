@@ -1,9 +1,0 @@
-{
-    "invalid-credential": "L'email et/ou le mot de passe est incorrect.",
-    "wrong-email": "Cet email {{email}} n'existe pas.",
-    "wrong-password": "Ce mot de passe {{password}} est incorrect.",
-    "email-exists": "Cet email {{email}} existe déjà, rend toi sur la page de connexion.",
-    "error-default-password": "{{password}} est ton mot de passe par défaut, change-le !",
-    "password-repeat": "Les mots de passes ne sont pas identiques",
-    "only-admins": "Seuls les administrateurs peuvent se connecter !!!"
-}

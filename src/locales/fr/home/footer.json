@@ -1,0 +1,22 @@
+{
+    "about": {
+      "title": "À propos de nous",
+      "subtitle": "Dandela Academy est une école en ligne moderne, certifiée et approuvée par l’INEFOP, qui propose des formations digitales et professionnelles accessibles partout.",
+      "schedule": {
+        "title": "Horaires d'ouverture",
+        "hours": [
+          "Lundi - Samedi (8h - 18h)",
+          "Dimanche - Fermé"
+        ]
+      }
+    },
+    "navigation": {
+      "title": "Navigation"
+    },
+    "lessons": {
+      "title": "Nos cours"
+    },
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "Tous droits réservés."
+  }
+  

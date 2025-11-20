@@ -9,10 +9,11 @@ import "swiper/css/pagination";
 import "swiper/css/effect-cards";
 import "./globals.css";
 import Providers from "@/contexts/providers";
+import Head from "next/head";
 import { getPreferredLocale } from "@/contexts/i18n/detect-locale";
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_HOME } from "@/contexts/constants/constants_pages";
-import { defaultLanguage, languages, NS_COMMON } from "@/contexts/i18n/settings";
+import { defaultLanguage, languages, NS_HOME } from "@/contexts/i18n/settings";
 import Preloader from "@/components/shared/Preloader";
 import Shadow from "@/components/shared/Shadow";
 
@@ -34,7 +35,7 @@ const getDir = (lng) => (RTL_LOCALES.includes(lng) ? 'rtl' : 'ltr');
 export const dynamic = "force-dynamic";
 
 export const generateMetadata = generatePageMetadata({
-  ns: NS_COMMON,
+  ns: NS_HOME,
   path: PAGE_HOME,
   // images: ["https://.../og-inscription.jpg"],
   // overrides: { openGraph: { type: "article" } },
@@ -45,25 +46,22 @@ export default async function RootLayout({ children }) {
   const lng = languages.includes(locale) ? locale : defaultLanguage;
   return (
     <html lang={lng} dir={getDir(lng)} className={`${hind.variable}`} >
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        />
-      </head>
+      <Head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+      </Head>
       <body
         className={`relative leading-[1.8] bg-bodyBg dark:bg-bodyBg-dark z-0  ${inter.className}`}
       >
-        <Providers>
-          <Preloader />
-          {children}
+       <Providers>
+       <Preloader />
+        {children}
 
-          {/* theme fixed shadow */}
-          <div>
-            <Shadow />
-            <Shadow align={"right"} />
-          </div>
-        </Providers>
+        {/* theme fixed shadow */}
+        <div>
+          <Shadow />
+          <Shadow align={"right"} />
+        </div>
+       </Providers>
       </body>
     </html>
   );

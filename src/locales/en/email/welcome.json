@@ -1,0 +1,14 @@
+{
+  "subject": "Welcome to {{website}}",
+  "text": "{{first_name}} {{last_name}}, thank you for signing up for the waiting list of {{website}}. We will notify you as soon as registrations and new courses open. Website: {{link}}. Contact: {{email}}.",
+  "welcome": "Welcome",
+  "title": "Welcome {{name}} 👋",
+  "paragraph-1": "Thank you for signing up for the <strong>waiting list</strong> of {{website}}. You’ll be among the first to know when registrations open, the dates for in-person classes, and the first online modules (Word, Excel, PowerPoint, Outlook, computer basics, etc.).",
+  "paragraph-2": "We are finalizing the program and the certificates approved by <strong><a href='{{link}}' target='_blank' style='color:#334155;'>{{inefop}}</a></strong>. Until then, follow our updates and prepare for your learning journey!",
+  "discover": "Discover {{website}}",
+  "subtitle": "Your registration is recorded ✅",
+  "news": "We will send you an email as soon as the courses are available online. In the meantime, feel free to visit <strong>{{location}}</strong> for in-person classes.",
+  "bottom": "If you did not initiate this registration, please ignore this email. For any questions, simply reply to this message or contact&nbsp;: <a href='mailto:{{email}}' style='color:#0b64ee; text-decoration:none;'>{{email}}</a>.",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "All rights reserved."
+}

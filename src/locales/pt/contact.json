@@ -1,0 +1,45 @@
+{
+  "title-page": "Contacto - Dandela Academy",
+  "description-page": "Contacte-nos através do nosso formulário de contacto.",
+  "title": "Contacto",
+  "subtitle": "Partilhe connosco as suas dúvidas ou projetos.",
+  "email": "Email",
+  "location": "Localização",
+  "phone": "Telefone",
+  "loading": "A enviar...",
+  "form": {
+    "name": "Nome completo",
+    "email": "Email",
+    "phone": "Telefone",
+    "ok-whatsapp": "Contacto via WhatsApp?",
+    "type": "Tipo de pedido",
+    "message": "Mensagem",
+    "send": "Enviar",
+    "errors": {
+      "name": "O nome deve conter entre {{min}} e {{max}} caracteres.",
+      "email": "Insira um endereço de email válido (ex.: xyz@exemplo.com)",
+      "type": "Selecione um tipo",
+      "phone": "Insira um telefone válido",
+      "message": "A mensagem deve conter entre {{min}} e {{max}} caracteres.",
+      "main": "Verifique o formulário antes de continuar."
+    }
+  },
+  "types": {
+    "program": "Programa escolar",
+    "pedagogy": "Acompanhamento pedagógico",
+    "support": "Suporte técnico",
+    "billing": "Faturação",
+    "b2b": "Parcerias, patrocínios, etc.",
+    "trainer": "Tornar-se formador",
+    "press": "Mídia, resenhas de imprensa, etc.",
+    "events": "Eventos",
+    "feedback": "Feedback técnico",
+    "privacy": "Política de privacidade",
+    "careers": "Carreiras",
+    "other": "Outro"
+  },
+  "success": {
+    "title": "A mensagem foi enviada com sucesso!",
+    "subtitle": "Obrigado pelo seu pedido, responderemos dentro de <strong>48h</strong>."
+  }
+}

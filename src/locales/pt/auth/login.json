@@ -1,0 +1,21 @@
+{
+  "title-page": "Dandela Academy - Iniciar sessão",
+  "description-page": "Inicie sessão na plataforma da Dandela Academy",
+  "login": {
+    "title": "Iniciar sessão",
+    "subtitle": "Ainda não tem conta?",
+    "signup": "Registe-se gratuitamente"
+  },
+  "signup": {
+    "title": "Registar-se",
+    "subtitle": "Já tem uma conta?",
+    "login": "Inicie sessão",
+    "accept": "Aceito os",
+    "terms": "Termos",
+    "privacy": "Política de Privacidade"
+  },
+  "connected": {
+    "title": "Já iniciou sessão",
+    "subtitle": "Clique no botão para aceder ao seu painel"
+  }
+}

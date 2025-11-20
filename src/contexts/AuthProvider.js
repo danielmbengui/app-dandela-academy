@@ -33,7 +33,7 @@ import {
 import { useLanguage } from './LangProvider';
 //import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
 import { useTranslation } from 'react-i18next';
-import { NS_AUTH_ERRORS } from '@/contexts/i18n/settings';
+import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
 import { auth, firestore } from '@/contexts/firebase/config';
 import { ClassUserExtern } from '@/classes/users/extern/ClassUserExtern';
@@ -53,7 +53,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
     const router = useRouter();
     const { lang } = useLanguage();
-    const { t } = useTranslation([NS_AUTH_ERRORS])
+    const { t } = useTranslation([NS_ERRORS])
 
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
@@ -218,13 +218,13 @@ export function AuthProvider({ children }) {
             //setIsConnected(false);
             //setIsErrorSignIn(true);
             if (errorCode === ClassUser.ERROR.INVALID_CREDENTIAL) {
-                errorMessage = t(`${NS_AUTH_ERRORS}:invalid-credential`);
+                errorMessage = t(`${NS_ERRORS}:invalid-credential`);
             } else if (errorCode === ClassUser.ERROR.NOT_FOUND) {
-                errorMessage = translateWithVars(t(`${NS_AUTH_ERRORS}:wrong-email`), { email: email });
+                errorMessage = translateWithVars(t(`${NS_ERRORS}:wrong-email`), { email: email });
             } else if (errorCode === ClassUser.ERROR.WRONG_PASSWORD) {
-                errorMessage = translateWithVars(t(`${NS_AUTH_ERRORS}:wrong-password`), { password: password });
+                errorMessage = translateWithVars(t(`${NS_ERRORS}:wrong-password`), { password: password });
             } else if (errorCode === ClassUser.ERROR.TOO_MANY_REQUESTS) {
-                errorMessage = translateWithVars(t(`${NS_AUTH_ERRORS}:wrong-password`), { password: password });
+                errorMessage = translateWithVars(t(`${NS_ERRORS}:wrong-password`), { password: password });
             }
 
             console.log("ERRRRRROR", errorCode, errorMessage, email, password);
@@ -240,15 +240,13 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const logout = async ({redirect=true,redirectLink=PAGE_HOME}) => {
+    const logout = async () => {
         setUser(null);
         setIsConnected(false);
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
         await signOut(auth);
-        if(redirect) {
-            router.replace(redirectLink);
-        }
+       // router.replace("/");
         console.log("DISC OK");
     };
 

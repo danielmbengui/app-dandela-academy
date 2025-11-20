@@ -1,0 +1,11 @@
+{
+    "socials": "Social network (Facebook, WhatsApp, Instagram, TikTok, LinkedIn, etc.)",
+    "friend": "A friend / Family / An acquaintance told me about it",
+    "school": "Through my school / university",
+    "work": "Through my company / employer",
+    "advertising": "Local advertising (radio, TV, posters)",
+    "google": "Google search",
+    "ia": "An artificial intelligence (grok, chatgpt, gemini, etc.)",
+    "other": "Other (specify)"
+  }
+  

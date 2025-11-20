@@ -1,0 +1,21 @@
+{
+    "title-page": "Dandela Academy - Connexion",
+    "description-page": "Se conneter à la plateforme de Dandela Academy",
+    "login": {
+        "title":"Connexion",
+        "subtitle":"Tu n'as pas encore de compte ?",
+        "signup":"Inscris toi gratuitement"
+    },
+    "signup": {
+        "title":"S'inscrire",
+        "subtitle":"Tu as déjà un compte ?",
+        "login":"Connecte-toi",
+        "accept":"J'accepte les",
+        "terms":"Termes",
+        "privacy":"Politique de confidentialité"
+    },
+    "connected": {
+        "title":"Tu es déjà connecté",
+        "subtitle":"Clique sur le bouton pour accéder à ton tableau de bord"
+    }
+}

@@ -1,0 +1,45 @@
+{
+  "title-page": "Contact - Dandela Academy",
+  "description-page": "Contact us through our contact form.",
+  "title": "Contact",
+  "subtitle": "Share your questions or projects with us.",
+  "email": "Email",
+  "location": "Location",
+  "phone": "Phone",
+  "loading": "Sending...",
+  "form": {
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "ok-whatsapp": "Contact via WhatsApp?",
+    "type": "Request type",
+    "message": "Message",
+    "send": "Send",
+    "errors": {
+      "name": "The name must contain between {{min}} and {{max}} characters.",
+      "email": "Enter a valid email address (e.g., xyz@example.com)",
+      "type": "Select a type",
+      "phone": "Enter a valid phone number",
+      "message": "The message must contain between {{min}} and {{max}} characters.",
+      "main": "Check the form before continuing."
+    }
+  },
+  "types": {
+    "program": "School program",
+    "pedagogy": "Pedagogical support",
+    "support": "Technical support",
+    "billing": "Billing",
+    "b2b": "Partnerships, sponsorship, etc.",
+    "trainer": "Become a trainer",
+    "press": "Media, press reviews, etc.",
+    "events": "Events",
+    "feedback": "Technical feedback",
+    "privacy": "Privacy policy",
+    "careers": "Careers",
+    "other": "Other"
+  },
+  "success": {
+    "title": "The message has been sent successfully!",
+    "subtitle": "Thank you for your request, we will reply within <strong>48h</strong>."
+  }
+}

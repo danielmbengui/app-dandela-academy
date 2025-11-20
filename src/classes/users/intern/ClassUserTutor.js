@@ -15,6 +15,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
+import { PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS } from "@/contexts/constants/constants_pages";
+import { IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
 import { ClassUserIntern } from "./ClassUserIntern";
 
 export class ClassUserTutor extends ClassUserIntern {
@@ -91,11 +93,36 @@ export class ClassUserTutor extends ClassUserIntern {
 
     /**************** PAGES ****************/
     pageDashboard() {
-        return;
+        return (PAGE_DASHBOARD_HOME)
     }
     /**************** MENU ****************/
     menuDashboard() {
         return [
+            {
+                name: "dashboard",
+                path: PAGE_DASHBOARD_HOME,
+                icon: <IconHome width={22} height={22} />,
+            },
+            {
+                name: "lessons",
+                path: PAGE_DASHBOARD_LESSONS,
+                icon: <IconLessons width={18} height={18} />,
+            },
+            {
+                name: "tutors",
+                path: PAGE_DASHBOARD_TUTORS,
+                icon: <IconTutors width={18} height={18} />,
+            },
+            {
+                name: "students",
+                path: PAGE_DASHBOARD_STUDENTS,
+                icon: <IconStudents width={18} height={18} />,
+            },
+            {
+                name: "profile",
+                path: PAGE_DASHBOARD_PROFILE,
+                icon: <IconProfile width={22} height={22} />,
+            },
             /*
             {
                 name: "settings",

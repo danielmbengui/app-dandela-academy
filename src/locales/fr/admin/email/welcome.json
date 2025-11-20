@@ -1,0 +1,48 @@
+{
+    "subject": "📝 Nouvelle inscription",
+    "text": "Un utilisateur vient de s'inscrire à la liste d'attente.",
+    "title": "La liste d'attente s'aggrandit !",
+    "paragraph-1": "Un nouvel utilisateur vient de s'inscrire à la <strong>liste d'attente</strong> :",
+    "form": {
+        "lastname": "Nom",
+        "firstname": "Prénom",
+        "birthday": "Date de naissance",
+        "email": "Email",
+        "role": "Type",
+        "level": "Niveau",
+        "goals": "Objectifs",
+        "phone": "Téléphone",
+        "lang": "Langue préférée",
+        "how-know": "Source ?",
+        "ok-whatsapp": "OK WhatsApp ?",
+        "newsletter": "Newsletter ?"
+    },
+    "roles": {
+        "student": "Étudiant",
+        "professional": "Professionnel"
+    },
+    "levels":{
+        "beginner":"Débutant",
+        "intermediate":"Intermédiaire",
+        "advanced":"Avancé"
+    },
+    "how-know":{
+        "socials":"Réseau social",
+        "friend":"Un membre de l'entourage",
+        "school":"École / Université",
+        "work":"Entreprise / Employeur",
+        "advertising":"Publicités",
+        "google":"Recherche Google",
+        "ia":"Une IA (grok, chatgpt, gemini, etc.)",
+        "other":"Autre (préciser)"
+    },
+    "tips": {
+        "title": "Les utilisateurs augmentent 📈",
+        "subtitle": "Il y a actullement <b>{{count}}</b> utilisateurs inscrits à la liste d'attente."
+    },
+    "dashboard": "Rejoindre le tableau de bord",
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "Tous droits réservés.",
+    "yes": "Oui",
+    "no": "Non"
+}

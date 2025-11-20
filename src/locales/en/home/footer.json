@@ -1,0 +1,22 @@
+{
+    "about": {
+      "title": "About us",
+      "subtitle": "Dandela Academy is a modern online school, certified and approved by INEFOP, offering digital and professional training accessible everywhere.",
+      "schedule": {
+        "title": "Opening hours",
+        "hours": [
+          "Monday – Saturday (8am – 6pm)",
+          "Sunday – Closed"
+        ]
+      }
+    },
+    "navigation": {
+      "title": "Navigation"
+    },
+    "lessons": {
+      "title": "Our courses"
+    },
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "All rights reserved."
+  }
+  

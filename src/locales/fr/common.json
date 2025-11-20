@@ -1,3 +1,18 @@
 {
-    "title-page":"Dandela Academy App - Connexion"
+    "title-page": "Accueil - Dandela Academy",
+    "description-page": "Une école en ligne innovante qui forme étudiants et professionnels aux métiers du digital et de l’intelligence artificielle.",
+    "hello": "Salut",
+    "welcome": "Bienvenue",
+    "language": "Langue",
+    "loading": "Chargement...",
+    "day": "Jour",
+    "month": "Mois",
+    "year": "Année",
+    "yes": "Oui",
+    "no": "Non",
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "Tous droits réservés.",
+    "and":"et",
+    "light":"Clair",
+    "dark":"Sombre"
 }

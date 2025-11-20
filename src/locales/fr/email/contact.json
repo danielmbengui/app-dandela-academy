@@ -1,0 +1,43 @@
+{
+    "subject":"Confirmation",
+    "title": "Merci pour votre message !",
+    "paragraph-1": "Nous vous contacterons <b>sous 48h</b> ! Entre temps n'hésitez pas à consulter notre site internet, notre groupe whatsapp et nous suivre sur nos différents réseaux sociaux !",
+    "infos": "Vos informations",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "ok-whatsapp": "Contact via WhatsApp ?",
+    "type": "Type de demande",
+    "message": "Message",
+    "no-reply": "Ne pas répondre à ce message ! Il ne sera jamais lu !",
+    "yes": "Oui",
+    "no": "Non",
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "Tous droits réservés.",
+    "admin": {
+        "subject":"Formulaire de contact",
+        "title": "Nouveau message !",
+        "paragraph-1": "Un utilisateur a sollicité nos services le {{date}} ! Veuillez répondre à sa demande.",
+        "infos": "Les informations",
+        "type": "Type de demande",
+        "name": "Nom",
+        "email": "Email",
+        "phone": "Téléphone",
+        "ok-whatsapp": "Contact via WhatsApp ?",
+        "message": "Message"
+    },
+    "types": {
+        "program": "Programme scolaire",
+        "pedagogy": "Suivi Pédagogique",
+        "support": "Support technique",
+        "billing": "Facturation",
+        "b2b": "Partenariats, sponsoring, etc.",
+        "trainer": "Devenir formateur",
+        "press": "Médias, revues de presse, etc.",
+        "events": "Évènements",
+        "feedback": "Retour technique",
+        "privacy": "Politique de confidentialité",
+        "careers": "Carrières",
+        "other": "Autre"
+    }
+}

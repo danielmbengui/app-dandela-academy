@@ -1,0 +1,43 @@
+{
+  "subject": "Confirmation",
+  "title": "Thank you for your message!",
+  "paragraph-1": "We will contact you <b>within 48h</b>! In the meantime, feel free to visit our website, join our WhatsApp group, and follow us on our social networks!",
+  "infos": "Your information",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
+  "ok-whatsapp": "Contact via WhatsApp?",
+  "type": "Request type",
+  "message": "Message",
+  "no-reply": "Do not reply to this message! It will never be read!",
+  "yes": "Yes",
+  "no": "No",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "All rights reserved.",
+  "admin": {
+    "subject": "Contact form",
+    "title": "New message!",
+    "paragraph-1": "A user requested our services on {{date}}! Please respond to their request.",
+    "infos": "Information",
+    "type": "Request type",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "ok-whatsapp": "Contact via WhatsApp?",
+    "message": "Message"
+  },
+  "types": {
+    "program": "School program",
+    "pedagogy": "Pedagogical support",
+    "support": "Technical support",
+    "billing": "Billing",
+    "b2b": "Partnerships, sponsorship, etc.",
+    "trainer": "Become a trainer",
+    "press": "Media, press reviews, etc.",
+    "events": "Events",
+    "feedback": "Technical feedback",
+    "privacy": "Privacy policy",
+    "careers": "Careers",
+    "other": "Other"
+  }
+}

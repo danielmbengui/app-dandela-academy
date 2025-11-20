@@ -1,0 +1,14 @@
+{
+    "subject":"Bienvenue chez {{website}}",
+    "text":"{{first_name}} {{last_name}}, merci pour votre inscription à la liste d’attente de {{website}}. Nous vous avertirons dès l’ouverture des inscriptions et des nouveaux cours. Site : {{link}}. Contact : {{email}}.",
+    "welcome":"Bienvenue",
+    "title":"Bienvenue {{name}} 👋",
+    "paragraph-1":"Merci de vous être inscrit(e) à la <strong>liste d’attente</strong> de {{website}}. Vous serez parmi les premiers informés de l’ouverture des inscriptions, des dates de cours en présentiel et des premiers modules en ligne (Word, Excel, PowerPoint, Outlook, bases de l’informatique, etc.).",
+    "paragraph-2":"Nous finalisons le programme et les certificats approuvés par l'<strong><a href='{{link}}' target='_blank' style='color:#334155;'>{{inefop}}</a></strong>. D’ici là, suivez nos mises à jour et préparez votre parcours de formation !",
+    "discover":"Découvrir {{website}}",
+    "subtitle":"Votre inscription est enregistrée ✅",
+    "news":"Nous vous enverrons un e-mail dès que les cours seront disponibles en ligne. En attendant, n'hésitez à vous rendre à <strong>{{location}}</strong> pour les cours en présentiels.",
+    "bottom":"Si vous n’êtes pas à l’origine de cette inscription, ignorez cet e-mail. Pour toute question, répondez simplement à ce message ou contactez&nbsp;: <a href='mailto:{{email}}' style='color:#0b64ee; text-decoration:none;'>{{email}}</a>.",
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "Tous droits réservés."
+}

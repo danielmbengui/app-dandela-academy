@@ -1,3 +1,18 @@
 {
-  "title-page": "Dandela Academy App - Login"
+  "title-page": "Home - Dandela Academy",
+  "description-page": "An innovative online school training students and professionals in digital careers and artificial intelligence.",
+  "hello": "Hello",
+  "welcome": "Welcome",
+  "language": "Language",
+  "loading": "Loading...",
+  "day": "Day",
+  "month": "Month",
+  "year": "Year",
+  "yes": "Yes",
+  "no": "No",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "All rights reserved.",
+  "and": "and",
+  "light": "Light",
+  "dark": "Dark"
 }

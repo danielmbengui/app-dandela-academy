@@ -1,0 +1,48 @@
+{
+  "subject": "📝 New registration",
+  "text": "A user has just signed up for the waiting list.",
+  "title": "The waiting list is growing!",
+  "paragraph-1": "A new user has just registered on the <strong>waiting list</strong>:",
+  "form": {
+    "lastname": "Last name",
+    "firstname": "First name",
+    "birthday": "Date of birth",
+    "email": "Email",
+    "role": "Type",
+    "level": "Level",
+    "goals": "Goals",
+    "phone": "Phone",
+    "lang": "Preferred language",
+    "how-know": "Source?",
+    "ok-whatsapp": "OK WhatsApp?",
+    "newsletter": "Newsletter?"
+  },
+  "roles": {
+    "student": "Student",
+    "professional": "Professional"
+  },
+  "levels": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "how-know": {
+    "socials": "Social network",
+    "friend": "A friend or acquaintance",
+    "school": "School / University",
+    "work": "Company / Employer",
+    "advertising": "Advertising",
+    "google": "Google search",
+    "ia": "An AI (grok, chatgpt, gemini, etc.)",
+    "other": "Other (specify)"
+  },
+  "tips": {
+    "title": "Users are increasing 📈",
+    "subtitle": "There are currently <b>{{count}}</b> users registered on the waiting list."
+  },
+  "dashboard": "Go to dashboard",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "All rights reserved.",
+  "yes": "Yes",
+  "no": "No"
+}

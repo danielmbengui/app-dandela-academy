@@ -1,0 +1,15 @@
+{
+    "subject": "Bem-vindo(a) ao {{website}}",
+    "text": "{{first_name}} {{last_name}}, obrigado por se inscrever na lista de espera da {{website}}. Avisaremos assim que as inscrições e os novos cursos forem abertos. Site: {{link}}. Contacto: {{email}}.",
+    "welcome": "Bem-vindo(a)",
+    "title": "Bem-vindo(a) {{name}} 👋",
+    "paragraph-1": "Obrigado por se inscrever na <strong>lista de espera</strong> da {{website}}. Será um(a) dos(as) primeiros(as) a ser informado(a) sobre a abertura das inscrições, as datas das aulas presenciais e os primeiros módulos online (Word, Excel, PowerPoint, Outlook, noções básicas de informática, etc.).",
+    "paragraph-2": "Estamos a finalizar o programa e os certificados aprovados pelo <strong><a href='{{link}}' target='_blank' style='color:#334155;'>{{inefop}}</a></strong>. Até lá, acompanhe as nossas atualizações e prepare o seu percurso de formação!",
+    "discover": "Descobrir {{website}}",
+    "subtitle": "A sua inscrição foi registada ✅",
+    "news": "Enviar-lhe-emos um email assim que os cursos estiverem disponíveis online. Entretanto, sinta-se à vontade para dirigir-se a <strong>{{location}}</strong> para as aulas presenciais.",
+    "bottom": "Se não foi você quem fez esta inscrição, ignore este email. Para quaisquer questões, responda a esta mensagem ou contacte&nbsp;: <a href='mailto:{{email}}' style='color:#0b64ee; text-decoration:none;'>{{email}}</a>.",
+    "copyright": "©{{year}} {{website}}.",
+    "all-rights": "Todos os direitos reservados."
+  }
+  

@@ -1,0 +1,43 @@
+{
+  "subject": "Confirmação",
+  "title": "Obrigado pela sua mensagem!",
+  "paragraph-1": "Entraremos em contacto consigo <b>dentro de 48h</b>! Entretanto, visite o nosso site, junte-se ao nosso grupo WhatsApp e siga-nos nas nossas redes sociais!",
+  "infos": "As suas informações",
+  "name": "Nome",
+  "email": "Email",
+  "phone": "Telefone",
+  "ok-whatsapp": "Contacto via WhatsApp?",
+  "type": "Tipo de pedido",
+  "message": "Mensagem",
+  "no-reply": "Não responda a esta mensagem! Nunca será lida!",
+  "yes": "Sim",
+  "no": "Não",
+  "copyright": "©{{year}} {{website}}.",
+  "all-rights": "Todos os direitos reservados.",
+  "admin": {
+    "subject": "Formulário de contacto",
+    "title": "Nova mensagem!",
+    "paragraph-1": "Um utilizador solicitou os nossos serviços em {{date}}! Por favor, responda ao pedido.",
+    "infos": "Informações",
+    "type": "Tipo de pedido",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefone",
+    "ok-whatsapp": "Contacto via WhatsApp?",
+    "message": "Mensagem"
+  },
+  "types": {
+    "program": "Programa escolar",
+    "pedagogy": "Acompanhamento pedagógico",
+    "support": "Suporte técnico",
+    "billing": "Faturação",
+    "b2b": "Parcerias, patrocínios, etc.",
+    "trainer": "Tornar-se formador",
+    "press": "Mídia, resenhas de imprensa, etc.",
+    "events": "Eventos",
+    "feedback": "Feedback técnico",
+    "privacy": "Política de privacidade",
+    "careers": "Carreiras",
+    "other": "Outro"
+  }
+}

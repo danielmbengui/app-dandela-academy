@@ -1,0 +1,21 @@
+{
+  "title-page": "Dandela Academy - Login",
+  "description-page": "Log in to the Dandela Academy platform",
+  "login": {
+    "title": "Login",
+    "subtitle": "Don’t have an account yet?",
+    "signup": "Sign up for free"
+  },
+  "signup": {
+    "title": "Sign up",
+    "subtitle": "Already have an account?",
+    "login": "Log in",
+    "accept": "I accept the",
+    "terms": "Terms",
+    "privacy": "Privacy Policy"
+  },
+  "connected": {
+    "title": "You are already logged in",
+    "subtitle": "Click the button to access your dashboard"
+  }
+}
