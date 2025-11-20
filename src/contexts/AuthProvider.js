@@ -80,7 +80,6 @@ export function AuthProvider({ children }) {
                 setIsLoading(false);
                 return;
             }
-
             const data = snap.data();
             console.log("DATA listne user", data);
             const { email_verified } = data;

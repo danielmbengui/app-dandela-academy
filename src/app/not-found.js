@@ -1,6 +1,4 @@
-import ErrorMain from "@/components/error/ErrorMain";
-import PageWrapper from "@/components/home/layout/PageWrapper";
-import ThemeController from "@/components/home/others/ThemeController";
+import ThemeController from "@/components/shared/ThemeController";
 import { PAGE_HOME, PAGE_NOT_FOUND } from "@/contexts/constants/constants_pages";
 import { NS_ERRORS } from "@/contexts/i18n/settings";
 import { generatePageMetadata } from "@/contexts/seo/metadata";
@@ -12,12 +10,12 @@ export const generateMetadata = generatePageMetadata({
 
 const NotFound = () => {
   return (
-    <PageWrapper>
+    <>
       <main>
-        <ErrorMain />
+        MERDE
       </main>
       <ThemeController />
-    </PageWrapper>
+    </>
   );
 };
 

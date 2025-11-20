@@ -13,8 +13,8 @@ import {
     Timestamp,
     where,
 } from "firebase/firestore";
-import { firestore } from "@/libs/firebase/config";
-import { defaultLanguage } from "@/libs/i18n/settings";
+import { firestore } from "@/contexts/firebase/config";
+import { defaultLanguage } from "@/contexts/i18n/settings";
 import { PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS } from "@/contexts/constants/constants_pages";
 import { IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
 import { ClassUser } from "../ClassUser";

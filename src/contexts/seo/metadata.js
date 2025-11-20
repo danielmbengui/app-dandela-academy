@@ -1,7 +1,7 @@
 // lib/seo/metadata.js
-import { getPreferredLocale } from "@/libs/i18n/detect-locale";
-import { languages, defaultLanguage } from "@/libs/i18n/settings";
-import { getTranslations } from "@/libs/i18n/init";
+import { getPreferredLocale } from "@/contexts/i18n/detect-locale";
+import { languages, defaultLanguage } from "@/contexts/i18n/settings";
+import { getTranslations } from "@/contexts/i18n/init";
 
 // lit l’URL base depuis l’env (gère tes 2 variantes de nommage)
 function getBaseUrl() {

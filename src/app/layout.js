@@ -15,7 +15,6 @@ import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_HOME } from "@/contexts/constants/constants_pages";
 import { defaultLanguage, languages, NS_HOME } from "@/contexts/i18n/settings";
 import Preloader from "@/components/shared/Preloader";
-import Shadow from "@/components/shared/Shadow";
 
 export const inter = Inter({
   subsets: ["latin"],
@@ -55,12 +54,6 @@ export default async function RootLayout({ children }) {
        <Providers>
        <Preloader />
         {children}
-
-        {/* theme fixed shadow */}
-        <div>
-          <Shadow />
-          <Shadow align={"right"} />
-        </div>
        </Providers>
       </body>
     </html>
