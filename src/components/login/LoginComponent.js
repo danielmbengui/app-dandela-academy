@@ -26,6 +26,7 @@ export default function LoginComponent({ setIsLogin = null }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMail, setErrorMail] = useState('');
+    const [isErrorActivate, setIsErrorActivate] = useState(false);
     const [isError, setIsError] = useState(false);
     const [error, setError] = useState(<></>);
     const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +36,7 @@ export default function LoginComponent({ setIsLogin = null }) {
         notValid = errors['email-not-valid'],
         notDandela = errors['email-not-dandela-academy'],
         notFound = errors['email-not-found'] || '',
+        notActivatedText = errors['email-not-activated'] || '',
         resetError = errors['reset-failed'] } = errors;
     return (<LoginPageWrapper>
         <Stack spacing={3} sx={{ color: text.main, width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'white', borderRadius: '5px' }}>
@@ -52,6 +54,7 @@ export default function LoginComponent({ setIsLogin = null }) {
                         label={t('label-email')}
                         name='email'
                         type="email"
+                        disabled={isLoading || isErrorActivate}
                         icon={<IconEmail width={20} />}
                         placeholder={t('placeholder-email')}
                         value={email}
@@ -77,6 +80,7 @@ export default function LoginComponent({ setIsLogin = null }) {
                         type="password"
                         placeholder={t('placeholder-password')}
                         value={password}
+                        disabled={isLoading || isErrorActivate}
                         onChange={(e) => {
                             e.preventDefault();
                             setPassword(e.target.value);
@@ -93,21 +97,25 @@ export default function LoginComponent({ setIsLogin = null }) {
                         fullWidth
                     />
                 </Stack>
-                <Link href={PAGE_FORGOT_PASSWORD} style={{ color: ClassColor.GREY_LIGHT }}>
+                
+                {
+                    !isErrorActivate && !isLoading && <Link href={PAGE_FORGOT_PASSWORD} style={{ color: ClassColor.GREY_LIGHT }}>
                     {t('btn-forgot-password')}
                 </Link>
+                }
             </Stack>
             {
                 isError && (error)
             }
 
-            <ButtonNextComponent
+{
+    !isErrorActivate && !isLoading &&             <ButtonNextComponent
                 loading={isLoading}
                 label={t('btn-connect')}
-                disabled={email === '' || password === ''}
+                disabled={email === '' || password === '' || isErrorActivate}
                 onClick={async () => {
                     setIsLoading(true);
-                    setErrorMail('');
+                    setIsErrorActivate('');
                     setIsError(false);
                     setError(<></>);
 
@@ -123,6 +131,14 @@ export default function LoginComponent({ setIsLogin = null }) {
                         if (!_user) {
                             setIsError(true);
                             setError(<AlertComponent title={notFound} severity="error" />);
+                            return;
+                        }
+                        //notActivatedText
+                        if (!_user.activated) {
+                            setIsErrorActivate(true);
+                            setIsError(true);
+                            setError(<AlertComponent title={notActivatedText} subtitle={<Link style={{fontWeight:'bold', color:primary.main}} href={PAGE_ACTIVE_ACCOUNT}>{t('subtitle')}</Link>
+                            } severity="error" />);
                             return;
                         }
                         const result = await login(_user.email, password);
@@ -141,9 +157,14 @@ export default function LoginComponent({ setIsLogin = null }) {
                     }
                 }}
             />
-            <Typography sx={{ color: ClassColor.GREY_LIGHT }}>
+}
+
+            {
+                !isErrorActivate && !isLoading && <Typography sx={{ color: ClassColor.GREY_LIGHT }}>
                 {t('want-active')} <Link href={PAGE_ACTIVE_ACCOUNT} style={{ color: primary.main }}>{t('active-account')}</Link>
             </Typography>
+            }
+            
         </Stack>
     </LoginPageWrapper>);
 }

@@ -1,10 +1,29 @@
 {
-    "title-page": "Activer compte - App Dandela Academy",
-    "description-page": "Activer son compte pour utiliser la plateforme de Dandela Academy",
+    "title-page": "Activer mon compte - App Dandela Academy",
+    "description-page": "Activer son compte pour la connexion à la plateforme de Dandela Academy",
     "title": "Activer mon compte",
-    "subtitle": "Connecte toi",
-    "login": "Connecte-toi",
-    "accept": "J'accepte les",
-    "terms": "Termes",
-    "privacy": "Politique de confidentialité"
+    "subtitle": "Se connecter",
+    "label-email": "Adresse e-mail personnel",
+    "placeholder-email": "Saisis ton adresse e-mail",
+    "label-email-academy": "Adresse e-mail compte",
+    "placeholder-email-academy": "Saisis ton adresse e-mail fournie par Dandela",
+    "label-password": "Mot de passe",
+    "label-repeat-password": "Mot de passe",
+    "placeholder-password": "Saisis ton mot de passe",
+    "placeholder-repeat-password": "Répète ton mot de passe",
+    "btn-forgot-password": "Mot de passe oublié ?",
+    "btn-active":"Activer",
+    "want-connect": "Tu as déjà activé ton compte ?",
+    "btn-connect":"Se connecter",
+
+    "btn-home":"Aller à la page description connexion",
+    "success-message": "Vous êtes connecté à votre compte",
+    "error-message": "Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.",
+    "errors":{
+        "email-not-valid":"Veuiller entrer un email valide",
+        "email-not-dandela-academy":"Veuiller entrer un email appartenant à Dandela Academy",
+        "email-not-found":"Aucun compte n'est associé à cette adresse e-mail",
+        "reset-failed":"Veuiller corriger les erreurs avant de continuer",
+        "main":"Une erreur est survenue. Veuillez réessayer plus tard."
+    }
 }

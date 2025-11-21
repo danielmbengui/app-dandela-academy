@@ -15,7 +15,7 @@ import ButtonNextComponent from '@/components/elements/ButtonNextComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { useRouter } from 'next/navigation';
-import { PAGE_LOGIN } from '@/contexts/constants/constants_pages';
+import { PAGE_ACTIVE_ACCOUNT, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
 import { ClassColor } from '@/classes/ClassColor';
 
 const HomePageComponent = () => {
@@ -51,7 +51,7 @@ export default function Home() {
         //loading={isLoading}
         label={t('btn-login')}
         onClick={async () => {
-          router.replace(PAGE_LOGIN);
+          router.push(PAGE_LOGIN);
         }}
         fullWidth
       />
@@ -59,7 +59,7 @@ export default function Home() {
         //loading={isLoading}
         label={t('btn-activate')}
         onClick={async () => {
-          //router.replace(PAGE_DASHBOARD_HOME);
+          router.push(PAGE_ACTIVE_ACCOUNT);
         }}
         fullWidth
       />

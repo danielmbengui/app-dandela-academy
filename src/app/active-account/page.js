@@ -7,7 +7,8 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import LoginComponent from '@/components/login/LoginComponent';
+import RegisterComponent from '@/components/login/RegisterComponent';
 
-export default function Login() {
-  return(<LoginComponent />);
+export default function Register() {
+  return(<RegisterComponent />);
 }

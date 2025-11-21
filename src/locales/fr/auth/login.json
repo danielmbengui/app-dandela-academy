@@ -19,6 +19,7 @@
         "email-not-valid":"Veuiller entrer un email valide",
         "email-not-dandela-academy":"Veuiller entrer un email terminant par : @dandela-academy.com",
         "email-not-found":"Aucun compte n'est associé à cette adresse e-mail",
+        "email-not-activated":"Ton compte n'est pas encore actif",
         "reset-failed":"Veuiller corriger les erreurs avant de continuer",
         "main":"Une erreur est survenue. Veuillez réessayer plus tard."
     }

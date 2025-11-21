@@ -130,7 +130,7 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
                         }
                         try {
                             console.log("USSSSR", _user)
-                            await sendResetPassword(e, email);
+                            await sendResetPassword(e, _user.email);
                             setIsSuccess(true);
                             setSuccess(<AlertEmailContent title={textSuccess} email={_user.email} />)
                             setIsError(false);

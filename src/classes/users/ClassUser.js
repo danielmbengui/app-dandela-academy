@@ -48,6 +48,8 @@ export class ClassUser {
     });
     static STATUS = Object.freeze({
         CREATED: 'CREATED',
+        VALIDATED_BY_TEAM: 'VALIDATED_BY_TEAM',
+        MUST_ACTIVATE: 'MUST_ACTIVATE',
         FIRST_CONNEXION: 'FIRST_CONNEXION',
         MUST_VERIFY_MAIL: 'MUST_VERIFY_MAIL',
         MUST_ACCEPT_PRIVACY: 'MUST_ACCEPT_PRIVACY',
@@ -82,6 +84,7 @@ export class ClassUser {
         uid = "",
         type = -1,
         role = "",
+        verified_by_team = false,
         first_name = "",
         last_name = "",
         display_name = "",
@@ -89,6 +92,7 @@ export class ClassUser {
         email = "",
         email_academy = "",
         email_verified = false,
+        activated = false,
         created_time = new Date(),
         last_edit_time = new Date(),
         birthday = null,
@@ -100,11 +104,13 @@ export class ClassUser {
         this._uid = uid;
         this._type = type;
         this._role = role;
+        this._verified_by_team = verified_by_team;
         this._email = email;
         this._email_academy = email_academy;
         this._first_name = first_name;
         this._last_name = last_name;
         this._email_verified = email_verified;
+        this.activated = activated;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
         this._birthday = birthday;
@@ -144,6 +150,8 @@ export class ClassUser {
 
     set preferred_language(val) { this._preferred_language = val; }
 
+    get verified_by_team() { return this._verified_by_team; }
+    set verified_by_team(val) { this._verified_by_team = val; }
     get email() { return this._email; }
     set email(val) { this._email = val; }
 
@@ -167,6 +175,11 @@ export class ClassUser {
 
     get status() { return this._status; }
     set status(val) { this._status = val; }
+
+    get activated() { return this._activated; }
+    set activated(val) { this._activated = val; }
+
+
     // --- GETTER utils ---
     getCompleteName() {
         return (`${this._first_name} ${this.last_name?.toUpperCase()}`)
@@ -529,11 +542,22 @@ export class ClassUser {
     }
 
     // Mettre à jour un module
-    static async update(id, patch = {}, { bumpEditTime = true } = {}) {
-        const ref = ClassUser.docRef(id);
-        const data = bumpEditTime ? { ...patch, last_edit_time: serverTimestamp() } : patch;
-        await updateDoc(ref, data);
-        return (await getDoc(ref)).data(); // -> ClassModule
+    static async update(id, patch = {}) {
+        //const newRef = doc(this.colRef()); // id auto
+
+        try {
+            const ref = ClassUser.docRef(id);
+            //console.log("UPDATE START", id, ref);
+            const data = { ...patch, last_edit_time: serverTimestamp() };
+            //console.log("UPDATE LOG", data);
+            await updateDoc(ref, data, { merge: true });
+            //console.log("UPDATE COMPLETED")
+            return (await getDoc(ref)).data(); // -> ClassModule
+        } catch (e) {
+            //console.log("ERRROR", e);
+            return null;
+        }
+
     }
 
     // Supprimer un module

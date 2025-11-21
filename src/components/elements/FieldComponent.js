@@ -17,7 +17,7 @@ import TextFieldPhoneComponent from './TextFieldPhoneComponent';
 const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
 export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 1,
     icon = "", fullWidth = false,
-    prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry }) {
+    prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required=false }) {
     //console.log("FILED", name, type)
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
@@ -25,7 +25,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
         <div>
             {
                 label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block">
-                    {label}
+                    {label}{required && <b style={{color:'red'}}>*</b>}
                 </label>
             }
             {
