@@ -81,9 +81,9 @@ function DashboardPageWrapper({ children, ...props }) {
                     <Divider />
                     <List sx={{ background: 'black', width: '100%', height: '100%', borderRadius: '10px', }}>
                         {
-                            user?.menuDashboard().map((menuItem) => {
+                            user?.menuDashboard().map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
-                                return (<ListItem disableGutters sx={{ color: ClassColor.WHITE, background: 'red' }} key={menuItem.name} disablePadding>
+                                return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: ClassColor.WHITE, background: 'red' }} disablePadding>
                                     <ListItemButton sx={{ color: ClassColor.WHITE }} disableGutters>
                                         <Stack>
                                             <Stack direction={'row'} alignItems={'center'}>
@@ -97,7 +97,7 @@ function DashboardPageWrapper({ children, ...props }) {
                                                 hasSubs && <Stack sx={{ pl: 3, pr: 2, pt: 1.5 }}>
                                                     {
                                                         menuItem.subs?.map((item, i) => {
-                                                            return (<Stack direction={'row'} alignItems={'center'}>
+                                                            return (<Stack key={`${item.name}-${i}`} direction={'row'} alignItems={'center'}>
                                                                 {item.icon}
                                                                 <Typography fontSize={'15px'}>{t(item.name)}</Typography>
                                                             </Stack>)
