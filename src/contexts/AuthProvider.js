@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
             setUser((prev) => {
                 //var _user = prev;
 
-                console.log("FFFF subbb", data);
+               // console.log("FFFF subbb", data);
                 
 
                 if (!prev || prev === null) {

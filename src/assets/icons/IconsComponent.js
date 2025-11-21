@@ -218,16 +218,18 @@ export const IconLogoImage = ({width = 24, height = 24, color = 'inherit'}) => {
 }
 
 export const IconDropDown = ({ width = 24, height = 24, color = '' }) => {
-    return (<ArrowDropDownIcon fontSize={'medium'} sx={{color:color}} color={color} />)
+    return (<Icon icon="bxs:down-arrow" width={width} height={height} color={color} />)
 }
 export const IconDropUp = ({ width = 24, height = 24, color = '' }) => {
-    return (<ArrowDropUpIcon fontSize={'medium'} sx={{color:color}} color={color} />)
+    return (<Icon icon="bxs:up-arrow" width={width} height={height} color={color} />)
 }
 
 export const IconEmail = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="mdi-light:email" width={width} height={height} color={color} />)
 }
-
+export const IconTiktok = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:twotone-tiktok" width={width} height={height} color={color} />)
+}
 export const IconCertificate = ({ width = 24, height = 24, color = '', ...props }) => {
     return (<Icon icon="ph:certificate-fill" width={width} height={height} color={color} {...props} />)
 }
@@ -261,6 +263,9 @@ export const IconSuperAdmins = ({ width = 24, height = 24, color = '' }) => {
 }
 export const IconAdmins = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="eos-icons:admin-outlined" width={width} height={height} color={color} />)
+}
+export const IconDashboard = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="material-symbols:dashboard-rounded" width={width} height={height} color={color} />)
 }
 export const IconTeams = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="fluent:people-team-24-filled" width={width} height={height} color={color} />)

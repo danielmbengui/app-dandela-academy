@@ -17,8 +17,10 @@ import {
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS } from "@/contexts/constants/constants_pages";
-import { IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
+import { IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
 import { isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
+import { Avatar, Typography } from "@mui/material";
+import { ClassColor } from "../ClassColor";
 
 export class ClassUser {
     static ERROR = Object.freeze({
@@ -179,7 +181,15 @@ export class ClassUser {
     get activated() { return this._activated; }
     set activated(val) { this._activated = val; }
 
-
+    showAvatar() {
+        return (<Avatar
+            sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: 35, height: 35 }}
+            alt={this.getCompleteName()}
+            src={this._photo_url}
+        >
+            <Typography fontSize={'14px'}>{this.getInitials()}</Typography>
+        </Avatar>)
+    }
     // --- GETTER utils ---
     getCompleteName() {
         return (`${this._first_name} ${this.last_name?.toUpperCase()}`)
@@ -331,40 +341,38 @@ export class ClassUser {
     }
     /**************** MENU ****************/
     menuDashboard() {
-        return [
-            
-            {
-                name: "dashboard",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconHome width={22} height={22} />,
-                subs:[{
-                    name: "dashboard",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconHome width={22} height={22} />,
-                }]
-            },
-            /*
-            {
+        return [{
+            name: "dashboard",
+            path: PAGE_DASHBOARD_HOME,
+            icon: <IconDashboard width={20} height={20} />,
+            subs: [/*{
                 name: "lessons",
-                path: PAGE_DASHBOARD_LESSONS,
+                path: PAGE_DASHBOARD_HOME,
                 icon: <IconLessons width={18} height={18} />,
-            },
-            {
-                name: "tutors",
-                path: PAGE_DASHBOARD_TUTORS,
-                icon: <IconTutors width={18} height={18} />,
-            },
-            {
-                name: "students",
-                path: PAGE_DASHBOARD_STUDENTS,
-                icon: <IconStudents width={18} height={18} />,
-            },
-            */
-            {
-                name: "profile",
-                path: PAGE_DASHBOARD_PROFILE,
-                icon: <IconProfile width={22} height={22} />,
-            },
+            }*/]
+        },
+        /*
+        {
+            name: "lessons",
+            path: PAGE_DASHBOARD_LESSONS,
+            icon: <IconLessons width={18} height={18} />,
+        },
+        {
+            name: "tutors",
+            path: PAGE_DASHBOARD_TUTORS,
+            icon: <IconTutors width={18} height={18} />,
+        },
+        {
+            name: "students",
+            path: PAGE_DASHBOARD_STUDENTS,
+            icon: <IconStudents width={18} height={18} />,
+        },
+        */
+        {
+            name: "profile",
+            path: PAGE_DASHBOARD_PROFILE,
+            icon: <IconProfile width={20} height={20} />,
+        },
             /*
             {
                 name: "settings",

@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { isValidEmail } from "@/contexts/functions";
 import AlertComponent from "../elements/AlertComponent";
 import { ClassUser } from "@/classes/users/ClassUser";
-export default function LoginComponent({ setIsLogin = null }) {
+export default function LoginComponent() {
     const router = useRouter();
     const { theme } = useThemeMode();
     const { text, primary } = theme.palette;

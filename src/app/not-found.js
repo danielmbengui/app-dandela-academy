@@ -23,7 +23,6 @@ const FooterComponent = async () => {
   const { copyright, allRights = trans['all-rights'] } = trans;
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
-  console.log("TRANS FOOTER", trans)
   return (<Grid container spacing={1.5} sx={{ px: 2, py: 1, background: '' }} justifyContent={'center'} alignItems={'center'}>
     <Grid size={{ xs: 12, sm: 3 }}>
       <Stack sx={{ background: '' }} alignItems={{ xs: 'center', sm: 'start' }}>

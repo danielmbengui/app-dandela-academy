@@ -16,8 +16,8 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Button, Container, Stack } from '@mui/material';
-import { IconDropDown, IconEmail, IconLogo } from '@/assets/icons/IconsComponent';
+import { Button, Container, Grid, Stack } from '@mui/material';
+import { IconDashboard, IconDropDown, IconEmail, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
@@ -29,19 +29,22 @@ import LoginComponent from '../login/LoginComponent';
 import { useTranslation } from 'react-i18next';
 import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
 import RegisterComponent from '../login/RegisterComponent';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import Preloader from '../shared/Preloader';
 
 const drawerWidth = 240;
 
-function DashboardPageWrapper({ children, ...props }) {
+function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></>, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
-    const [isLogin, setIsLogin] = useState(true);
     const { theme } = useThemeMode();
-    const { primary, backgroundMenu, text } = theme.palette;
+    const { primary, background, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, login, logout } = useAuth();
-
+    const [accordionMenu, setAccordionMenu] = useState('');
+    const path = usePathname();
     const handleDrawerClose = () => {
         setIsClosing(true);
         setMobileOpen(false);
@@ -79,34 +82,74 @@ function DashboardPageWrapper({ children, ...props }) {
                         </Stack>
                     </Toolbar>
                     <Divider />
-                    <List sx={{ background: 'black', width: '100%', height: '100%', borderRadius: '10px', }}>
+                    <List sx={{ py: 2, background: '', width: '100%', height: '100%', }}>
                         {
                             user?.menuDashboard().map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
-                                return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: ClassColor.WHITE, background: 'red' }} disablePadding>
-                                    <ListItemButton sx={{ color: ClassColor.WHITE }} disableGutters>
-                                        <Stack>
-                                            <Stack direction={'row'} alignItems={'center'}>
-                                                {menuItem.icon}
-                                                <Typography fontSize={'16px'}>{t(menuItem.name)}</Typography>
+                                const isPath = path === menuItem.path;
+                                return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: ClassColor.WHITE, background: '' }} disablePadding>
+                                    <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
+                                        <Stack sx={{ px: 1, py: 1, background: isPath ? ClassColor.WHITE : '', borderRadius: isPath ? '5px' : '0px' }}>
+                                            <Link href={menuItem.path}>
+                                                <Grid container spacing={0.5} sx={{
+                                                    justifyContent: "start",
+                                                    alignItems: "stretch",
+                                                    width: '100%',
+                                                    color: isPath ? blueDark.main : ClassColor.WHITE,
+                                                }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
+                                                    <Grid size={'auto'}>
+                                                        <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
+                                                            {menuItem.icon}
+                                                        </Stack>
+                                                    </Grid>
+                                                    <Grid size={'grow'}>
+                                                        <Stack alignItems={'start'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
+                                                            <Typography fontSize={'16px'}>{t(menuItem.name)}</Typography>
+                                                        </Stack>
+
+                                                    </Grid>
+                                                    {
+                                                        hasSubs && <Grid size={'auto'} sx={{ background: '' }}>
+                                                            <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
+                                                                <IconDropDown height={10} />
+                                                            </Stack>
+
+                                                        </Grid>
+                                                    }
+
+
+
+                                                </Grid>
+                                            </Link>
+                                        </Stack>
+                                        {
+                                            hasSubs && <Stack spacing={1} sx={{ pl: 3, pt: 1, pb: 2, background: '' }}>
                                                 {
-                                                    hasSubs && <IconDropDown />
+                                                    menuItem.subs?.map((item, i) => {
+                                                        return (<ListItemButton key={`${item.name}-${i}`} disableGutters sx={{ background: 'red' }}>
+                                                            <Grid container spacing={0.5} sx={{
+                                                                justifyContent: "start",
+                                                                alignItems: "stretch",
+                                                                width: '100%'
+                                                            }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
+                                                                <Grid size={'auto'} sx={{ background: 'yellow' }}>
+                                                                    <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: 'blue' }}>
+                                                                        {item.icon}
+                                                                    </Stack>
+                                                                </Grid>
+                                                                <Grid size={'grow'} sx={{ background: 'orange' }}>
+                                                                    <Stack alignItems={'start'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: 'blue' }}>
+                                                                        <Typography fontSize={'14px'}>{t(item.name)}</Typography>
+                                                                    </Stack>
+
+                                                                </Grid>
+                                                            </Grid>
+                                                        </ListItemButton>)
+                                                    })
                                                 }
                                             </Stack>
-                                            {
-                                                hasSubs && <Stack sx={{ pl: 3, pr: 2, pt: 1.5 }}>
-                                                    {
-                                                        menuItem.subs?.map((item, i) => {
-                                                            return (<Stack key={`${item.name}-${i}`} direction={'row'} alignItems={'center'}>
-                                                                {item.icon}
-                                                                <Typography fontSize={'15px'}>{t(item.name)}</Typography>
-                                                            </Stack>)
-                                                        })
-                                                    }
-                                                </Stack>
-                                            }
-                                        </Stack>
-                                    </ListItemButton>
+                                        }
+                                    </Stack>
                                 </ListItem>)
                             })
                         }
@@ -131,25 +174,25 @@ function DashboardPageWrapper({ children, ...props }) {
 
     // Remove this const when copying and pasting into your project.
     const container = window !== undefined ? () => window().document.body : undefined;
-
+    if (isLoading) {
+        return (<Preloader />);
+    }
     if (!user) {
-        if (isLogin) {
-            return (<LoginComponent setIsLogin={setIsLogin} />)
-        } else {
-            return (<RegisterComponent setIsLogin={setIsLogin} />)
-        }
+        return (<LoginComponent />);
     }
 
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <AppBar
+                elevation={1}
                 position="fixed"
                 sx={{
                     //maxHeight:'40px',
                     //p:2,
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                     ml: { sm: `${drawerWidth}px` },
+                    background: background.main,
                 }}
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', p: 2, }}>
@@ -158,13 +201,19 @@ function DashboardPageWrapper({ children, ...props }) {
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
+                        sx={{ mr: 2, display: { sm: 'none' }, color: blueDark.main }}
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        {user?.display_name || ''}
-                    </Typography>
+
+                    <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 1, height: '100%', color: text.main }}>
+                        {
+                            user?.showAvatar()
+                        }
+                        <Typography variant="h6" noWrap component="div">
+                            {user?.getCompleteName() || ''}
+                        </Typography>
+                    </Stack>
                 </Toolbar>
             </AppBar>
             <Box
@@ -207,8 +256,15 @@ function DashboardPageWrapper({ children, ...props }) {
                 sx={{ flexGrow: 1, p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
                 <Toolbar />
-                <Container maxWidth={'sm'} sx={{ background: 'blue' }}>
-                    {children}
+                <Container maxWidth={'xl'} sx={{ py: 1, background: '', }}>
+                    <Stack maxWidth={'lg'} alignItems={'start'} sx={{background:'orange'}}>
+                        <Stack direction={'row'} alignItems={'center'} spacing={0.5}><div style={{color:primary.main}}>{icon}</div><Typography variant='h3'>{title}</Typography></Stack>
+                            <Typography sx={{ color: ClassColor.GREY_LIGHT }}>{subtitle}</Typography>
+
+                            <Box sx={{mt:1.5}}>
+                                {children}
+                            </Box>
+                    </Stack>
                 </Container>
 
                 <Typography sx={{ marginBottom: 2 }}>

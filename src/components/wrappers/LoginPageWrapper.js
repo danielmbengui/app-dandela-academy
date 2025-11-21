@@ -61,12 +61,10 @@ const FooterComponent = () => {
               className="w-40.19px lg:w-35px 2xl:w-40.19px h-37px lg:h-35px 2xl:h-37px leading-37px lg:leading-35px 2xl:leading-37px text-whiteColor bg-fontColor bg-opacity-10 hover:bg-primaryColor text-center"
             >
               <Stack alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', }}>
-                <IconTiktok icon="ic:baseline-tiktok" width={22} height={22} />
+                <IconTiktok width={22} height={22} />
               </Stack>
             </a>
           </li>
-
-
         </ul>
       </Stack>
     </Grid>

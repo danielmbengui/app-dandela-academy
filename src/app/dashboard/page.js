@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import { IconEmail, IconLogo, IconTiktok } from "@/assets/icons/IconsComponent";
+import { IconDashboard, IconEmail, IconLogo, IconTiktok } from "@/assets/icons/IconsComponent";
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
 import { translateWithVars } from "@/contexts/functions";
-import { NS_HOME_FOOTER } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_HOME_FOOTER } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -23,37 +23,19 @@ const LoginComponent = () => {
 
 
 
-export default function Home() {
+export default function DashboardHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
-  const { t } = useTranslation([NS_HOME_FOOTER]);
+  const { t } = useTranslation([NS_DASHBOARD_HOME]);
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {user, login, logout} = useAuth();
-  if (user) {
-    return (<div>
-            <DashboardPageWrapper>
-            Vous êtes déjà connecté en tant que {user.email} type {user.role} anni {user.birthday.toString()}
-         <ButtonNextComponent 
-            label='Se deconnecter'
-            onClick={()=>{
-              logout();
-            }}
-            />
-            </DashboardPageWrapper>
-    </div>);
-  }
-  return(<DashboardPageWrapper>
-    Vous êtes déjà connecté en tant que {user?.email || ''} type {user?.role || ''} anni {user?.birthday.toString() || ''}
- <ButtonNextComponent 
-    label='Se deconnecter'
-    onClick={()=>{
-      logout();
-    }}
-    />
-    </DashboardPageWrapper>)
+  const { user, login, logout } = useAuth();
+
+  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
+    En construction...
+  </DashboardPageWrapper>)
   /*
   return (
     <LoginPageWrapper>
