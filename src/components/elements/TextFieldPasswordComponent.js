@@ -34,9 +34,7 @@ export default function TextFieldPasswordComponent({
     const { theme } = useThemeMode();
     const { blue, greyLight, text, primary,blueDark } = theme.palette;
     const [visible,setVisible] = useState(false);
-    useEffect(()=>{
-console.log("VISIBLE", visible)
-    }, [visible])
+
     return (<TextField
         className="shadow-sm"
         lang={lang}

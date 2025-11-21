@@ -87,6 +87,7 @@ export class ClassUser {
         display_name = "",
         photo_url = "",
         email = "",
+        email_academy = "",
         email_verified = false,
         created_time = new Date(),
         last_edit_time = new Date(),
@@ -203,7 +204,7 @@ export class ClassUser {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
-        console.log("oooook", cleaned)
+        //console.log("oooook", cleaned)
         return cleaned;
 
         //return entries;
@@ -314,6 +315,7 @@ export class ClassUser {
     /**************** MENU ****************/
     menuDashboard() {
         return [
+            /*
             {
                 name: "dashboard",
                 path: PAGE_DASHBOARD_HOME,
@@ -334,6 +336,7 @@ export class ClassUser {
                 path: PAGE_DASHBOARD_STUDENTS,
                 icon: <IconStudents width={18} height={18} />,
             },
+            */
             {
                 name: "profile",
                 path: PAGE_DASHBOARD_PROFILE,
@@ -348,7 +351,6 @@ export class ClassUser {
             */
         ]
     }
-
     // ---------- Converter intégré ----------
     static _toJsDate(v) {
         if (!v) return null;
@@ -360,12 +362,12 @@ export class ClassUser {
     }
     static makeUserInstance(uid, data = {}) {
         const { type, role } = data || {};
+        //console.log("MAKING USER INSTANCE", uid, type, role);
         if (type === ClassUser.TYPE.EXTERN) {
             if (role === ClassUser.ROLE.STUDENT) return new ClassUserStudent({ uid, ...data });
             //if (role === ClassUserExtern.ROLE.PROFESSIONAL) return new ClassUserProfessional({ uid, ...data });
             return new ClassUserExtern({ uid, ...data });
         }
-
 
         if (type === ClassUser.TYPE.INTERN) {
             if (role === ClassUserIntern.ROLE.SUPER_ADMIN) return new ClassUserSuperAdmin({ uid, ...data });
@@ -390,7 +392,10 @@ export class ClassUser {
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
-                return ClassUser.makeUserInstance(uid, data);
+                var _birthday = data.birthday ? new Date(data.birthday.seconds * 1_000) : null;
+                var _created_time = data.created_time ? new Date(data.created_time.seconds * 1_000) : null;
+                var _last_edit_time = data.last_edit_time ? new Date(data.last_edit_time.seconds * 1_000) : null;
+                return ClassUser.makeUserInstance(uid, {...data, birthday:_birthday,created_time:_created_time,last_edit_time:_last_edit_time});
             },
         };
     }
@@ -452,6 +457,7 @@ export class ClassUser {
     // Récupérer un module par id
     static async get(id) {
         const snap = await getDoc(this.docRef(id));
+        console.log("GGGGET", id)
         if (snap.exists()) {
             const data = snap.data();
             return (data);
@@ -559,7 +565,7 @@ export class ClassUserIntern extends ClassUser {
         ClassUser.ROLE.TEAM,
         ClassUser.ROLE.TUTOR,
     ];
-    constructor(props = {}) {
+    constructor(props = {type: ClassUser.TYPE.INTERN}) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {
@@ -571,7 +577,7 @@ export class ClassUserSuperAdmin extends ClassUserIntern {
     static ALL_ROLES = [
         ClassUser.ROLE.SUPER_ADMIN,
     ];
-    constructor(props = {}) {
+    constructor(props = {role: ClassUser.ROLE.SUPER_ADMIN}) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {
@@ -583,7 +589,7 @@ export class ClassUserAdmin extends ClassUserIntern {
     static ALL_ROLES = [
         ClassUser.ROLE.ADMIN,
     ];
-    constructor(props = {}) {
+    constructor(props = {role: ClassUser.ROLE.ADMIN}) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {

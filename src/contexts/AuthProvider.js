@@ -81,13 +81,13 @@ export function AuthProvider({ children }) {
                 return;
             }
             const data = snap.data();
-            console.log("DATA listne user", data);
+            //console.log("DATA listne user", data);
             const { email_verified } = data;
             if (email_verified !== fbUser.emailVerified) {
                 await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
-            const myUser = ClassUser.makeUserInstance(uid, data);
-            console.log("DATA listne user admin after", myUser.toJSON());
+            //const myUser = ClassUser.makeUserInstance(uid, data.toJSON());
+            //console.log("DATA listne user admin after", myUser);
             //const ref = doc(firestore, ClassUser.COLLECTION, fbUser.uid);
             // Si tu as une classe métier :
             // const model = new ClassUser(data);
@@ -95,6 +95,8 @@ export function AuthProvider({ children }) {
                 //var _user = prev;
 
                 console.log("FFFF subbb", data);
+                
+
                 if (!prev || prev === null) {
                     return data;
                 }
@@ -117,7 +119,7 @@ export function AuthProvider({ children }) {
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
             if (fbUser) {
                 const unsubUser = listenToUser(fbUser);
-                console.log("FFFF init user", fbUser);
+                //console.log("FFFF init user", fbUser);
                 return () => unsubUser?.();
             } else {
                 setUser(null);
@@ -271,7 +273,7 @@ export function AuthProvider({ children }) {
 
     const sendResetPassword = async (e, email) => {
         e?.preventDefault?.();
-        const q = query(collection(firestore, COLLECTION_USERS), where('email', '==', email));
+        const q = query(collection(firestore, ClassUser.COLLECTION), where('email', '==', email));
         const snap = await getDocs(q);
         if (snap.size > 0) {
             await sendPasswordResetEmail(auth, email);

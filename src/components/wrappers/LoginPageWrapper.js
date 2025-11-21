@@ -2,7 +2,7 @@ import { IconLogo, IconTiktok } from "@/assets/icons/IconsComponent";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
 import { translateWithVars } from "@/contexts/functions";
 import { NS_HOME_FOOTER } from "@/contexts/i18n/settings";
-import { Grid, Stack, Typography } from "@mui/material";
+import { Container, Grid, Stack, Typography } from "@mui/material";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import TextFieldComponent from "../elements/TextFieldComponent";
@@ -22,10 +22,12 @@ const LoginPageWrapper = ({ children }) => {
     //background:'red'
   }}>
     <Stack sx={{ background: '', height: '100%', p: '10px' }} spacing={1}>
-      <Stack direction={'column'} alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', width: '100%', background: 'red' }}>
-        <Stack spacing={3} sx={{ py: 3, px: 5, background: 'white', borderRadius: '10px' }}>
+      <Stack direction={'column'} alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', width: '100%', background: '' }}>
+        <Container maxWidth="xs" sx={{width:'100%', bgcolor:'yan'}} >
+        <Stack spacing={3} sx={{width:'100%', py: 3, px: 5, background: 'white', borderRadius: '5px' }}>
           {children}
         </Stack>
+        </Container>
       </Stack>
       <Grid container sx={{ background: '' }} justifyContent={'center'} alignItems={'center'}>
         <Grid size={{ xs: 12, sm: 3 }}>

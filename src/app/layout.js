@@ -45,9 +45,9 @@ export default async function RootLayout({ children }) {
   const lng = languages.includes(locale) ? locale : defaultLanguage;
   return (
     <html lang={lng} dir={getDir(lng)} className={`${hind.variable}`} >
-      <Head>
+      <head>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-      </Head>
+      </head>
       <body
         className={`relative leading-[1.8] bg-bodyBg dark:bg-bodyBg-dark z-0  ${inter.className}`}
       >

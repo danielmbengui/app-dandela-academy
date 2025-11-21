@@ -13,6 +13,7 @@ import TextFieldComponent from '@/components/elements/TextFieldComponent';
 import TextFieldPasswordComponent from '@/components/elements/TextFieldPasswordComponent';
 import ButtonNextComponent from '@/components/elements/ButtonNextComponent';
 import { useAuth } from '@/contexts/AuthProvider';
+import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 
 const LoginComponent = () => {
   return (<Stack>
@@ -33,15 +34,27 @@ export default function Home() {
   const {user, login, logout} = useAuth();
   if (user) {
     return (<div>
-      Vous êtes déjà connecté en tant que {user.email} type {user.role}
+            <DashboardPageWrapper>
+            Vous êtes déjà connecté en tant que {user.email} type {user.role} anni {user.birthday.toString()}
          <ButtonNextComponent 
             label='Se deconnecter'
             onClick={()=>{
               logout();
             }}
             />
+            </DashboardPageWrapper>
     </div>);
   }
+  return(<DashboardPageWrapper>
+    Vous êtes déjà connecté en tant que {user?.email || ''} type {user?.role || ''} anni {user?.birthday.toString() || ''}
+ <ButtonNextComponent 
+    label='Se deconnecter'
+    onClick={()=>{
+      logout();
+    }}
+    />
+    </DashboardPageWrapper>)
+  /*
   return (
     <LoginPageWrapper>
             <Typography>
@@ -86,4 +99,5 @@ export default function Home() {
             />
     </LoginPageWrapper>
   );
+  */
 }
