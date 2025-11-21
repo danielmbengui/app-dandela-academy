@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import { IconEmail, IconLogo, IconLogoImage, IconTiktok } from "@/assets/icons/IconsComponent";
+import { IconEmail, IconLogo, IconTiktok } from "@/assets/icons/IconsComponent";
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
 import { translateWithVars } from "@/contexts/functions";
-import { NS_HOME, NS_HOME_FOOTER } from "@/contexts/i18n/settings";
+import { NS_HOME_FOOTER } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -14,11 +14,8 @@ import TextFieldPasswordComponent from '@/components/elements/TextFieldPasswordC
 import ButtonNextComponent from '@/components/elements/ButtonNextComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
-import { useRouter } from 'next/navigation';
-import { PAGE_LOGIN } from '@/contexts/constants/constants_pages';
-import { ClassColor } from '@/classes/ClassColor';
 
-const HomePageComponent = () => {
+const LoginComponent = () => {
   return (<Stack>
 
   </Stack>)
@@ -26,46 +23,37 @@ const HomePageComponent = () => {
 
 
 
-export default function Home() {
-  const router = useRouter();
+export default function Login() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
-  const { t } = useTranslation([NS_HOME]);
+  const { t } = useTranslation([NS_HOME_FOOTER]);
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { user, login, logout } = useAuth();
-  return (<LoginPageWrapper>
-<Stack sx={{width:'100%'}} spacing={2}>
-      <Stack alignItems={'center'} sx={{textAlign:'center'}}>
-      <Typography variant="h4">
-        {t('title')}
-      </Typography>
-      <Typography sx={{ color: ClassColor.GREY_HYPER_LIGHT, fontStyle:'italic' }} variant="h5">
-        {t('subtitle')}
-      </Typography>
-    </Stack>
-    <Stack spacing={2} alignItems={'center'} justifyContent={'center'} direction={{ xs: 'column', sm: 'row' }} sx={{ width: '100%', background: '' }}>
-      <ButtonNextComponent
-        //loading={isLoading}
-        label={t('btn-login')}
-        onClick={async () => {
-          router.replace(PAGE_LOGIN);
-        }}
-        fullWidth
-      />
-      <ButtonNextComponent
-        //loading={isLoading}
-        label={t('btn-activate')}
-        onClick={async () => {
-          //router.replace(PAGE_DASHBOARD_HOME);
-        }}
-        fullWidth
-      />
-    </Stack>
-</Stack>
-  </LoginPageWrapper>);
+  const {user, login, logout} = useAuth();
+  if (user) {
+    return (<div>
+            <DashboardPageWrapper>
+            Vous êtes déjà connecté en tant que {user.email} type {user.role} anni {user.birthday.toString()}
+         <ButtonNextComponent 
+            label='Se deconnecter'
+            onClick={()=>{
+              logout();
+            }}
+            />
+            </DashboardPageWrapper>
+    </div>);
+  }
+  return(<DashboardPageWrapper>
+    Vous êtes déjà connecté en tant que {user?.email || ''} type {user?.role || ''} anni {user?.birthday.toString() || ''}
+ <ButtonNextComponent 
+    label='Se deconnecter'
+    onClick={()=>{
+      logout();
+    }}
+    />
+    </DashboardPageWrapper>)
   /*
   return (
     <LoginPageWrapper>

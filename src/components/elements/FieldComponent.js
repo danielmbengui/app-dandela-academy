@@ -22,9 +22,9 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
     return (
-        <div sx={{ background: 'red' }}>
+        <div>
             {
-                label && <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
+                label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block">
                     {label}
                 </label>
             }

@@ -52,8 +52,10 @@ export default async function RootLayout({ children }) {
         className={`relative leading-[1.8] bg-bodyBg dark:bg-bodyBg-dark z-0  ${inter.className}`}
       >
        <Providers>
-       <Preloader />
-        {children}
+
+        {
+        //       <Preloader />
+        children}
        </Providers>
       </body>
     </html>

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -28,14 +28,16 @@ import ButtonNextComponent from '../elements/ButtonNextComponent';
 import LoginComponent from '../login/LoginComponent';
 import { useTranslation } from 'react-i18next';
 import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
+import RegisterComponent from '../login/RegisterComponent';
 
 const drawerWidth = 240;
 
 function DashboardPageWrapper({ children, ...props }) {
     const {t} = useTranslation([NS_DASHBOARD_MENU]);
     const { window } = props;
-    const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [isClosing, setIsClosing] = React.useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+    const [isLogin, setIsLogin] = useState(true);
     const { theme } = useThemeMode();
     const { primary, backgroundMenu } = theme.palette;
     const { user, isLoading, login, logout } = useAuth();
@@ -105,7 +107,11 @@ function DashboardPageWrapper({ children, ...props }) {
     const container = window !== undefined ? () => window().document.body : undefined;
 
     if (!user) {
-        return(<LoginComponent />)
+        if(isLogin) {
+            return(<LoginComponent setIsLogin={setIsLogin} />)
+        } else {
+            return(<RegisterComponent setIsLogin={setIsLogin} />)
+        }
     }
 
     return (

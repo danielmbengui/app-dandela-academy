@@ -101,6 +101,7 @@ export class ClassUser {
         this._type = type;
         this._role = role;
         this._email = email;
+        this._email_academy = email_academy;
         this._first_name = first_name;
         this._last_name = last_name;
         this._email_verified = email_verified;
@@ -145,6 +146,9 @@ export class ClassUser {
 
     get email() { return this._email; }
     set email(val) { this._email = val; }
+
+    get email_academy() { return this._email_academy; }
+    set email_academy(val) { this._email_academy = val; }
 
     get email_verified() { return this._email_verified; }
     set email_verified(val) { this._email_verified = val; }
@@ -395,7 +399,7 @@ export class ClassUser {
                 var _birthday = data.birthday ? new Date(data.birthday.seconds * 1_000) : null;
                 var _created_time = data.created_time ? new Date(data.created_time.seconds * 1_000) : null;
                 var _last_edit_time = data.last_edit_time ? new Date(data.last_edit_time.seconds * 1_000) : null;
-                return ClassUser.makeUserInstance(uid, {...data, birthday:_birthday,created_time:_created_time,last_edit_time:_last_edit_time});
+                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, created_time: _created_time, last_edit_time: _last_edit_time });
             },
         };
     }
@@ -424,7 +428,7 @@ export class ClassUser {
         const snap = await getCountFromServer(coll);
         return snap.data().count; // -> nombre total
     }
-    static async countByDates(start_date=null,end_date=null) {
+    static async countByDates(start_date = null, end_date = null) {
         //const coll = collection(firestore, ClassUser.COLLECTION);
         const day_s = start_date.getDate();
         const month_s = start_date.getMonth();
@@ -432,10 +436,10 @@ export class ClassUser {
         const day_e = end_date.getDate();
         const month_e = end_date.getMonth();
         const year_e = end_date.getFullYear();
-        const _start_date = new Date(year_s,month_s,day_s,0,0);
-        const _end_date = new Date(year_e,month_e,day_e,23,59,59);
+        const _start_date = new Date(year_s, month_s, day_s, 0, 0);
+        const _end_date = new Date(year_e, month_e, day_e, 23, 59, 59);
         console.log("DATTE", start_date)
-        
+
         const q = query(
             collection(firestore, this.COLLECTION).withConverter(ClassUser.converter),
             where("created_time", ">=", _start_date),
@@ -443,10 +447,10 @@ export class ClassUser {
             //limit(1),
         );
         const snap = await getDocs(q);
-        if(snap.empty) return 0;
+        if (snap.empty) return 0;
         console.log("OUUTN", snap.size, snap.docs[0].data().uid)
         return snap.size;
-     
+
         /*
         const coll = this.colRef();
         const snap = await getCountFromServer(coll);
@@ -470,6 +474,20 @@ export class ClassUser {
         const q = query(
             collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter),
             where("email", "==", email.toLowerCase().trim()),
+            limit(1),
+        );
+        const snap = await getDocs(q);
+        const myDoc = snap.docs[0];
+        if (!snap.empty) {
+            return myDoc.data();
+        }
+        return null; // -> ClassModule | null
+    }
+    static async getByEmailAcademy(email) {
+        //const usersCol = collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter);
+        const q = query(
+            collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter),
+            where("email_academy", "==", email.toLowerCase().trim()),
             limit(1),
         );
         const snap = await getDocs(q);
@@ -565,7 +583,7 @@ export class ClassUserIntern extends ClassUser {
         ClassUser.ROLE.TEAM,
         ClassUser.ROLE.TUTOR,
     ];
-    constructor(props = {type: ClassUser.TYPE.INTERN}) {
+    constructor(props = { type: ClassUser.TYPE.INTERN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {
@@ -577,7 +595,7 @@ export class ClassUserSuperAdmin extends ClassUserIntern {
     static ALL_ROLES = [
         ClassUser.ROLE.SUPER_ADMIN,
     ];
-    constructor(props = {role: ClassUser.ROLE.SUPER_ADMIN}) {
+    constructor(props = { role: ClassUser.ROLE.SUPER_ADMIN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {
@@ -589,7 +607,7 @@ export class ClassUserAdmin extends ClassUserIntern {
     static ALL_ROLES = [
         ClassUser.ROLE.ADMIN,
     ];
-    constructor(props = {role: ClassUser.ROLE.ADMIN}) {
+    constructor(props = { role: ClassUser.ROLE.ADMIN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {

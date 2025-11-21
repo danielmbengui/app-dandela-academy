@@ -747,7 +747,7 @@ module.exports = {
         buble: "buble 3.25s linear 0s infinite",
         buble2: "buble 3.25s linear .75s infinite",
         marquee: "marquee 25s linear 0s infinite normal",
-        preloader: "preloader 1.5s linear 0s",
+        preloader: "preloader 100.5s linear 0s",
       },
     },
   },

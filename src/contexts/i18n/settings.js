@@ -5,6 +5,15 @@ export const defaultLanguage = language_pt;
 export const languages = [language_fr, language_en, language_pt];      // ajoute 'de','it' si besoin
 
 export const NS_COMMON = `common`;
+export const NS_NOT_FOUND = `not-found`;
+export const NS_HOME = `home/main`;
+export const NS_HOME_MENU = `home/menu`;
+export const NS_HOME_FOOTER = `home/footer`;
+export const NS_LOGIN = `auth/login`;
+export const NS_ACTIVE_ACCOUNT = `auth/active-account`;
+export const NS_FORGOT_PASSWORD = `auth/forgot-password`;
+
+
 export const NS_LANGS = `langs`;
 export const NS_BUTTONS = `buttons`;
 export const NS_PAGES = `pages`;
@@ -15,10 +24,8 @@ export const NS_ERRORS = `errors`;
 export const NS_CONTACT = `contact`;
 export const NS_WAITING_LIST = `waiting-list`;
 export const NS_HOW_KNOW = `how-know`;
-export const NS_HOME = `home/main`;
-export const NS_HOME_MENU = `home/menu`;
-export const NS_HOME_FOOTER = `home/footer`;
-export const NS_LOGIN = `auth/login`;
+
+
 export const NS_DASHBOARD_HOME = `dashboard/main`;
 export const NS_DASHBOARD_MENU = `dashboard/menu`;
 export const NS_DASHBOARD_FIRST_CONNEXION = `dashboard/first-connexion`;
