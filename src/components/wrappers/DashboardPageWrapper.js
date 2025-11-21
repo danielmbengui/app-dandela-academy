@@ -16,8 +16,8 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Container, Stack } from '@mui/material';
-import { IconEmail, IconLogo } from '@/assets/icons/IconsComponent';
+import { Button, Container, Stack } from '@mui/material';
+import { IconDropDown, IconEmail, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
@@ -33,13 +33,13 @@ import RegisterComponent from '../login/RegisterComponent';
 const drawerWidth = 240;
 
 function DashboardPageWrapper({ children, ...props }) {
-    const {t} = useTranslation([NS_DASHBOARD_MENU]);
+    const { t } = useTranslation([NS_DASHBOARD_MENU]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [isLogin, setIsLogin] = useState(true);
     const { theme } = useThemeMode();
-    const { primary, backgroundMenu } = theme.palette;
+    const { primary, backgroundMenu, text } = theme.palette;
     const { user, isLoading, login, logout } = useAuth();
 
     const handleDrawerClose = () => {
@@ -58,59 +58,85 @@ function DashboardPageWrapper({ children, ...props }) {
     };
 
     const drawer = (
-        <div>
-            <Toolbar disableGutters variant="dense" sx={{ maxHeight: '30px', p: 2 }}>
-                <Stack sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
-                    <IconLogo color={primary.main} width={'50%'} />
+        <Stack
+            alignItems={'center'}
+            justifyContent={'space-between'}
+
+            sx={{
+                height: '100vh',
+                width: '100%',
+                backgroundImage: 'url("/images/login/back.png")',
+                backgroundSize: 'cover',        // l'image couvre tout l'écran
+                backgroundPosition: 'center',   // centrée
+                backgroundRepeat: 'no-repeat',  // pas de répétition
+
+            }}>
+            <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, background: 'rgba(0,0,0,0.1)', width: '100%', height: '100%' }}>
+                <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
+                    <Toolbar disableGutters variant="dense" sx={{ width: '100%', maxHeight: '30px', p: 2 }}>
+                        <Stack sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
+                            <IconLogo color={ClassColor.WHITE} width={'50%'} />
+                        </Stack>
+                    </Toolbar>
+                    <Divider />
+                    <List sx={{ background: 'black', width: '100%', height: '100%', borderRadius: '10px', }}>
+                        {
+                            user?.menuDashboard().map((menuItem) => {
+                                const hasSubs = menuItem.subs?.length > 0 || false;
+                                return (<ListItem disableGutters sx={{ color: ClassColor.WHITE, background: 'red' }} key={menuItem.name} disablePadding>
+                                    <ListItemButton sx={{ color: ClassColor.WHITE }} disableGutters>
+                                        <Stack>
+                                            <Stack direction={'row'} alignItems={'center'}>
+                                                {menuItem.icon}
+                                                <Typography fontSize={'16px'}>{t(menuItem.name)}</Typography>
+                                                {
+                                                    hasSubs && <IconDropDown />
+                                                }
+                                            </Stack>
+                                            {
+                                                hasSubs && <Stack sx={{ pl: 3, pr: 2, pt: 1.5 }}>
+                                                    {
+                                                        menuItem.subs?.map((item, i) => {
+                                                            return (<Stack direction={'row'} alignItems={'center'}>
+                                                                {item.icon}
+                                                                <Typography fontSize={'15px'}>{t(item.name)}</Typography>
+                                                            </Stack>)
+                                                        })
+                                                    }
+                                                </Stack>
+                                            }
+                                        </Stack>
+                                    </ListItemButton>
+                                </ListItem>)
+                            })
+                        }
+                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+                            <ListItem key={text} disablePadding>
+                                <ListItemButton sx={{ color: ClassColor.WHITE }}>
+                                    <ListItemIcon sx={{ color: ClassColor.WHITE }}>
+                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                    </ListItemIcon>
+                                    <ListItemText primary={text} />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
                 </Stack>
-            </Toolbar>
-            <Divider />
-            <List>
-                {
-                    user?.menuDashboard().map((menuItem) => (<ListItem key={menuItem.name} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {menuItem.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={t(menuItem.name)} />
-                        </ListItemButton>
-                    </ListItem>))
-                }
-                {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-            <Divider />
-            <List>
-                {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-        </div>
+                <Button variant='contained' sx={{ background: 'red', color: backgroundMenu.main }}>
+                    {'disconect'}
+                </Button>
+            </Stack>
+        </Stack>
     );
 
     // Remove this const when copying and pasting into your project.
     const container = window !== undefined ? () => window().document.body : undefined;
 
     if (!user) {
-        if(isLogin) {
-            return(<LoginComponent setIsLogin={setIsLogin} />)
+        if (isLogin) {
+            return (<LoginComponent setIsLogin={setIsLogin} />)
         } else {
-            return(<RegisterComponent setIsLogin={setIsLogin} />)
+            return (<RegisterComponent setIsLogin={setIsLogin} />)
         }
     }
 

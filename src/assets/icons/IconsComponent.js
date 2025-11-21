@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react"
-
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 export const IconLogo = ({width = 24, height = 24, color = 'inherit'}) => {
     return <div style={{width:width,height:height, color:color}}>
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -215,9 +216,14 @@ export const IconLogoImage = ({width = 24, height = 24, color = 'inherit'}) => {
         </svg>
     </div>)
 }
-export const IconTiktok = ({ width = 24, height = 24, color = '' }) => {
-    return (<Icon icon="ic:baseline-tiktok" width={width} height={height} color={color} />)
+
+export const IconDropDown = ({ width = 24, height = 24, color = '' }) => {
+    return (<ArrowDropDownIcon fontSize={'medium'} sx={{color:color}} color={color} />)
 }
+export const IconDropUp = ({ width = 24, height = 24, color = '' }) => {
+    return (<ArrowDropUpIcon fontSize={'medium'} sx={{color:color}} color={color} />)
+}
+
 export const IconEmail = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="mdi-light:email" width={width} height={height} color={color} />)
 }

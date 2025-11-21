@@ -332,12 +332,18 @@ export class ClassUser {
     /**************** MENU ****************/
     menuDashboard() {
         return [
-            /*
+            
             {
                 name: "dashboard",
                 path: PAGE_DASHBOARD_HOME,
                 icon: <IconHome width={22} height={22} />,
+                subs:[{
+                    name: "dashboard",
+                path: PAGE_DASHBOARD_HOME,
+                icon: <IconHome width={22} height={22} />,
+                }]
             },
+            /*
             {
                 name: "lessons",
                 path: PAGE_DASHBOARD_LESSONS,
