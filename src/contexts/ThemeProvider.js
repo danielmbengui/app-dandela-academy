@@ -176,12 +176,12 @@ export const ThemeProvider = ({ children }) => {
             },
             h2: {
                 //fontSize: '1.7rem',
-                fontSize: `clamp(1.5rem, 5vw, 2rem)`,
-                fontWeight: 700,
+                fontSize: `1.2rem`,
+                fontWeight: 500,
                 // color: 'black',
             },
             h3: {
-                fontSize: '1.5rem',
+                fontSize: '1rem',
                 fontWeight: 600,
                 // color: 'black',
             },

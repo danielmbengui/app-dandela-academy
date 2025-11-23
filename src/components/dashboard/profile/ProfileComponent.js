@@ -1,5 +1,5 @@
-import ButtonCancel from "@/app/dashboard/elements/ButtonCancel";
-import ButtonConfirm from "@/app/dashboard/elements/ButtonConfirm";
+import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
+import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { IconCalendar, IconIdea } from "@/assets/icons/IconsComponent";
 import AccordionComponent from "@/components/elements/AccordionComponent";
 import FieldComponent from "@/components/elements/FieldComponent";
@@ -10,8 +10,10 @@ import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Box, Button, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Field from "../elements/Field";
+import { ClassUser } from "@/classes/users/ClassUser";
 const initialUser = {
     firstName: "Daniel",
     lastName: "Mbengui",
@@ -419,12 +421,65 @@ function ProfilePage() {
 export default function ProfileComponent() {
     const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
     const { lang } = useLanguage();
-    const { user } = useAuth();
+    const { user, isLoading } = useAuth();
+    const [userInfo, setUserInfo] = useState(new ClassUser());
+    const [isEditing, setIsEditing] = useState(false);
+    const [errors, setErrors] = useState({});
+    useEffect(() => {
+        if (!isLoading) {
+            setUserInfo(user.clone());
+        }
+    }, [isLoading]);
     const { theme } = useThemeMode();
-    const { primary, primaryShadow } = theme.palette;
+    const { primary, primaryShadow, greyLight } = theme.palette;
     const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
+    const onChangeField = (e) => {
+        const { value, name, type } = e.target;
+        console.log("EVENT", name, type, userInfo)
+        //e.preventDefault();
+        //userInfo.update({ first_name: value });
+        setErrors(prev=>({...prev,[name]:''}));
+        if (user[name] !== value) {
+            setIsEditing(true);
+        } else {
+            setIsEditing(false);
+        }
+        setUserInfo(prev => {
+            if (!prev) return user;
+            prev.update({[name]:value});
+            return prev.clone();
+        })
+    }
+    const onClearField = (name) => {
+        //e.preventDefault();
+        //userInfo.update({ first_name: value });
+        setIsEditing(true);
+        setUserInfo(prev => {
+            if (!prev) return prev;
+            prev.update({[name]:''});
+            return prev.clone();
+        })
+    }
+    const onEditForm = () => {
+        setIsEditing(true);
+        const _errors = {};
+        if(!userInfo.validLastName()) {
+            _errors.last_name = "erreur nom";
+        }
+        if(!userInfo.validFirstName()) {
+            _errors.first_name = "erreur prénom";
+        }
+        setErrors(_errors);
+        if (Object.keys(_errors).length > 0) {
+            console.log("Aucune erreur");
+            return;
+        }
+        
+        setIsEditing(false);
+        // On EDIT infos
+    }
     return (<Stack sx={{ background: 'red', width: '100%', }} spacing={1}>
-        <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: 'orange', }}>
+        <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
             <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ background: 'yellow' }}>
                 {
                     user?.showAvatar({ size: 55, fontSize: '18px' })
@@ -435,43 +490,70 @@ export default function ProfileComponent() {
                 </Stack>
             </Stack>
 
-            <Stack direction={'row'} alignItems={'center'} sx={{ background: 'green' }} spacing={1}>
-                <ButtonCancel
-                    label="Annuler"
-                    loading={true}
-                    disabled={true}
-                    onClick={() => {
-                        alert('click okay')
-                    }}
-                />
-                <ButtonConfirm
-                    label="Confirmer"
-                    //loading={true}
-                    //isabled={true}
-                    onClick={() => {
-                        alert('click okay')
-                    }}
-                />
-
-
-            </Stack>
+            {
+                isEditing && <Stack direction={'row'} alignItems={'center'} sx={{ background: 'green' }} spacing={1}>
+                    <ButtonCancel
+                        label="Annuler"
+                        //loading={true}
+                        //disabled={true}
+                        onClick={() => {
+                            setUserInfo(user.clone());
+                            setIsEditing(false);
+                        }}
+                    />
+                    <ButtonConfirm
+                        label="Confirmer"
+                        //loading={true}
+                        //isabled={true}
+                        onClick={() => {
+                            onEditForm();
+                            //alert('click okay');
+                            
+                        }}
+                    />
+                </Stack>
+            }
         </Stack>
-        <Grid container sx={{ background: 'purple' }}>
-            <Grid size={7} sx={{
-                background: '#020617',
-                borderRadius: '16px',
+        <Grid container sx={{ background: '' }}>
+            <Grid size={6.5} sx={{
+                background: 'var(--card-color)',
+                borderRadius: '10px',
                 padding: '20px',
-                border: `1px solid #1f2937`,
-                boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
+                border: `1px solid ${greyLight.main}`,
+                //boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
             }}>
                 <Stack>
-                   <Typography sx={{color:'red'}}>
-                    <Typography>{ 'YEEEEEES'}</Typography>
-                   </Typography>
+                    <Typography variant="h2">{'Informations personnelles'}</Typography>
+                    <Stack sx={{mt:1.5}} spacing={1}>
+                    <FieldComponent
+                        label={'Prénom(s)'}
+                        name={'first_name'}
+                        value={userInfo?.first_name}
+                        type='text'
+                        disabled={false}
+                        error={errors.first_name}
+                        onChange={onChangeField}
+                        onClear={() => {
+                            onClearField('first_name');
+                        }}
+                    />
+                     <FieldComponent
+                        label={'Nom(s)'}
+                        name={'last_name'}
+                        value={userInfo?.last_name}
+                        type='text'
+                        disabled={false}
+                        error={errors.last_name}
+                        onChange={onChangeField}
+                        onClear={() => {
+                            onClearField('last_name');
+                        }}
+                    />
+                    </Stack>
                 </Stack>
 
             </Grid>
-             <Grid size={'auto'} sx={{
+            <Grid size={'auto'} sx={{
                 background: '#020617',
                 borderRadius: '16px',
                 padding: '20px',
