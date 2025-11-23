@@ -1,4 +1,5 @@
 import { Hind, Inter } from "next/font/google";
+import "@/assets/css/calendar.css";
 import "@/assets/css/icofont.min.css";
 import "@/assets/css/popup.css";
 import "@/assets/css/video-modal.css";

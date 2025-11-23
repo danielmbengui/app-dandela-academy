@@ -1,13 +1,13 @@
 {
-    "dashboard": "Painel",
-    "lessons": "Cursos",
-    "profile": "Meu perfil",
-    "users": "Usuários",
-    "super-admins": "Super Administradores",
-    "admins": "Administradores",
-    "teams": "Equipe",
-    "students": "Estudantes",
-    "tutors": "Professores",
-    "settings": "Configurações"
-  }
-  
+  "dashboard": "Painel",
+  "calendar": "Calendário",
+  "lessons": "Cursos",
+  "profile": "Meu perfil",
+  "users": "Utilizadores",
+  "super-admins": "Super Administradores",
+  "admins": "Administradores",
+  "teams": "Equipa",
+  "students": "Estudantes",
+  "tutors": "Professores",
+  "settings": "Configurações"
+}

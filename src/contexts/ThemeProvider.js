@@ -9,17 +9,24 @@ const ThemeContext = createContext();
 
 const useThemeColors = (themeMode) => {
     const [themeColors, setThemeColors] = useState({
-        primary: '#1f6fff',
+        background: '#F5F4F4',
+        cardColor: '#FFFFFF',
+        fontColor: '#000000',
+        fontReverseColor: '#FFFFFF',
+        primary: '#1160e5',
+        primaryShadow: '#1160e580',
+
         blue: '#1a5fde',
         blueDark: '#0e357d',
         blueLight: '#f2f9ff',
         blueLight1: '#bfdbfe',
 
+ 
         blueCyan: '#26d3e2',
         blueCyan1: '#24c1d3',
         //#f2f9ff
         // var(--blue-light-1)
-        background: '#ffffff',
+        
         backgroundMenu: '#F5F4F4',
         greyLight: "#b3b1b1",
         backgroundSwitch: 'hsla(0, 0.00%, 82.67%, 1.00)',
@@ -68,7 +75,21 @@ const useThemeColors = (themeMode) => {
 
             return {
                 ...prev,
-                primary: safeValue(computedStyles.getPropertyValue('--primary'), '#1f6fff'),
+                /*
+                background: '#F5F4F4',
+        cardColor: '#FFFFFF',
+        fontColor: '#000000',
+        fontReverseColor: '#FFFFFF',
+        primary: '#1160e5',
+                */
+               background: safeValue(computedStyles.getPropertyValue('--background'), '#F5F4F4'),
+               cardColor: safeValue(computedStyles.getPropertyValue('--card-color'), '#FFFFFF'),
+               fontColor: safeValue(computedStyles.getPropertyValue('--font-color'), '#000000'),
+               fontReverseColor: safeValue(computedStyles.getPropertyValue('--font-reverse-color'), '#FFFFFF'),
+                primary: safeValue(computedStyles.getPropertyValue('--primary'), '#1160e5'),
+                primaryShadow: safeValue(computedStyles.getPropertyValue('--primary-shadow'), '#1160e580'),
+ 
+
                 blue: safeValue(computedStyles.getPropertyValue('--blue'), '#1a5fde'),
                 blueDark: safeValue(computedStyles.getPropertyValue('--blue-dark'), '#0e357d'),
                 blueLight: safeValue(computedStyles.getPropertyValue('--blue-light'), '#f2f9ff'),
@@ -78,7 +99,7 @@ const useThemeColors = (themeMode) => {
                 blueCyan1: safeValue(computedStyles.getPropertyValue('--blue-cyan-1'), '#24c1d3'),
 
 
-                background: safeValue(computedStyles.getPropertyValue('--background'), '#ffffff'),
+                
                 backgroundMenu: safeValue(computedStyles.getPropertyValue('--background-menu'), '#F5F4F4'),
                 greyLight: safeValue(computedStyles.getPropertyValue('--grey-light'), '#b3b1b1'),
                 //backgroundSwitch: safeValue(computedStyles.getPropertyValue('--toggle-bg-devlink'), '#ffffff'),
@@ -148,8 +169,8 @@ export const ThemeProvider = ({ children }) => {
         typography: {
             h1: {
                 //fontSize: '2.5rem',
-                fontSize: `clamp(1.75rem, 5vw, 2.5rem)`,
-                fontWeight: 700,
+                fontSize: `1.8rem`,
+                fontWeight: 500,
                 lineHeight: 1,
                 //color: 'black',
             },
@@ -172,11 +193,6 @@ export const ThemeProvider = ({ children }) => {
                     fontSize: '1.8rem',
                 },
             },
-            caption: {
-                //fontSize: '1.2rem',
-                fontSize: `clamp(1rem, 1vw, 1.2rem)`,
-                fontWeight: 300,
-            },
             h5: {
                 fontSize: '1rem',
                 fontWeight: 500,
@@ -189,6 +205,12 @@ export const ThemeProvider = ({ children }) => {
                 fontSize: '0.8rem',
                 fontWeight: 400,
                 // color: 'black',
+            },
+            caption: {
+                //fontSize: '1.2rem',
+                fontSize: `0.9rem`,
+                fontWeight: 300,
+                color:themeColors.greyLight,
             },
             // h7 à h9 n'existent pas nativement : tu peux les créer comme classes custom
             h7: {
@@ -206,12 +228,17 @@ export const ThemeProvider = ({ children }) => {
                 fontWeight: 400,
                 //color: 'black',
             },
+            
         },
         palette: {
             mode: themeMode,
             primary: {
                 main: themeColors.primary,
                 contrastText: "#ffffff", // ← texte blanc sur fond "primary"
+            },
+            primaryShadow: {
+                main: themeColors.primaryShadow,
+                contrastText: themeColors.primary, // ← texte blanc sur fond "primary"
             },
             blue: {
                 100: themeColors.blueLight,
@@ -240,9 +267,18 @@ export const ThemeProvider = ({ children }) => {
             },
             background: {
                 main: themeColors.background,
-                reverse: themeColors.textReverse,
+                reverse: themeColors.fontColor,
                 default: themeColors.background,
-                paper: themeColors.backgroundMenu,
+                paper: themeColors.cardColor,
+            },
+            cardColor: {
+                main: themeColors.cardColor,
+                contrastText: themeColors.fontColor, // ← texte blanc sur fond "primary"
+            },
+            text: {
+                main: themeColors.fontColor,
+                primary: themeColors.fontColor,
+                reverse: themeColors.fontReverseColor,
             },
             backgroundMenu: {
                 main: themeColors.backgroundMenu,
@@ -252,11 +288,7 @@ export const ThemeProvider = ({ children }) => {
             greyLight: {
                 main: themeColors.greyLight,
             },
-            text: {
-                main: themeColors.textPrimary,
-                primary: themeColors.textPrimary,
-                reverse: themeColors.textReverse,
-            },
+            
             /*
             primaryShadowChart: {
               main: "#4285f4",

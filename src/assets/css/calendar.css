@@ -1,0 +1,67 @@
+.fc-daygrid-day {
+    background-color: transparent;
+       cursor: pointer;
+       
+}
+
+/* case du jour courant */
+.fc-day-today {
+  background: var(--primary-shadow) !important;
+  color:var(--primary);
+  font-weight: bold;
+  border-color: var(--primary) !important;
+}
+
+.fc-day-free {
+  background-color: rgba(34, 197, 94, 0.12); /* vert léger */
+}
+.fc-daygrid-event {
+
+  border-radius: 6px;
+  padding: 4px 4px;
+  font-size: 0.75rem;
+}
+
+/* titres des jours */
+.fc-theme-standard th {
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
+
+
+
+/* Barre du haut */
+.fc .fc-toolbar.fc-header-toolbar {
+  padding: 0px 16px;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+/* Tous les boutons */
+.fc .fc-button {
+  background-color: var(--primary);      /* bleu principal */
+  border: none;
+  color: var(--background);
+  border-radius: 9999px;          /* pill / très arrondi */
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Hover */
+.fc .fc-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Bouton actif (vue sélectionnée : Mois/Semaine/Jour/Liste) */
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: var(--font-color);
+  color: var(--background);
+}
+
+/* Icônes précédent / suivant un peu plus visibles */
+.fc .fc-prev-button,
+.fc .fc-next-button {
+  min-width: 32px;
+}

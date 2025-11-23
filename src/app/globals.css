@@ -48,15 +48,18 @@
 /* Variables */
 :root {
   --blackColor: #000000;
-  --background: #fbfbfb;
+  --background: #F5F4F4;
+  --card-color: #FFFFFF;
   --font-color: #000000;
   --font-reverse-color: #FFFFFF;
+  --primary: #1160e5;
+  --primary-shadow: #1160e580;
 
   --background-menu: #FFFFFF;
   --background-footer: #0C0E2B;
   --whiteColor: #ffffff;
   --darkdeep1: #170f2f;
-  --primary: #1160e5;
+  
   --primaryColor: #1160e5;
   --secondaryColor: #092150;
   --blue: #1160e5;
@@ -95,6 +98,11 @@
 }
 
 .dark {
+  --background: #000000;
+  --card-color: #212121;
+  --font-color: #FFFFFF;
+  --font-reverse-color: #000000;
+
   --background-menu: #0C0E2B;
   --blueLight1: #0c0e2b;
   --borderColor: #312a57;

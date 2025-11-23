@@ -16,8 +16,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS } from "@/contexts/constants/constants_pages";
-import { IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS } from "@/contexts/constants/constants_pages";
+import { IconCalendar, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
 import { isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -181,13 +181,13 @@ export class ClassUser {
     get activated() { return this._activated; }
     set activated(val) { this._activated = val; }
 
-    showAvatar() {
+    showAvatar({size=30, fontSize='14px'}) {
         return (<Avatar
-            sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: 35, height: 35 }}
+            sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: size, height: size }}
             alt={this.getCompleteName()}
             src={this._photo_url}
         >
-            <Typography fontSize={'14px'}>{this.getInitials()}</Typography>
+            <Typography fontSize={fontSize}>{this.getInitials()}</Typography>
         </Avatar>)
     }
     // --- GETTER utils ---
@@ -345,6 +345,16 @@ export class ClassUser {
             name: "dashboard",
             path: PAGE_DASHBOARD_HOME,
             icon: <IconDashboard width={20} height={20} />,
+            subs: [/*{
+                name: "lessons",
+                path: PAGE_DASHBOARD_HOME,
+                icon: <IconLessons width={18} height={18} />,
+            }*/]
+        },
+        {
+            name: "calendar",
+            path: PAGE_DASHBOARD_CALENDAR,
+            icon: <IconCalendar width={20} height={20} />,
             subs: [/*{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
