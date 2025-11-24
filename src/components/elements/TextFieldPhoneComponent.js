@@ -8,16 +8,16 @@ import TextFieldComponent from "./TextFieldComponent";
 import { ClassCountry } from "@/classes/ClassCountry";
 import { ClassColor } from "@/classes/ClassColor";
 
-function SelectPrefixe({codeCountry="", setCodeCountry=null,setPrefixe=null,disabled=false}) {
+function SelectPrefixe({ codeCountry = "", setCodeCountry = null, setPrefixe = null, disabled = false }) {
     const { user } = useAuth();
     const [types, setTypes] = useState([]);
     const COUNTRIES = ClassCountry.COUNTRIES;
-    
+
     const handleChange = (event) => {
         const _code = event.target.value;
         setCodeCountry(_code);
-        setPrefixe(`+${COUNTRIES.filter(country=>country.code===_code)[0].prefixes[0]}`);
-        console.log("PREFIXE", COUNTRIES.filter(country=>country.code===_code)[0].prefixes[0])
+        setPrefixe(`+${COUNTRIES.filter(country => country.code === _code)[0].prefixes[0]}`);
+        console.log("PREFIXE", COUNTRIES.filter(country => country.code === _code)[0].prefixes[0])
     };
 
     return (<Select
@@ -28,11 +28,11 @@ function SelectPrefixe({codeCountry="", setCodeCountry=null,setPrefixe=null,disa
         disabled={disabled}
         onChange={handleChange}
         size="small"
-        sx={{ minWidth: 110,maxHeight:'2.5rem',borderColor:ClassColor.GREY_HYPER_LIGHT }}
+        sx={{ minWidth: 110, maxHeight: '2.5rem', borderColor: ClassColor.GREY_HYPER_LIGHT }}
     >
         {
             COUNTRIES.map((country, index) => {
-                return(country.prefixes.map((prefixe)=>{
+                return (country.prefixes.map((prefixe) => {
                     return (<MenuItem key={`${country.code}-${prefixe}-${index}`} value={country.code}>
                         <Stack spacing={1} direction={'row'} alignItems={'center'}>
                             <Image
@@ -51,30 +51,30 @@ function SelectPrefixe({codeCountry="", setCodeCountry=null,setPrefixe=null,disa
                         </Stack>
                     </MenuItem>)
                 }))
-                
+
             })
         }
     </Select>);
 }
 
 export default function TextFieldPhoneComponent({
-    name='',
+    name = '',
     error = false,
-    disabled=false,
-    label='',
-    fullWidth=false,
-    codeCountry=ClassCountry.DEFAULT_CODE, setCodeCountry=null,
-    phone="", setPhone=null,prefixe=ClassCountry.DEFAULT_PREFIXE,
+    disabled = false,
+    label = '',
+    fullWidth = false,
+    codeCountry = ClassCountry.DEFAULT_CODE, setCodeCountry = null,
+    phone = "", setPhone = null, prefixe = ClassCountry.DEFAULT_PREFIXE,
     onChange,
     onClear,
-    placeholder='920 234 234',
-    setPrefixe=null }) {
+    placeholder = '920 234 234',
+    setPrefixe = null }) {
     //const [codeCountry, setCodeCountry] = useState('AO');
     //const [prefixe, setPrefixe] = useState('+244');
     const [formatPhone, setFormatPhone] = useState(getExampleFor(codeCountry));
-    const {t} = useTranslation(['users/form']);
-    useEffect(()=>{
-setFormatPhone(getExampleFor(codeCountry));
+    const { t } = useTranslation(['users/form']);
+    useEffect(() => {
+        setFormatPhone(getExampleFor(codeCountry));
     }, [codeCountry])
     return (<Stack alignItems={'center'} direction={'row'} sx={{ width: '100%' }} spacing={1}>
         <SelectPrefixe disabled={disabled} codeCountry={codeCountry} setCodeCountry={setCodeCountry} setPrefixe={setPrefixe} />
@@ -98,7 +98,7 @@ setFormatPhone(getExampleFor(codeCountry));
             disabled={disabled}
             fullWidth={fullWidth}
             error={error}
-            //helperText={"Téléphone invalide"}
+        //helperText={"Téléphone invalide"}
         />
     </Stack>
     )

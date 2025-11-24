@@ -72,7 +72,7 @@ export default function TextFieldComponent({
                 },
                 '&.Mui-disabled fieldset': {
                     // borderColor: greyLight.main, // désactivé
-                    border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
                     color: ClassColor.GREY_LIGHT,
                 },
                 '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
@@ -118,9 +118,7 @@ export default function TextFieldComponent({
                 ),
 
             }
-
         }}
-
         //
         {...props}
     />)

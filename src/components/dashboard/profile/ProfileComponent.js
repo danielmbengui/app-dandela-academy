@@ -5,7 +5,7 @@ import AccordionComponent from "@/components/elements/AccordionComponent";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDate } from "@/contexts/functions";
-import { NS_DASHBOARD_PROFILE, NS_ROLES } from "@/contexts/i18n/settings";
+import { languages, NS_DASHBOARD_PROFILE, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Box, Button, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
@@ -14,6 +14,8 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Field from "../elements/Field";
 import { ClassUser } from "@/classes/users/ClassUser";
+import SelectComponent from "@/components/elements/SelectComponent";
+import { THEME_DARK, THEME_LIGHT } from "@/contexts/constants/constants";
 const initialUser = {
     firstName: "Daniel",
     lastName: "Mbengui",
@@ -420,7 +422,7 @@ function ProfilePage() {
 }
 export default function ProfileComponent() {
     const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
-    const { lang } = useLanguage();
+    const { lang,changeLang } = useLanguage();
     const { user, isLoading } = useAuth();
     const [userInfo, setUserInfo] = useState(new ClassUser());
     const [isEditing, setIsEditing] = useState(false);
@@ -430,15 +432,15 @@ export default function ProfileComponent() {
             setUserInfo(user.clone());
         }
     }, [isLoading]);
-    const { theme } = useThemeMode();
-    const { primary, primaryShadow, greyLight } = theme.palette;
+    const { theme,changeTheme,mode } = useThemeMode();
+    const { primary, primaryShadow, greyLight,text } = theme.palette;
     const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
     const onChangeField = (e) => {
         const { value, name, type } = e.target;
         console.log("EVENT", name, type, userInfo)
         //e.preventDefault();
         //userInfo.update({ first_name: value });
-        setErrors(prev=>({...prev,[name]:''}));
+        setErrors(prev => ({ ...prev, [name]: '' }));
         if (user[name] !== value) {
             setIsEditing(true);
         } else {
@@ -446,9 +448,9 @@ export default function ProfileComponent() {
         }
         setUserInfo(prev => {
             if (!prev) return user;
-            prev.update({[name]:value});
+            prev.update({ [name]: value });
             return prev.clone();
-        })
+        });
     }
     const onClearField = (name) => {
         //e.preventDefault();
@@ -456,17 +458,17 @@ export default function ProfileComponent() {
         setIsEditing(true);
         setUserInfo(prev => {
             if (!prev) return prev;
-            prev.update({[name]:''});
+            prev.update({ [name]: '' });
             return prev.clone();
-        })
+        });
     }
     const onEditForm = () => {
         setIsEditing(true);
         const _errors = {};
-        if(!userInfo.validLastName()) {
+        if (!userInfo.validLastName()) {
             _errors.last_name = "erreur nom";
         }
-        if(!userInfo.validFirstName()) {
+        if (!userInfo.validFirstName()) {
             _errors.first_name = "erreur prénom";
         }
         setErrors(_errors);
@@ -474,19 +476,19 @@ export default function ProfileComponent() {
             console.log("Aucune erreur");
             return;
         }
-        
+
         setIsEditing(false);
         // On EDIT infos
     }
-    return (<Stack sx={{ background: 'red', width: '100%', }} spacing={1}>
+    return (<Stack sx={{ background: '', width: '100%', }} spacing={{xs:1.5,sm:2}}>
         <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
-            <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ background: 'yellow' }}>
+            <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ background: '' }}>
                 {
                     user?.showAvatar({ size: 55, fontSize: '18px' })
                 }
                 <Stack>
                     <Typography variant="h1">{completeName || ''}</Typography>
-                    <Typography variant="caption">#{user?.email_academy || ''} • {t(user?.role, { ns: NS_ROLES })} • {user?.type}</Typography>
+                    <Typography variant="caption" sx={{color:text.main}}>{user?.email_academy || ''} • {t(user?.role, { ns: NS_ROLES })} • {user?.type}</Typography>
                 </Stack>
             </Stack>
 
@@ -508,82 +510,145 @@ export default function ProfileComponent() {
                         onClick={() => {
                             onEditForm();
                             //alert('click okay');
-                            
+
                         }}
                     />
                 </Stack>
             }
         </Stack>
-        <Grid container sx={{ background: '' }}>
-            <Grid size={6.5} sx={{
+        <Grid container spacing={1.5} sx={{ background: '' }}>
+            <Grid size={{ xs: 12, sm: 6.5 }} sx={{
                 background: 'var(--card-color)',
                 borderRadius: '10px',
                 padding: '20px',
-                border: `1px solid ${greyLight.main}`,
+                //border: `1px solid ${greyLight.main}`,
                 //boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
             }}>
                 <Stack>
                     <Typography variant="h2">{'Informations personnelles'}</Typography>
-                    <Stack sx={{mt:1.5}} spacing={1}>
-                    <FieldComponent
-                        label={'Prénom(s)'}
-                        name={'first_name'}
-                        value={userInfo?.first_name}
-                        type='text'
-                        disabled={false}
-                        error={errors.first_name}
-                        onChange={onChangeField}
-                        onClear={() => {
-                            onClearField('first_name');
-                        }}
-                    />
-                     <FieldComponent
-                        label={'Nom(s)'}
-                        name={'last_name'}
-                        value={userInfo?.last_name}
-                        type='text'
-                        disabled={false}
-                        error={errors.last_name}
-                        onChange={onChangeField}
-                        onClear={() => {
-                            onClearField('last_name');
-                        }}
-                    />
+                    <Stack sx={{ mt: 1.5 }} spacing={1}>
+                        <FieldComponent
+                            label={'Prénom(s)'}
+                            name={'first_name'}
+                            value={userInfo?.first_name}
+                            type='text'
+                            disabled={false}
+                            error={errors.first_name}
+                            onChange={onChangeField}
+                            onClear={() => {
+                                onClearField('first_name');
+                            }}
+                        />
+                        <FieldComponent
+                            label={'Nom(s)'}
+                            name={'last_name'}
+                            value={userInfo?.last_name}
+                            type='text'
+                            disabled={false}
+                            error={errors.last_name}
+                            onChange={onChangeField}
+                            onClear={() => {
+                                onClearField('last_name');
+                            }}
+                        />
+                        <FieldComponent
+                            label={'Date de naissance'}
+                            name={'birthday'}
+                            value={userInfo?.birthday}
+                            type='date'
+                            disabled={true}
+                            error={errors.birthday}
+                            onChange={onChangeField}
+
+                        />
+                        <FieldComponent
+                            label={`Email de l'école`}
+                            name={'email_academy'}
+                            value={userInfo?.email_academy}
+                            type='email'
+                            disabled={true}
+                            error={errors.email_academy}
+                            onChange={onChangeField}
+
+                        />
+                        <FieldComponent
+                            label={'Email personnel'}
+                            name={'email'}
+                            value={userInfo?.email}
+                            type='email'
+                            disabled={true}
+                            error={errors.email}
+                        />
                     </Stack>
                 </Stack>
 
             </Grid>
-            <Grid size={'auto'} sx={{
-                background: '#020617',
-                borderRadius: '16px',
+            <Grid size={{ xs: 12, sm: 'grow' }} sx={{
+                background: 'var(--card-color)',
+                borderRadius: '10px',
                 padding: '20px',
-                border: `1px solid #1f2937`,
-                boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
+                //border: `1px solid ${greyLight.main}`,
+                //boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
             }}>
+                <Stack spacing={3}>
+                    <Stack spacing={1.5}>
+                        <Typography variant="h2">{'Informations de compte'}</Typography>
+                    <Stack spacing={1}>
+                        <FieldComponent
+                            label={'ID utilisateur'}
+                            name={'uid'}
+                            value={userInfo?.uid}
+                            type='text'
+                            disabled={true}
+                            error={errors.uid}
+                        />
+                        <FieldComponent
+                            label={'Nom utilisateur'}
+                            name={'display_name'}
+                            value={userInfo?.display_name}
+                            type='text'
+                            disabled={true}
+                            error={errors.display_name}
+                        />
+                        <SelectComponent
+                            label={'Role'}
+                            name={'role'}
+                            value={userInfo?.role}
+                            values={ClassUser.ALL_ROLES.map(role=>({id:role, value:t(role,{ns:NS_ROLES})}))}
+                            disabled={true}
+                        />
+                    </Stack>
+                    </Stack>
+                    <Stack spacing={1.5}>
+                        <Typography variant="h2">{'Paramètres'}</Typography>
+                    <Stack spacing={1}>
+                        <SelectComponent
+                            label={'Langue'}
+                            name={'lang'}
+                            value={lang}
+                            values={languages.map(lang=>({id:lang, value:t(lang,{ns:NS_LANGS})}))}
+                            onChange={(e)=>{
+                                //console.log("NEW VALUE", e.target.value)
+                                changeLang(e.target.value);
+                            }}
+                            hasNull={false}
+                        />
+                        <SelectComponent
+                            label={'Theme'}
+                            name={'theme'}
+                            value={mode}
+                            values={[THEME_LIGHT, THEME_DARK].map(_theme=>({id:_theme, value:t(_theme,{ns:NS_LANGS})}))}
+                            onChange={(e)=>{
+                                //console.log("NEW VALUE", e.target.value)
+                                changeTheme(e.target.value);
+                            }}
+                            hasNull={false}
+                        />
+                    </Stack>
+                    </Stack>
+                </Stack>
 
             </Grid>
         </Grid>
-        <ProfilePage />
-        <Paper elevation={0}>
-            <Stack spacing={2} direction={'row'} alignItems={'center'} sx={{ py: 2, px: { xs: 1, sm: 3 }, width: '100%', }}>
-                <Stack alignItems={'center'} spacing={0.5}>
-                    {
-                        user?.showAvatar({ size: 50, fontSize: '14px' })
-                    }
-                    <Box sx={{ background: primaryShadow.main, border: `1.5px solid ${primary.main}`, borderRadius: '20px', py: 0.5, px: 1 }}>
-                        <Typography sx={{ color: primary.main, lineHeight: 1, fontSize: '12px' }}>{t(user?.role, { ns: NS_ROLES }) || ''}</Typography>
-                    </Box>
-                </Stack>
-                <Stack alignItems={'start'} >
-                    <Typography sx={{ fontWeight: 'bold', lineHeight: 1, mb: 0.5 }}>{user?.getCompleteName() || ''}</Typography>
-                    <Typography sx={{ lineHeight: 1, mb: 0.5 }}>{user?.display_name || ''}</Typography>
-                    <Typography sx={{ lineHeight: 1, mb: 0.5 }}>{user?.email_academy || ''}</Typography>
-                    <Stack direction={'row'} alignItems={'center'}>
-                        <IconCalendar height={14} />
-                        <Typography>{getFormattedDate(user?.birthday, lang)}</Typography>
-                    </Stack>
-                </Stack>
-            </Stack>
-        </Paper>
     </Stack>)
 }

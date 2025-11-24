@@ -196,7 +196,7 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                 }}
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', p: 2, }}>
-                    <Stack direction={'row'} alignItems={'center'} justifyContent={{xs:'space-between',sm:'end'}} sx={{width:'100%', background:'red'}}>
+                    <Stack direction={'row'} alignItems={'center'} justifyContent={{xs:'space-between',sm:'end'}} sx={{width:'100%', background:''}}>
                         <IconButton
                         color="inherit"
                         aria-label="open drawer"
@@ -207,7 +207,7 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                         <MenuIcon />
                     </IconButton>
 
-                    <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 0.5,px:1, height: '100%', color: text.main, border:`1px solid ${text.main}`, borderRadius:'20px' }}>
+                    <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 0.5,px:1, height: '100%', color: text.main, border:`1px solid ${ClassColor.GREY_LIGHT}`, borderRadius:'20px' }}>
                         {
                             user?.showAvatar({size:20,fontSize:'10px'})
                         }

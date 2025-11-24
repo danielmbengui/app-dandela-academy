@@ -5,7 +5,7 @@ import { ClassColor } from '@/classes/ClassColor';
 export default function SelectComponent({
     label, name, value, values = [],
     disabled = false, onChange,
-    error
+    error, hasNull=true
  }) {
 
     return (
@@ -24,17 +24,21 @@ export default function SelectComponent({
                     disabled={disabled}
                     onChange={onChange}
 
-                    style={{cursor:'pointer', border: `0.1px solid ${ClassColor.GREY_LIGHT}`, background:ClassColor.TRANSPARENT }} className="text-base text-blackColor2 w-full p-13px pr-30px py-7px focus:outline-none block appearance-none relative z-20 focus:shadow-select rounded-md">
-                    <option value={''}>{'---'}</option>
+                    style={{color:disabled?ClassColor.GREY_LIGHT:'', cursor:disabled ? 'default' : 'pointer', border: `0.1px solid ${ClassColor.GREY_LIGHT}`, background:ClassColor.TRANSPARENT }} 
+                    className="text-base w-full p-13px pr-30px py-7px focus:outline-none block appearance-none relative z-20 rounded-md">
+                    
+                    {
+                        hasNull && <option value={''}>{'---'}</option>
+                    }
                     {
                         values.map((item, i) => {
-                            return (<option key={`${item.id}-${i}`} value={item.id}>
+                            return (<option key={`${item.id}-${i}`} value={item.id} style={{color:"red"}}>
                                 {item.value}
                             </option>)
                         })
                     }
                 </select>
-                <i className="icofont-simple-down absolute top-1/2 right-3 -translate-y-1/2 block text-lg z-10"></i>
+                <i style={{color:disabled?ClassColor.GREY_LIGHT:''}} className="icofont-simple-down absolute top-1/2 right-3 -translate-y-1/2 block text-lg z-10"></i>
             </div>
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>

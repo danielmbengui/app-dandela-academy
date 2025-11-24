@@ -31,7 +31,7 @@ export default function DashboardCalendar() {
 
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconProfile width={22} height={22} />}>
     En construction...
-   <Stack sx={{background:'green', width:'100%'}}>
+   <Stack sx={{background:'', width:'100%'}}>
      <ProfileComponent />
    </Stack>
   </DashboardPageWrapper>)
