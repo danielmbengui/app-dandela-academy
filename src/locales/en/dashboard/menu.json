@@ -1,10 +1,11 @@
 {
   "dashboard": "Dashboard",
+  "computers": "Computers",
   "calendar": "Calendar",
   "lessons": "Courses",
   "profile": "My profile",
   "users": "Users",
-  "super-admins": "Super Admins",
+  "super-admins": "Super Admin",
   "admins": "Admins",
   "teams": "Team",
   "students": "Students",

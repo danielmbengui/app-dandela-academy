@@ -45,7 +45,7 @@
 
 /* Tous les boutons */
 .fc .fc-button {
-  background-color: transparent;
+  background-color: var(--card-color);
   /* bleu principal */
   border: 1px solid var(--primary);
   color: var(--primary);

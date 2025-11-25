@@ -4,8 +4,9 @@ export const PAGE_ACTIVE_ACCOUNT = "/active-account";
 export const PAGE_FORGOT_PASSWORD = "/forgot-password";
 export const PAGE_NOT_FOUND = "/not-found";
 export const PAGE_DASHBOARD_HOME = "/dashboard";
-export const PAGE_DASHBOARD_CALENDAR = "/dashboard/calendar";
-export const PAGE_DASHBOARD_PROFILE = "/dashboard/profile";
+export const PAGE_DASHBOARD_CALENDAR = "/calendar";
+export const PAGE_DASHBOARD_COMPUTERS = "/computers";
+export const PAGE_DASHBOARD_PROFILE = "/profile";
 
 export const PAGE_CONTACT = "/contact";
 

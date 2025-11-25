@@ -128,8 +128,9 @@ function ComputersPage() {
               Occupés
             </button>
             <button
-              className={`chip ${filter === "maintenance" ? "chip-active" : ""
-                }`}
+              className={`chip ${
+                filter === "maintenance" ? "chip-active" : ""
+              }`}
               onClick={() => setFilter("maintenance")}
             >
               Maintenance
@@ -493,8 +494,8 @@ function ComputerCard({ computer, isSelected, onClick }) {
           transition: transform 0.12s ease, box-shadow 0.12s ease,
             border-color 0.12s ease, background 0.12s ease;
           box-shadow: ${isSelected
-          ? "0 0 0 1px #1d4ed8, 0 12px 35px rgba(0,0,0,0.6)"
-          : "0 10px 25px rgba(0,0,0,0.5)"};
+            ? "0 0 0 1px #1d4ed8, 0 12px 35px rgba(0,0,0,0.6)"
+            : "0 10px 25px rgba(0,0,0,0.5)"};
         }
 
         .pc-card:hover {
@@ -882,15 +883,17 @@ function DashboardPage() {
                     7 jours
                   </button>
                   <button
-                    className={`chip ${timeRange === "30j" ? "chip-active" : ""
-                      }`}
+                    className={`chip ${
+                      timeRange === "30j" ? "chip-active" : ""
+                    }`}
                     onClick={() => setTimeRange("30j")}
                   >
                     30 jours
                   </button>
                   <button
-                    className={`chip ${timeRange === "all" ? "chip-active" : ""
-                      }`}
+                    className={`chip ${
+                      timeRange === "all" ? "chip-active" : ""
+                    }`}
                     onClick={() => setTimeRange("all")}
                   >
                     Tout
@@ -939,8 +942,9 @@ function DashboardPage() {
                 {mockMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`message-item ${msg.unread ? "message-unread" : ""
-                      }`}
+                    className={`message-item ${
+                      msg.unread ? "message-unread" : ""
+                    }`}
                   >
                     <div className="message-avatar">
                       {msg.from
@@ -1499,504 +1503,408 @@ const mockUser = {
   role: "student", // "student" | "teacher" | "admin"
 };
 
-
-const initialTeacher = {
-  firstName: "Ana",
-  lastName: "Silva",
-  title: "Professeure",
-  schoolEmail: "ana.silva@dandela-academy.com",
-  personalEmail: "ana.silva@example.com",
-  phone: "+41 79 123 45 67",
-  role: "Professeur",
-  type: "Temps plein",
-  teacherId: "T-2025-001",
-  bio: "Passionnée par la bureautique et l’analyse de données, j’accompagne les étudiants dans la maîtrise d’Excel, de Power BI et des outils numériques modernes.",
-  expertise: ["Excel", "Power BI", "IA appliquée", "Automatisation"],
-  languages: ["Français", "Portugais", "Anglais"],
-  location: "Campus central - Salle 3",
-  officeHours: "Mardi & Jeudi • 16:00 – 18:00",
-  notificationsEmail: true,
-  notificationsSms: false,
-  theme: "dark",
+// Mock cours initial
+const initialCourse = {
+  id: "course_1",
+  title: "Excel – Niveau Intermédiaire",
+  code: "EXCEL-102",
+  description:
+    "Approfondis les fonctions essentielles d’Excel : formules, tableaux, graphiques, mises en forme conditionnelles, et introduction à l’automatisation.",
+  teacher: {
+    id: "teacher_1",
+    name: "Ana Silva",
+    email: "ana.silva@dandela-academy.com",
+  },
+  schedule: {
+    day: "Mardi & Jeudi",
+    time: "18:00 – 20:00",
+    location: "Salle 3 • Campus central",
+  },
+  meta: {
+    level: "Intermédiaire",
+    language: "Français",
+    category: "Bureautique",
+  },
+  capacity: 20,
+  enrolledCount: 12,
+  isUserEnrolled: false,
 };
-/*
-const mockStats = {
-  activeCourses: 4,
-  studentsThisYear: 86,
-  averageRating: 4.7,
-  messagesUnread: 3,
-};
 
-const mockCourses = [
-  {
-    id: 1,
-    title: "Excel – Niveau Débutant",
-    code: "EXCEL-101",
-    students: 24,
-    status: "Actif",
-    nextSession: "Aujourd'hui • 10:00",
-  },
-  {
-    id: 2,
-    title: "Excel – Niveau Intermédiaire",
-    code: "EXCEL-102",
-    students: 18,
-    status: "Actif",
-    nextSession: "Demain • 18:00",
-  },
-  {
-    id: 3,
-    title: "Power BI – Visualisation de données",
-    code: "PBI-201",
-    students: 22,
-    status: "Actif",
-    nextSession: "Jeudi • 19:00",
-  },
-];
+function CoursePage() {
+  // Simule si l'utilisateur est le prof du cours
+  const isTeacherOfCourse = mockUser.role === "teacher"; // à adapter avec ton vrai contexte
 
-const mockMessages = [
-  {
-    id: 1,
-    from: "Daniel Mbengui",
-    time: "Il y a 1 h",
-    preview:
-      "Bonjour Madame, j’ai une question sur l’exercice 4 concernant les tableaux croisés...",
-    unread: true,
-  },
-  {
-    id: 2,
-    from: "Support Dandela Academy",
-    time: "Hier",
-    preview:
-      "Votre cours “Power BI – Visualisation de données” a atteint 20 étudiants inscrits.",
-    unread: false,
-  },
-  {
-    id: 3,
-    from: "João Pereira",
-    time: "Il y a 3 jours",
-    preview:
-      "On pourrait co-créer un module sur l’IA appliquée à Excel, tu en penses quoi ?",
-    unread: false,
-  },
-];
-*/
-function TeacherProfilePage() {
-  const [teacher, setTeacher] = useState(initialTeacher);
+  const [course, setCourse] = useState(initialCourse);
   const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState(initialTeacher);
+  const [draft, setDraft] = useState(initialCourse);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
-    // Gestion arrays simple → string séparée par virgule
-    if (name === "expertise" || name === "languages") {
-      const arr = value
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean);
-
+    // Gestion de quelques champs imbriqués (meta.* / schedule.*)
+    if (name.startsWith("meta.")) {
+      const key = name.split(".")[1];
       setDraft((prev) => ({
         ...prev,
-        [name]: arr,
+        meta: {
+          ...prev.meta,
+          [key]: value,
+        },
       }));
-      return;
+    } else if (name.startsWith("schedule.")) {
+      const key = name.split(".")[1];
+      setDraft((prev) => ({
+        ...prev,
+        schedule: {
+          ...prev.schedule,
+          [key]: value,
+        },
+      }));
+    } else if (name.startsWith("teacher.")) {
+      const key = name.split(".")[1];
+      setDraft((prev) => ({
+        ...prev,
+        teacher: {
+          ...prev.teacher,
+          [key]: value,
+        },
+      }));
+    } else {
+      setDraft((prev) => ({
+        ...prev,
+        [name]: name === "capacity" ? Number(value) : value,
+      }));
     }
-
-    setDraft((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
   };
 
   const handleEdit = () => {
-    setDraft(teacher);
+    setDraft(course);
     setIsEditing(true);
   };
 
-  const handleCancel = () => {
-    setDraft(teacher);
+  const handleCancelEdit = () => {
+    setDraft(course);
     setIsEditing(false);
   };
 
-  const handleSave = (e) => {
+  const handleSaveEdit = (e) => {
     e.preventDefault();
-    setTeacher(draft);
+    setCourse(draft);
     setIsEditing(false);
 
-    // Ici tu pourras appeler ton API / Firestore pour sauvegarder
-    // await fetch("/api/teachers/me", { method: "PUT", body: JSON.stringify(draft) })
-    console.log("Profil prof sauvegardé :", draft);
+    // Ici tu pourrais appeler ton API pour sauvegarder
+    // await fetch(`/api/courses/${course.id}`, { method: "PUT", body: JSON.stringify(draft) });
+    console.log("Cours mis à jour :", draft);
   };
+
+  const handleToggleEnrollment = async () => {
+    setLoadingAction(true);
+
+    // Simule appel API
+    setTimeout(() => {
+      setCourse((prev) => {
+        const isCurrentlyEnrolled = prev.isUserEnrolled;
+        const delta = isCurrentlyEnrolled ? -1 : 1;
+
+        const updated = {
+          ...prev,
+          isUserEnrolled: !isCurrentlyEnrolled,
+          enrolledCount: Math.max(prev.enrolledCount + delta, 0),
+        };
+
+        // Ici tu pourrais appeler ton API
+        // await fetch(`/api/courses/${prev.id}/enroll`, { method: isCurrentlyEnrolled ? "DELETE" : "POST" });
+
+        console.log(
+          isCurrentlyEnrolled ? "Désinscription effectuée" : "Inscription effectuée",
+          updated
+        );
+        return updated;
+      });
+
+      setLoadingAction(false);
+    }, 400);
+  };
+
+  const remainingSeats = Math.max(course.capacity - course.enrolledCount, 0);
+  const isFull = remainingSeats <= 0;
 
   return (
     <div className="page">
       <main className="container">
         {/* HEADER */}
         <header className="header">
-          <div className="header-left">
-            <div className="avatar">
-              {teacher.firstName[0]}
-              {teacher.lastName[0]}
-            </div>
-            <div>
-              <p className="badge-role">{teacher.title}</p>
-              <h1>
-                {teacher.firstName} {teacher.lastName}
-              </h1>
-              <p className="muted">
-                #{teacher.teacherId} • {teacher.role} • {teacher.type}
-              </p>
-            </div>
+          <div>
+            <p className="breadcrumb">Dashboard / Cours / {course.code}</p>
+            <h1>{course.title}</h1>
+            <p className="muted">
+              Code : {course.code} • Niveau : {course.meta.level} • {course.meta.language}
+            </p>
           </div>
 
-          <div className="header-right">
-            <div className="contact-block">
-              <p className="contact-line">
-                <span>Email école :</span> {teacher.schoolEmail}
-              </p>
-              <p className="contact-line">
-                <span>Email perso :</span> {teacher.personalEmail}
-              </p>
-              <p className="contact-line">
-                <span>Téléphone :</span> {teacher.phone}
-              </p>
-            </div>
+          <div className="header-actions">
+            {/* Bouton inscription/désinscription pour les étudiants */}
+            {mockUser.role === "student" && (
+              <button
+                className={`btn ${course.isUserEnrolled ? "btn-secondary" : "primary"}`}
+                onClick={handleToggleEnrollment}
+                disabled={loadingAction || (isFull && !course.isUserEnrolled)}
+              >
+                {loadingAction
+                  ? "Chargement..."
+                  : course.isUserEnrolled
+                  ? "Me désinscrire"
+                  : isFull
+                  ? "Cours complet"
+                  : "M'inscrire à ce cours"}
+              </button>
+            )}
 
-            <div className="header-actions">
-              {!isEditing && (
-                <button className="btn primary" onClick={handleEdit}>
-                  Modifier le profil
+            {/* Boutons pour le prof du cours */}
+            {isTeacherOfCourse && !isEditing && (
+              <button className="btn" onClick={handleEdit}>
+                Modifier le cours
+              </button>
+            )}
+            {isTeacherOfCourse && isEditing && (
+              <>
+                <button className="btn ghost" onClick={handleCancelEdit}>
+                  Annuler
                 </button>
-              )}
-              {isEditing && (
-                <>
-                  <button className="btn" onClick={handleCancel}>
-                    Annuler
-                  </button>
-                  <button className="btn primary" onClick={handleSave}>
-                    Enregistrer
-                  </button>
-                </>
-              )}
-            </div>
+                <button className="btn primary" onClick={handleSaveEdit}>
+                  Enregistrer
+                </button>
+              </>
+            )}
           </div>
         </header>
 
-        {/* STATS */}
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Cours actifs</p>
-            <p className="stat-value">{mockStats.activeCourses}</p>
-            <p className="stat-helper">en ce moment</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Étudiants cette année</p>
-            <p className="stat-value">{mockStats.studentsThisYear}</p>
-            <p className="stat-helper">tous cours confondus</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Note moyenne</p>
-            <p className="stat-value">
-              {mockStats.averageRating}
-              <span className="stat-unit">/5</span>
-            </p>
-            <div className="stat-bar">
-              <div
-                className="stat-bar-fill"
-                style={{ width: `${(mockStats.averageRating / 5) * 100}%` }}
-              />
-            </div>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Messages non lus</p>
-            <p className="stat-value">{mockStats.messagesUnread}</p>
-            <p className="stat-helper">à traiter</p>
-          </div>
-        </section>
-
-        {/* GRILLE PRINCIPALE */}
         <section className="grid">
-          {/* COL 1 : infos prof + paramètres */}
-          <form className="card" onSubmit={handleSave}>
-            <h2>Informations du professeur</h2>
+          {/* COL 1 : description + infos éditables */}
+          <form className="card" onSubmit={handleSaveEdit}>
+            <h2>Informations du cours</h2>
 
-            <div className="field-group">
-              <div className="field">
-                <label>Prénom</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={draft.firstName}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="field">
-                <label>Nom</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={draft.lastName}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-
-            <div className="field-group">
-              <div className="field">
-                <label>Titre / fonction</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={draft.title}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="field">
-                <label>Rôle</label>
-                <select
-                  name="role"
-                  value={draft.role}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                >
-                  <option value="Professeur">Professeur</option>
-                  <option value="Super professeur">Super professeur</option>
-                  <option value="Coordinateur">Coordinateur</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="field-group">
-              <div className="field">
-                <label>Type de contrat</label>
-                <select
-                  name="type"
-                  value={draft.type}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                >
-                  <option value="Temps plein">Temps plein</option>
-                  <option value="Temps partiel">Temps partiel</option>
-                  <option value="Consultant externe">Consultant externe</option>
-                </select>
-              </div>
-              <div className="field">
-                <label>ID professeur</label>
-                <input
-                  type="text"
-                  name="teacherId"
-                  value={draft.teacherId}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
+            <div className="field">
+              <label>Titre</label>
+              <input
+                type="text"
+                name="title"
+                value={draft.title}
+                onChange={handleChange}
+                disabled={!isTeacherOfCourse || !isEditing}
+              />
             </div>
 
             <div className="field">
-              <label>Bio</label>
+              <label>Code du cours</label>
+              <input
+                type="text"
+                name="code"
+                value={draft.code}
+                onChange={handleChange}
+                disabled={!isTeacherOfCourse || !isEditing}
+              />
+            </div>
+
+            <div className="field">
+              <label>Description</label>
               <textarea
-                name="bio"
-                rows={4}
-                value={draft.bio}
+                name="description"
+                value={draft.description}
                 onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="field">
-              <label>Domaines d&apos;expertise</label>
-              <input
-                type="text"
-                name="expertise"
-                value={draft.expertise.join(", ")}
-                onChange={handleChange}
-                disabled={!isEditing}
-                placeholder="Ex: Excel, IA, Power BI"
-              />
-              <p className="hint">
-                Sépare chaque domaine avec une virgule ( , )
-              </p>
-            </div>
-
-            <div className="field">
-              <label>Langues parlées</label>
-              <input
-                type="text"
-                name="languages"
-                value={draft.languages.join(", ")}
-                onChange={handleChange}
-                disabled={!isEditing}
-                placeholder="Ex: Français, Portugais, Anglais"
+                disabled={!isTeacherOfCourse || !isEditing}
+                rows={5}
               />
             </div>
 
             <div className="field-group">
               <div className="field">
-                <label>Email de l&apos;école</label>
-                <input
-                  type="email"
-                  name="schoolEmail"
-                  value={draft.schoolEmail}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="field">
-                <label>Email personnel</label>
-                <input
-                  type="email"
-                  name="personalEmail"
-                  value={draft.personalEmail}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-
-            <div className="field-group">
-              <div className="field">
-                <label>Téléphone</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={draft.phone}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="field">
-                <label>Thème</label>
+                <label>Niveau</label>
                 <select
-                  name="theme"
-                  value={draft.theme}
+                  name="meta.level"
+                  value={draft.meta.level}
                   onChange={handleChange}
-                  disabled={!isEditing}
+                  disabled={!isTeacherOfCourse || !isEditing}
                 >
-                  <option value="dark">Sombre</option>
-                  <option value="light">Clair</option>
-                  <option value="system">Système</option>
+                  <option value="Débutant">Débutant</option>
+                  <option value="Intermédiaire">Intermédiaire</option>
+                  <option value="Avancé">Avancé</option>
                 </select>
               </div>
-            </div>
 
-            <h3>Paramètres</h3>
-            <div className="field inline">
-              <label>
-                <input
-                  type="checkbox"
-                  name="notificationsEmail"
-                  checked={draft.notificationsEmail}
+              <div className="field">
+                <label>Langue</label>
+                <select
+                  name="meta.language"
+                  value={draft.meta.language}
                   onChange={handleChange}
-                  disabled={!isEditing}
-                />
-                Recevoir les notifications par email
-              </label>
-            </div>
-            <div className="field inline">
-              <label>
-                <input
-                  type="checkbox"
-                  name="notificationsSms"
-                  checked={draft.notificationsSms}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-                Recevoir les notifications par SMS
-              </label>
-            </div>
-
-            {isEditing && (
-              <div className="edit-footer">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={handleCancel}
+                  disabled={!isTeacherOfCourse || !isEditing}
                 >
+                  <option value="Français">Français</option>
+                  <option value="Anglais">Anglais</option>
+                  <option value="Portugais">Portugais</option>
+                </select>
+              </div>
+
+              <div className="field">
+                <label>Catégorie</label>
+                <input
+                  type="text"
+                  name="meta.category"
+                  value={draft.meta.category}
+                  onChange={handleChange}
+                  disabled={!isTeacherOfCourse || !isEditing}
+                />
+              </div>
+            </div>
+
+            {isTeacherOfCourse && isEditing && (
+              <div className="edit-footer">
+                <button type="button" className="btn ghost" onClick={handleCancelEdit}>
                   Annuler
                 </button>
                 <button type="submit" className="btn primary">
-                  Enregistrer
+                  Enregistrer les modifications
                 </button>
               </div>
             )}
           </form>
 
-          {/* COL 2 : cours, messages, disponibilités */}
+          {/* COL 2 : infos prof, horaires, capacité, stats */}
           <div className="side-col">
-            {/* COURS */}
             <div className="card">
-              <div className="card-header">
-                <h2>Cours enseignés</h2>
-                <button className="link-btn">Voir tous</button>
+              <h2>Professeur responsable</h2>
+              <div className="teacher-block">
+                <div className="teacher-avatar">
+                  {course.teacher.name
+                    .split(" ")
+                    .map((p) => p[0])
+                    .join("")}
+                </div>
+                <div>
+                  <p className="teacher-name">{course.teacher.name}</p>
+                  <p className="teacher-email">{course.teacher.email}</p>
+                </div>
               </div>
-              <div className="course-list">
-                {mockCourses.map((course) => (
-                  <div key={course.id} className="course-item">
-                    <div>
-                      <p className="course-title">{course.title}</p>
-                      <p className="course-sub">
-                        {course.code} • {course.students} étudiants •{" "}
-                        {course.status}
-                      </p>
-                      <p className="course-next">{course.nextSession}</p>
-                    </div>
-                    <button className="mini-btn">Ouvrir</button>
+
+              {isTeacherOfCourse && (
+                <>
+                  <div className="field">
+                    <label>Nom du professeur</label>
+                    <input
+                      type="text"
+                      name="teacher.name"
+                      value={draft.teacher.name}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                    />
                   </div>
-                ))}
+                  <div className="field">
+                    <label>Email du professeur</label>
+                    <input
+                      type="email"
+                      name="teacher.email"
+                      value={draft.teacher.email}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="card">
+              <h2>Horaires & lieu</h2>
+
+              <div className="field">
+                <label>Jours</label>
+                <input
+                  type="text"
+                  name="schedule.day"
+                  value={draft.schedule.day}
+                  onChange={handleChange}
+                  disabled={!isTeacherOfCourse || !isEditing}
+                />
+              </div>
+
+              <div className="field">
+                <label>Heure</label>
+                <input
+                  type="text"
+                  name="schedule.time"
+                  value={draft.schedule.time}
+                  onChange={handleChange}
+                  disabled={!isTeacherOfCourse || !isEditing}
+                />
+              </div>
+
+              <div className="field">
+                <label>Lieu</label>
+                <input
+                  type="text"
+                  name="schedule.location"
+                  value={draft.schedule.location}
+                  onChange={handleChange}
+                  disabled={!isTeacherOfCourse || !isEditing}
+                />
               </div>
             </div>
 
-            {/* MESSAGES */}
             <div className="card">
-              <div className="card-header">
-                <h2>Messages récents</h2>
-                <button className="link-btn">Boîte de réception</button>
+              <h2>Participants</h2>
+              <div className="capacity-row">
+                <div>
+                  <p className="capacity-main">
+                    {course.enrolledCount} / {course.capacity} inscrits
+                  </p>
+                  <p className="capacity-sub">
+                    {isFull ? "Cours complet" : `${remainingSeats} place(s) restante(s)`}
+                  </p>
+                </div>
+                <div className="capacity-chip">
+                  {course.isUserEnrolled ? "Tu es inscrit" : "Non inscrit"}
+                </div>
               </div>
-              <div className="message-list">
-                {mockMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`message-item ${msg.unread ? "message-unread" : ""
-                      }`}
-                  >
-                    <div className="message-avatar">
-                      {msg.from
-                        .split(" ")
-                        .map((p) => p[0])
-                        .join("")}
-                    </div>
-                    <div className="message-content">
-                      <div className="message-top">
-                        <span className="message-from">{msg.from}</span>
-                        <span className="message-time">{msg.time}</span>
-                      </div>
-                      <p className="message-preview">{msg.preview}</p>
-                      {msg.unread && <span className="badge">Nouveau</span>}
-                    </div>
-                  </div>
-                ))}
+
+              <div className="capacity-bar">
+                <div
+                  className="capacity-fill"
+                  style={{ width: `${(course.enrolledCount / course.capacity) * 100}%` }}
+                />
               </div>
+
+              {isTeacherOfCourse && (
+                <div className="field" style={{ marginTop: 12 }}>
+                  <label>Capacité maximale</label>
+                  <input
+                    type="number"
+                    min={1}
+                    name="capacity"
+                    value={draft.capacity}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
+                </div>
+              )}
             </div>
 
-            {/* DISPONIBILITÉS */}
             <div className="card">
-              <div className="card-header">
-                <h2>Horaires & lieu</h2>
-              </div>
-              <p className="info-line">
-                <span>Lieu principal :</span> {teacher.location}
-              </p>
-              <p className="info-line">
-                <span>Heures de réception :</span> {teacher.officeHours}
-              </p>
-              <p className="info-note">
-                Les étudiants peuvent réserver un créneau de rendez-vous pendant
-                ces horaires via le calendrier de l&apos;app.
-              </p>
+              <h2>Informations utiles</h2>
+              <ul className="info-list">
+                <li>
+                  <span>Pré-requis :</span> Bases d&apos;Excel (niveau débutant)
+                </li>
+                <li>
+                  <span>Matériel conseillé :</span> Ordinateur portable + Excel installé
+                </li>
+                <li>
+                  <span>Mode :</span> Présentiel / hybride possible
+                </li>
+                <li>
+                  <span>Certificat :</span> délivré si assiduité & moyenne ≥ 60%
+                </li>
+              </ul>
             </div>
           </div>
         </section>
@@ -2014,77 +1922,38 @@ function TeacherProfilePage() {
 
         .container {
           width: 100%;
-          max-width: 1150px;
+          max-width: 1100px;
         }
 
         .header {
           display: flex;
           justify-content: space-between;
+          align-items: flex-start;
           gap: 16px;
           margin-bottom: 24px;
-          align-items: center;
-          flex-wrap: wrap;
         }
 
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-
-        .avatar {
-          width: 64px;
-          height: 64px;
-          border-radius: 999px;
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 1.3rem;
-        }
-
-        .badge-role {
+        .breadcrumb {
           margin: 0 0 4px;
           font-size: 0.75rem;
-          color: #a5b4fc;
+          color: #6b7280;
         }
 
         h1 {
-          margin: 0;
+          margin: 0 0 6px;
           font-size: 1.8rem;
         }
 
         .muted {
-          margin: 2px 0 0;
-          font-size: 0.9rem;
-          color: #9ca3af;
-        }
-
-        .header-right {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
-        }
-
-        .contact-block {
-          text-align: right;
-          font-size: 0.8rem;
-          color: #e5e7eb;
-        }
-
-        .contact-line {
           margin: 0;
-        }
-
-        .contact-line span {
+          font-size: 0.9rem;
           color: #9ca3af;
         }
 
         .header-actions {
           display: flex;
           gap: 8px;
+          flex-wrap: wrap;
         }
 
         .btn {
@@ -2102,92 +1971,35 @@ function TeacherProfilePage() {
           border-color: transparent;
         }
 
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 12px;
-          margin-bottom: 20px;
+        .btn.btn-secondary {
+          background: transparent;
+          border-color: #f97316;
+          color: #fed7aa;
         }
 
-        .stat-card {
-          background: #020617;
-          border-radius: 16px;
-          padding: 12px 14px;
-          border: 1px solid #1f2937;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        .btn.ghost {
+          background: transparent;
+          border-color: #374151;
         }
 
-        .stat-label {
-          margin: 0 0 4px;
-          font-size: 0.8rem;
-          color: #9ca3af;
-        }
-
-        .stat-value {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 600;
-        }
-
-        .stat-unit {
-          font-size: 0.9rem;
-          margin-left: 3px;
-          color: #9ca3af;
-        }
-
-        .stat-helper {
-          margin: 4px 0 0;
-          font-size: 0.78rem;
-          color: #6b7280;
-        }
-
-        .stat-bar {
-          margin-top: 8px;
-          height: 6px;
-          border-radius: 999px;
-          background: #020617;
-          border: 1px solid #1f2937;
-          overflow: hidden;
-        }
-
-        .stat-bar-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #22c55e, #16a34a);
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         .grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+          grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr);
           gap: 16px;
-          margin-bottom: 32px;
         }
 
-        @media (max-width: 980px) {
+        @media (max-width: 900px) {
           .grid {
             grid-template-columns: 1fr;
           }
 
           .header {
-            align-items: flex-start;
-          }
-
-          .header-right {
-            align-items: flex-start;
-            text-align: left;
-          }
-
-          .contact-block {
-            text-align: left;
-          }
-
-          .stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 700px) {
-          .stats-grid {
-            grid-template-columns: 1fr;
+            flex-direction: column;
           }
         }
 
@@ -2204,11 +2016,6 @@ function TeacherProfilePage() {
           font-size: 1.1rem;
         }
 
-        .card h3 {
-          margin: 14px 0 8px;
-          font-size: 0.98rem;
-        }
-
         .field {
           display: flex;
           flex-direction: column;
@@ -2223,7 +2030,7 @@ function TeacherProfilePage() {
 
         .field-group {
           display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 8px;
         }
 
@@ -2235,6 +2042,7 @@ function TeacherProfilePage() {
 
         input[type="text"],
         input[type="email"],
+        input[type="number"],
         select,
         textarea {
           background: #020617;
@@ -2257,22 +2065,6 @@ function TeacherProfilePage() {
           cursor: not-allowed;
         }
 
-        .field.inline {
-          flex-direction: row;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .field.inline label {
-          margin-bottom: 0;
-        }
-
-        .hint {
-          margin: 3px 0 0;
-          font-size: 0.75rem;
-          color: #6b7280;
-        }
-
         .edit-footer {
           margin-top: 12px;
           display: flex;
@@ -2286,835 +2078,100 @@ function TeacherProfilePage() {
           gap: 12px;
         }
 
-        .card-header {
+        .teacher-block {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           margin-bottom: 10px;
         }
 
-        .card-header h2 {
-          margin: 0;
-          font-size: 1.05rem;
-        }
-
-        .link-btn {
-          background: none;
-          border: none;
-          padding: 0;
-          margin: 0;
-          font-size: 0.8rem;
-          color: #60a5fa;
-          cursor: pointer;
-        }
-
-        .course-list {
+        .teacher-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
           display: flex;
-          flex-direction: column;
-          gap: 8px;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.9rem;
+          font-weight: 600;
         }
 
-        .course-item {
-          display: flex;
-          justify-content: space-between;
-          gap: 10px;
-          padding: 8px 10px;
-          border-radius: 12px;
-          background: #020617;
-          border: 1px solid #111827;
-        }
-
-        .course-title {
-          margin: 0 0 3px;
+        .teacher-name {
+          margin: 0 0 2px;
           font-size: 0.95rem;
         }
 
-        .course-sub {
+        .teacher-email {
           margin: 0;
-          font-size: 0.78rem;
+          font-size: 0.8rem;
           color: #9ca3af;
         }
 
-        .course-next {
-          margin: 3px 0 0;
-          font-size: 0.78rem;
-          color: #60a5fa;
+        .capacity-row {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          align-items: center;
+          margin-bottom: 8px;
         }
 
-        .mini-btn {
+        .capacity-main {
+          margin: 0;
+          font-size: 0.95rem;
+          font-weight: 500;
+        }
+
+        .capacity-sub {
+          margin: 2px 0 0;
+          font-size: 0.8rem;
+          color: #9ca3af;
+        }
+
+        .capacity-chip {
           border-radius: 999px;
           padding: 4px 10px;
-          border: 1px solid #374151;
-          background: #020617;
-          color: #e5e7eb;
           font-size: 0.75rem;
-          height: fit-content;
-          cursor: pointer;
-        }
-
-        .message-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .message-item {
-          display: flex;
-          gap: 8px;
-          padding: 8px 10px;
-          border-radius: 12px;
+          border: 1px solid #1f2937;
           background: #020617;
-          border: 1px solid #111827;
-          position: relative;
-        }
-
-        .message-unread {
-          border-color: #2563eb;
-          background: radial-gradient(circle at top left, #1d4ed81a, #020617);
-        }
-
-        .message-avatar {
-          min-width: 32px;
-          height: 32px;
-          border-radius: 999px;
-          background: #0f172a;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-
-        .message-content {
-          flex: 1;
-        }
-
-        .message-top {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.78rem;
-        }
-
-        .message-from {
-          font-weight: 500;
-        }
-
-        .message-time {
-          color: #6b7280;
-        }
-
-        .message-preview {
-          margin: 3px 0 0;
-          font-size: 0.8rem;
-          color: #e5e7eb;
-        }
-
-        .badge {
-          position: absolute;
-          top: 4px;
-          right: 6px;
-          font-size: 0.7rem;
-          padding: 2px 6px;
-          border-radius: 999px;
-          background: #22c55e33;
-          color: #4ade80;
-          border: 1px solid #16a34a;
-        }
-
-        .info-line {
-          margin: 4px 0;
-          font-size: 0.85rem;
-        }
-
-        .info-line span {
           color: #9ca3af;
         }
 
-        .info-note {
-          margin-top: 8px;
-          font-size: 0.78rem;
-          color: #6b7280;
+        .capacity-bar {
+          width: 100%;
+          height: 8px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .capacity-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+
+        .info-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          font-size: 0.85rem;
+          color: #d1d5db;
+        }
+
+        .info-list li {
+          margin-bottom: 6px;
+        }
+
+        .info-list span {
+          color: #9ca3af;
         }
       `}</style>
     </div>
   );
 }
 
-import { useMemo } from "react";
-import { Button } from '@mui/material';
-import { ClassSchool } from '@/classes/ClassSchool';
-import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassComputer } from '@/classes/ClassComputer';
-
-const USERS_MOCK = [
-  {
-    id: "u1",
-    firstName: "Daniel",
-    lastName: "Mbengui",
-    username: "daniel.mb",
-    role: "student",
-    type: "Étudiant",
-    email: "daniel@example.com",
-    schoolEmail: "daniel@dandela-academy.com",
-    avatarUrl: "",
-    status: "online", // online | offline | away
-    mainGroup: "Cohorte 2025",
-    language: "Français",
-  },
-  {
-    id: "u2",
-    firstName: "Ana",
-    lastName: "Silva",
-    username: "ana.silva",
-    role: "teacher",
-    type: "Professeure",
-    email: "ana.silva@example.com",
-    schoolEmail: "ana.silva@dandela-academy.com",
-    avatarUrl: "",
-    status: "online",
-    mainGroup: "Formateurs bureautique",
-    language: "Portugais",
-  },
-  {
-    id: "u3",
-    firstName: "João",
-    lastName: "Pereira",
-    username: "joao.p",
-    role: "teacher",
-    type: "Professeur IA",
-    email: "joao.p@example.com",
-    schoolEmail: "joao.p@dandela-academy.com",
-    avatarUrl: "",
-    status: "away",
-    mainGroup: "Formateurs IA",
-    language: "Portugais",
-  },
-  {
-    id: "u4",
-    firstName: "Marie",
-    lastName: "Dupont",
-    username: "marie.d",
-    role: "admin",
-    type: "Admin pédagogique",
-    email: "marie.d@example.com",
-    schoolEmail: "marie.d@dandela-academy.com",
-    avatarUrl: "",
-    status: "online",
-    mainGroup: "Administration",
-    language: "Français",
-  },
-  {
-    id: "u5",
-    firstName: "Alex",
-    lastName: "Ngombo",
-    username: "alex.ng",
-    role: "super_admin",
-    type: "Direction",
-    email: "alex.ng@example.com",
-    schoolEmail: "alex.ng@dandela-academy.com",
-    avatarUrl: "",
-    status: "online",
-    mainGroup: "Direction",
-    language: "Français",
-  },
-  {
-    id: "u6",
-    firstName: "Inès",
-    lastName: "Costa",
-    username: "ines.c",
-    role: "intern",
-    type: "Stagiaire",
-    email: "ines.c@example.com",
-    schoolEmail: "ines.c@dandela-academy.com",
-    avatarUrl: "",
-    status: "offline",
-    mainGroup: "Support",
-    language: "Anglais",
-  },
-  // tu peux en rajouter facilement
-];
-
-const ROLE_CONFIG = {
-  student: { label: "Étudiant", color: "#22c55e" },
-  teacher: { label: "Professeur", color: "#3b82f6" },
-  admin: { label: "Admin", color: "#f97316" },
-  super_admin: { label: "Super-Admin", color: "#a855f7" },
-  intern: { label: "Stagiaire", color: "#e5e7eb" },
-};
-
-const STATUS_CONFIG_1 = {
-  online: { label: "En ligne", color: "#22c55e" },
-  offline: { label: "Hors ligne", color: "#6b7280" },
-  away: { label: "Absent", color: "#eab308" },
-};
-
-function UsersPage() {
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
-
-  const filteredUsers = useMemo(() => {
-    let list = [...USERS_MOCK];
-
-    if (roleFilter !== "all") {
-      list = list.filter((u) => u.role === roleFilter);
-    }
-
-    if (statusFilter !== "all") {
-      list = list.filter((u) => u.status === statusFilter);
-    }
-
-    if (search.trim()) {
-      const s = search.toLowerCase();
-      list = list.filter((u) => {
-        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-        return (
-          fullName.includes(s) ||
-          u.username.toLowerCase().includes(s) ||
-          u.email.toLowerCase().includes(s) ||
-          u.schoolEmail.toLowerCase().includes(s)
-        );
-      });
-    }
-
-    if (sortBy === "name") {
-      list.sort((a, b) =>
-        `${a.lastName} ${a.firstName}`.localeCompare(
-          `${b.lastName} ${b.firstName}`
-        )
-      );
-    } else if (sortBy === "role") {
-      list.sort((a, b) => a.role.localeCompare(b.role));
-    }
-
-    return list;
-  }, [search, roleFilter, statusFilter, sortBy]);
-
-  return (
-    <div className="page">
-      <main className="container">
-        {/* HEADER */}
-        <header className="header">
-          <div>
-            <p className="breadcrumb">Dashboard / Utilisateurs</p>
-            <h1>Liste des utilisateurs</h1>
-            <p className="muted">
-              Gère tous les profils : étudiants, professeurs, admins, super-admins
-              et stagiaires.
-            </p>
-          </div>
-
-          <div className="header-actions">
-            <button className="btn ghost">Exporter (.csv)</button>
-            <button className="btn primary">Ajouter un utilisateur</button>
-          </div>
-        </header>
-
-        {/* BARRE DE FILTRES */}
-        <section className="toolbar">
-          <div className="search-block">
-            <input
-              type="text"
-              placeholder="Rechercher par nom, email, username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="filters">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="all">Tous les rôles</option>
-              <option value="student">Étudiants</option>
-              <option value="teacher">Professeurs</option>
-              <option value="admin">Admins</option>
-              <option value="super_admin">Super-Admins</option>
-              <option value="intern">Stagiaires</option>
-            </select>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="online">En ligne</option>
-              <option value="away">Absent</option>
-              <option value="offline">Hors ligne</option>
-            </select>
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="name">Trier par nom</option>
-              <option value="role">Trier par rôle</option>
-            </select>
-          </div>
-        </section>
-
-        {/* TABLE / LISTE */}
-        <section className="card">
-          <div className="table-header">
-            <span className="th th-user">Utilisateur</span>
-            <span className="th th-username">Username</span>
-            <span className="th th-role">Rôle</span>
-            <span className="th th-email">Email</span>
-            <span className="th th-status">Statut</span>
-            <span className="th th-group">Groupe / Langue</span>
-            <span className="th th-actions">Actions</span>
-          </div>
-
-          <div className="table-body">
-            {filteredUsers.length === 0 && (
-              <div className="empty-state">
-                Aucun utilisateur ne correspond à ces critères.
-              </div>
-            )}
-
-            {filteredUsers.map((user) => (
-              <UserRow key={user.id} user={user} />
-            ))}
-          </div>
-        </section>
-      </main>
-
-      <style jsx>{`
-        .page {
-          min-height: 100vh;
-          background: #020617;
-          padding: 40px 16px;
-          color: #e5e7eb;
-          display: flex;
-          justify-content: center;
-        }
-
-        .container {
-          width: 100%;
-          max-width: 1150px;
-        }
-
-        .header {
-          display: flex;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 24px;
-          align-items: flex-start;
-          flex-wrap: wrap;
-        }
-
-        .breadcrumb {
-          margin: 0 0 4px;
-          font-size: 0.75rem;
-          color: #6b7280;
-        }
-
-        h1 {
-          margin: 0 0 6px;
-          font-size: 1.8rem;
-        }
-
-        .muted {
-          margin: 0;
-          font-size: 0.9rem;
-          color: #9ca3af;
-          max-width: 480px;
-        }
-
-        .header-actions {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-
-        .btn {
-          border-radius: 999px;
-          padding: 8px 14px;
-          border: 1px solid #374151;
-          background: #020617;
-          color: #e5e7eb;
-          font-size: 0.9rem;
-          cursor: pointer;
-        }
-
-        .btn.primary {
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          border-color: transparent;
-        }
-
-        .btn.ghost {
-          background: transparent;
-        }
-
-        .toolbar {
-          display: flex;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 16px;
-          flex-wrap: wrap;
-        }
-
-        .search-block {
-          flex: 1;
-          min-width: 220px;
-        }
-
-        .search-block input {
-          width: 100%;
-          border-radius: 999px;
-          border: 1px solid #1f2937;
-          padding: 8px 12px;
-          background: #020617;
-          color: #e5e7eb;
-          font-size: 0.9rem;
-          outline: none;
-        }
-
-        .search-block input::placeholder {
-          color: #6b7280;
-        }
-
-        .filters {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-
-        .filters select {
-          border-radius: 999px;
-          border: 1px solid #1f2937;
-          background: #020617;
-          color: #e5e7eb;
-          padding: 6px 10px;
-          font-size: 0.85rem;
-          outline: none;
-        }
-
-        .card {
-          background: #020617;
-          border-radius: 16px;
-          border: 1px solid #1f2937;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-          padding: 8px 0 10px;
-        }
-
-        .table-header {
-          display: grid;
-          grid-template-columns:
-            minmax(0, 2.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 2.3fr)
-            minmax(0, 1.4fr)
-            minmax(0, 2.2fr)
-            minmax(0, 1.5fr);
-          gap: 8px;
-          padding: 8px 16px;
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          color: #6b7280;
-          border-bottom: 1px solid #111827;
-        }
-
-        @media (max-width: 900px) {
-          .table-header {
-            display: none;
-          }
-        }
-
-        .th {
-          white-space: nowrap;
-        }
-
-        .table-body {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .empty-state {
-          padding: 16px;
-          text-align: center;
-          font-size: 0.9rem;
-          color: #9ca3af;
-        }
-
-        @media (max-width: 900px) {
-          .card {
-            padding: 10px;
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function UserRow({ user }) {
-  const roleCfg = ROLE_CONFIG[user.role];
-  const statusCfg = STATUS_CONFIG_1[user.status];
-
-  return (
-    <>
-      <div className="row">
-        {/* Utilisateur */}
-        <div className="cell cell-user">
-          <Avatar user={user} />
-          <div className="user-text">
-            <p className="user-name">
-              {user.firstName} {user.lastName}
-            </p>
-            <p className="user-id">ID: {user.id}</p>
-          </div>
-        </div>
-
-        {/* Username */}
-        <div className="cell cell-username">
-          <p className="text-main">@{user.username}</p>
-          <p className="text-sub">{user.type}</p>
-        </div>
-
-        {/* Rôle */}
-        <div className="cell cell-role">
-          <span
-            className="role-badge"
-            style={{
-              borderColor: roleCfg.color,
-              color: roleCfg.color,
-            }}
-          >
-            <span
-              className="role-dot"
-              style={{ backgroundColor: roleCfg.color }}
-            />
-            {roleCfg.label}
-          </span>
-        </div>
-
-        {/* Email */}
-        <div className="cell cell-email">
-          <p className="text-main">{user.schoolEmail}</p>
-          <p className="text-sub">{user.email}</p>
-        </div>
-
-        {/* Statut */}
-        <div className="cell cell-status">
-          <span className="status-pill">
-            <span
-              className="status-dot"
-              style={{ backgroundColor: statusCfg.color }}
-            />
-            {statusCfg.label}
-          </span>
-        </div>
-
-        {/* Groupe / Langue */}
-        <div className="cell cell-group">
-          <p className="text-main">{user.mainGroup}</p>
-          <p className="text-sub">Langue : {user.language}</p>
-        </div>
-
-        {/* Actions */}
-        <div className="cell cell-actions">
-          <button className="mini-btn">Voir</button>
-          <button className="mini-btn ghost">Éditer</button>
-        </div>
-      </div>
-
-      {/* Styles spécifiques à la row */}
-      <style jsx>{`
-        .row {
-          display: grid;
-          grid-template-columns:
-            minmax(0, 2.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 2.3fr)
-            minmax(0, 1.4fr)
-            minmax(0, 2.2fr)
-            minmax(0, 1.5fr);
-          gap: 8px;
-          padding: 10px 16px;
-          font-size: 0.85rem;
-          border-bottom: 1px solid #050816;
-          align-items: center;
-        }
-
-        .row:hover {
-          background: radial-gradient(circle at top left, #1d4ed822, #020617);
-        }
-
-        .cell {
-          min-width: 0;
-        }
-
-        .cell-user {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .user-text {
-          min-width: 0;
-        }
-
-        .user-name {
-          margin: 0;
-          font-weight: 500;
-        }
-
-        .user-id {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #6b7280;
-        }
-
-        .text-main {
-          margin: 0;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .text-sub {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #6b7280;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .role-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          border-radius: 999px;
-          border: 1px solid;
-          padding: 2px 8px;
-          font-size: 0.75rem;
-          background: #020617;
-        }
-
-        .role-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 999px;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-        }
-
-        .status-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          border-radius: 999px;
-          padding: 2px 8px;
-          font-size: 0.75rem;
-          border: 1px solid #1f2937;
-          background: #020617;
-        }
-
-        .status-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 999px;
-        }
-
-        .mini-btn {
-          border-radius: 999px;
-          padding: 4px 8px;
-          border: 1px solid #374151;
-          background: #020617;
-          color: #e5e7eb;
-          font-size: 0.75rem;
-          cursor: pointer;
-          margin-right: 4px;
-        }
-
-        .mini-btn.ghost {
-          background: transparent;
-        }
-
-        @media (max-width: 900px) {
-          .row {
-            grid-template-columns: 1fr;
-            padding: 10px 10px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            border: 1px solid #111827;
-          }
-
-          .cell-email,
-          .cell-group {
-            margin-top: -4px;
-          }
-
-          .cell-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 4px;
-          }
-        }
-      `}</style>
-    </>
-  );
-}
-
-function Avatar({ user }) {
-  const initials = `${user.firstName[0]}${user.lastName[0]}`;
-
-  if (user.avatarUrl) {
-    return (
-      <>
-        <div className="avatar">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={user.avatarUrl} alt={initials} />
-        </div>
-
-        <style jsx>{`
-          .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 999px;
-            overflow: hidden;
-            border: 1px solid #1f2937;
-          }
-          .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-        `}</style>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div className="avatar-fallback">
-        {initials}
-      </div>
-
-      <style jsx>{`
-        .avatar-fallback {
-          width: 32px;
-          height: 32px;
-          border-radius: 999px;
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-      `}</style>
-    </>
-  );
-}
-
-export default function DashboardHome() {
+export default function DashboardCompputerHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
@@ -3123,104 +2180,8 @@ export default function DashboardHome() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { user, login, logout } = useAuth();
-  //static async create(data = {})
-  const [processing, setProcessing] = useState(false);
 
-
-  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
-    En construction...
-    <Button
-      loading={processing}
-      onClick={async () => {
-        setProcessing(true);
-        const school = await ClassSchool.create({
-          //uid: "",
-          //uid_intern: '',
-          name: "Dandela Academy Zango III",
-          name_normalized: "Dandela Academy Zango III",
-          photo_url: "",
-          address: "Zango III, Luanda, Angola",
-          enabled: true
-        });
-        const room = await ClassRoom.create({
-          // uid : "",
-          //uid_intern : "",
-          uid_school: school.uid,
-          name: "Root room",
-          name_normalized: "root_room",
-          //photo_url:"",
-          floor: 1,
-          enabled: true
-        });
-        for (let i = 0; i < 25; i++) {
-          //const countComputers = await ClassComputer.count() || 0;
-          const sizeId = i + 1;
-          const computer = await ClassComputer.create({
-            //uid: "",
-            //uid_intern: "1",
-            uid_room: room.uid,
-            name: `PC-${sizeId.toString().padStart(2, '0')}`,
-            name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
-            enabled: true,
-            status: ClassComputer.STATUS.AVAILABLE,
-            type: ClassComputer.TYPE.DESKTOP,
-            updates: [
-              { status: 'created', description: 'created_description', created_time: new Date() }
-            ],
-          })
-        }
-        //await ClassComputer.create(computer);
-        setProcessing(false);
-      }}
-    >
-      {'Create computer'}
-    </Button>
-    <UsersPage />
+  return (<DashboardPageWrapper title={t('title')} subtitle={'Les infos des périphériques connectés'} icon={<IconDashboard width={22} height={22} />}>
+    <ComputersComponent />
   </DashboardPageWrapper>)
-  /*
-  return (
-    <LoginPageWrapper>
-            <Typography>
-              Se connecter
-            </Typography>
-            <Stack spacing={1}>
-              <TextFieldComponent
-                //label='email'
-                name='email'
-                icon={<IconEmail width={20} />}
-                placeholder='adress'
-                value={email}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setEmail(e.target.value);
-                }}
-                onClear={() => {
-                  setEmail('');
-                }}
-
-              />
-              <TextFieldPasswordComponent
-                //label='email'
-                name='password'
-                placeholder='password'
-                value={password}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setPassword(e.target.value);
-                }}
-                onClear={() => {
-                  setPassword('');
-                }}
-
-              />
-            </Stack>
-            <ButtonNextComponent 
-            label='Se connecter'
-            onClick={()=>{
-              login(email, password);
-            }}
-            />
-    </LoginPageWrapper>
-  );
-  */
 }

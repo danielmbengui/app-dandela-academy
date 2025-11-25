@@ -30,7 +30,6 @@ export default function DashboardCalendar() {
   const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
 
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconProfile width={22} height={22} />}>
-    En construction...
    <Stack sx={{background:'', width:'100%'}}>
      <ProfileComponent />
    </Stack>

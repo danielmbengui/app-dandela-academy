@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ClassUser } from "@/classes/ClassUser";
+import { ClassUser } from "@/classes/ClassSchool";
 import { useLanguage } from "@/contexts/LangProvider";
 import { getFormattedDate, getFormattedMonth, getLastDayInMonth } from "@/contexts/functions";
 import { useTranslation } from "react-i18next";

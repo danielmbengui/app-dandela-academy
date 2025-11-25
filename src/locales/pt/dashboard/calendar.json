@@ -2,8 +2,12 @@
   "title-page": "Calendário - App Dandela Academy",
   "description-page": "O calendário da plataforma Dandela Academy",
   "title": "Calendário",
-  "subtitle": "Você tem acesso a todos os cursos disponíveis",
-  "enrolled-lessons": "Cursos inscritos",
-  "active-lessons": "Cursos ativos",
-  "completed-lessons": "Cursos concluídos"
+  "subtitle": "Podes ver todos os cursos disponíveis",
+  "calendar": {
+    "today": "Hoje",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia",
+    "list": "Lista"
+  }
 }

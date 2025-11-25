@@ -1,5 +1,6 @@
 {
     "dashboard":"Tableau de bord",
+    "computers":"Ordinateurs",
     "calendar":"Calendrier",
     "lessons":"Cours",
     "profile":"Mon profil",
@@ -7,7 +8,7 @@
     "super-admins":"Super-Admin",
     "admins":"Admins",
     "teams":"Équipe",
-    "students":"Eetudiants",
+    "students":"Étudiants",
     "tutors":"Professeurs",
     "settings":"Paramètres"
 }

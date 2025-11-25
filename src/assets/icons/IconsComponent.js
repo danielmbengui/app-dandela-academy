@@ -223,6 +223,9 @@ export const IconDropDown = ({ width = 24, height = 24, color = '' }) => {
 export const IconDropUp = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="bxs:up-arrow" width={width} height={height} color={color} />)
 }
+export const IconComputers = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:outline-hub" width={width} height={height} color={color} />)
+}
 
 export const IconEmail = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="mdi-light:email" width={width} height={height} color={color} />)
