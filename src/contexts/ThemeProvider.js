@@ -122,9 +122,9 @@ export const ThemeProvider = ({ children }) => {
     const [themeMode, setThemeMode] = useState(DEFAULT_THEME);
     const themeColors = useThemeColors(themeMode);
     useEffect(() => {
-        var theme = localStorage.getItem(LOCAL_STORAGE_THEME); // Récupère la donnée du localStorage
-        theme = DEFAULT_THEME;
-        localStorage.setItem(LOCAL_STORAGE_THEME, theme);
+        var theme = localStorage.getItem(LOCAL_STORAGE_THEME) || DEFAULT_THEME; // Récupère la donnée du localStorage
+        //theme = DEFAULT_THEME;
+        //localStorage.setItem(LOCAL_STORAGE_THEME, theme);
         document.documentElement.className = theme; // Applique la classe du thème
         //document.documentElement['data-theme'] = theme; // Applique la classe du thème
         setThemeMode(theme);

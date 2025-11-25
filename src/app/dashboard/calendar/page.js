@@ -15,36 +15,45 @@ import interactionPlugin from '@fullcalendar/interaction'
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
+import { useLanguage } from '@/contexts/LangProvider';
 
 export default function DashboardCalendar() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_CALENDAR]);
+  const {
+    today: title_today,
+    month: title_month,
+    week: title_week,
+    day: title_day,
+    list: title_list
+  } = t('calendar', { returnObjects: true });
+  const { lang } = useLanguage();
   const handleDateClick = (arg) => {
     alert(arg.dateStr)
   }
 
-function renderEventContent(arg) {
-  const { event } = arg;
-  const capacity = event.extendedProps.capacity ?? 0;
-  const registered = event.extendedProps.registered ?? 0;
-  const remaining = Math.max(capacity - registered, 0);
+  function renderEventContent(arg) {
+    const { event } = arg;
+    const capacity = event.extendedProps.capacity ?? 0;
+    const registered = event.extendedProps.registered ?? 0;
+    const remaining = Math.max(capacity - registered, 0);
 
-  return (
-    <Stack alignItems={'center'} justifyContent={'center'} sx={{height:'100%', fontSize: '0.75rem', lineHeight: 1, p:1 }}>
-      {/* Nom de l’événement */}
-      <div style={{ fontWeight: 600, textAlign:'center' }}>{event.title}</div>
+    return (
+      <Stack alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', fontSize: '0.75rem', lineHeight: 1, p: 1 }}>
+        {/* Nom de l’événement */}
+        <div style={{ fontWeight: 600, textAlign: 'center' }}>{event.title}</div>
 
-      {/* Nombre de places dispo / inscrits */}
-      <div>
-        {remaining} places dispo
-      </div>
-      <div>
-        {registered} inscrits
-      </div>
-    </Stack>
-  );
-}
+        {/* Nombre de places dispo / inscrits */}
+        <div>
+          {remaining} places dispo
+        </div>
+        <div>
+          {registered} inscrits
+        </div>
+      </Stack>
+    );
+  }
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconCalendar width={22} height={22} />}>
     En construction...
     <Stack sx={{ width: '100%', flex: 1 }}>
@@ -52,7 +61,7 @@ function renderEventContent(arg) {
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
           initialView="dayGridMonth"
-          locale="pt"                 // langue française
+          locale={lang}                 // langue française
           firstDay={1}                // semaine commence le lundi
           weekends={true}             // mettre false si tu veux cacher sam/dim
           height="auto"
@@ -73,11 +82,11 @@ function renderEventContent(arg) {
 
           /** 🔹 Texte des boutons */
           buttonText={{
-            today: 'Aujourd’hui',
-            month: 'Mois',
-            week: 'Semaine',
-            day: 'Jour',
-            list: 'Liste'
+            today: title_today,
+            month: title_month,
+            week: title_week,
+            day: title_day,
+            list: title_list
           }}
 
           /** 🔹 Événements (occupé / libre) */
@@ -90,15 +99,15 @@ function renderEventContent(arg) {
               start: '2025-11-25',
               //end: '2025-11-25T12:00:00',
               backgroundColor: '#1d4ed8',   // occupé
-              height:'200%',
+              height: '200%',
               borderColor: '#1d4ed8',
               textColor: '#fff',
-              display:'background',
+              display: 'background',
               backgroundColor: '#fecaca',    // “zone occupée”
-                  extendedProps: {
-      capacity: 20,        // nombre total de places
-      registered: 12       // nombre d’inscrits
-    }
+              extendedProps: {
+                capacity: 20,        // nombre total de places
+                registered: 12       // nombre d’inscrits
+              }
             },
             {
               id: '2',
@@ -106,10 +115,10 @@ function renderEventContent(arg) {
               start: '2025-11-26',
               display: 'background',        // couleur de fond sur le jour
               backgroundColor: '#fecaca',    // “zone occupée”
-                  extendedProps: {
-      capacity: 18,        // nombre total de places
-      registered: 4       // nombre d’inscrits
-    }
+              extendedProps: {
+                capacity: 18,        // nombre total de places
+                registered: 4       // nombre d’inscrits
+              }
             }
           ]}
 

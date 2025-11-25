@@ -112,7 +112,7 @@ export class ClassUser {
         this._first_name = first_name;
         this._last_name = last_name;
         this._email_verified = email_verified;
-        this.activated = activated;
+        this._activated = activated;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
         this._birthday = birthday;
@@ -203,7 +203,7 @@ export class ClassUser {
     getInitials() {
         const firstNames = this._first_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
         const lastNames = this._last_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
-        const result = `${firstNames?.slice(0, 2).toLowerCase() || ""}${lastNames?.slice(0, 2).toLowerCase() || ""}`;
+        const result = `${firstNames?.slice(0, 1).toLowerCase() || ""}${lastNames?.slice(0, 1).toLowerCase() || ""}`;
         return (result.slice(0, 4).toUpperCase());
     }
     static getMinDate() {
@@ -255,7 +255,7 @@ export class ClassUser {
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
         if (this._last_name.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
-        return (false)
+        return (false);
     }
     validLastName() {
         if (!this._last_name || this._last_name.length === 0 || this.isErrorLastName()) return (false);

@@ -5,11 +5,13 @@ import { ClassColor } from '@/classes/ClassColor';
 export default function SelectComponent({
     label, name, value, values = [],
     disabled = false, onChange,
-    error, hasNull=true
+    error, hasNull=true,
+    display=true,
+    ...props
  }) {
 
     return (
-        <div>
+        <div style={{display:display ? 'block' : 'none',}}>
             {
                 label && <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
                     {label}

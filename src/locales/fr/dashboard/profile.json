@@ -3,7 +3,21 @@
     "description-page":"Une vue de ton profil sur la plateforme Dandela Academy",
     "title":"Profil",
     "subtitle":"Toutes les informations concernant ton compte",
-    "enrolled-lessons":"Cours inscrits",
     "active-lessons":"Cours actifs",
-    "completed-lessons":"Cours terminés"
+    "completed-lessons":"Cours terminés",
+    "form": {
+        "title-perso":"Informations personnelles",
+        "title-account":"Informations compte",
+        "title-settings":"Paramètres",
+        "uid": "ID utilisateur",
+        "display_name": "Nom utilisateur",
+        "last_name": "Nom(s)",
+        "first_name": "Prénom(s)",
+        "birthday": "Date de naissance",
+        "email": "Email",
+        "phone_number": "Téléphone",
+        "role": "Rôle",
+        "lang": "Langue",
+        "theme": "Thème"
+    }
 }

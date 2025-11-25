@@ -5,10 +5,10 @@ import AccordionComponent from "@/components/elements/AccordionComponent";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDate } from "@/contexts/functions";
-import { languages, NS_DASHBOARD_PROFILE, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
+import { languages, NS_DASHBOARD_PROFILE, NS_FORM, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { Box, Button, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Backdrop, Box, Button, CircularProgress, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,8 @@ import Field from "../elements/Field";
 import { ClassUser } from "@/classes/users/ClassUser";
 import SelectComponent from "@/components/elements/SelectComponent";
 import { THEME_DARK, THEME_LIGHT } from "@/contexts/constants/constants";
+import FieldTextComponent from "@/components/elements/FieldTextComponent";
+import CardComponent from "@/components/elements/CardComponent";
 const initialUser = {
     firstName: "Daniel",
     lastName: "Mbengui",
@@ -422,7 +424,24 @@ function ProfilePage() {
 }
 export default function ProfileComponent() {
     const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
-    const { lang,changeLang } = useLanguage();
+    const form = t('form', {returnObjects:true});
+    const {
+        'title-account': title_account,
+        'title-perso': title_perso,
+        'title-settings': title_settings,
+        email: title_email,
+        phone_number:title_phone_number,
+        uid:title_uid,
+        display_name:title_name,
+        first_name:title_first_name,
+        last_name:title_last_name,
+        role: title_role,
+        birthday: title_birthday,
+        lang: title_lang,
+        theme: title_theme,
+      } = form;
+    console.log("FORM",t('form', {returnObjects:true}))
+    const { lang, changeLang } = useLanguage();
     const { user, isLoading } = useAuth();
     const [userInfo, setUserInfo] = useState(new ClassUser());
     const [isEditing, setIsEditing] = useState(false);
@@ -432,20 +451,26 @@ export default function ProfileComponent() {
             setUserInfo(user.clone());
         }
     }, [isLoading]);
-    const { theme,changeTheme,mode } = useThemeMode();
-    const { primary, primaryShadow, greyLight,text } = theme.palette;
+    const { theme, changeTheme, mode } = useThemeMode();
+    const { primary, primaryShadow, greyLight, text } = theme.palette;
     const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
     const onChangeField = (e) => {
         const { value, name, type } = e.target;
         console.log("EVENT", name, type, userInfo)
         //e.preventDefault();
         //userInfo.update({ first_name: value });
-        setErrors(prev => ({ ...prev, [name]: '' }));
+        //setErrors(prev => ({ ...prev, [name]: '' }));
+        setErrors(prev => {
+            delete prev[name];
+            return prev;
+        });
+        /*
         if (user[name] !== value) {
             setIsEditing(true);
         } else {
             setIsEditing(false);
         }
+        */
         setUserInfo(prev => {
             if (!prev) return user;
             prev.update({ [name]: value });
@@ -455,14 +480,32 @@ export default function ProfileComponent() {
     const onClearField = (name) => {
         //e.preventDefault();
         //userInfo.update({ first_name: value });
-        setIsEditing(true);
+        //setIsEditing(true);
+        setErrors(prev => {
+            delete prev[name];
+            return prev;
+        });
         setUserInfo(prev => {
             if (!prev) return prev;
             prev.update({ [name]: '' });
             return prev.clone();
         });
     }
-    const onEditForm = () => {
+    const onResetField = (name) => {
+        //e.preventDefault();
+        //userInfo.update({ first_name: value });
+        //setIsEditing(true);
+        setErrors(prev => {
+            delete prev[name];
+            return prev;
+        });
+        setUserInfo(prev => {
+            if (!prev) return prev;
+            prev.update({ [name]: user?.[name] });
+            return prev.clone();
+        });
+    }
+    const onEditForm = async () => {
         setIsEditing(true);
         const _errors = {};
         if (!userInfo.validLastName()) {
@@ -476,19 +519,24 @@ export default function ProfileComponent() {
             console.log("Aucune erreur");
             return;
         }
-
+        //setUserInfo();
+        await ClassUser.update(user.uid, userInfo.toJSON());
         setIsEditing(false);
         // On EDIT infos
     }
-    return (<Stack sx={{ background: '', width: '100%', }} spacing={{xs:1.5,sm:2}}>
-        <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
-            <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ background: '' }}>
+    return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
+        <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
+            <Stack spacing={{ xs: 1, sm: 2 }} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} sx={{ background: '' }}>
                 {
                     user?.showAvatar({ size: 55, fontSize: '18px' })
                 }
-                <Stack>
-                    <Typography variant="h1">{completeName || ''}</Typography>
-                    <Typography variant="caption" sx={{color:text.main}}>{user?.email_academy || ''} • {t(user?.role, { ns: NS_ROLES })} • {user?.type}</Typography>
+                <Stack alignItems={{ xs: 'center', sm: 'start' }}>
+                    <Typography sx={{ textAlign: 'center' }} variant="h1">{user?.getCompleteName() || ''}</Typography>
+                    <Stack justifyContent={'center'} alignItems={{ xs: 'center', sm: 'start' }} sx={{ color: greyLight.main }}>
+                        <Typography variant="caption" sx={{ color: text.main }}>{user?.email_academy || ''}</Typography>
+                        <Typography variant="caption" sx={{ color: primary.main }}>{t(user?.role, { ns: NS_ROLES })}</Typography>
+                    </Stack>
+
                 </Stack>
             </Stack>
 
@@ -518,136 +566,165 @@ export default function ProfileComponent() {
         </Stack>
         <Grid container spacing={1.5} sx={{ background: '' }}>
             <Grid size={{ xs: 12, sm: 6.5 }} sx={{
-                background: 'var(--card-color)',
-                borderRadius: '10px',
-                padding: '20px',
+                //background: 'var(--card-color)',
+                //borderRadius: '10px',
+                //padding: { xs: '15px', sm: '20px' },
                 //border: `1px solid ${greyLight.main}`,
                 //boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
             }}>
-                <Stack>
-                    <Typography variant="h2">{'Informations personnelles'}</Typography>
-                    <Stack sx={{ mt: 1.5 }} spacing={1}>
-                        <FieldComponent
-                            label={'Prénom(s)'}
-                            name={'first_name'}
-                            value={userInfo?.first_name}
-                            type='text'
-                            disabled={false}
-                            error={errors.first_name}
-                            onChange={onChangeField}
-                            onClear={() => {
-                                onClearField('first_name');
-                            }}
-                        />
-                        <FieldComponent
-                            label={'Nom(s)'}
-                            name={'last_name'}
-                            value={userInfo?.last_name}
-                            type='text'
-                            disabled={false}
-                            error={errors.last_name}
-                            onChange={onChangeField}
-                            onClear={() => {
-                                onClearField('last_name');
-                            }}
-                        />
-                        <FieldComponent
-                            label={'Date de naissance'}
-                            name={'birthday'}
-                            value={userInfo?.birthday}
-                            type='date'
-                            disabled={true}
-                            error={errors.birthday}
-                            onChange={onChangeField}
+                <Stack spacing={1}>
+                    <CardComponent>
+                    <Stack spacing={1.5}>
+                        <Typography variant="h2">{title_account}</Typography>
+                        <Stack spacing={1}>
+                            <FieldTextComponent
+                                label={title_role}
+                                name={'role'}
+                                value={t(userInfo?.role, { ns: NS_ROLES })}
+                                values={ClassUser.ALL_ROLES.map(role => ({ id: role, value: t(role, { ns: NS_ROLES }) }))}
+                                disabled={true}
+                            />
+                            <FieldTextComponent
+                                label={title_uid}
+                                name={'uid'}
+                                value={userInfo?.uid}
+                                type='text'
+                                disabled={true}
+                                error={errors.uid}
+                            />
+                            <FieldTextComponent
+                                label={title_name}
+                                name={'display_name'}
+                                value={userInfo?.display_name}
+                                type='text'
+                                disabled={true}
+                                error={errors.display_name}
+                            />
+                            <FieldTextComponent
+                                label={title_email}
+                                name={'email_academy'}
+                                value={userInfo?.email_academy}
+                                type='email'
+                                disabled={true}
+                                error={errors.email_academy}
+                                onChange={onChangeField}
 
-                        />
-                        <FieldComponent
-                            label={`Email de l'école`}
-                            name={'email_academy'}
-                            value={userInfo?.email_academy}
-                            type='email'
-                            disabled={true}
-                            error={errors.email_academy}
-                            onChange={onChangeField}
+                            />
 
-                        />
-                        <FieldComponent
-                            label={'Email personnel'}
-                            name={'email'}
-                            value={userInfo?.email}
-                            type='email'
-                            disabled={true}
-                            error={errors.email}
-                        />
+
+
+                        </Stack>
                     </Stack>
+                    </CardComponent>
                 </Stack>
 
             </Grid>
-            <Grid size={{ xs: 12, sm: 'grow' }} sx={{
-                background: 'var(--card-color)',
-                borderRadius: '10px',
-                padding: '20px',
-                //border: `1px solid ${greyLight.main}`,
-                //boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
-            }}>
-                <Stack spacing={3}>
+            <Grid size={{ xs: 12, sm: 'grow' }}>
+                <Stack spacing={1}>
+                <CardComponent>
                     <Stack spacing={1.5}>
-                        <Typography variant="h2">{'Informations de compte'}</Typography>
-                    <Stack spacing={1}>
-                        <FieldComponent
-                            label={'ID utilisateur'}
-                            name={'uid'}
-                            value={userInfo?.uid}
-                            type='text'
-                            disabled={true}
-                            error={errors.uid}
-                        />
-                        <FieldComponent
-                            label={'Nom utilisateur'}
-                            name={'display_name'}
-                            value={userInfo?.display_name}
-                            type='text'
-                            disabled={true}
-                            error={errors.display_name}
-                        />
-                        <SelectComponent
-                            label={'Role'}
-                            name={'role'}
-                            value={userInfo?.role}
-                            values={ClassUser.ALL_ROLES.map(role=>({id:role, value:t(role,{ns:NS_ROLES})}))}
-                            disabled={true}
-                        />
+                        <Typography variant="h2">{title_perso}</Typography>
+                        <Stack spacing={1}>
+                            <FieldTextComponent
+                                label={title_email}
+                                name={'email'}
+                                value={userInfo?.email}
+                                type='email'
+                                disabled={true}
+                                error={errors.email}
+                            />
+                            {
+                                user?.phone_number && <FieldTextComponent
+                                    label={title_phone_number}
+                                    name={'phone_number'}
+                                    value={userInfo?.phone_number}
+                                    type='phone'
+                                    disabled={true}
+                                    error={errors.phone_number}
+                                />
+                            }
+                            <FieldTextComponent
+                                label={title_birthday}
+                                name={'birthday'}
+                                value={getFormattedDate(userInfo?.birthday, lang)}
+                                type='date'
+                                disabled={true}
+                                error={errors.birthday}
+                                onChange={onChangeField}
+                            />
+                            <FieldComponent
+                                label={title_first_name}
+                                name={'first_name'}
+                                value={userInfo?.first_name}
+                                type='text'
+                                disabled={false}
+                                error={errors.first_name}
+                                onChange={onChangeField}
+                                onClear={() => {
+                                    onClearField('first_name');
+                                }}
+                                editable={userInfo?.first_name !== user?.first_name}
+                                onCancel={() => {
+                                    onResetField('first_name');
+                                }}
+                                onSubmit={onEditForm}
+                            />
+                            <FieldComponent
+                                label={title_last_name}
+                                name={'last_name'}
+                                value={userInfo?.last_name}
+                                type='text'
+                                disabled={false}
+                                error={errors.last_name}
+                                onChange={onChangeField}
+                                onClear={() => {
+                                    onClearField('last_name');
+                                }}
+                                editable={userInfo?.last_name !== user?.last_name}
+                                onCancel={() => {
+                                    setErrors(prev => prev.last_name = '');
+                                    setUserInfo(prev => {
+                                        if (!prev) return prev;
+                                        prev.update({ last_name: user.last_name });
+                                        return prev.clone();
+                                    });
+                                }}
+                                onSubmit={onEditForm}
+                            />
+                        </Stack>
                     </Stack>
-                    </Stack>
+                </CardComponent>
+                <CardComponent>
                     <Stack spacing={1.5}>
-                        <Typography variant="h2">{'Paramètres'}</Typography>
-                    <Stack spacing={1}>
-                        <SelectComponent
-                            label={'Langue'}
-                            name={'lang'}
-                            value={lang}
-                            values={languages.map(lang=>({id:lang, value:t(lang,{ns:NS_LANGS})}))}
-                            onChange={(e)=>{
-                                //console.log("NEW VALUE", e.target.value)
-                                changeLang(e.target.value);
-                            }}
-                            hasNull={false}
-                        />
-                        <SelectComponent
-                            label={'Theme'}
-                            name={'theme'}
-                            value={mode}
-                            values={[THEME_LIGHT, THEME_DARK].map(_theme=>({id:_theme, value:t(_theme,{ns:NS_LANGS})}))}
-                            onChange={(e)=>{
-                                //console.log("NEW VALUE", e.target.value)
-                                changeTheme(e.target.value);
-                            }}
-                            hasNull={false}
-                        />
+                        <Typography variant="h2">{title_settings}</Typography>
+                        <Stack spacing={1}>
+                            <SelectComponent
+                                label={title_lang}
+                                name={'lang'}
+                                value={lang}
+                                values={languages.map(lang => ({ id: lang, value: t(lang, { ns: NS_LANGS }) }))}
+                                onChange={(e) => {
+                                    //console.log("NEW VALUE", e.target.value)
+                                    changeLang(e.target.value);
+                                }}
+                                hasNull={false}
+                            />
+                            <SelectComponent
+                                label={title_theme}
+                                name={'theme'}
+                                display={false}
+                                value={mode}
+                                values={[THEME_LIGHT, THEME_DARK].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_LANGS }) }))}
+                                onChange={(e) => {
+                                    //console.log("NEW VALUE", e.target.value)
+                                    changeTheme(e.target.value);
+                                }}
+                                hasNull={false}
+                            />
+                        </Stack>
                     </Stack>
-                    </Stack>
+                </CardComponent>
                 </Stack>
-
             </Grid>
         </Grid>
     </Stack>)

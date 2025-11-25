@@ -2,8 +2,22 @@
   "title-page": "Profile - Dandela Academy App",
   "description-page": "A view of your profile on the Dandela Academy platform",
   "title": "Profile",
-  "subtitle": "All information related to your account",
-  "enrolled-lessons": "Enrolled courses",
+  "subtitle": "All the information about your account",
   "active-lessons": "Active courses",
-  "completed-lessons": "Completed courses"
+  "completed-lessons": "Completed courses",
+  "form": {
+    "title-perso": "Personal information",
+    "title-account": "Account information",
+    "title-settings": "Settings",
+    "uid": "User ID",
+    "display_name": "Username",
+    "last_name": "Last name(s)",
+    "first_name": "First name(s)",
+    "birthday": "Date of birth",
+    "email": "Email",
+    "phone_number": "Phone",
+    "role": "Role",
+    "lang": "Language",
+    "theme": "Theme"
+  }
 }

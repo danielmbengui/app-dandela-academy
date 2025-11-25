@@ -202,14 +202,14 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' }, color: blueDark.main }}
+                        sx={{ mr: 2, display: { sm: 'none' }, color: text.main }}
                     >
                         <MenuIcon />
                     </IconButton>
 
                     <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 0.5,px:1, height: '100%', color: text.main, border:`1px solid ${ClassColor.GREY_LIGHT}`, borderRadius:'20px' }}>
                         {
-                            user?.showAvatar({size:20,fontSize:'10px'})
+                            user?.showAvatar({size:25,fontSize:'8px'})
                         }
                         <Stack>
                             <Typography variant={'string'} noWrap fontSize={'12px'}>
