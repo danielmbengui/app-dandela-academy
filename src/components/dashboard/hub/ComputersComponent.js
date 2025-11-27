@@ -535,7 +535,8 @@ export default function ComputersComponent() {
                       isSelected={selected?.uid === pc.uid}
                       onClick={() => handleCardClick(pc)}
                     />
-                    <DeviceCard
+                    <div style={{display:'block'}}>
+                      <DeviceCard
                       //key={d.uid}
                       device={pc}
                       onClick={() => console.log("open details", d.uid)}
@@ -544,6 +545,7 @@ export default function ComputersComponent() {
                         console.log("toggle enabled", dev.uid, dev.enabled)
                       }
                     />
+                    </div>
                   </Grid>
 
                 ))}
