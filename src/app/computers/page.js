@@ -2181,7 +2181,7 @@ export default function DashboardCompputerHome() {
   const [password, setPassword] = useState('');
   const { user, login, logout } = useAuth();
 
-  return (<DashboardPageWrapper title={t('title')} subtitle={'Les infos des périphériques connectés'} icon={<IconDashboard width={22} height={22} />}>
+  return (<DashboardPageWrapper title={t('Ordinateurs')} subtitle={`Vue d'ensemble du matériel sur le site, avec leur disponibilité.`} icon={<IconDashboard width={22} height={22} />}>
     <ComputersComponent />
   </DashboardPageWrapper>)
 }

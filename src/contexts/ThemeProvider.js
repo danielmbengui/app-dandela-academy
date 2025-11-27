@@ -17,7 +17,7 @@ const useThemeColors = (themeMode) => {
         primaryShadow: '#1160e580',
 
         blue: '#1a5fde',
-        blueDark: '#0e357d',
+        blueDark: '#020617',
         blueLight: '#f2f9ff',
         blueLight1: '#bfdbfe',
 
@@ -91,7 +91,7 @@ const useThemeColors = (themeMode) => {
  
 
                 blue: safeValue(computedStyles.getPropertyValue('--blue'), '#1a5fde'),
-                blueDark: safeValue(computedStyles.getPropertyValue('--blue-dark'), '#0e357d'),
+                blueDark: safeValue(computedStyles.getPropertyValue('--blue-dark'), '#020617'),
                 blueLight: safeValue(computedStyles.getPropertyValue('--blue-light'), '#f2f9ff'),
                 blueLight1: safeValue(computedStyles.getPropertyValue('--blue-light-1'), '#bfdbfe'),
 

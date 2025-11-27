@@ -712,7 +712,7 @@ export default function ProfileComponent() {
                             <SelectComponent
                                 label={title_theme}
                                 name={'theme'}
-                                display={false}
+                                //display={false}
                                 value={mode}
                                 values={[THEME_LIGHT, THEME_DARK].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_LANGS }) }))}
                                 onChange={(e) => {

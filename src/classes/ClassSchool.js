@@ -18,6 +18,7 @@ import { firestore } from "@/contexts/firebase/config";
 export class ClassSchool {
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
+        UNKNOWN: 'unknown',
     });
     static COLLECTION = "SCHOOLS";
 
@@ -303,6 +304,17 @@ export class ClassSchool {
     }
 */
     // Récupérer un module par id
+    static indexOf(array = [], uid) {
+        if (array.length === 0 || !(array[0] instanceof ClassSchool)) {
+            return -1;
+        }
+        if (!(array[0] instanceof ClassSchool)) {
+            console.log("ERRROR is not class School")
+            return -1;
+        }
+        const indexof = array.findIndex(item => item.uid === uid);
+        return indexof;
+    }
     static async get(id) {
         const snap = await getDoc(this.docRef(id));
         if (snap.exists()) {
@@ -346,7 +358,7 @@ export class ClassSchool {
         const uid_intern = idSchool;
         const created_time = model.created_time;
         const last_edit_time = new Date();
-        const path = { ...model.toJSON(), uid, uid_intern,created_time, last_edit_time };
+        const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
         await setDoc(newRef, path);
         return new ClassSchool(path); // -> ClassModule
     }

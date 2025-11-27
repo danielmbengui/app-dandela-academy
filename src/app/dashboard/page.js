@@ -2445,7 +2445,7 @@ import { useMemo } from "react";
 import { Button } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassComputer } from '@/classes/ClassComputer';
+import { ClassComputer } from '@/classes/ClassDevice';
 
 const USERS_MOCK = [
   {
@@ -3142,6 +3142,17 @@ export default function DashboardHome() {
           address: "Zango III, Luanda, Angola",
           enabled: true
         });
+        const room_admin = await ClassRoom.create({
+          // uid : "",
+          //uid_intern : "",
+          uid_school: school.uid,
+          name: "Admin room",
+          name_normalized: "admin_room",
+          //photo_url:"",
+          os:ClassComputer.OPERATING_SYSTEM.MACOS,
+          floor: 1,
+          enabled: true
+        });
         const room = await ClassRoom.create({
           // uid : "",
           //uid_intern : "",
@@ -3152,23 +3163,49 @@ export default function DashboardHome() {
           floor: 1,
           enabled: true
         });
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 2; i++) {
           //const countComputers = await ClassComputer.count() || 0;
-          const sizeId = i + 1;
-          const computer = await ClassComputer.create({
+          const computerClass = new ClassComputer({
             //uid: "",
             //uid_intern: "1",
-            uid_room: room.uid,
-            name: `PC-${sizeId.toString().padStart(2, '0')}`,
-            name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
+            uid_room: room_admin.uid,
+            brand:'iMac 2017',
+            //name: `PC-${sizeId.toString().padStart(2, '0')}`,
+            //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
             enabled: true,
             status: ClassComputer.STATUS.AVAILABLE,
             type: ClassComputer.TYPE.DESKTOP,
+            os:ClassComputer.OPERATING_SYSTEM.MACOS,
+            os_version:"13.7.8",
+            buy_time:new Date(2023, 7, 12),
             updates: [
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
-          })
+          });
+          const computer = await ClassComputer.create(computerClass);
         }
+        for (let i = 0; i < 25; i++) {
+          //const countComputers = await ClassComputer.count() || 0;
+          const computerClass = new ClassComputer({
+            //uid: "",
+            //uid_intern: "1",
+            uid_room: room.uid,
+            brand:'HP i7',
+            //name: `PC-${sizeId.toString().padStart(2, '0')}`,
+            //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
+            enabled: true,
+            status: ClassComputer.STATUS.AVAILABLE,
+            type: ClassComputer.TYPE.DESKTOP,
+            os:ClassComputer.OPERATING_SYSTEM.WINDOWS,
+            os_version:"10",
+            buy_time:new Date(2023, 10, 12),
+            updates: [
+              { status: 'created', description: 'created_description', created_time: new Date() }
+            ],
+          });
+          const computer = await ClassComputer.create(computerClass);
+        }
+        
         //await ClassComputer.create(computer);
         setProcessing(false);
       }}

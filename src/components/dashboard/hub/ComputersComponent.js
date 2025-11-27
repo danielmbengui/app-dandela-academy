@@ -8,9 +8,15 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { ClassColor } from '@/classes/ClassColor';
-import { Stack } from '@mui/material';
-import { ClassComputer } from '@/classes/ClassComputer';
-import { orderBy } from 'firebase/firestore';
+import { Grid, Stack } from '@mui/material';
+import { ClassComputer, ClassDevice } from '@/classes/ClassDevice';
+import { orderBy, where } from 'firebase/firestore';
+import SelectComponent from '@/components/elements/SelectComponent';
+import SelectComponentDark from '@/components/elements/SelectComponentDark';
+import { ClassSchool } from '@/classes/ClassSchool';
+import { ClassRoom } from '@/classes/ClassRoom';
+import constants from 'constants';
+import DeviceCard from './DeviceCard';
 
 // Liste mock des 25 ordinateurs
 const initialComputers = [
@@ -196,6 +202,7 @@ function ComputerCard({ computer, isSelected, onClick }) {
           margin: 0;
           font-size: 0.85rem;
           font-weight: 500;
+          color: ${ClassColor.WHITE};
         }
 
         .pc-id {
@@ -361,22 +368,85 @@ function ComputerIconLarge({ status }) {
 }
 
 export default function ComputersComponent() {
+  const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
   const [computers] = useState(initialComputers);
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState(null);
 
+  const [schools, setSchools] = useState([]);
+  const [school, setSchool] = useState({});
+  const [rooms, setRooms] = useState([]);
+  const [room, setRoom] = useState(null);
   const [allComputers, setAllComputers] = useState([]);
+  const [computersBis, setComputersBis] = useState([]);
   useEffect(() => {
     async function initComputers() {
-      const _computers = await ClassComputer.fetchListFromFirestore([
+      const _schools = await ClassSchool.fetchListFromFirestore([
         //where("school_uid", "==", schoolUid),
+        orderBy("name"),
+        //limit(25),
+      ]);
+      console.log("SCHHOLlist", _schools)
+
+      setSchools(_schools);
+      const _school = _schools[0];
+      //setSchool(_school);
+      const _rooms = await ClassRoom.fetchListFromFirestore([
+        where("uid_school", "==", _school.uid),
         orderBy("uid_intern"),
         //limit(25),
       ]);
-      setAllComputers(_computers.sort((a, b) => a.uid_intern - b.uid_intern));
+      console.log("ROOMS list", _rooms)
+      setRooms(_rooms);
+      //const _room = _rooms[0];
+      //setRoom(_room);
+      const _computers = await ClassComputer.fetchListFromFirestore([
+        //where("uid_room", "==", _room.uid),
+        //where("status", "==", filter),
+        orderBy("uid_intern"),
+        //limit(25),
+      ]);
+      //console.log("computer list", _rooms)
+      console.log("computer index", _computers);
+
+      setAllComputers(_computers);
+      setComputersBis(_computers);
     }
     initComputers();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    var _computers = [...allComputers];
+    if (room) {
+      _computers = _computers.filter(item => item.uid_room === room.uid);
+    }
+    if (filter !== 'all') {
+      _computers = _computers.filter(item => item.status === filter);
+    }
+    console.log('EVENT filter', _computers);
+    setComputersBis(_computers);
+  }, [filter]);
+
+  const onChangeRoom = async (e) => {
+    const { value } = e.target;
+    const uidRoom = value;
+    var _computers = [...allComputers];
+    if (uidRoom !== 'all') {
+      const indexRoom = ClassRoom.indexOf(rooms, uidRoom);
+      const _room = rooms[indexRoom];
+
+      setRoom(_room);
+      _computers = _computers.filter(item => item.uid_room === uidRoom);
+    } else {
+      setRoom(null);
+    }
+    if (filter !== 'all') {
+      _computers = _computers.filter(item => item.status === filter);
+    }
+    console.log('EVENT', _computers);
+    setComputersBis(_computers);
+  }
+
 
   const filteredComputers =
     filter === "all"
@@ -388,140 +458,330 @@ export default function ComputersComponent() {
   };
 
   return (
-    <div className="page" style={{ background: '' }}>
-      <main className="container" style={{ background: '' }}>
-        {/* HEADER */}
-        <header className="header" style={{display:'none'}}>
-          <div>
-            <h1>État des ordinateurs</h1>
-            <p className="muted">
-              Vue d&apos;ensemble des 25 postes de travail sur le site, avec
-              leur disponibilité en temps réel.
-            </p>
-          </div>
-        </header>
+    <>
+      <Stack sx={{ width: '100%' }}>
+        <Stack spacing={1} alignItems={'start'} sx={{ background: 'blue' }}>
+          <SelectComponentDark
+            label={'school'}
+            value={school.uid}
+            values={schools.map(item => ({ id: item.uid, value: item.name }))}
+            hasNull={false}
+          />
+          <Grid spacing={1} container>
+            <Grid size={{ xs: 'grow', sm: 'auto' }}>
+              <SelectComponentDark
+                label={'room'}
+                value={room?.uid || 'all'}
+                values={rooms.length > 1 ? [{ uid: 'all', name: `-- ${t('all')} --` }, ...rooms].map(item => ({ id: item.uid, value: item.name })) : rooms.map(item => ({ id: item.uid, value: item.name }))}
+                onChange={onChangeRoom}
+                hasNull={false}
+              />
+            </Grid>
+            <Grid size={{ xs: 'grow', sm: 'auto' }}>
 
-        {/* FILTRES + STATS QUICK */}
-        <section className="toolbar">
-          <div className="chips">
-            <button
-              className={`chip ${filter === "all" ? "chip-active" : ""}`}
-              onClick={() => setFilter("all")}
-            >
-              Tous
-            </button>
-            <button
-              className={`chip ${filter === "available" ? "chip-active" : ""}`}
-              onClick={() => setFilter("available")}
-            >
-              Disponibles
-            </button>
-            <button
-              className={`chip ${filter === "in_use" ? "chip-active" : ""}`}
-              onClick={() => setFilter("in_use")}
-            >
-              Occupés
-            </button>
-            <button
-              className={`chip ${filter === "maintenance" ? "chip-active" : ""
-                }`}
-              onClick={() => setFilter("maintenance")}
-            >
-              Maintenance
-            </button>
-            <button
-              className={`chip ${filter === "offline" ? "chip-active" : ""}`}
-              onClick={() => setFilter("offline")}
-            >
-              HS / Hors ligne
-            </button>
-          </div>
-        </section>
+              <SelectComponentDark
+                label={'status'}
+                value={filter}
+                values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassDevice.ALL_STATUS.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
+                onChange={(e) => setFilter(e.target.value)}
+                hasNull={false}
+              />
+            </Grid>
+          </Grid>
 
-        {/* GRID + PANEL */}
-        <section className="layout">
-          {/* GRID DES ORDIS */}
+        </Stack>
+        <Grid container sx={{ height: '100%', background: 'yellow' }} spacing={1}>
+          <Grid size={{ xs: 12, sm: 8 }}>
+            <Stack
+              spacing={1}
+              sx={{
+                width: '100%',
+                background: '#020617',
+                borderRadius: '16px',
+                border: '1px solid #1f2937',
+                padding: '12px',
+                boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
+              }}>
+              <Stack spacing={1} direction={'row'} sx={{ display: { xs: 'none', sm: 'flex' }, background: '', width: '100%' }} className='legend'>
+                {filter === 'all' ? <>
+                  <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+                  <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+                  <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+                  <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+                  <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+                </> : <>
+                  {
+                    (filter === 'available') && <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+                  }
+                  {
+                    (filter === 'busy') && <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+                  }
+                  {
+                    (filter === 'maintenance') && <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+                  }
+                  {
+                    (filter === 'reparation') && <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+                  }
+                  {
+                    (filter === 'hs') && <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+                  }
+                </>}
+              </Stack>
+              <Grid container sx={{ width: '100%' }} justifyContent={'stretch'} spacing={1}>
+                {computersBis.map((pc, i) => (
+                  <Grid key={`${pc.uid}-${i}`} size={{ xs: 6, sm: 'auto' }} justifyItems={'stretch'}>
+                    <ComputerCard
+                      computer={pc}
+                      isSelected={selected?.uid === pc.uid}
+                      onClick={() => handleCardClick(pc)}
+                    />
+                    <DeviceCard
+                      //key={d.uid}
+                      device={pc}
+                      onClick={() => console.log("open details", d.uid)}
+                      onEdit={(dev) => console.log("edit", dev.uid)}
+                      onToggleEnabled={(dev) =>
+                        console.log("toggle enabled", dev.uid, dev.enabled)
+                      }
+                    />
+                  </Grid>
 
-          <Stack
-            spacing={1}
-            sx={{
-              background: '#020617',
-              borderRadius: '16px',
-              border: '1px solid #1f2937',
-              padding: '12px',
-              boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
-            }}>
-            <Stack spacing={1} direction={'row'} sx={{ background: '' }} className='legend'>
-              <LegendItem status="available" value={computers.filter((c) => c.status === "available").length} />
-              <LegendItem status="in_use" value={computers.filter((c) => c.status === "in_use").length} />
-              <LegendItem status="maintenance" value={computers.filter((c) => c.status === "maintenance").length} />
-              <LegendItem status="offline" value={computers.filter((c) => c.status === "available").length} />
+                ))}
+              </Grid>
             </Stack>
-            <div className="grid">
-              {allComputers.map((pc, i) => (
-                <ComputerCard
-                  key={`${pc.uid}-${i}`}
-                  computer={pc}
-                  isSelected={selected?.id === pc.id}
-                  onClick={() => handleCardClick(pc)}
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 'grow' }} className={'grid'}>
+            <Stack
+              spacing={1}
+              sx={{
+                background: '#020617',
+                borderRadius: '16px',
+                border: '1px solid #1f2937',
+                padding: '12px',
+                boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
+                color: 'white'
+              }}>
+              <aside className="side-panel">
+                {selected ? (
+                  <>
+                    <h2>Détails du poste</h2>
+                    <div className="side-icon-wrapper">
+                      <ComputerIconLarge status={selected.status} />
+                    </div>
+                    <p className="side-name">{selected.name}</p>
+                    <StatusBadge status={selected.status} big />
+
+                    <div className="side-info">
+                      <p>
+                        <span>Identifiant interne :</span> #{selected.id}
+                      </p>
+                      <p>
+                        <span>Emplacement :</span> Salle informatique principale
+                      </p>
+                      <p>
+                        <span>Type :</span> Poste fixe
+                      </p>
+                      <p>
+                        <span>OS :</span> Windows 11 (exemple)
+                      </p>
+                      <p>
+                        <span>Dernière mise à jour :</span> 14.11.2025
+                      </p>
+                    </div>
+
+                    <p className="side-note">
+                      Cette partie pourra être reliée à ta vraie base de données
+                      (Firestore, API interne) pour afficher les specs, l&apos;état
+                      des mises à jour, l&apos;historique des pannes, etc.
+                    </p>
+                  </>
+                ) : (
+                  <div className="side-empty">
+                    <p>Sélectionne un ordinateur dans la grille pour voir les détails.</p>
+                  </div>
+                )}
+              </aside>
+
+
+            </Stack>
+
+          </Grid>
+        </Grid>
+      </Stack>
+      <div className="page" style={{ background: 'red', maxWidth: '100%', display: 'none' }}>
+
+        <main className="container" style={{ background: 'green' }}>
+          {/* HEADER */}
+          <Stack spacing={1} alignItems={'start'} sx={{ mb: 2 }}>
+            <SelectComponentDark
+              label={'school'}
+              value={school.uid}
+              values={schools.map(item => ({ id: item.uid, value: item.name }))}
+              hasNull={false}
+            />
+            <Grid container>
+              <Grid size={'auto'}>
+                <SelectComponentDark
+                  label={'room'}
+                  value={room?.uid || 'all'}
+                  values={rooms.length > 1 ? [{ uid: 'all', name: `-- ${t('all')} --` }, ...rooms].map(item => ({ id: item.uid, value: item.name })) : rooms.map(item => ({ id: item.uid, value: item.name }))}
+                  onChange={onChangeRoom}
+                  hasNull={false}
                 />
-              ))}
-              {filteredComputers.map((pc, i) => (
-                <ComputerCard
-                  key={pc.id}
-                  computer={pc}
-                  isSelected={selected?.id === pc.id}
-                  onClick={() => handleCardClick(pc)}
+              </Grid>
+              <Grid size={'auto'}>
+
+                <SelectComponentDark
+                  label={'status'}
+                  value={filter}
+                  values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassDevice.ALL_STATUS.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
+                  onChange={(e) => setFilter(e.target.value)}
+                  hasNull={false}
                 />
-              ))}
-            </div>
+              </Grid>
+            </Grid>
           </Stack>
 
-          {/* PANNEAU DÉTAILS */}
-          <aside className="side-panel">
-            {selected ? (
-              <>
-                <h2>Détails du poste</h2>
-                <div className="side-icon-wrapper">
-                  <ComputerIconLarge status={selected.status} />
-                </div>
-                <p className="side-name">{selected.name}</p>
-                <StatusBadge status={selected.status} big />
+          {/* FILTRES + STATS QUICK */}
+          <section className="toolbar">
+            <div className="chips">
+              <button
+                className={`chip ${filter === "all" ? "chip-active" : ""}`}
+                onClick={() => setFilter("all")}
+              >
+                Tous
+              </button>
+              <button
+                className={`chip ${filter === "available" ? "chip-active" : ""}`}
+                onClick={() => setFilter("available")}
+              >
+                Disponibles
+              </button>
+              <button
+                className={`chip ${filter === "busy" ? "chip-active" : ""}`}
+                onClick={() => setFilter("busy")}
+              >
+                Occupés
+              </button>
+              <button
+                className={`chip ${filter === "maintenance" ? "chip-active" : ""
+                  }`}
+                onClick={() => setFilter("maintenance")}
+              >
+                Maintenance
+              </button>
+              <button
+                className={`chip ${filter === "reparation" ? "chip-active" : ""
+                  }`}
+                onClick={() => setFilter("reparation")}
+              >
+                {`Réparation`}
+              </button>
+              <button
+                className={`chip ${filter === "hs" ? "chip-active" : ""}`}
+                onClick={() => setFilter("hs")}
+              >
+                HS / Hors ligne
+              </button>
+            </div>
+          </section>
 
-                <div className="side-info">
-                  <p>
-                    <span>Identifiant interne :</span> #{selected.id}
-                  </p>
-                  <p>
-                    <span>Emplacement :</span> Salle informatique principale
-                  </p>
-                  <p>
-                    <span>Type :</span> Poste fixe
-                  </p>
-                  <p>
-                    <span>OS :</span> Windows 11 (exemple)
-                  </p>
-                  <p>
-                    <span>Dernière mise à jour :</span> 14.11.2025
-                  </p>
-                </div>
+          {/* GRID + PANEL */}
+          <section className="layout">
+            {/* GRID DES ORDIS */}
 
-                <p className="side-note">
-                  Cette partie pourra être reliée à ta vraie base de données
-                  (Firestore, API interne) pour afficher les specs, l&apos;état
-                  des mises à jour, l&apos;historique des pannes, etc.
-                </p>
-              </>
-            ) : (
-              <div className="side-empty">
-                <p>Sélectionne un ordinateur dans la grille pour voir les détails.</p>
+            <Stack
+              spacing={1}
+              sx={{
+                background: '#020617',
+                borderRadius: '16px',
+                border: '1px solid #1f2937',
+                padding: '12px',
+                boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
+              }}>
+              <Stack spacing={1} direction={'row'} sx={{ background: '' }} className='legend'>
+                {filter === 'all' ? <>
+                  <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+                  <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+                  <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+                  <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+                  <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+                </> : <>
+                  {
+                    (filter === 'available') && <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+                  }
+                  {
+                    (filter === 'busy') && <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+                  }
+                  {
+                    (filter === 'maintenance') && <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+                  }
+                  {
+                    (filter === 'reparation') && <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+                  }
+                  {
+                    (filter === 'hs') && <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+                  }
+                </>}
+              </Stack>
+              <div className="grid">
+                {computersBis.map((pc, i) => (
+                  <ComputerCard
+                    key={`${pc.uid}-${i}`}
+                    computer={pc}
+                    isSelected={selected?.uid === pc.uid}
+                    onClick={() => handleCardClick(pc)}
+                  />
+                ))}
               </div>
-            )}
-          </aside>
-        </section>
-      </main>
+            </Stack>
 
-      <style jsx>{`
+            {/* PANNEAU DÉTAILS */}
+            <aside className="side-panel">
+              {selected ? (
+                <>
+                  <h2>Détails du poste</h2>
+                  <div className="side-icon-wrapper">
+                    <ComputerIconLarge status={selected.status} />
+                  </div>
+                  <p className="side-name">{selected.name}</p>
+                  <StatusBadge status={selected.status} big />
+
+                  <div className="side-info">
+                    <p>
+                      <span>Identifiant interne :</span> #{selected.id}
+                    </p>
+                    <p>
+                      <span>Emplacement :</span> Salle informatique principale
+                    </p>
+                    <p>
+                      <span>Type :</span> Poste fixe
+                    </p>
+                    <p>
+                      <span>OS :</span> Windows 11 (exemple)
+                    </p>
+                    <p>
+                      <span>Dernière mise à jour :</span> 14.11.2025
+                    </p>
+                  </div>
+
+                  <p className="side-note">
+                    Cette partie pourra être reliée à ta vraie base de données
+                    (Firestore, API interne) pour afficher les specs, l&apos;état
+                    des mises à jour, l&apos;historique des pannes, etc.
+                  </p>
+                </>
+              ) : (
+                <div className="side-empty">
+                  <p>Sélectionne un ordinateur dans la grille pour voir les détails.</p>
+                </div>
+              )}
+            </aside>
+          </section>
+        </main>
+
+        <style jsx>{`
         .page {
           min-height: 100vh;
           padding: 0px;
@@ -572,6 +832,7 @@ export default function ComputersComponent() {
         }
 
         .toolbar {
+        width: 100%;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -611,6 +872,7 @@ export default function ComputersComponent() {
         }
 
         .layout {
+          width: 100%;
           display: grid;
           grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
           gap: 16px;
@@ -627,7 +889,7 @@ export default function ComputersComponent() {
         }
 
         .grid {
-          
+            width: 100%;
           display: grid;
           grid-template-columns: repeat(5, minmax(0, 1fr));
           gap: 10px;
@@ -703,6 +965,7 @@ export default function ComputersComponent() {
           margin-top: 10px;
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 }

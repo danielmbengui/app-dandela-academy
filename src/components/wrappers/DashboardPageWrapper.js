@@ -262,7 +262,7 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
             >
                 <Toolbar />
                 <Container maxWidth={'xl'} sx={{ py: 1, background: '', }}>
-                    <Stack maxWidth={'lg'} alignItems={'start'} sx={{background:''}}>
+                    <Stack maxWidth={'lg'} alignItems={'start'} sx={{background:'', width:'100%'}}>
                         <Stack direction={'row'} alignItems={'center'} justifyContent={'start'} spacing={0.5}><div style={{color:primary.main}}>{icon}</div><Typography variant='h3'>{title}</Typography></Stack>
                             <Typography sx={{ color: ClassColor.GREY_LIGHT }}>{subtitle}</Typography>
                             <Stack maxWidth={'lg'} alignItems={'start'} sx={{mt:2, width:'100%',height:'100%', background:''}}>

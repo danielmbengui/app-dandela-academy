@@ -18,6 +18,13 @@ import { firestore } from "@/contexts/firebase/config";
 export class ClassRoom {
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
+        UNKNOWN: 'unknown',
+    });
+    static TYPE = Object.freeze({
+        ADMIN: 'admin-room',
+        ROOM: 'room',
+        CAFETERIA: 'cafeteria',
+        UNKNOWN: 'unknown',
     });
     static COLLECTION = "ROOMS";
 
@@ -25,9 +32,10 @@ export class ClassRoom {
         uid = "",
         uid_intern = "",
         uid_school = "",
+        type = ClassRoom.TYPE.UNKNOWN,
         name = "",
         name_normalized = "",
-        photo_url="",
+        photo_url = "",
         floor = "",
         enabled = false,
         created_time = new Date(),
@@ -35,10 +43,11 @@ export class ClassRoom {
     } = {}) {
         this._uid = uid;
         this._uid_intern = uid_intern;
-        this._uid_school=uid_school;
+        this._uid_school = uid_school;
+        this._type = type;
         this._name = name;
         this._name_normalized = name_normalized;
-        this._photo_url=photo_url;
+        this._photo_url = photo_url;
         this._floor = floor;
         this._enabled = Boolean(enabled);
 
@@ -66,6 +75,9 @@ export class ClassRoom {
     }
     get uid_school() {
         return this._uid_school;
+    }
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -108,7 +120,11 @@ export class ClassRoom {
         this._uid_school = value;
         this._touchLastEdit();
     }
-    
+    set type(value) {
+        this._type = value;
+        this._touchLastEdit();
+    }
+
     set name(value) {
         this._name = value;
         this._touchLastEdit();
@@ -117,7 +133,7 @@ export class ClassRoom {
         this._name_normalized = value;
         this._touchLastEdit();
     }
-     set photo_url(value) {
+    set photo_url(value) {
         this._photo_url = value;
         this._touchLastEdit();
     }
@@ -263,6 +279,18 @@ export class ClassRoom {
     }
 */
     // Récupérer un module par id
+    static indexOf(array = [], uid) {
+        if (array.length === 0 || !(array[0] instanceof ClassRoom)) {
+            return -1;
+        }
+        if (!(array[0] instanceof ClassRoom)) {
+            console.log("ERRROR is not class Room")
+            return -1;
+        }
+        const indexof = array.findIndex(item => item.uid === uid);
+        return indexof;
+    }
+
     static async get(id) {
         const snap = await getDoc(this.docRef(id));
         if (snap.exists()) {

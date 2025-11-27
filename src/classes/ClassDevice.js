@@ -16,7 +16,10 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 
-export class ClassComputer {
+export class ClassDevice {
+    static COLLECTION = "DEVICES";
+    static NS_COLLECTION = `classes/device`;
+
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
         UNKNOWN: 'unknown',
@@ -29,23 +32,20 @@ export class ClassComputer {
         HS: 'hs',
         UNKNOWN: 'unknown',
     });
-    static TYPE = Object.freeze({
-        DESKTOP: 'desktop',
-        MOBILE: 'mobile',
-        TABLET: 'tablet',
-        TV: 'tv',
+    static CATEGORY = Object.freeze({
+        HARDWARE: 'hardware',
+        FOOD: 'food',
+        OTHER: 'other',
         UNKNOWN: 'unknown',
     });
-    static OPERATING_SYSTEM = Object.freeze({
-        WINDOWS: 'windows',
-        MACOS: 'macos',
-        IOS: 'ios',
-        LINUX: 'linux',
-        UBUNTU: 'ubuntu',
-        UNKNOWN: 'unknown',
-    });
-    static COLLECTION = "COMPUTERS";
+    static ALL_STATUS = [
+        ClassDevice.STATUS.AVAILABLE,
+        ClassDevice.STATUS.BUSY,
+        ClassDevice.STATUS.MAINTENANCE,
+        ClassDevice.STATUS.REPARATION,
+        ClassDevice.STATUS.HS,
 
+    ];
     constructor({
         uid = "",
         uid_intern = "",
@@ -53,10 +53,12 @@ export class ClassComputer {
         name = "",
         name_normalized = "",
         photo_url = "",
+        brand = "",
         enabled = false,
-        status = ClassComputer.STATUS.HS,
-        type = ClassComputer.TYPE.DESKTOP,
-        last_update = new Date(),
+        status = ClassDevice.STATUS.UNKNOWN,
+        category = "",
+        type = "",
+        buy_time = new Date(),
         created_time = new Date(),
         last_edit_time = new Date(),
         updates = [],
@@ -67,14 +69,16 @@ export class ClassComputer {
         this._name = name;
         this._name_normalized = name_normalized;
         this._photo_url = photo_url;
+        this._brand = brand;
         this._enabled = Boolean(enabled);
 
         this._status = this._normalizeStatus(status);
-        this._type = this._normalizeType(type);
+        this._type = type;
+        this._category = this._normalizeCategory(category);
 
-        this._last_update = last_update instanceof Date
-            ? last_update
-            : new Date(last_update);
+        this._buy_time = buy_time instanceof Date
+            ? buy_time
+            : new Date(buy_time);
 
         this._created_time = created_time instanceof Date
             ? created_time
@@ -86,7 +90,9 @@ export class ClassComputer {
 
         this._updates = Array.isArray(updates) ? updates.slice() : [];
     }
-
+static allStatusToObject() {
+    return ClassDevice.ALL_STATUS.map((item)=>({uid:item,name:item}))
+}
     // 🔁 Getters & Setters
     // --- normalisation interne ---
     _touchLastEdit() {
@@ -94,15 +100,16 @@ export class ClassComputer {
     }
 
     _normalizeStatus(status) {
-        return Object.values(ClassComputer.STATUS).includes(status)
+        return Object.values(ClassDevice.STATUS).includes(status)
             ? status
-            : ClassComputer.STATUS.UNKNOWN;
+            : ClassDevice.STATUS.UNKNOWN;
     }
 
-    _normalizeType(type) {
-        return Object.values(ClassComputer.TYPE).includes(type)
-            ? type
-            : ClassComputer.TYPE.UNKNOWN;
+
+    _normalizeCategory(category) {
+        return Object.values(ClassDevice.CATEGORY).includes(category)
+            ? category
+            : ClassDevice.CATEGORY.UNKNOWN;
     }
     // --- GETTERS ---
 
@@ -129,6 +136,10 @@ export class ClassComputer {
         return this._photo_url;
     }
 
+    get brand() {
+        return this._brand;
+    }
+
     get enabled() {
         return this._enabled;
     }
@@ -140,11 +151,13 @@ export class ClassComputer {
     get type() {
         return this._type;
     }
-
-    get last_update() {
-        return this._last_update;
+    get category() {
+        return this._category;
     }
 
+    get buy_time() {
+        return this._buy_time;
+    }
     get created_time() {
         return this._created_time;
     }
@@ -188,6 +201,10 @@ export class ClassComputer {
         this._photo_url = value;
         this._touchLastEdit();
     }
+    set brand(value) {
+        this._brand = value;
+        this._touchLastEdit();
+    }
 
     set enabled(value) {
         this._enabled = Boolean(value);
@@ -200,15 +217,17 @@ export class ClassComputer {
     }
 
     set type(value) {
-        this._type = this._normalizeType(value);
+        this._touchLastEdit();
+    }
+    set category(value) {
+        this._category = this._normalizeCategory(value);
         this._touchLastEdit();
     }
 
-    set last_update(value) {
-        this._last_update = value instanceof Date ? value : new Date(value);
-        this._touchLastEdit();
+    set buy_time(value) {
+        this._buy_time = value instanceof Date ? value : new Date(value);
+        // on ne touche pas last_edit_time ici
     }
-
     set created_time(value) {
         this._created_time = value instanceof Date ? value : new Date(value);
         // on ne touche pas last_edit_time ici
@@ -222,12 +241,6 @@ export class ClassComputer {
         this._updates = Array.isArray(value) ? value.slice() : [];
         this._touchLastEdit();
     }
-
-
-    // --- GETTERS ---
-
-    // --- SETTERS ---
-
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
@@ -246,7 +259,7 @@ export class ClassComputer {
         }
     }
     clone() {
-        return ClassComputer.makeUserInstance(this._uid, this.toJSON());
+        return this.makeDeviceInstance(this._uid, this.toJSON());
     }
 
     // ---------- VALIDATIONS ----------
@@ -274,21 +287,27 @@ export class ClassComputer {
         if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
         return null;
     }
-    static makeUserInstance(uid, data = {}) {
-        return new ClassComputer({ uid, ...data });
+    static makeDeviceInstance(uid, data = {}) {
+        const { category, type } = data || {};
+        //console.log("MAKING USER INSTANCE", uid, type, role);
+        if (category === ClassDevice.CATEGORY.HARDWARE) {
+            return new ClassComputer({ uid, ...data });
+        }
+        return new ClassDevice({ uid, ...data });
     }
     static get converter() {
         return {
-            toFirestore(schoolInstance) {
+            toFirestore(deviceInstance) {
                 // chaque classe a un .toJSON() propre
-                return schoolInstance?.toJSON ? schoolInstance.toJSON() : schoolInstance;
+                return deviceInstance?.toJSON ? deviceInstance.toJSON() : deviceInstance;
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
-                var _created_time = ClassComputer._toJsDate(data.created_time);
-                var _last_edit_time = ClassComputer._toJsDate(data.last_edit_time);
-                return ClassComputer.makeUserInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time });
+                var _buy_time = ClassDevice._toJsDate(data.buy_time);
+                var _created_time = ClassDevice._toJsDate(data.created_time);
+                var _last_edit_time = ClassDevice._toJsDate(data.last_edit_time);
+                return ClassDevice.makeDeviceInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time, buy_time: _buy_time });
             },
         };
     }
@@ -296,7 +315,7 @@ export class ClassComputer {
     // ---------- Helpers Firestore ----------
     static async alreadyExist(_uid) {
         const q = query(
-            collection(firestore, ClassComputer.COLLECTION),
+            collection(firestore, this.COLLECTION),
             where("uid", "==", _uid)
         );
         const countSnap = await getCountFromServer(q);
@@ -304,7 +323,7 @@ export class ClassComputer {
     }
     static async alreadyExistByName(_name) {
         const q = query(
-            collection(firestore, ClassComputer.COLLECTION),
+            collection(firestore, this.COLLECTION),
             where("name_normalized", "==", this._name.toLowerCase().trim())
         );
         const countSnap = await getCountFromServer(q);
@@ -351,19 +370,29 @@ export class ClassComputer {
     }
 */
     // Récupérer un module par id
+    static indexOf(array = [], uid) {
+        if (array.length === 0 || !(array[0] instanceof ClassDevice)) {
+            return -1;
+        }
+        if (!(array[0] instanceof ClassDevice)) {
+            console.log("ERRROR is not class Device")
+            return -1;
+        }
+        const indexof = array.findIndex(item => item.uid === uid);
+        return indexof;
+    }
     static async get(id) {
         const snap = await getDoc(this.docRef(id));
         if (snap.exists()) {
             const data = snap.data();
             return (data);
         }
-
         return null; // -> ClassModule | null
     }
     static async getByName(_name) {
         //const usersCol = collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter);
         const q = query(
-            collection(firestore, ClassComputer.COLLECTION).withConverter(ClassComputer.converter),
+            collection(firestore, this.COLLECTION).withConverter(this.converter),
             where("name_normalized", "==", _name.toLowerCase().trim()),
             limit(1),
         );
@@ -376,33 +405,63 @@ export class ClassComputer {
     }
     // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
     static async list(constraints = []) {
-        const q = constraints.length ? query(this.colRef(), [...constraints]) : query(this.colRef());
+        const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
-        return qSnap.docs.map(item => item.data());
+        const docs = qSnap.docs.map((item) => {
+            return (item.data());
+        });
+        return docs;
     }
 
     // Créer un user (avec option timestamps serveur)
+    static async createDeviceName(category, type, isLower = false) {
+        var prefix = isLower ? "device" : "DEVICE";
+        const count = await this.count();
+        if (category === ClassDevice.CATEGORY.HARDWARE) {
+            if (type === ClassComputer.TYPE.DESKTOP) {
+                prefix = isLower ? "pc" : "PC";
+            } else if (type === ClassComputer.TYPE.MOBILE) {
+                prefix = isLower ? "mobile" : "MOBILE";
+            } else if (type === ClassComputer.TYPE.TABLET) {
+                prefix = isLower ? "tablet" : "TABLET";
+            } else if (type === ClassComputer.TYPE.TV) {
+                prefix = isLower ? "tv" : "TV";
+            }
+        }
+        return `${prefix}-${(count + 1).toString().padStart(2, '0')}`;;
+    }
+    static async createDeviceNameNormalized(category, type) {
+        if (category === ClassDevice.CATEGORY.HARDWARE) {
+            if (type === ClassComputer.TYPE.DESKTOP) {
+                const count = await ClassComputer.count();
+                return `pc-${(count + 1).toString().padStart(2, '0')}`;
+            }
+        }
+        return "NULL";
+    }
     static async create(data = {}) {
         const newRef = doc(this.colRef()); // id auto
         //data.uid = newRef.id;
-        const model = data instanceof ClassComputer ? data : new ClassComputer({ ...data });
+        const model = data instanceof ClassDevice ? data : new ClassDevice({ ...data });
         //model.uid = newRef.id;()
         //console.log("REEEF ID", newRef, model.toJSON());
-        const countComputer = await ClassComputer.count() || 0;
-        const idComputer = countComputer + 1;
+        const countDevices = await this.count() || 0;
+        const idDevice = countDevices + 1;
         const uid = newRef.id;
-        const uid_intern = idComputer;
+        const uid_intern = idDevice;
+        var name = await this.createDeviceName(data.category, data.type);
+        var name_normalized = await this.createDeviceName(data.category, data.type, true);
         const created_time = model.created_time;
         const last_edit_time = new Date();
-        const path = { ...model.toJSON(), uid, uid_intern,created_time, last_edit_time };
+        const path = { ...model.toJSON(), uid, uid_intern, name, name_normalized, created_time, last_edit_time };
         await setDoc(newRef, path);
-        return new ClassComputer(path); // -> ClassModule
+        return new ClassDevice(path); // -> ClassModule
     }
 
     // Mettre à jour un module
     static async update(id, patch = {}) {
         try {
-            const ref = ClassComputer.docRef(id);
+            const ref = this.docRef(id);
             const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")
@@ -414,7 +473,7 @@ export class ClassComputer {
 
     // Supprimer un module
     static async remove(id) {
-        await deleteDoc(ClassComputer.docRef(id));
+        await deleteDoc(this.docRef(id));
         return true;
     }
 
@@ -422,16 +481,16 @@ export class ClassComputer {
     static async fetchFromFirestore(uid) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
-            return await ClassComputer.get(uid);
+            return await this.get(uid);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;
         }
     }
-    static async fetchFromFirestoreNeme(_name) {
+    static async fetchFromFirestoreName(_name) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
-            return await ClassComputer.getByName(_name);
+            return await this.getByName(_name);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;
@@ -443,7 +502,67 @@ export class ClassComputer {
             return await this.list(constraints);
         } catch (error) {
             console.log("ERROR", error?.message || error);
-            return null;
+            return [];
         }
+    }
+}
+export class ClassComputer extends ClassDevice {
+    static COLLECTION = "COMPUTERS";
+    static TYPE = Object.freeze({
+        DESKTOP: 'desktop',
+        MOBILE: 'mobile',
+        TABLET: 'tablet',
+        TV: 'tv',
+        UNKNOWN: 'unknown',
+    });
+    static OPERATING_SYSTEM = Object.freeze({
+        WINDOWS: 'windows',
+        MACOS: 'macos',
+        IOS: 'ios',
+        LINUX: 'linux',
+        UBUNTU: 'ubuntu',
+        UNKNOWN: 'unknown',
+    });
+
+    constructor(props) {
+        super({
+            ...props,
+            category: ClassDevice.CATEGORY.HARDWARE,
+            //type: ClassComputer.TYPE.UNKNOWN
+        }); // le parent lit seulement ses clés (uid, email, type, role, ...)
+        this._os = props.os || ClassComputer.OPERATING_SYSTEM.UNKNOWN;
+        this._os_version = props.os_version || "";
+    }
+    // 🔁 Getters & Setters
+    // --- normalisation interne ---
+    _normalizeOs(os) {
+        return Object.values(ClassComputer.OPERATING_SYSTEM).includes(os)
+            ? os
+            : ClassComputer.OPERATING_SYSTEM.UNKNOWN;
+    }
+
+    _normalizeType(type) {
+        return Object.values(ClassComputer.TYPE).includes(type)
+            ? type
+            : ClassComputer.TYPE.UNKNOWN;
+    }
+    // --- GETTERS ---
+
+    get os() {
+        return this._os;
+    }
+    get os_version() {
+        return this._os_version;
+    }
+
+    // --- SETTERS ---
+
+    set os(value) {
+        this._os = value;
+        this._touchLastEdit();
+    }
+    set os_version(value) {
+        this._os_version = value;
+        this._touchLastEdit();
     }
 }
