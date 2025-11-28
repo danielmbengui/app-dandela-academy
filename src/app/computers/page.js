@@ -2171,7 +2171,7 @@ function CoursePage() {
   );
 }
 
-export default function DashboardCompputerHome() {
+export default function DashboardComputerHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_COMPUTERS]);

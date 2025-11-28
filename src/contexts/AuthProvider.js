@@ -91,12 +91,9 @@ export function AuthProvider({ children }) {
             //const ref = doc(firestore, ClassUser.COLLECTION, fbUser.uid);
             // Si tu as une classe métier :
             // const model = new ClassUser(data);
+            /*
+            */
             setUser((prev) => {
-                //var _user = prev;
-
-               // console.log("FFFF subbb", data);
-                
-
                 if (!prev || prev === null) {
                     return data;
                 }
@@ -118,6 +115,10 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
             if (fbUser) {
+                await ClassUser.update(fbUser.uid, {
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.ONLINE,
+                });
                 const unsubUser = listenToUser(fbUser);
                 //console.log("FFFF init user", fbUser);
                 return () => unsubUser?.();
@@ -189,6 +190,8 @@ export function AuthProvider({ children }) {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             const uid = auth.currentUser.uid;
+            const _user = await ClassUser.get(uid);
+            /*
             var _user = await ClassUser.fetchFromFirestore(uid);
             const { type, email_verified, role } = _user.toJSON();
             if (type === ClassUser.TYPE.EXTERN) {
@@ -206,10 +209,15 @@ export function AuthProvider({ children }) {
                     _user = await ClassUserTutor.fetchFromFirestore(uid);
                 }
             }
+            */
+            await ClassUser.update(uid, {
+                last_connexion_time: new Date(),
+                status: ClassUser.STATUS.ONLINE,
+            });
             //setIsErrorSignIn(false);
             //setTextErrorSignIn(``);
             return ({
-                success: true, user: _user,error:{}
+                success: true, user: _user, error: {}
             })
         } catch (error) {
             const errorCode = error.code;
@@ -236,18 +244,23 @@ export function AuthProvider({ children }) {
             return ({
                 success: false,
                 error: { code: errorCode, message: errorMessage },
-                user:null,
+                user: null,
             })
         }
     };
 
     const logout = async () => {
+        const uid = auth.currentUser.uid || '';
+        await ClassUser.update(uid, {
+            last_connexion_time: new Date(),
+            status: ClassUser.STATUS.OFFLINE,
+        });
         setUser(null);
         setIsConnected(false);
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
         await signOut(auth);
-       // router.replace("/");
+        // router.replace("/");
         console.log("DISC OK");
     };
 

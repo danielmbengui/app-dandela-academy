@@ -525,6 +525,7 @@ export default function ProfileComponent() {
         // On EDIT infos
     }
     return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
+        <ProfilePage />
         <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
             <Stack spacing={{ xs: 1, sm: 2 }} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} sx={{ background: '' }}>
                 {

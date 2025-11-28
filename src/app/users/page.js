@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { IconDashboard, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, NS_DASHBOARD_USERS, NS_LANGS, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_HOME, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -11,12 +11,18 @@ import ComputersComponent from '@/components/dashboard/hub/ComputersComponent';
 
 
 import { useMemo } from "react";
-import { Button, Stack } from '@mui/material';
+import { Box, Button, Grid, Stack, TextField } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassComputer } from '@/classes/ClassDevice';
 import SelectComponentDark from '@/components/elements/SelectComponentDark';
 import { ClassUser } from '@/classes/users/ClassUser';
+import { getFormattedDateComplete, getFormattedDateCompleteNumeric } from '@/contexts/functions';
+import { useLanguage } from '@/contexts/LangProvider';
+import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark';
+import TextFieldComponent from '@/components/elements/TextFieldComponent';
+import FieldComponent from '@/components/elements/FieldComponent';
+import DialogUser from '@/components/dashboard/users/DialogUser';
 
 const USERS_MOCK = [
   {
@@ -38,7 +44,7 @@ const USERS_MOCK = [
     firstName: "Ana",
     lastName: "Silva",
     username: "ana.silva",
-    role: "teacher",
+    role: "tutor",
     type: "Professeure",
     email: "ana.silva@example.com",
     schoolEmail: "ana.silva@dandela-academy.com",
@@ -52,7 +58,7 @@ const USERS_MOCK = [
     firstName: "João",
     lastName: "Pereira",
     username: "joao.p",
-    role: "teacher",
+    role: "tutor",
     type: "Professeur IA",
     email: "joao.p@example.com",
     schoolEmail: "joao.p@dandela-academy.com",
@@ -80,7 +86,7 @@ const USERS_MOCK = [
     firstName: "Alex",
     lastName: "Ngombo",
     username: "alex.ng",
-    role: "super_admin",
+    role: "super-admin",
     type: "Direction",
     email: "alex.ng@example.com",
     schoolEmail: "alex.ng@dandela-academy.com",
@@ -94,7 +100,7 @@ const USERS_MOCK = [
     firstName: "Inès",
     lastName: "Costa",
     username: "ines.c",
-    role: "intern",
+    role: "team",
     type: "Stagiaire",
     email: "ines.c@example.com",
     schoolEmail: "ines.c@dandela-academy.com",
@@ -108,7 +114,7 @@ const USERS_MOCK = [
 
 const ROLE_CONFIG = {
   student: { label: "Étudiant", color: "#22c55e" },
-  team: { label: "Equipe", color: "#daf63bff" },
+  team: { label: "Équipe", color: "#daf63bff" },
   teacher: { label: "Professeur", color: "#3b82f6" },
   tutor: { label: "Professeur", color: "#3b82f6" },
   admin: { label: "Admin", color: "#f97316" },
@@ -119,15 +125,20 @@ const ROLE_CONFIG = {
 
 const STATUS_CONFIG_1 = {
   online: { label: "En ligne", color: "#22c55e" },
+  connected: { label: "En ligne", color: "#22c55e" },
   offline: { label: "Hors ligne", color: "#6b7280" },
+  disconnected: { label: "Hors ligne", color: "#6b7280" },
   away: { label: "Absent", color: "#eab308" },
+  ['must-activate']: { label: 'Pas activé', color: `red` },
 };
 
-function UsersPage() {
+function UsersPage({userDialog=null, setUserDialog=null}) {
+  const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
+  const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([]);
 
   const filteredUsers = useMemo(() => {
@@ -136,7 +147,6 @@ function UsersPage() {
     if (roleFilter !== "all") {
       list = list.filter((u) => u.role === roleFilter);
     }
-
     if (statusFilter !== "all") {
       list = list.filter((u) => u.status === statusFilter);
     }
@@ -171,75 +181,95 @@ function UsersPage() {
     async function init() {
       const _users = await ClassUser.fetchListFromFirestore();
       console.log("USERS", _users);
-      setUsers([...filteredUsers, ..._users]);
+      setAllUsers(_users);
+      setUsers(_users);
     }
     init();
-  }, [])
+  }, []);
+  useEffect(() => {
+    let list = [...USERS_MOCK, ...allUsers];
+
+    if (roleFilter !== "all") {
+      list = list.filter((u) => u.role === roleFilter);
+    }
+    if (statusFilter !== "all") {
+      list = list.filter((u) => u.status === statusFilter);
+    }
+
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      list = list.filter((u) => {
+        const completeName = `${u.completeName?.()}`.toLowerCase() || '';
+        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
+        return (
+          u.completeName?.().includes(s) ||
+          u.first_name?.toLowerCase().includes(s) ||
+          u.last_name?.toLowerCase().includes(s) ||
+          u.display_name?.toLowerCase().includes(s) ||
+          u.email?.toLowerCase().includes(s) ||
+          u.email_academy?.toLowerCase().includes(s) ||
+          fullName.includes(s) ||
+          u.username?.toLowerCase().includes(s) ||
+          u.email?.toLowerCase().includes(s) ||
+          u.schoolEmail?.toLowerCase().includes(s)
+        );
+      });
+    }
+
+    if (sortBy === "name") {
+      list.sort((a, b) =>
+        `${a.lastName} ${a.firstName}`.localeCompare(
+          `${b.lastName} ${b.firstName}`
+        )
+      );
+    } else if (sortBy === "role") {
+      list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
+    }
+    setUsers(list);
+  }, [search, roleFilter, statusFilter, sortBy]);
 
 
   return (
     <div className="page">
       <main className="container">
         {/* HEADER */}
-        <header className="header">
-          <div>
-            <p className="breadcrumb">Dashboard / Utilisateurs</p>
-            <h1>Liste des utilisateurs</h1>
-            <p className="muted">
-              Gère tous les profils : étudiants, professeurs, admins, super-admins
-              et stagiaires.
-            </p>
-          </div>
-
-          <div className="header-actions">
-            <button className="btn ghost">Exporter (.csv)</button>
-            <button className="btn primary">Ajouter un utilisateur</button>
-          </div>
-        </header>
-
-        {/* BARRE DE FILTRES */}
-        <section className="toolbar">
-          <div className="search-block">
-            <input
-              type="text"
-              placeholder="Rechercher par nom, email, username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+          {/* BARRE DE FILTRES */}
+        <Grid container sx={{mb:2.5}} direction={'row'} alignItems={'center'} spacing={{xs:1,sm:3}}>
+          <Grid size={{xs:12, sm:6}} sx={{background:'red'}}>
+            <TextFieldComponentDark
+              value={''}
+              placeholder={`Recherche par nom, nom d'utilisateur, email...`}
+              fullWidth
             />
-          </div>
-
-          <div className="filters">
-            <select
+          </Grid>
+          <Grid size={'grow'}>
+            <Grid container spacing={0.5} alignItems={'center'} justifyContent={{xs:'start',sm:'end'}} sx={{background:'purple',height:'100%'}}>
+            <Grid size={'auto'}>            <SelectComponentDark
+              //label={'Rôle'}
               value={roleFilter}
+              values={['all', ...ClassUser.ALL_ROLES].map(item => ({ id: item, value: t(item, { ns: NS_ROLES }) }))}
               onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="all">Tous les rôles</option>
-              <option value="student">Étudiants</option>
-              <option value="teacher">Professeurs</option>
-              <option value="admin">Admins</option>
-              <option value="super_admin">Super-Admins</option>
-              <option value="intern">Stagiaires</option>
-            </select>
-
-            <select
+              hasNull={false}
+            /></Grid>
+            <Grid size={'auto'}>            <SelectComponentDark
+              //label={'Rôle'}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="online">En ligne</option>
-              <option value="away">Absent</option>
-              <option value="offline">Hors ligne</option>
-            </select>
-
-            <select
+              values={['all', ...ClassUser.ALL_STATUS].map(item => ({ id: item, value: t(item, { ns: ClassUser.NS_COLLECTION }) }))}
+              hasNull={false}
+            /></Grid>
+            <Grid size={'auto'}>            <SelectComponentDark
+              //label={'Rôle'}
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="name">Trier par nom</option>
-              <option value="role">Trier par rôle</option>
-            </select>
-          </div>
-        </section>
+              values={['name', 'role'].map(item => ({ id: item, value: `Trier par ${t(item, { ns: NS_ROLES })}` }))}
+              hasNull={false}
+            /></Grid>
+            </Grid>
+            <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'end'} sx={{height:'100%'}}>
+            </Stack>
+          </Grid>
+        </Grid>
 
         {/* TABLE / LISTE */}
         <section className="card">
@@ -254,14 +284,18 @@ function UsersPage() {
           </div>
 
           <div className="table-body">
-            {filteredUsers.length === 0 && (
+            {users.length === 0 && (
               <div className="empty-state">
                 Aucun utilisateur ne correspond à ces critères.
               </div>
             )}
 
-            {users.map((user) => (
-              <UserRow key={user.id || user.uid} user={user} />
+            {users.map((user, i) => (
+              <Box key={`${user?.uid}-${i}`} onClick={()=>{
+                setUserDialog(user);
+              }}>
+                <UserRow user={user} />
+              </Box>
             ))}
           </div>
         </section>
@@ -274,12 +308,12 @@ function UsersPage() {
           width:100%;
           padding:0;
           color: #e5e7eb;
-          display: flex;
-          justify-content: center;
+          
         }
 
         .container {
           width: 100%;
+          min-height: 100%;
           background: cyan;
           padding:0;
         }
@@ -291,7 +325,6 @@ function UsersPage() {
           margin-bottom: 24px;
           align-items: flex-start;
           flex-wrap: wrap;
-          background: red;
         }
 
         .breadcrumb {
@@ -354,7 +387,7 @@ function UsersPage() {
           width: 100%;
           border-radius: 999px;
           border: 1px solid #1f2937;
-          padding: 8px 12px;
+          padding: 5px 12px;
           background: #020617;
           color: #e5e7eb;
           font-size: 0.9rem;
@@ -369,6 +402,7 @@ function UsersPage() {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
+          align-items: center;
         }
 
         .filters select {
@@ -441,9 +475,10 @@ function UsersPage() {
 }
 
 function UserRow({ user }) {
-  const {t} = useTranslation([NS_LANGS]);
+  const { lang } = useLanguage();
+  const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
   const roleCfg = ROLE_CONFIG[user.role];
-  const statusCfg = STATUS_CONFIG_1[user.status];
+  const statusCfg = STATUS_CONFIG_1[user.status || (user.activated ? 'activated' : 'no-activated')];
 
   return (
     <>
@@ -451,19 +486,19 @@ function UserRow({ user }) {
         {/* Utilisateur */}
         <div className="cell cell-user">
           <Avatar user={user} />
-          {user?.showAvatar?.({size:30, fontSize:'14px'})}
+          {user?.showAvatar?.({ size: 30, fontSize: '14px' })}
           <div className="user-text">
             <p className="user-name">
               {user.firstName || user.first_name || ''} {user.lastName || user.last_name || ''}
             </p>
-            <p className="user-id" style={{display:'none'}}>ID: {user.id || user.email_academy || ''}</p>
+            <p className="user-id">{`Langue : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
           </div>
         </div>
 
         {/* Username */}
         <div className="cell cell-username">
           <p className="text-main">@{user.username || user.display_name || ''}</p>
-          <p className="text-sub">{user.type || ''}</p>
+          <p className="text-sub" style={{ display: 'none' }}>{`Langue : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
         </div>
 
         {/* Rôle */}
@@ -485,8 +520,8 @@ function UserRow({ user }) {
 
         {/* Email */}
         <div className="cell cell-email">
-          <p className="text-main">{user.schoolEmail || ''}</p>
-          <p className="text-sub">{user.email_academy || ''}</p>
+          <p className="text-main">{user.schoolEmail || user.email_academy || ''}</p>
+          <p className="text-sub" style={{ display: 'none' }}>{user.email_academy || ''}</p>
         </div>
 
         {/* Statut */}
@@ -494,16 +529,16 @@ function UserRow({ user }) {
           <span className="status-pill">
             <span
               className="status-dot"
-              style={{ backgroundColor: statusCfg?.color || ''}}
+              style={{ backgroundColor: statusCfg?.color || '' }}
             />
-            {statusCfg?.label || ''}
+            { t(user?.status,{ns:ClassUser.NS_COLLECTION}) || ''}
           </span>
         </div>
 
         {/* Groupe / Langue */}
         <div className="cell cell-group">
-          <p className="text-main">{user.mainGroup || ''}</p>
-          <p className="text-sub">Langue : {user.language || t(user.preferred_language, {ns:NS_LANGS}) || ''}</p>
+          <p className="text-main">{'Dernière connexion'}</p>
+          <p className="text-sub">{user.mainGroup || getFormattedDateCompleteNumeric(user?.last_connexion_time, lang) || ''}</p>
         </div>
 
         {/* Actions */}
@@ -704,15 +739,16 @@ function Avatar({ user }) {
   );
 }
 
-export default function DashboardHome() {
+export default function DashboardUsersHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_USERS]);
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
+  const [user, setUser] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { user, login, logout } = useAuth();
+  //const { user, login, logout } = useAuth();
   //static async create(data = {})
 
   const [processing, setProcessing] = useState(false);
@@ -762,241 +798,10 @@ export default function DashboardHome() {
 
 
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
-    En construction...
-    <Button
-      loading={processing}
-      onClick={async () => {
-        setProcessing(true);
-        const school = await ClassSchool.create({
-          //uid: "",
-          //uid_intern: '',
-          name: "Dandela Academy Zango III",
-          name_normalized: "Dandela Academy Zango III",
-          photo_url: "",
-          address: "Zango III, Luanda, Angola",
-          enabled: true
-        });
-        const room_admin = await ClassRoom.create({
-          // uid : "",
-          //uid_intern : "",
-          uid_school: school.uid,
-          name: "Admin room",
-          name_normalized: "admin_room",
-          //photo_url:"",
-          os: ClassComputer.OPERATING_SYSTEM.MACOS,
-          floor: 1,
-          enabled: true
-        });
-        const room = await ClassRoom.create({
-          // uid : "",
-          //uid_intern : "",
-          uid_school: school.uid,
-          name: "Root room",
-          name_normalized: "root_room",
-          //photo_url:"",
-          floor: 1,
-          enabled: true
-        });
-        for (let i = 0; i < 2; i++) {
-          //const countComputers = await ClassComputer.count() || 0;
-          const computerClass = new ClassComputer({
-            //uid: "",
-            //uid_intern: "1",
-            uid_room: room_admin.uid,
-            brand: 'iMac 2017',
-            //name: `PC-${sizeId.toString().padStart(2, '0')}`,
-            //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
-            enabled: true,
-            status: ClassComputer.STATUS.AVAILABLE,
-            type: ClassComputer.TYPE.DESKTOP,
-            os: ClassComputer.OPERATING_SYSTEM.MACOS,
-            os_version: "13.7.8",
-            buy_time: new Date(2023, 7, 12),
-            updates: [
-              { status: 'created', description: 'created_description', created_time: new Date() }
-            ],
-          });
-          const computer = await ClassComputer.create(computerClass);
-        }
-        for (let i = 0; i < 25; i++) {
-          //const countComputers = await ClassComputer.count() || 0;
-          const computerClass = new ClassComputer({
-            //uid: "",
-            //uid_intern: "1",
-            uid_room: room.uid,
-            brand: 'HP i7',
-            //name: `PC-${sizeId.toString().padStart(2, '0')}`,
-            //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
-            enabled: true,
-            status: ClassComputer.STATUS.AVAILABLE,
-            type: ClassComputer.TYPE.DESKTOP,
-            os: ClassComputer.OPERATING_SYSTEM.WINDOWS,
-            os_version: "10",
-            buy_time: new Date(2023, 10, 12),
-            updates: [
-              { status: 'created', description: 'created_description', created_time: new Date() }
-            ],
-          });
-          const computer = await ClassComputer.create(computerClass);
-        }
-
-        //await ClassComputer.create(computer);
-        setProcessing(false);
-      }}
-      sx={{ display: 'none' }}
-    >
-      {'Create computer'}
-    </Button>
-    <Stack>
-      <UsersPage />
+    <DialogUser userDialog={user} setUserDialog={setUser} />
+    <Stack sx={{ width: '100%', height: '100%' }}>
+      <UsersPage userDialog={user} setUserDialog={setUser} />
     </Stack>
-    <Stack sx={{ width: '100%', background: 'yellow' }}>
-      YAAA
-      <section className="toolbar" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        gap: '16px',
-        marginBottom: '16px',
-        flexWrap: 'wrap',
-      }}>
-        <div className="search-block" style={{
-          flex: 1,
-          minWidth: '220px',
-        }}>
-          <input
-            type="text"
-            placeholder="Rechercher par nom, email, username..."
-            style={{
-              width: '100%',
-              borderRadius: '999px',
-              border: '1px solid #1f293',
-              padding: '8px 12px',
-              background: '#020617',
-              color: '#e5e7eb',
-              fontSize: '0.9rem',
-              outline: 'none',
-            }}
-          //value={search}
-          //onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="filters" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          flexWrap: 'wrap',
-        }}>
-          <SelectComponentDark
-            values={ClassUser.ALL_ROLES.map(item => ({ id: item, value: item }))}
-          />
-          <select
-            style={{
-              borderRadius: '999px',
-              border: '1px solid #1f2937',
-              background: '#020617',
-              color: '#e5e7eb',
-              padding: '6px 10px',
-              fontSize: '0.85rem',
-              outline: 'none',
-            }}
-          //value={roleFilter}
-          //onChange={(e) => setRoleFilter(e.target.value)}
-          >
-            <option value="all">Tous les rôles</option>
-            <option value="student">Étudiants</option>
-            <option value="teacher">Professeurs</option>
-            <option value="admin">Admins</option>
-            <option value="super_admin">Super-Admins</option>
-            <option value="intern">Stagiaires</option>
-          </select>
-
-          <select
-            //value={statusFilter}
-            //onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              borderRadius: '999px',
-              border: '1px solid #1f2937',
-              background: '#020617',
-              color: '#e5e7eb',
-              padding: '6px 10px',
-              fontSize: '0.85rem',
-              outline: 'none',
-            }}
-          >
-            <option value="all">Tous les statuts</option>
-            <option value="online">En ligne</option>
-            <option value="away">Absent</option>
-            <option value="offline">Hors ligne</option>
-          </select>
-
-          <select
-            //value={sortBy}
-            //onChange={(e) => setSortBy(e.target.value)}
-            style={{
-              borderRadius: '999px',
-              border: '1px solid #1f2937',
-              background: '#020617',
-              color: '#e5e7eb',
-              padding: '10px 10px',
-              fontSize: '0.85rem',
-              outline: 'none',
-            }}
-          >
-            <option value="name">Trier par nom</option>
-            <option value="role">Trier par rôle</option>
-          </select>
-        </div>
-      </section>
-      {/* TABLE / LISTE */}
-      <section className="card" style={{
-        background: '#020617',
-        borderRadius: '10px',
-        border: '1px solid #1f2937',
-        boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
-        padding: '8px 0 10px',
-      }}>
-        <div className="table-header" style={{
-          display: 'grid',
-          gridTemplateColumns:
-            `minmax(0, 2.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 2.3fr)
-            minmax(0, 1.4fr)
-            minmax(0, 2.2fr)
-            minmax(0, 1.5fr)`,
-          gap: '8px',
-          padding: '8px 16px',
-          fontSize: '0.75rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          color: '#6b7280',
-          borderBottom: '1px solid #111827',
-        }}>
-          <span className="th th-user">Utilisateur</span>
-          <span className="th th-username">Username</span>
-          <span className="th th-role">Rôle</span>
-          <span className="th th-email">Email</span>
-          <span className="th th-status">Statut</span>
-          <span className="th th-group">Groupe / Langue</span>
-          <span className="th th-actions">Actions</span>
-        </div>
-
-        <div className="table-body">
-          {filteredUsers.length === 0 && (
-            <div className="empty-state">
-              Aucun utilisateur ne correspond à ces critères.
-            </div>
-          )}
-
-          {filteredUsers.map((user) => (
-            <UserRow key={user.id} user={user} />
-          ))}
-        </div>
-      </section>
-    </Stack>
-
   </DashboardPageWrapper>)
   /*
   return (

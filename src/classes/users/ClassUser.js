@@ -23,6 +23,8 @@ import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
 
 export class ClassUser {
+    static COLLECTION = "USERS";
+    static NS_COLLECTION = "classes/user";
     static ERROR = Object.freeze({
         NOT_FOUND: 'auth/user-not-found',
         INVALID_CREDENTIAL: 'auth/invalid-credential',
@@ -49,17 +51,25 @@ export class ClassUser {
         TUTOR: 'tutor',
     });
     static STATUS = Object.freeze({
+        ONLINE: 'online',
+        OFFLINE: 'offline',
+        AWAY: 'away',
+        MUST_ACTIVATE: 'must-activate',
+        UNKNOWN: 'unknown',
+
         CREATED: 'CREATED',
         VALIDATED_BY_TEAM: 'VALIDATED_BY_TEAM',
-        MUST_ACTIVATE: 'MUST_ACTIVATE',
+        
         FIRST_CONNEXION: 'FIRST_CONNEXION',
         MUST_VERIFY_MAIL: 'MUST_VERIFY_MAIL',
         MUST_ACCEPT_PRIVACY: 'MUST_ACCEPT_PRIVACY',
         UPDATED: 'UPDATED',
-        CONNECTED: 'CONNECTED',
-        DISCONNECTED: 'DISCONNECTED',
+
+        NO_ACTIVATED: 'no-activated',
+        CONNECTED: 'connected',
+        DISCONNECTED: 'disconnected',
     });
-    static COLLECTION = "USERS";
+    
     static MIN_YEARS_OLD = 10;
     static MAX_YEARS_OLD = 100;
     static MIN_LENGTH_LAST_NAME = 3;
@@ -79,7 +89,13 @@ export class ClassUser {
         ClassUser.ROLE.TEAM,
         ClassUser.ROLE.TUTOR,
         ClassUser.ROLE.STUDENT,
-        ClassUser.ROLE.PROFESSIONAL,
+        //ClassUser.ROLE.PROFESSIONAL,
+    ];
+    static ALL_STATUS = [
+        ClassUser.STATUS.ONLINE,
+        ClassUser.STATUS.OFFLINE,
+        ClassUser.STATUS.AWAY,
+        ClassUser.STATUS.MUST_ACTIVATE,
     ];
 
     constructor({
@@ -95,13 +111,14 @@ export class ClassUser {
         email_academy = "",
         email_verified = false,
         activated = false,
-        created_time = new Date(),
-        last_edit_time = new Date(),
         birthday = null,
         phone_number = "",
         preferred_language = defaultLanguage,
         accept_privacy = false,
-        status = ClassUser.STATUS.CREATED,
+        status = ClassUser.STATUS.UNKNOWN,
+        last_connexion_time = null,
+        created_time = null,
+        last_edit_time = null,
     } = {}) {
         this._uid = uid;
         this._type = type;
@@ -113,8 +130,7 @@ export class ClassUser {
         this._last_name = last_name;
         this._email_verified = email_verified;
         this._activated = activated;
-        this._created_time = created_time;
-        this._last_edit_time = last_edit_time;
+        
         this._birthday = birthday;
         this._display_name = display_name;
         this._photo_url = photo_url;
@@ -122,6 +138,9 @@ export class ClassUser {
         this._preferred_language = preferred_language;
         this._accept_privacy = accept_privacy;
         this._status = status;
+        this._last_connexion_time=last_connexion_time;
+        this._created_time = created_time;
+        this._last_edit_time = last_edit_time;
     }
 
     // 🔁 Getters & Setters
@@ -162,7 +181,9 @@ export class ClassUser {
 
     get email_verified() { return this._email_verified; }
     set email_verified(val) { this._email_verified = val; }
-
+    
+    get last_connexion_time() { return this._last_connexion_time; }
+    set last_connexion_time(val) { this._last_connexion_time = val; }
     get created_time() { return this._created_time; }
     set created_time(val) { this._created_time = val; }
 
@@ -218,14 +239,6 @@ export class ClassUser {
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
-        //Object.keys(out).forEach((k) => out[k] === undefined ? delete out[k] : out[k]);
-        const entries = Object.entries(out)
-            //.filter(([k, v]) => !k.startsWith("_") && v !== undefined)
-            .map(([k, v]) => ({ key: k.replace(/^_/, ''), value: v }));
-
-        //const cleaned = Object.fromEntries(entries);
-        //console.log("oooook", cleaned)
-        //return entries; // <-- un OBJET, pas un tableau
         const cleaned = Object.fromEntries(
             Object.entries(out)
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
@@ -452,9 +465,10 @@ export class ClassUser {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
                 var _birthday = data.birthday ? new Date(data.birthday.seconds * 1_000) : null;
+                var last_connexion_time = ClassUser._toJsDate(data.last_connexion_time);
                 var _created_time = data.created_time ? new Date(data.created_time.seconds * 1_000) : null;
                 var _last_edit_time = data.last_edit_time ? new Date(data.last_edit_time.seconds * 1_000) : null;
-                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, created_time: _created_time, last_edit_time: _last_edit_time });
+                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_connexion_time,created_time: _created_time, last_edit_time: _last_edit_time });
             },
         };
     }
@@ -590,7 +604,7 @@ export class ClassUser {
         try {
             const ref = ClassUser.docRef(id);
             //console.log("UPDATE START", id, ref);
-            const data = { ...patch, last_edit_time: serverTimestamp() };
+            const data = { ...patch };
             //console.log("UPDATE LOG", data);
             await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")

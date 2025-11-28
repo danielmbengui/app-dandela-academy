@@ -183,6 +183,23 @@ export function getFormattedDateComplete(date = new Date(), lang = defaultLangua
     return date;
   }
 }
+export function getFormattedDateCompleteNumeric(date = null, lang = defaultLanguage) {
+  if(!date) {
+    return null;
+  }
+  if (date instanceof Date) {
+    return date.toLocaleDateString(lang, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  } else {
+    return date;
+  }
+}
 export function getFormattedDate(date = new Date(), lang = defaultLanguage) {
   if (date instanceof Date) {
     return date.toLocaleDateString(lang, {
