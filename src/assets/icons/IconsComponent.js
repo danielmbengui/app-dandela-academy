@@ -227,6 +227,25 @@ export const IconComputers = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="ic:outline-hub" width={width} height={height} color={color} />)
 }
 
+export const IconComputer = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="teenyicons:computer-outline" width={width} height={height} color={color} />)
+}
+export const IconLaptop = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:round-computer" width={width} height={height} color={color} />)
+}
+export const IconMobile = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="uiw-mobile" width={width} height={height} color={color} />)
+}
+export const IconTablet = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="clarity:tablet-line" width={width} height={height} color={color} />)
+}
+export const IconTv = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="weui:tv-outlined" width={width} height={height} color={color} />)
+}
+export const IconUnknown = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="qlementine-icons:unknown-16" width={width} height={height} color={color} />)
+}
+
 export const IconEmail = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="mdi-light:email" width={width} height={height} color={color} />)
 }

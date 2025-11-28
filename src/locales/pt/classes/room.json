@@ -1,0 +1,13 @@
+{
+  "uid": "ID",
+  "uid_intern": "Número",
+  "uid_school": "ID da escola",
+  "type": "Tipo",
+  "name": "Nome",
+  "photo_url": "Foto",
+  "floor": "Andar",
+  "enabled": "Ativado",
+  "disabled": "Desativado",
+  "created_time": "Data de criação",
+  "last_edit_time": "Última atualização"
+}

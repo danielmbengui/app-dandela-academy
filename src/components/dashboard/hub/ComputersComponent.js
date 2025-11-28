@@ -1,14 +1,14 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IconDashboard, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_COMPUTERS, NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { ClassColor } from '@/classes/ClassColor';
-import { Grid, Stack } from '@mui/material';
+import { Backdrop, Box, CircularProgress, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { ClassComputer, ClassDevice } from '@/classes/ClassDevice';
 import { orderBy, where } from 'firebase/firestore';
 import SelectComponent from '@/components/elements/SelectComponent';
@@ -17,6 +17,28 @@ import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import constants from 'constants';
 import DeviceCard from './DeviceCard';
+
+import CloseIcon from '@mui/icons-material/Close';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { cutString, getFormattedDate } from '@/contexts/functions';
+import { useLanguage } from '@/contexts/LangProvider';
+import { ClassUserAdmin, ClassUserSuperAdmin } from '@/classes/users/ClassUser';
+import AccordionComponent from '@/components/dashboard/hub/AccordionComponent';
+
+const TypographyComponent = ({ title = "", value = "" }) => {
+  return (<Stack direction={'row'} spacing={1.5} justifyContent={'space-between'} sx={{ background: '' }}>
+    <Typography fontWeight={'bold'}>{title}</Typography>
+    <Typography noWrap>{value}</Typography>
+  </Stack>)
+}
+
+
+
 
 // Liste mock des 25 ordinateurs
 const initialComputers = [
@@ -48,55 +70,166 @@ const initialComputers = [
 ];
 
 
+export default function ComputersComponent() {
+  const { theme } = useThemeMode();
+  const { text, greyLight } = theme.palette;
+  const { t } = useTranslation([ClassDevice.NS_COLLECTION, NS_DASHBOARD_COMPUTERS]);
+  const [computers] = useState(initialComputers);
+  const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
 
-// Mapping des statuts → label + couleurs
+  const [schools, setSchools] = useState([]);
+  const [school, setSchool] = useState({});
+  const [rooms, setRooms] = useState([]);
+  const [room, setRoom] = useState(null);
+  const [allComputers, setAllComputers] = useState([]);
+  const [computersBis, setComputersBis] = useState([]);
+  useEffect(() => {
+    async function initComputers() {
+      const _schools = await ClassSchool.fetchListFromFirestore([
+        //where("school_uid", "==", schoolUid),
+        orderBy("name"),
+        //limit(25),
+      ]);
+      //console.log("SCHHOLlist", _schools)
+
+      setSchools(_schools);
+      const _school = _schools[0];
+      setSchool(_school);
+      const _rooms = await ClassRoom.fetchListFromFirestore([
+        where("uid_school", "==", _school.uid),
+        orderBy("uid_intern"),
+        //limit(25),
+      ]);
+      // console.log("ROOMS list", _rooms)
+      setRooms(_rooms);
+      const _room = _rooms[0];
+      setRoom(_room);
+      const _computers = await ClassComputer.fetchListFromFirestore([
+        //where("uid_room", "==", _room.uid),
+        //where("status", "==", filter),
+        orderBy("uid_intern"),
+        //limit(25),
+      ]);
+      //console.log("computer list", _rooms)
+      //console.log("computer index", _computers);
+
+      setAllComputers(_computers);
+      setComputersBis(_computers.filter(item => item.uid_room === _room.uid));
+    }
+    initComputers();
+  }, []);
+
+  useEffect(() => {
+    var _computers = [...allComputers];
+    if (room) {
+      _computers = _computers.filter(item => item.uid_room === room.uid);
+    }
+    if (filter !== 'all') {
+      _computers = _computers.filter(item => item.status === filter);
+    }
+    //console.log('EVENT filter', _computers);
+    setComputersBis(_computers);
+  }, [filter]);
+
+  const onChangeRoom = async (e) => {
+    const { value } = e.target;
+    const uidRoom = value;
+    var _computers = [...allComputers];
+    if (uidRoom !== 'all') {
+      const indexRoom = ClassRoom.indexOf(rooms, uidRoom);
+      const _room = rooms[indexRoom];
+
+      setRoom(_room);
+      _computers = _computers.filter(item => item.uid_room === uidRoom);
+    } else {
+      setRoom(null);
+    }
+    if (filter !== 'all') {
+      _computers = _computers.filter(item => item.status === filter);
+    }
+    //console.log('EVENT', _computers);
+    setComputersBis(_computers);
+  }
+
+  const updateComputersStatus = async () => {
+    let _computers = await ClassComputer.fetchListFromFirestore([
+      //where("uid_room", "==", _room.uid),
+      //where("status", "==", filter),
+      orderBy("uid_intern"),
+      //limit(25),
+    ]);
+    //console.log("computer list", _rooms)
+    //console.log("computer index", _computers);
+    setAllComputers(_computers);
+    //var _computers = [...allComputers];
+    if (room) {
+      _computers = _computers.filter(item => item.uid_room === room.uid);
+    }
+    if (filter !== 'all') {
+      _computers = _computers.filter(item => item.status === filter);
+    }
+    //console.log('EVENT filter', _computers);
+    setComputersBis(_computers);
+  }
+
+  // Mapping des statuts → label + couleurs
 const STATUS_CONFIG = {
   available: {
-    label: "Disponible",
+    label: t('available'),
     badgeBg: "#022c22",
     badgeBorder: "#16a34a",
     badgeText: "#bbf7d0",
     glow: "#22c55e55",
   },
   busy: {
-    label: "Occupé",
+    label: t('busy'),
     badgeBg: "#111827",
     badgeBorder: "#3b82f6",
     badgeText: "#bfdbfe",
     glow: "#3b82f655",
   },
   in_use: {
-    label: "Occupé",
+    label: t('busy'),
     badgeBg: "#111827",
     badgeBorder: "#3b82f6",
     badgeText: "#bfdbfe",
     glow: "#3b82f655",
   },
   maintenance: {
-    label: "Maintenance",
+    label: t('maintenance'),
     badgeBg: "#422006",
     badgeBorder: "#f97316",
     badgeText: "#fed7aa",
     glow: "#f9731655",
   },
   reparation: {
-    label: "Réparation",
+    label: t('reparation'),
     badgeBg: "#111827",
     badgeBorder: "rgb(255,0,0)",
     badgeText: "rgba(253, 214, 214, 1)",
     glow: "rgba(255,0,0,0.3)",
   },
   offline: {
-    label: "Hors service",
+    label: t('hs'),
     badgeBg: "#111827",
     badgeBorder: "#6b7280",
     badgeText: "#e5e7eb",
     glow: "#6b728055",
   },
   hs: {
-    label: "Hors service",
+    label: t('hs'),
     badgeBg: "#111827",
     badgeBorder: "#6b7280",
+    badgeText: "#e5e7eb",
+    glow: "#6b728055",
+  },
+  all: {
+    label: "Tous",
+    badgeBg: "transparent",
+    badgeBorder: ClassColor.WHITE,
     badgeText: "#e5e7eb",
     glow: "#6b728055",
   },
@@ -214,7 +347,6 @@ function ComputerCard({ computer, isSelected, onClick }) {
     </button>
   );
 }
-
 function StatusBadge({ status, big = false }) {
   const cfg = STATUS_CONFIG[status];
 
@@ -256,7 +388,6 @@ function StatusBadge({ status, big = false }) {
     </>
   );
 }
-
 /** Icône "ordinateur de maison" en mode petit **/
 function ComputerIconSmall({ status }) {
   const cfg = STATUS_CONFIG[status];
@@ -311,7 +442,6 @@ function ComputerIconSmall({ status }) {
     </div>
   );
 }
-
 /** Version "large" pour le panneau de droite **/
 function ComputerIconLarge({ status }) {
   const cfg = STATUS_CONFIG[status];
@@ -366,251 +496,273 @@ function ComputerIconLarge({ status }) {
     </div>
   );
 }
-
-export default function ComputersComponent() {
+function ScrollDialog({ device = null, setDevice = null, updateList = null, isOpen = false, setIsOpen = null }) {
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
-  const [computers] = useState(initialComputers);
-  const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState(null);
-
-  const [schools, setSchools] = useState([]);
-  const [school, setSchool] = useState({});
-  const [rooms, setRooms] = useState([]);
-  const [room, setRoom] = useState(null);
-  const [allComputers, setAllComputers] = useState([]);
-  const [computersBis, setComputersBis] = useState([]);
+  const { user } = useAuth();
+  const { lang } = useLanguage();
+  const { theme } = useThemeMode();
+  const { blueDark } = theme.palette;
+  const [open, setOpen] = useState(isOpen);
+  const [processing, setProcessing] = useState(false);
+  const [changeDevice, setChangeDevice] = useState(null);
+  const [scroll, setScroll] = useState('paper');
   useEffect(() => {
-    async function initComputers() {
-      const _schools = await ClassSchool.fetchListFromFirestore([
-        //where("school_uid", "==", schoolUid),
-        orderBy("name"),
-        //limit(25),
-      ]);
-      console.log("SCHHOLlist", _schools)
-
-      setSchools(_schools);
-      const _school = _schools[0];
-      //setSchool(_school);
-      const _rooms = await ClassRoom.fetchListFromFirestore([
-        where("uid_school", "==", _school.uid),
-        orderBy("uid_intern"),
-        //limit(25),
-      ]);
-      console.log("ROOMS list", _rooms)
-      setRooms(_rooms);
-      //const _room = _rooms[0];
-      //setRoom(_room);
-      const _computers = await ClassComputer.fetchListFromFirestore([
-        //where("uid_room", "==", _room.uid),
-        //where("status", "==", filter),
-        orderBy("uid_intern"),
-        //limit(25),
-      ]);
-      //console.log("computer list", _rooms)
-      console.log("computer index", _computers);
-
-      setAllComputers(_computers);
-      setComputersBis(_computers);
-    }
-    initComputers();
-  }, []);
-
-  useEffect(() => {
-    var _computers = [...allComputers];
-    if (room) {
-      _computers = _computers.filter(item => item.uid_room === room.uid);
-    }
-    if (filter !== 'all') {
-      _computers = _computers.filter(item => item.status === filter);
-    }
-    console.log('EVENT filter', _computers);
-    setComputersBis(_computers);
-  }, [filter]);
-
-  const onChangeRoom = async (e) => {
-    const { value } = e.target;
-    const uidRoom = value;
-    var _computers = [...allComputers];
-    if (uidRoom !== 'all') {
-      const indexRoom = ClassRoom.indexOf(rooms, uidRoom);
-      const _room = rooms[indexRoom];
-
-      setRoom(_room);
-      _computers = _computers.filter(item => item.uid_room === uidRoom);
+    if (device) {
+      setChangeDevice(device.clone());
     } else {
-      setRoom(null);
+      setChangeDevice(null);
     }
-    if (filter !== 'all') {
-      _computers = _computers.filter(item => item.status === filter);
+  }, [device]);
+
+
+
+  const handleClickOpen = (scrollType) => () => {
+    setOpen(true);
+    setIsOpen(true);
+    setScroll(scrollType);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setIsOpen(false);
+    setDevice(null);
+  };
+
+  const descriptionElementRef = useRef(null);
+  useEffect(() => {
+    if (open) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
+      }
     }
-    console.log('EVENT', _computers);
-    setComputersBis(_computers);
-  }
+  }, [open]);
 
+  return (
+    <Stack sx={{ width: '100%', height: '100%' }}>
+      <Dialog
+        //fullWidth
+        maxWidth={'md'}
+        open={isOpen}
+        onClose={handleClose}
+        scroll={scroll}
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+        sx={{
 
-  const filteredComputers =
-    filter === "all"
-      ? computers
-      : computers.filter((pc) => pc.status === filter);
+          '& .MuiDialog-container': {
+            p: 1,
+            //alignItems: 'stretch', // ⬅️ étire le container sur toute la hauteur
+          },
+          '& .MuiDialog-paper': {
+            borderRadius: '10px',
+            background: blueDark.main,
+            color: 'white',
+            minWidth: { xs: '100%', md: '400px' },
+            width: { xs: '100%', md: '' },
+            maxWidth: { xs: '100%', md: '50%' },
+            maxWidth: '100%',
+            margin: 1,
+            //borderRadius: 0,
+            //height: '100vh',      // ⬅️ plein écran en hauteur
+            //maxHeight: '100vh',   // ⬅️ enlève la limite par défaut
+            display: 'flex',
+            flexDirection: 'column',
+          },
+          // 🔹 Bordures générées par `DialogContent dividers`
+          '& .MuiDialogContent-dividers': {
+            borderTopColor: 'rgba(255,255,255,0.2)',    // ou une couleur de ton thème
+            borderBottomColor: 'rgba(255,255,255,0.2)',
+          },
 
+          // 🔹 Si tu utilises aussi des <Divider /> à l’intérieur
+          '& .MuiDivider-root': {
+            borderColor: 'rgba(255,255,255,0.2)',
+          },
+        }}
+      >
+        <DialogTitle id="scroll-dialog-title">
+          <Stack direction={'row'} justifyContent={'space-between'}>
+            <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
+              {
+                ClassComputer.getIconType({ type: device.type })
+              }
+              <Stack>
+                <Typography variant='h4'>{device.name || '---'}</Typography>
+                <Typography variant='h5' color='greyLight'>{t(device.type)}</Typography>
+              </Stack>
+            </Stack>
+            <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
+          </Stack>
+        </DialogTitle>
+        <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 } }}>
+          <Stack spacing={2.5}>
+            <Stack spacing={1} alignItems={'center'} sx={{ width: '100%' }}>
+              <ComputerIconLarge status={device.status} />
+              <StatusBadge status={device.status} big />
+              <Typography>{device.name}</Typography>
+            </Stack>
+            <Stack spacing={1} sx={{ width: '100%' }}>
+              <TypographyComponent title={t('uid')} value={device.uid} />
+              <TypographyComponent title={t('uid_intern')} value={`#${device.uid_intern}`} />
+              <TypographyComponent title={t('name')} value={device.name} />
+              <TypographyComponent title={t('status')} value={t(device.status)} />
+              <TypographyComponent title={t('category')} value={t(device.category)} />
+              <TypographyComponent title={t('type')} value={t(device.type)} />
+
+              <TypographyComponent title={t('brand')} value={device.brand} />
+              <TypographyComponent title={t('os')} value={t(device.os)} />
+              <TypographyComponent title={t('os_version')} value={device.os_version} />
+              <TypographyComponent title={t('buy_time')} value={getFormattedDate(device.buy_time, lang)} />
+            </Stack>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ minHeight: '20px' }}>
+          {
+            (user instanceof ClassUserSuperAdmin || user instanceof ClassUserAdmin) && <Stack direction={'row'} sx={{ width: '100%', background: '' }} justifyContent={'end'} alignItems={'center'} spacing={1}>
+              {
+                !processing && <SelectComponentDark
+                  //label={'status'}
+                  value={changeDevice?.status}
+                  values={ClassDevice.ALL_STATUS.map(item => ({ id: item, value: t(item) }))}
+                  onChange={(e) => setChangeDevice(prev => {
+                    if (!prev || prev === null) return prev;
+                    console.log("CHANGE", e.target.value)
+                    prev.update({ status: e.target.value });
+                    //prev.status = e.target.value;
+                    return prev.clone();
+                  })}
+                  hasNull={false}
+                />
+              }
+              {
+                changeDevice?.status !== device?.status && <Button loading={processing} variant='contained' onClick={async () => {
+                  setProcessing(true);
+                  const newDevice = await ClassComputer.update(device.uid, { status: changeDevice.status });
+                  if (newDevice) {
+                    setDevice(newDevice);
+                    await updateList();
+                  }
+                  setProcessing(false);
+                }}>{t('btn-edit')}</Button>
+              }
+            </Stack>
+          }
+
+        </DialogActions>
+      </Dialog>
+    </Stack>
+  );
+}
   const handleCardClick = (pc) => {
     setSelected(pc);
+    setSelectedDevice(pc);
+    setOpenDialog(true);
   };
 
   return (
     <>
-      <Stack sx={{ width: '100%' }}>
-        <Stack spacing={1} alignItems={'start'} sx={{ background: 'blue' }}>
-          <SelectComponentDark
-            label={'school'}
-            value={school.uid}
-            values={schools.map(item => ({ id: item.uid, value: item.name }))}
-            hasNull={false}
-          />
-          <Grid spacing={1} container>
-            <Grid size={{ xs: 'grow', sm: 'auto' }}>
-              <SelectComponentDark
-                label={'room'}
-                value={room?.uid || 'all'}
-                values={rooms.length > 1 ? [{ uid: 'all', name: `-- ${t('all')} --` }, ...rooms].map(item => ({ id: item.uid, value: item.name })) : rooms.map(item => ({ id: item.uid, value: item.name }))}
-                onChange={onChangeRoom}
-                hasNull={false}
-              />
-            </Grid>
-            <Grid size={{ xs: 'grow', sm: 'auto' }}>
-
-              <SelectComponentDark
-                label={'status'}
-                value={filter}
-                values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassDevice.ALL_STATUS.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
-                onChange={(e) => setFilter(e.target.value)}
-                hasNull={false}
-              />
-            </Grid>
-          </Grid>
-
-        </Stack>
-        <Grid container sx={{ height: '100%', background: 'yellow' }} spacing={1}>
-          <Grid size={{ xs: 12, sm: 8 }}>
-            <Stack
-              spacing={1}
-              sx={{
-                width: '100%',
-                background: '#020617',
-                borderRadius: '16px',
-                border: '1px solid #1f2937',
-                padding: '12px',
-                boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
-              }}>
-              <Stack spacing={1} direction={'row'} sx={{ display: { xs: 'none', sm: 'flex' }, background: '', width: '100%' }} className='legend'>
-                {filter === 'all' ? <>
-                  <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
-                  <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
-                  <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
-                  <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
-                  <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
-                </> : <>
-                  {
-                    (filter === 'available') && <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
-                  }
-                  {
-                    (filter === 'busy') && <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
-                  }
-                  {
-                    (filter === 'maintenance') && <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
-                  }
-                  {
-                    (filter === 'reparation') && <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
-                  }
-                  {
-                    (filter === 'hs') && <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
-                  }
-                </>}
-              </Stack>
-              <Grid container sx={{ width: '100%' }} justifyContent={'stretch'} spacing={1}>
-                {computersBis.map((pc, i) => (
-                  <Grid key={`${pc.uid}-${i}`} size={{ xs: 6, sm: 'auto' }} justifyItems={'stretch'}>
-                    <ComputerCard
-                      computer={pc}
-                      isSelected={selected?.uid === pc.uid}
-                      onClick={() => handleCardClick(pc)}
-                    />
-                    <div style={{display:'block'}}>
-                      <DeviceCard
-                      //key={d.uid}
-                      device={pc}
-                      onClick={() => console.log("open details", d.uid)}
-                      onEdit={(dev) => console.log("edit", dev.uid)}
-                      onToggleEnabled={(dev) =>
-                        console.log("toggle enabled", dev.uid, dev.enabled)
-                      }
-                    />
-                    </div>
-                  </Grid>
-
-                ))}
+      {
+        selectedDevice && <ScrollDialog updateList={updateComputersStatus} device={selectedDevice} setDevice={setSelectedDevice} isOpen={openDialog} setIsOpen={setOpenDialog} />
+      }
+      <Stack sx={{ width: '100%' }} spacing={2}>
+        <Stack spacing={1}>
+          <Stack alignItems={'start'} sx={{ background: '' }}>
+            <Grid spacing={1} container>
+              <Grid size={{ xs: 'grow', sm: 'auto' }}>
+                <SelectComponentDark
+                  label={t('room', {ns:NS_DASHBOARD_COMPUTERS})}
+                  value={room?.uid || ''}
+                  values={rooms.map(item => ({ id: item.uid, value: item.name }))}
+                  onChange={onChangeRoom}
+                  hasNull={false}
+                />
               </Grid>
-            </Stack>
+              <Grid size={{ xs: 'grow', sm: 'auto' }}>
+
+                <SelectComponentDark
+                  label={t('status', {ns:NS_DASHBOARD_COMPUTERS})}
+                  value={filter}
+                  values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassDevice.ALL_STATUS.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
+                  onChange={(e) => setFilter(e.target.value)}
+                  hasNull={false}
+                />
+              </Grid>
+            </Grid>
+
+          </Stack>
+          <Stack maxWidth={{ xs: '100%', sm: '350px' }}>
+            <AccordionComponent school={school} room={room} />
+          </Stack>
+        </Stack>
+        <Stack
+          spacing={1}
+          sx={{
+            width: '100%',
+            background: '#020617',
+            borderRadius: '16px',
+            border: '1px solid #1f2937',
+            padding: '12px',
+            //boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
+          }}>
+          <Stack spacing={1} direction={'row'} sx={{ background: '', width: '100%' }} className='legend'>
+            {filter === 'all' ? <>
+              <Box sx={{ display: { md: 'none' } }}>
+                <LegendItem status="all" value={computersBis.length} />
+              </Box>
+              <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+                <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+                <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+                <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+                <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+              </Stack>
+            </> : <>
+              {
+                (filter === 'available') && <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+              }
+              {
+                (filter === 'busy') && <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+              }
+              {
+                (filter === 'maintenance') && <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+              }
+              {
+                (filter === 'reparation') && <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+              }
+              {
+                (filter === 'hs') && <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+              }
+            </>}
+          </Stack>
+          <Grid container sx={{ width: '100%', background: '' }} justifyContent={'stretch'} spacing={0.5}>
+            {computersBis.map((pc, i) => (
+              <Grid key={`${pc.uid}-${i}`} size={{ xs: 6, sm: 'auto' }} justifyItems={'stretch'}>
+                <ComputerCard
+                  computer={pc}
+                  isSelected={selectedDevice?.uid === pc.uid}
+                  onClick={() => handleCardClick(pc)}
+                />
+                <div style={{ display: 'none' }}>
+                  <DeviceCard
+                    //key={d.uid}
+                    device={pc}
+                    onClick={() => console.log("open details", d.uid)}
+                    onEdit={(dev) => console.log("edit", dev.uid)}
+                    onToggleEnabled={(dev) =>
+                      console.log("toggle enabled", dev.uid, dev.enabled)
+                    }
+                  />
+                </div>
+              </Grid>
+
+            ))}
           </Grid>
-
-          <Grid size={{ xs: 12, sm: 'grow' }} className={'grid'}>
-            <Stack
-              spacing={1}
-              sx={{
-                background: '#020617',
-                borderRadius: '16px',
-                border: '1px solid #1f2937',
-                padding: '12px',
-                boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
-                color: 'white'
-              }}>
-              <aside className="side-panel">
-                {selected ? (
-                  <>
-                    <h2>Détails du poste</h2>
-                    <div className="side-icon-wrapper">
-                      <ComputerIconLarge status={selected.status} />
-                    </div>
-                    <p className="side-name">{selected.name}</p>
-                    <StatusBadge status={selected.status} big />
-
-                    <div className="side-info">
-                      <p>
-                        <span>Identifiant interne :</span> #{selected.id}
-                      </p>
-                      <p>
-                        <span>Emplacement :</span> Salle informatique principale
-                      </p>
-                      <p>
-                        <span>Type :</span> Poste fixe
-                      </p>
-                      <p>
-                        <span>OS :</span> Windows 11 (exemple)
-                      </p>
-                      <p>
-                        <span>Dernière mise à jour :</span> 14.11.2025
-                      </p>
-                    </div>
-
-                    <p className="side-note">
-                      Cette partie pourra être reliée à ta vraie base de données
-                      (Firestore, API interne) pour afficher les specs, l&apos;état
-                      des mises à jour, l&apos;historique des pannes, etc.
-                    </p>
-                  </>
-                ) : (
-                  <div className="side-empty">
-                    <p>Sélectionne un ordinateur dans la grille pour voir les détails.</p>
-                  </div>
-                )}
-              </aside>
-
-
-            </Stack>
-
-          </Grid>
-        </Grid>
+        </Stack>
       </Stack>
+
+
+
       <div className="page" style={{ background: 'red', maxWidth: '100%', display: 'none' }}>
 
         <main className="container" style={{ background: 'green' }}>

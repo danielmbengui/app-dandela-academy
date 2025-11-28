@@ -21,12 +21,12 @@ const useThemeColors = (themeMode) => {
         blueLight: '#f2f9ff',
         blueLight1: '#bfdbfe',
 
- 
+
         blueCyan: '#26d3e2',
         blueCyan1: '#24c1d3',
         //#f2f9ff
         // var(--blue-light-1)
-        
+
         backgroundMenu: '#F5F4F4',
         greyLight: "#b3b1b1",
         backgroundSwitch: 'hsla(0, 0.00%, 82.67%, 1.00)',
@@ -82,13 +82,13 @@ const useThemeColors = (themeMode) => {
         fontReverseColor: '#FFFFFF',
         primary: '#1160e5',
                 */
-               background: safeValue(computedStyles.getPropertyValue('--background'), '#F5F4F4'),
-               cardColor: safeValue(computedStyles.getPropertyValue('--card-color'), '#FFFFFF'),
-               fontColor: safeValue(computedStyles.getPropertyValue('--font-color'), '#000000'),
-               fontReverseColor: safeValue(computedStyles.getPropertyValue('--font-reverse-color'), '#FFFFFF'),
+                background: safeValue(computedStyles.getPropertyValue('--background'), '#F5F4F4'),
+                cardColor: safeValue(computedStyles.getPropertyValue('--card-color'), '#FFFFFF'),
+                fontColor: safeValue(computedStyles.getPropertyValue('--font-color'), '#000000'),
+                fontReverseColor: safeValue(computedStyles.getPropertyValue('--font-reverse-color'), '#FFFFFF'),
                 primary: safeValue(computedStyles.getPropertyValue('--primary'), '#1160e5'),
                 primaryShadow: safeValue(computedStyles.getPropertyValue('--primary-shadow'), '#1160e580'),
- 
+
 
                 blue: safeValue(computedStyles.getPropertyValue('--blue'), '#1a5fde'),
                 blueDark: safeValue(computedStyles.getPropertyValue('--blue-dark'), '#020617'),
@@ -99,7 +99,7 @@ const useThemeColors = (themeMode) => {
                 blueCyan1: safeValue(computedStyles.getPropertyValue('--blue-cyan-1'), '#24c1d3'),
 
 
-                
+
                 backgroundMenu: safeValue(computedStyles.getPropertyValue('--background-menu'), '#F5F4F4'),
                 greyLight: safeValue(computedStyles.getPropertyValue('--grey-light'), '#b3b1b1'),
                 //backgroundSwitch: safeValue(computedStyles.getPropertyValue('--toggle-bg-devlink'), '#ffffff'),
@@ -143,7 +143,7 @@ export const ThemeProvider = ({ children }) => {
         document.documentElement.className = newTheme; // Applique la classe du thème
         //document.documentElement.className = newTheme; // Applique la classe du thème
         //document.documentElement['data-theme'] = newTheme; // Applique la classe du thème
-        
+
         localStorage.setItem(LOCAL_STORAGE_THEME, newTheme);
         //console.log("NEW MODE", newTheme);
     };
@@ -167,6 +167,9 @@ export const ThemeProvider = ({ children }) => {
             },
         },
         typography: {
+allVariants: {
+      lineHeight: 1,
+    },
             h1: {
                 //fontSize: '2.5rem',
                 fontSize: `1.8rem`,
@@ -176,20 +179,20 @@ export const ThemeProvider = ({ children }) => {
             },
             h2: {
                 //fontSize: '1.7rem',
-                fontSize: `1.2rem`,
+                fontSize: `1.5rem`,
                 fontWeight: 500,
                 // color: 'black',
             },
             h3: {
-                fontSize: '1rem',
+                fontSize: '1.3rem',
                 fontWeight: 600,
                 // color: 'black',
             },
             h4: {
                 fontSize: '1.2rem',
-                fontWeight: 500,
+                fontWeight: 600,
                 // color: 'black',
-                '@media (min-width:600px)': {
+                '@media (max-width:600px)': {
                     fontSize: '1.8rem',
                 },
             },
@@ -197,7 +200,7 @@ export const ThemeProvider = ({ children }) => {
                 fontSize: '1rem',
                 fontWeight: 500,
                 //color: 'black',
-                '@media (min-width:600px)': {
+                '@media (max-width:600px)': {
                     fontSize: '1.5rem',
                 },
             },
@@ -210,7 +213,7 @@ export const ThemeProvider = ({ children }) => {
                 //fontSize: '1.2rem',
                 fontSize: `0.9rem`,
                 fontWeight: 300,
-                color:themeColors.greyLight,
+                color: themeColors.greyLight,
             },
             // h7 à h9 n'existent pas nativement : tu peux les créer comme classes custom
             h7: {
@@ -228,7 +231,7 @@ export const ThemeProvider = ({ children }) => {
                 fontWeight: 400,
                 //color: 'black',
             },
-            
+
         },
         palette: {
             mode: themeMode,
@@ -288,7 +291,7 @@ export const ThemeProvider = ({ children }) => {
             greyLight: {
                 main: themeColors.greyLight,
             },
-            
+
             /*
             primaryShadowChart: {
               main: "#4285f4",

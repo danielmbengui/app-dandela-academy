@@ -6,6 +6,7 @@ export const PAGE_NOT_FOUND = "/not-found";
 export const PAGE_DASHBOARD_HOME = "/dashboard";
 export const PAGE_DASHBOARD_CALENDAR = "/calendar";
 export const PAGE_DASHBOARD_COMPUTERS = "/computers";
+export const PAGE_DASHBOARD_USERS = "/users";
 export const PAGE_DASHBOARD_PROFILE = "/profile";
 
 export const PAGE_CONTACT = "/contact";

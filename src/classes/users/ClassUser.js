@@ -16,8 +16,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS } from "@/contexts/constants/constants_pages";
-import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors } from "@/assets/icons/IconsComponent";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS } from "@/contexts/constants/constants_pages";
+import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors, IconUsers } from "@/assets/icons/IconsComponent";
 import { isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -350,6 +350,16 @@ export class ClassUser {
             }*/]
         },
         {
+            name: "users",
+            path: PAGE_DASHBOARD_USERS,
+            icon: <IconUsers width={20} height={20} />,
+            subs: [/*{
+                name: "lessons",
+                path: PAGE_DASHBOARD_HOME,
+                icon: <IconLessons width={18} height={18} />,
+            }*/]
+        },
+         {
             name: "computers",
             path: PAGE_DASHBOARD_COMPUTERS,
             icon: <IconComputers width={20} height={20} />,

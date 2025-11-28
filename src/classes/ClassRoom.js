@@ -16,6 +16,9 @@ import {
 import { firestore } from "@/contexts/firebase/config";
 
 export class ClassRoom {
+    static COLLECTION = "ROOMS";
+    static NS_COLLECTION = `classes/room`;
+
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
         UNKNOWN: 'unknown',
@@ -26,7 +29,6 @@ export class ClassRoom {
         CAFETERIA: 'cafeteria',
         UNKNOWN: 'unknown',
     });
-    static COLLECTION = "ROOMS";
 
     constructor({
         uid = "",

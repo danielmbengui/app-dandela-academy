@@ -1,0 +1,13 @@
+{
+  "uid": "ID",
+  "uid_intern": "Number",
+  "uid_school": "School ID",
+  "type": "Type",
+  "name": "Name",
+  "photo_url": "Photo",
+  "floor": "Floor",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "created_time": "Creation date",
+  "last_edit_time": "Last update"
+}

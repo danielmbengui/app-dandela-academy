@@ -19,7 +19,7 @@ const {blueDark, text} = theme.palette;
                     {label}
                 </label>
             }
-            <div className="relative rounded-md" style={{background:blueDark.main}}>
+            <div className="relative rounded-sm" style={{background:blueDark.main}}>
                 <select
                     id={name}
                     name={name}

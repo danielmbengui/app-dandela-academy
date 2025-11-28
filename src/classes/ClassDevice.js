@@ -15,6 +15,7 @@ import {
     orderBy,
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
+import { IconComputer, IconLaptop, IconMobile, IconTablet, IconTv, IconUnknown } from "@/assets/icons/IconsComponent";
 
 export class ClassDevice {
     static COLLECTION = "DEVICES";
@@ -259,7 +260,8 @@ static allStatusToObject() {
         }
     }
     clone() {
-        return this.makeDeviceInstance(this._uid, this.toJSON());
+        return ClassDevice.makeDeviceInstance(this._uid, this.toJSON());
+        //return new ClassDevice(this.toJSON());
     }
 
     // ---------- VALIDATIONS ----------
@@ -465,8 +467,9 @@ static allStatusToObject() {
             const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")
-            return (await getDoc(ref)).data(); // -> ClassModule
+            return (await getDoc(ref)).data(); // -> ClassDevice
         } catch (e) {
+            console.log("ERRROR", e)
             return null;
         }
     }
@@ -510,6 +513,7 @@ export class ClassComputer extends ClassDevice {
     static COLLECTION = "COMPUTERS";
     static TYPE = Object.freeze({
         DESKTOP: 'desktop',
+        LAPTOP: 'laptop',
         MOBILE: 'mobile',
         TABLET: 'tablet',
         TV: 'tv',
@@ -564,5 +568,24 @@ export class ClassComputer extends ClassDevice {
     set os_version(value) {
         this._os_version = value;
         this._touchLastEdit();
+    }
+
+    static getIconType({type, size=20,color='inherit'}) {
+        if(type === ClassComputer.TYPE.DESKTOP) {
+            return <IconComputer width={size} height={size} color={color} />
+        }
+        if(type === ClassComputer.TYPE.LAPTOP) {
+            return <IconLaptop width={size} height={size} color={color} />
+        }
+        if(type === ClassComputer.TYPE.MOBILE) {
+            return <IconMobile width={size} height={size} color={color} />
+        }
+        if(type === ClassComputer.TYPE.TABLET) {
+            return <IconTablet width={size} height={size} color={color} />
+        }
+        if(type === ClassComputer.TYPE.TV) {
+            return <IconTv width={size} height={size} color={color} />
+        }
+        return <IconUnknown width={size} height={size} color={color} />
     }
 }

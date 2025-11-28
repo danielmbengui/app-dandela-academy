@@ -16,6 +16,8 @@ export const NS_FORGOT_PASSWORD = `auth/forgot-password`;
 export const NS_DASHBOARD_HOME = `dashboard/home`;
 export const NS_DASHBOARD_CALENDAR = `dashboard/calendar`;
 export const NS_DASHBOARD_PROFILE = `dashboard/profile`;
+export const NS_DASHBOARD_COMPUTERS = `dashboard/computers`;
+export const NS_DASHBOARD_USERS = `dashboard/users`;
 
 
 export const NS_LANGS = `langs`;

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { IconDashboard, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_COMPUTERS, NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -2174,14 +2174,14 @@ function CoursePage() {
 export default function DashboardCompputerHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
-  const { t } = useTranslation([NS_DASHBOARD_HOME]);
+  const { t } = useTranslation([NS_DASHBOARD_COMPUTERS]);
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { user, login, logout } = useAuth();
 
-  return (<DashboardPageWrapper title={t('Ordinateurs')} subtitle={`Vue d'ensemble du matériel sur le site, avec leur disponibilité.`} icon={<IconDashboard width={22} height={22} />}>
+  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
     <ComputersComponent />
   </DashboardPageWrapper>)
 }
