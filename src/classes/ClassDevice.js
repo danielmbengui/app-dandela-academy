@@ -16,6 +16,10 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { IconComputer, IconLaptop, IconMobile, IconTablet, IconTv, IconUnknown } from "@/assets/icons/IconsComponent";
+import { ClassColor } from "./ClassColor";
+import { ComputerIconLarge, ComputerIconMedium, ComputerIconSmall, LaptopIconLarge, LaptopIconMedium, LaptopIconSmall, MobileIconLarge, MobileIconMedium, MobileIconSmall, TabletIconLarge, TabletIconMedium, TabletIconSmall, TvIconLarge, TvIconMedium, TvIconSmall, WatchIconLarge, WatchIconMedium, WatchIconSmall } from "@/components/dashboard/computers/ComputerIcons";
+import { ClassUpdate } from "./ClassUpdate";
+import { getStartOfDay } from "@/contexts/functions";
 
 export class ClassDevice {
     static COLLECTION = "DEVICES";
@@ -33,12 +37,65 @@ export class ClassDevice {
         HS: 'hs',
         UNKNOWN: 'unknown',
     });
+    static STATUS_CONFIG = Object.freeze({
+        available: {
+            label: 'available',
+            badgeBg: "#022c22",
+            badgeBorder: "#16a34a",
+            badgeText: "#bbf7d0",
+            glow: "#22c55e55",
+        },
+        busy: {
+            label: 'busy',
+            badgeBg: "#111827",
+            badgeBorder: "#3b82f6",
+            badgeText: "#bfdbfe",
+            glow: "#3b82f655",
+        },
+        maintenance: {
+            label: 'maintenance',
+            badgeBg: "#422006",
+            badgeBorder: "#f97316",
+            badgeText: "#fed7aa",
+            glow: "#f9731655",
+        },
+        reparation: {
+            label: 'reparation',
+            badgeBg: "#111827",
+            badgeBorder: "rgb(255,0,0)",
+            badgeText: "rgba(253, 214, 214, 1)",
+            glow: "rgba(255,0,0,0.3)",
+        },
+        hs: {
+            label: 'hs',
+            badgeBg: "#111827",
+            badgeBorder: "#6b7280",
+            badgeText: "#e5e7eb",
+            glow: "#6b728055",
+        },
+        all: {
+            label: 'all-status',
+            badgeBg: "transparent",
+            badgeBorder: ClassColor.WHITE,
+            badgeText: "#e5e7eb",
+            glow: "#6b728055",
+        },
+    });
     static CATEGORY = Object.freeze({
         HARDWARE: 'hardware',
-        FOOD: 'food',
+        FOOD_MATERIAL: 'food-material',
         OTHER: 'other',
         UNKNOWN: 'unknown',
     });
+    static TYPE = Object.freeze({
+        UNKNOWN: 'unknown',
+    });
+    static ALL_CATEGORIES = [
+        ClassDevice.CATEGORY.HARDWARE,
+        //ClassDevice.CATEGORY.FOOD_MATERIAL,
+        //ClassDevice.CATEGORY.OTHER,
+
+    ];
     static ALL_STATUS = [
         ClassDevice.STATUS.AVAILABLE,
         ClassDevice.STATUS.BUSY,
@@ -47,6 +104,11 @@ export class ClassDevice {
         ClassDevice.STATUS.HS,
 
     ];
+    static MIN_LENGTH_NAME = 3;
+    static MAX_LENGTH_NAME = 100;
+    static MIN_LENGTH_BRAND = 3;
+    static MAX_LENGTH_BRAND = 100;
+
     constructor({
         uid = "",
         uid_intern = "",
@@ -59,9 +121,9 @@ export class ClassDevice {
         status = ClassDevice.STATUS.UNKNOWN,
         category = "",
         type = "",
-        buy_time = new Date(),
-        created_time = new Date(),
-        last_edit_time = new Date(),
+        buy_time = null,
+        created_time = null,
+        last_edit_time = null,
         updates = [],
     } = {}) {
         this._uid = uid;
@@ -74,26 +136,26 @@ export class ClassDevice {
         this._enabled = Boolean(enabled);
 
         this._status = this._normalizeStatus(status);
-        this._type = type;
+        this._type = this._normalizeType(type);
         this._category = this._normalizeCategory(category);
 
         this._buy_time = buy_time instanceof Date
             ? buy_time
-            : new Date(buy_time);
+            : null;
 
         this._created_time = created_time instanceof Date
             ? created_time
-            : new Date(created_time);
+            : null;
 
         this._last_edit_time = last_edit_time instanceof Date
             ? last_edit_time
-            : new Date(last_edit_time);
+            : null;
 
         this._updates = Array.isArray(updates) ? updates.slice() : [];
     }
-static allStatusToObject() {
-    return ClassDevice.ALL_STATUS.map((item)=>({uid:item,name:item}))
-}
+    static allStatusToObject() {
+        return ClassDevice.ALL_STATUS.map((item) => ({ uid: item, name: item }))
+    }
     // 🔁 Getters & Setters
     // --- normalisation interne ---
     _touchLastEdit() {
@@ -111,6 +173,9 @@ static allStatusToObject() {
         return Object.values(ClassDevice.CATEGORY).includes(category)
             ? category
             : ClassDevice.CATEGORY.UNKNOWN;
+    }
+    _normalizeType(type = "") {
+        return ClassDevice.TYPE.UNKNOWN;
     }
     // --- GETTERS ---
 
@@ -239,18 +304,72 @@ static allStatusToObject() {
     }
 
     set updates(value) {
-        this._updates = Array.isArray(value) ? value.slice() : [];
+        this._updates = Array.isArray(value) ? value.slice() : this._updates;
         this._touchLastEdit();
     }
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
+        console.log("OUUUT", out)
         const cleaned = Object.fromEntries(
             Object.entries(out)
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
-                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+                .map(([k, v]) => {
+                    const key = k.replace(/^_/, "");
+
+                    if (key === 'updates') {
+                        //console.log("KKKEY", key)
+                        const array = [];
+
+                        for (let i = 0; i < v.length; i++) {
+                            //console.log("instance", v[i]);
+                            if (v[i] instanceof ClassUpdate) {
+                                //  console.log("instance to json KEY", v[i].toJSON());
+                                array.push(v[i].toJSON());
+                            } else {
+                                array.push(v[i]);
+                            }
+                        }
+                        return ([key, array])
+                    } else {
+                        return ([key, v])
+                    }
+                }) // <-- paires [key, value], pas {key, value}
         );
         return cleaned;
+    }
+    same(object) {
+        if (!(object instanceof ClassDevice)) {
+            return false;
+        }
+        const objectJson = object.toJSON();
+        const objectKeys = Object.keys(objectJson);
+        const json = this.toJSON();
+        const keys = Object.keys(json);
+        if (objectKeys.length !== keys.length) {
+            return false;
+        }
+        var i = 0;
+        while (i < keys.length) {
+            const key = keys[i];
+            //const updates = object['updates']
+            if (key === 'buy_time') {
+                console.log("BUY", getStartOfDay(object[key]), getStartOfDay(json[key]))
+                if (getStartOfDay(object[key]).getTime() !== getStartOfDay(json[key]).getTime()) {
+                    console.log("start BUY", getStartOfDay(object[key]), getStartOfDay(json[key]))
+                    return false;
+                }
+            } else {
+                if (key !== 'updates') {
+                    if (object[key] !== json[key]) {
+                        //console.log("NOT SAME", object[key], json[key])
+                        return false;
+                    }
+                }
+            }
+            i++;
+        }
+        return true;
     }
     update(props = {}) {
         for (const key in props) {
@@ -265,21 +384,115 @@ static allStatusToObject() {
     }
 
     // ---------- VALIDATIONS ----------
-    /*
-    isErrorLastName() {
+    isErrorName() {
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
-        if (this._last_name.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
+        if (this._name.length > 0 && (this._name.length < ClassDevice.MIN_LENGTH_NAME || this._name.length > ClassDevice.MAX_LENGTH_NAME)) return (true);
+        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
         return (false);
     }
-    validLastName() {
-        if (!this._last_name || this._last_name.length === 0 || this.isErrorLastName()) return (false);
+    validName() {
+        if (!this._name || this._name.length === 0 || this.isErrorName()) return (false);
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
         //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
         return (true);
     }
-    */
+    isErrorBrand() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        if (this._brand.length > 0 && (this._brand.length < ClassDevice.MIN_LENGTH_BRAND || this._brand.length > ClassDevice.MAX_LENGTH_BRAND)) return (true);
+        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        return (false);
+    }
+    validBrand() {
+        if (!this._brand || this._brand.length === 0 || this.isErrorBrand()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorCategory() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._category.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
+        if (this._category.length > 0 && !ClassDevice.ALL_CATEGORIES.includes(this._category)) return (true);
+        return (false);
+    }
+    validCategory() {
+        if (!this._category || this._category.length === 0 || this.isErrorCategory()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorType() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._category.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
+        if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        return (false);
+    }
+    validType() {
+        if (!this._type || this._type.length === 0 || this.isErrorType()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorStatus() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._category.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
+        if (this._status.length > 0 && this._status === ClassDevice.STATUS.UNKNOWN) return (true);
+        return (false);
+    }
+    validStatus() {
+        if (!this._status || this._status.length === 0 || this.isErrorStatus()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorOsVersion() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._category.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
+        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        return (false);
+    }
+    validOsVersion() {
+        //if (!this._type || this._type.length === 0 || this.isErrorType()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorOs() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._os.length > 0 && !ClassHardware.ALL_OS.includes(this._os)) return (true);        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        return (false);
+    }
+    validOs() {
+        //if (!this._os || this._os.length === 0 || this.isErrorOs()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorBuyTime() {
+        if (!this._buy_time || this._buy_time === null) return (true);
+        return (false)
+    }
+    validBuyTime() {
+        if (!this._buy_time || !(this._buy_time instanceof Date) || this.isErrorBuyTime()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+
     // ---------- Converter intégré ----------
     static _toJsDate(v) {
         if (!v) return null;
@@ -293,7 +506,7 @@ static allStatusToObject() {
         const { category, type } = data || {};
         //console.log("MAKING USER INSTANCE", uid, type, role);
         if (category === ClassDevice.CATEGORY.HARDWARE) {
-            return new ClassComputer({ uid, ...data });
+            return new ClassHardware({ uid, ...data });
         }
         return new ClassDevice({ uid, ...data });
     }
@@ -301,7 +514,11 @@ static allStatusToObject() {
         return {
             toFirestore(deviceInstance) {
                 // chaque classe a un .toJSON() propre
-                return deviceInstance?.toJSON ? deviceInstance.toJSON() : deviceInstance;
+                var updates = [];
+                if (deviceInstance?.updates?.length > 0) {
+                    updates = deviceInstance.updates.map(device => device.toJSON());
+                }
+                return deviceInstance?.toJSON ? { ...deviceInstance.toJSON(), updates } : deviceInstance;
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
@@ -309,7 +526,10 @@ static allStatusToObject() {
                 var _buy_time = ClassDevice._toJsDate(data.buy_time);
                 var _created_time = ClassDevice._toJsDate(data.created_time);
                 var _last_edit_time = ClassDevice._toJsDate(data.last_edit_time);
-                return ClassDevice.makeDeviceInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time, buy_time: _buy_time });
+                const updates = data.updates?.map((item) => {
+                    return (new ClassUpdate(item));
+                })
+                return ClassDevice.makeDeviceInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time, buy_time: _buy_time, updates });
             },
         };
     }
@@ -414,19 +634,18 @@ static allStatusToObject() {
         });
         return docs;
     }
-
     // Créer un user (avec option timestamps serveur)
     static async createDeviceName(category, type, isLower = false) {
         var prefix = isLower ? "device" : "DEVICE";
         const count = await this.count();
         if (category === ClassDevice.CATEGORY.HARDWARE) {
-            if (type === ClassComputer.TYPE.DESKTOP) {
+            if (type === ClassHardware.TYPE.DESKTOP) {
                 prefix = isLower ? "pc" : "PC";
-            } else if (type === ClassComputer.TYPE.MOBILE) {
+            } else if (type === ClassHardware.TYPE.MOBILE) {
                 prefix = isLower ? "mobile" : "MOBILE";
-            } else if (type === ClassComputer.TYPE.TABLET) {
+            } else if (type === ClassHardware.TYPE.TABLET) {
                 prefix = isLower ? "tablet" : "TABLET";
-            } else if (type === ClassComputer.TYPE.TV) {
+            } else if (type === ClassHardware.TYPE.TV) {
                 prefix = isLower ? "tv" : "TV";
             }
         }
@@ -434,32 +653,34 @@ static allStatusToObject() {
     }
     static async createDeviceNameNormalized(category, type) {
         if (category === ClassDevice.CATEGORY.HARDWARE) {
-            if (type === ClassComputer.TYPE.DESKTOP) {
-                const count = await ClassComputer.count();
+            if (type === ClassHardware.TYPE.DESKTOP) {
+                const count = await ClassHardware.count();
                 return `pc-${(count + 1).toString().padStart(2, '0')}`;
             }
         }
         return "NULL";
     }
-    static async create(data = {}) {
+    static async create(data={}) {
         const newRef = doc(this.colRef()); // id auto
         //data.uid = newRef.id;
-        const model = data instanceof ClassDevice ? data : new ClassDevice({ ...data });
+               // const data = this.toJSON();
+        const model = this.makeDeviceInstance('', data);
         //model.uid = newRef.id;()
-        //console.log("REEEF ID", newRef, model.toJSON());
+
+        
         const countDevices = await this.count() || 0;
         const idDevice = countDevices + 1;
         const uid = newRef.id;
         const uid_intern = idDevice;
         var name = await this.createDeviceName(data.category, data.type);
         var name_normalized = await this.createDeviceName(data.category, data.type, true);
-        const created_time = model.created_time;
+        const created_time = new Date();
         const last_edit_time = new Date();
         const path = { ...model.toJSON(), uid, uid_intern, name, name_normalized, created_time, last_edit_time };
-        await setDoc(newRef, path);
-        return new ClassDevice(path); // -> ClassModule
+        console.log("REEEF ID", this.makeDeviceInstance(uid, path));
+         await setDoc(newRef, path);
+        return this.makeDeviceInstance(uid, path); // -> ClassModule
     }
-
     // Mettre à jour un module
     static async update(id, patch = {}) {
         try {
@@ -473,13 +694,11 @@ static allStatusToObject() {
             return null;
         }
     }
-
     // Supprimer un module
     static async remove(id) {
         await deleteDoc(this.docRef(id));
         return true;
     }
-
     // (Legacy) méthode de fetch directe
     static async fetchFromFirestore(uid) {
         try {
@@ -508,8 +727,88 @@ static allStatusToObject() {
             return [];
         }
     }
+    static getIconType({ type, size = 20, color = 'inherit' }) {
+        if (type === ClassHardware.TYPE.DESKTOP) {
+            return <IconComputer width={size} height={size} color={color} />
+        }
+        if (type === ClassHardware.TYPE.LAPTOP) {
+            return <IconLaptop width={size} height={size} color={color} />
+        }
+        if (type === ClassHardware.TYPE.MOBILE) {
+            return <IconMobile width={size} height={size} color={color} />
+        }
+        if (type === ClassHardware.TYPE.TABLET) {
+            return <IconTablet width={size} height={size} color={color} />
+        }
+        if (type === ClassHardware.TYPE.TV) {
+            return <IconTv width={size} height={size} color={color} />
+        }
+        return <IconUnknown width={size} height={size} color={color} />
+    }
+    static getIcon({ type, size = 'small', status = ClassDevice.STATUS.UNKNOWN, extra = false }) {
+        if (type === ClassHardware.TYPE.DESKTOP) {
+            switch (size) {
+                case 'small': return <ComputerIconSmall status={status} extraSmall={extra} />;
+                case 'large': return <ComputerIconLarge status={status} extraLarge={extra} />;
+                default: return <ComputerIconMedium status={status} extraLarge={extra} />;
+            }
+        }
+        if (type === ClassHardware.TYPE.LAPTOP) {
+            switch (size) {
+                case 'small': return <LaptopIconSmall status={status} extraSmall={extra} />;
+                case 'large': return <LaptopIconLarge status={status} extraLarge={extra} />;
+                default: return <LaptopIconMedium status={status} extraLarge={extra} />;
+            }
+        }
+        if (type === ClassHardware.TYPE.MOBILE) {
+            switch (size) {
+                case 'small': return <MobileIconSmall status={status} extraSmall={extra} />;
+                case 'large': return <MobileIconLarge status={status} extraLarge={extra} />;
+                default: return <MobileIconMedium status={status} extraLarge={extra} />;
+            }
+        }
+        if (type === ClassHardware.TYPE.TABLET) {
+            switch (size) {
+                case 'small': return <TabletIconSmall status={status} extraSmall={extra} />;
+                case 'large': return <TabletIconLarge status={status} extraLarge={extra} />;
+                default: return <TabletIconMedium status={status} extraLarge={extra} />;
+            }
+        }
+        if (type === ClassHardware.TYPE.WATCH) {
+            switch (size) {
+                case 'small': return <WatchIconSmall status={status} extraSmall={extra} />;
+                case 'large': return <WatchIconLarge status={status} extraLarge={extra} />;
+                default: return <WatchIconMedium status={status} extraLarge={extra} />;
+            }
+        }
+        if (type === ClassHardware.TYPE.TV) {
+            switch (size) {
+                case 'small': return <TvIconSmall status={status} extraSmall={extra} />;
+                case 'large': return <TvIconLarge status={status} extraLarge={extra} />;
+                default: return <TvIconMedium status={status} extraLarge={extra} />;
+            }
+        }
+        return <></>
+    }
+    static getCategories() {
+        const categories = {};
+        for (let i = 0; i < this.ALL_CATEGORIES.length; i++) {
+            const categoryTitle = this.ALL_CATEGORIES[i];
+            const array = categoryTitle === 'hardware' ? ClassHardware.ALL_TYPES : [];
+            categories[categoryTitle] = array;
+        }
+        return categories;
+    }
+    static getTypesByCategory(category = "") {
+        if (!category) return [];
+        if (!this.ALL_CATEGORIES.includes(category)) return [];
+        if (category === ClassDevice.CATEGORY.HARDWARE) {
+            return ClassHardware.ALL_TYPES;
+        }
+        return [];
+    }
 }
-export class ClassComputer extends ClassDevice {
+export class ClassHardware extends ClassDevice {
     static COLLECTION = "COMPUTERS";
     static TYPE = Object.freeze({
         DESKTOP: 'desktop',
@@ -517,9 +816,10 @@ export class ClassComputer extends ClassDevice {
         MOBILE: 'mobile',
         TABLET: 'tablet',
         TV: 'tv',
+        WATCH: 'watch',
         UNKNOWN: 'unknown',
     });
-    static OPERATING_SYSTEM = Object.freeze({
+    static OS = Object.freeze({
         WINDOWS: 'windows',
         MACOS: 'macos',
         IOS: 'ios',
@@ -527,6 +827,23 @@ export class ClassComputer extends ClassDevice {
         UBUNTU: 'ubuntu',
         UNKNOWN: 'unknown',
     });
+    static MIN_LENGTH_OS_VERSION = 3;
+    static MAX_LENGTH_OS_VERSION = 100;
+    static ALL_OS = [
+        ClassHardware.OS.WINDOWS,
+        ClassHardware.OS.MACOS,
+        ClassHardware.OS.IOS,
+        ClassHardware.OS.LINUX,
+        ClassHardware.OS.UBUNTU,
+    ]
+    static ALL_TYPES = [
+        ClassHardware.TYPE.DESKTOP,
+        ClassHardware.TYPE.LAPTOP,
+        ClassHardware.TYPE.MOBILE,
+        ClassHardware.TYPE.TABLET,
+        ClassHardware.TYPE.TV,
+        ClassHardware.TYPE.WATCH,
+    ];
 
     constructor(props) {
         super({
@@ -534,21 +851,21 @@ export class ClassComputer extends ClassDevice {
             category: ClassDevice.CATEGORY.HARDWARE,
             //type: ClassComputer.TYPE.UNKNOWN
         }); // le parent lit seulement ses clés (uid, email, type, role, ...)
-        this._os = props.os || ClassComputer.OPERATING_SYSTEM.UNKNOWN;
+        this._os = props.os || ClassHardware.OS.UNKNOWN;
         this._os_version = props.os_version || "";
     }
     // 🔁 Getters & Setters
     // --- normalisation interne ---
     _normalizeOs(os) {
-        return Object.values(ClassComputer.OPERATING_SYSTEM).includes(os)
+        return Object.values(ClassHardware.OS).includes(os)
             ? os
-            : ClassComputer.OPERATING_SYSTEM.UNKNOWN;
+            : ClassHardware.OS.UNKNOWN;
     }
 
     _normalizeType(type) {
-        return Object.values(ClassComputer.TYPE).includes(type)
+        return Object.values(ClassHardware.TYPE).includes(type)
             ? type
-            : ClassComputer.TYPE.UNKNOWN;
+            : ClassHardware.TYPE.UNKNOWN;
     }
     // --- GETTERS ---
 
@@ -570,22 +887,46 @@ export class ClassComputer extends ClassDevice {
         this._touchLastEdit();
     }
 
-    static getIconType({type, size=20,color='inherit'}) {
-        if(type === ClassComputer.TYPE.DESKTOP) {
-            return <IconComputer width={size} height={size} color={color} />
-        }
-        if(type === ClassComputer.TYPE.LAPTOP) {
-            return <IconLaptop width={size} height={size} color={color} />
-        }
-        if(type === ClassComputer.TYPE.MOBILE) {
-            return <IconMobile width={size} height={size} color={color} />
-        }
-        if(type === ClassComputer.TYPE.TABLET) {
-            return <IconTablet width={size} height={size} color={color} />
-        }
-        if(type === ClassComputer.TYPE.TV) {
-            return <IconTv width={size} height={size} color={color} />
-        }
-        return <IconUnknown width={size} height={size} color={color} />
+    isErrorType() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._category.length > 0 && (this._last_name.length < ClassUser.MIN_LENGTH_LAST_NAME || this._last_name.length > ClassUser.MAX_LENGTH_LAST_NAME)) return (true);
+        if (this._type.length > 0 && !ClassHardware.ALL_TYPES.includes(this._type)) return (true);
+        return (false);
     }
+    validType() {
+        if (!this._type || this._type.length === 0 || this.isErrorType()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorOs() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        if (this._os.length > 0 && !ClassHardware.ALL_OS.includes(this._os)) return (true);        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        return (false);
+    }
+    validOs() {
+        if (!this._os || this._os.length === 0 || this.isErrorOs()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+    isErrorOsVersion() {
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        if (this._os_version.length > 0 && (this._os_version.length < ClassHardware.MIN_LENGTH_OS_VERSION || this._os_version.length > ClassHardware.MAX_LENGTH_OS_VERSION)) return (true);
+        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        return (false);
+    }
+    validOsVersion() {
+        if (!this._os_version || this._os_version.length === 0 || this.isErrorOsVersion()) return (false);
+        //if (!this._last_name || this._last_name.length === 0) return (false);
+        //console.log("YEEEES",this._last_name)
+        //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
+        return (true);
+    }
+
 }

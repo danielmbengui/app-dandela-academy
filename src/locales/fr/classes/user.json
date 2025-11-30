@@ -1,8 +1,19 @@
 {
-    "all": "Tous les status",
+    "all": "Tous",
+    "all_status": "Tous les status",
     "online": "En ligne",
     "offline": "Déconnecté",
     "away": "Absent(e)",
     "must-activate": "Vérification",
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "placeholder_search": "Recherche par nom, nom d'utilisateur, email...",
+    "user": "Utilisateur",
+    "display_name": "Compte",
+    "role": "Rôle",
+    "email": "Email",
+    "status": "Statut",
+    "connexion": "Connexion",
+    "actions": "Actions",
+    "lang": "Langue",
+    "not-found": "Aucun utilisateur ne correspond à ces critères."
 }

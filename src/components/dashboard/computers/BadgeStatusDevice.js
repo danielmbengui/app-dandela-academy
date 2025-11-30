@@ -1,0 +1,44 @@
+import React from "react";
+import { ClassDevice } from "@/classes/ClassDevice";
+import { useTranslation } from "react-i18next";
+
+export default function BadgeStatusDevice({ status, big = false }) {
+    const {t} = useTranslation([ClassDevice.NS_COLLECTION]);
+    const STATUS_CONFIG = ClassDevice.STATUS_CONFIG || [];
+    const cfg = STATUS_CONFIG[status];
+
+    return (
+        <>
+            <span className={`badge ${big ? "badge-big" : ""}`}>
+                <span className="dot" />
+                {t(cfg?.label)}
+            </span>
+            <style jsx>{`
+        .badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 2px 8px;
+          border-radius: 999px;
+          border: 1px solid ${cfg?.badgeBorder};
+          background: ${cfg?.badgeBg};
+          color: ${cfg?.badgeText};
+          font-size: 0.72rem;
+          white-space: nowrap;
+        }
+        .badge-big {
+          margin-top: 6px;
+          font-size: 0.8rem;
+          padding: 3px 10px;
+        }
+        .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: ${cfg?.badgeBorder};
+          box-shadow: 0 0 8px ${cfg?.glow};
+        }
+      `}</style>
+        </>
+    );
+}

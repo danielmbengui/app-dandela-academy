@@ -58,8 +58,7 @@ export default function BadgeStatusUser({ status, big = false }) {
             gap: 5px;
             padding: 2px 8px;
             border-radius: 999px;
-            border: 1px solid #1f2937;
-            color: white;
+            border: 1px solid ${cfg?.badgeBorder};
             font-size: 0.72rem;
             white-space: nowrap;
           }

@@ -1,0 +1,19 @@
+{
+  "all": "All",
+  "all_status": "All statuses",
+  "online": "Online",
+  "offline": "Offline",
+  "away": "Away",
+  "must-activate": "Verification",
+  "unknown": "Unknown",
+  "placeholder_search": "Search by name, username, email...",
+  "user": "User",
+  "display_name": "Account",
+  "role": "Role",
+  "email": "Email",
+  "status": "Status",
+  "connexion": "Connection",
+  "actions": "Actions",
+  "lang": "Language",
+  "not-found": "No user matches these criteria."
+}

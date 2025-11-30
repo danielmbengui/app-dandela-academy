@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ClassUser } from "@/classes/users/ClassUser";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
-import { IconProfile } from "@/assets/icons/IconsComponent";
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Stack, Typography } from "@mui/material";
+import { IconEdit, IconProfile } from "@/assets/icons/IconsComponent";
 import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -11,13 +11,15 @@ import { NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import BadgeStatusUser from "./BadgeStatusUser";
 import DialogTypographyComponent from "../elements/DialogTypographyComponent";
 import { cutString, getFormattedDate, getFormattedDateCompleteNumeric } from "@/contexts/functions";
+import ButtonConfirm from "../elements/ButtonConfirm";
+import ButtonCancel from "../elements/ButtonCancel";
 
 export default function DialogUser({ userDialog = null, setUserDialog = null }) {
     const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES]);
     const { user } = useAuth();
     const { lang } = useLanguage();
     const { theme } = useThemeMode();
-    const { blueDark } = theme.palette;
+    const { blueDark,primary, cardColor, text, greyLight } = theme.palette;
     const [processing, setProcessing] = useState(false);
     const [changeUser, setChangeUser] = useState(null);
     const [scroll, setScroll] = useState('paper');
@@ -43,15 +45,16 @@ export default function DialogUser({ userDialog = null, setUserDialog = null }) 
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description"
                 sx={{
-
+                    color: text.main,
                     '& .MuiDialog-container': {
                         p: 1,
+
                         //alignItems: 'stretch', // ⬅️ étire le container sur toute la hauteur
                     },
                     '& .MuiDialog-paper': {
                         borderRadius: '10px',
-                        background: blueDark.main,
-                        color: 'white',
+                        background: cardColor.main,
+                        //color: 'white',
                         minWidth: { xs: '100%', md: '400px' },
                         width: { xs: '100%', md: '' },
                         maxWidth: { xs: '100%', md: '50%' },
@@ -65,13 +68,15 @@ export default function DialogUser({ userDialog = null, setUserDialog = null }) 
                     },
                     // 🔹 Bordures générées par `DialogContent dividers`
                     '& .MuiDialogContent-dividers': {
-                        borderTopColor: 'rgba(255,255,255,0.2)',    // ou une couleur de ton thème
-                        borderBottomColor: 'rgba(255,255,255,0.2)',
+                        borderTopColor: cardColor.main,    // ou une couleur de ton thème
+                        //borderBottomColor: greyLight.main,
+                        //borderTop: `0.1px solid ${greyLight.main}`,
+                        borderBottom: `0.1px solid ${greyLight.main}`,
                     },
 
                     // 🔹 Si tu utilises aussi des <Divider /> à l’intérieur
                     '& .MuiDivider-root': {
-                        borderColor: 'rgba(255,255,255,0.2)',
+                        //borderColor: 'rgba(255,255,255,0.2)',
                     },
                 }}
             >
@@ -88,7 +93,7 @@ export default function DialogUser({ userDialog = null, setUserDialog = null }) 
                     </Stack>
                 </DialogTitle>
                 <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 } }}>
-                    <Stack spacing={2.5}>
+                    <Stack spacing={2}>
                         <Stack spacing={1} alignItems={'center'} sx={{ width: '100%' }}>
                             {
                                 changeUser?.showAvatar({ size: 70, fontSize: '18px' })
@@ -104,6 +109,9 @@ export default function DialogUser({ userDialog = null, setUserDialog = null }) 
                                 */
                             }
                         </Stack>
+                        <Divider>
+                            <Chip label="Infos" size="small" />
+                        </Divider>
                         <Stack spacing={1} sx={{ width: '100%' }}>
                             <DialogTypographyComponent title="Nom(s)" value={changeUser?.last_name || '---'} />
                             <DialogTypographyComponent title="Prénom(s)" value={changeUser?.first_name || '---'} />
@@ -116,18 +124,28 @@ export default function DialogUser({ userDialog = null, setUserDialog = null }) 
                             <DialogTypographyComponent title="Langue" value={t(changeUser?.preferred_language, { ns: NS_LANGS }) || '---'} />
 
                         </Stack>
+                        <Stack sx={{ width: '100%', pt: 3, pb: 1 }} spacing={1} alignItems={'end'}>
+                            <Stack sx={{ width: '100%' }} spacing={1} alignItems={'start'}>
+                                <Typography variant="caption">{`Dernière connexion : ${getFormattedDateCompleteNumeric(changeUser?.last_connexion_time) || '---'}`}</Typography>
+                                <Typography variant="caption">{`Date création : ${getFormattedDateCompleteNumeric(changeUser?.created_time) || '---'}`}</Typography>
+                                <Typography variant="caption">{`Date modification : ${getFormattedDateCompleteNumeric(changeUser?.last_edit_time) || '---'}`}</Typography>
+                            </Stack>
+                        </Stack>
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ minHeight: '20px' }}>
-                    <Stack sx={{ width: '100%' }} spacing={1} alignItems={'end'}>
-                        <Stack sx={{ width: '100%' }} spacing={1} alignItems={'start'}>
-                            <Typography variant="caption">{`Dernière connexion : ${getFormattedDateCompleteNumeric(changeUser?.last_active_time) || '---'}`}</Typography>
-                            <Typography variant="caption">{`Date création : ${getFormattedDateCompleteNumeric(changeUser?.created_time) || '---'}`}</Typography>
-                            <Typography variant="caption">{`Date modification : ${getFormattedDateCompleteNumeric(changeUser?.last_edit_time) || '---'}`}</Typography>
-                        </Stack>
-                        <Button variant='contained' onClick={async () => {
+                    <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
+                        <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                            <ButtonCancel label={'cancel'} variant='contained' onClick={async () => {
 
-                        }}>{t('btn-edit')}</Button>
+                            }} />
+                            <ButtonConfirm label={'edit'} variant='contained' onClick={async () => {
+
+                        }} />
+                        </Stack>
+                        <IconButton size={'small'}>
+                            <IconEdit width={20} height={20} color={primary.main} />
+                        </IconButton>
                     </Stack>
 
 

@@ -7,14 +7,14 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
-import ComputersComponent from '@/components/dashboard/hub/ComputersComponent';
+import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
 
 
 import { useMemo } from "react";
 import { Box, Button, Grid, Stack, TextField } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassComputer } from '@/classes/ClassDevice';
+import { ClassHardware } from '@/classes/ClassDevice';
 import SelectComponentDark from '@/components/elements/SelectComponentDark';
 import { ClassUser } from '@/classes/users/ClassUser';
 import { getFormattedDateComplete, getFormattedDateCompleteNumeric } from '@/contexts/functions';
@@ -23,6 +23,7 @@ import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark
 import TextFieldComponent from '@/components/elements/TextFieldComponent';
 import FieldComponent from '@/components/elements/FieldComponent';
 import DialogUser from '@/components/dashboard/users/DialogUser';
+import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
 
 const USERS_MOCK = [
   {
@@ -113,8 +114,8 @@ const USERS_MOCK = [
 ];
 
 const ROLE_CONFIG = {
-  student: { label: "Étudiant", color: "#22c55e" },
-  team: { label: "Équipe", color: "#daf63bff" },
+  student: { label: "Étudiant", color: "#22c55eff", background: "rgba(34, 197, 94, 0.5)" },
+  team: { label: "Équipe", color: "#fff317ff" },
   teacher: { label: "Professeur", color: "#3b82f6" },
   tutor: { label: "Professeur", color: "#3b82f6" },
   admin: { label: "Admin", color: "#f97316" },
@@ -132,7 +133,9 @@ const STATUS_CONFIG_1 = {
   ['must-activate']: { label: 'Pas activé', color: `red` },
 };
 
-function UsersPage({userDialog=null, setUserDialog=null}) {
+function UsersPage({ userDialog = null, setUserDialog = null }) {
+  const { theme } = useThemeMode();
+  const { text, cardColor, greyLight, blueDark } = theme.palette;
   const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -140,42 +143,6 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
   const [sortBy, setSortBy] = useState("name");
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([]);
-
-  const filteredUsers = useMemo(() => {
-    let list = [...USERS_MOCK];
-
-    if (roleFilter !== "all") {
-      list = list.filter((u) => u.role === roleFilter);
-    }
-    if (statusFilter !== "all") {
-      list = list.filter((u) => u.status === statusFilter);
-    }
-
-    if (search.trim()) {
-      const s = search.toLowerCase();
-      list = list.filter((u) => {
-        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-        return (
-          fullName.includes(s) ||
-          u.username.toLowerCase().includes(s) ||
-          u.email.toLowerCase().includes(s) ||
-          u.schoolEmail.toLowerCase().includes(s)
-        );
-      });
-    }
-
-    if (sortBy === "name") {
-      list.sort((a, b) =>
-        `${a.lastName} ${a.firstName}`.localeCompare(
-          `${b.lastName} ${b.firstName}`
-        )
-      );
-    } else if (sortBy === "role") {
-      list.sort((a, b) => a.role.localeCompare(b.role));
-    }
-
-    return list;
-  }, [search, roleFilter, statusFilter, sortBy]);
 
   useEffect(() => {
     async function init() {
@@ -187,7 +154,7 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
     init();
   }, []);
   useEffect(() => {
-    let list = [...USERS_MOCK, ...allUsers];
+    let list = [...allUsers];
 
     if (roleFilter !== "all") {
       list = list.filter((u) => u.role === roleFilter);
@@ -233,40 +200,41 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
     <div className="page">
       <main className="container">
         {/* HEADER */}
-          {/* BARRE DE FILTRES */}
-        <Grid container sx={{mb:2.5}} direction={'row'} alignItems={'center'} spacing={{xs:1,sm:3}}>
-          <Grid size={{xs:12, sm:6}} sx={{background:'red'}}>
+        {/* BARRE DE FILTRES */}
+        <Grid container sx={{ mb: 2.5 }} direction={'row'} alignItems={'center'} spacing={{ xs: 1, sm: 1 }}>
+          <Grid size={{ xs: 12, sm: 6 }} sx={{ background: '' }}>
             <TextFieldComponentDark
-              value={''}
-              placeholder={`Recherche par nom, nom d'utilisateur, email...`}
+              value={search}
+              placeholder={t('placeholder_search', {ns:ClassUser.NS_COLLECTION})}
               fullWidth
+              onChange={(e) => setSearch(e.target.value)}
             />
           </Grid>
           <Grid size={'grow'}>
-            <Grid container spacing={0.5} alignItems={'center'} justifyContent={{xs:'start',sm:'end'}} sx={{background:'purple',height:'100%'}}>
-            <Grid size={'auto'}>            <SelectComponentDark
-              //label={'Rôle'}
-              value={roleFilter}
-              values={['all', ...ClassUser.ALL_ROLES].map(item => ({ id: item, value: t(item, { ns: NS_ROLES }) }))}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              hasNull={false}
-            /></Grid>
-            <Grid size={'auto'}>            <SelectComponentDark
-              //label={'Rôle'}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              values={['all', ...ClassUser.ALL_STATUS].map(item => ({ id: item, value: t(item, { ns: ClassUser.NS_COLLECTION }) }))}
-              hasNull={false}
-            /></Grid>
-            <Grid size={'auto'}>            <SelectComponentDark
-              //label={'Rôle'}
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              values={['name', 'role'].map(item => ({ id: item, value: `Trier par ${t(item, { ns: NS_ROLES })}` }))}
-              hasNull={false}
-            /></Grid>
+            <Grid container spacing={0.5} alignItems={'center'} justifyContent={{ xs: 'start', sm: 'end' }} sx={{ background: '', height: '100%' }}>
+              <Grid size={'auto'}>            <SelectComponentDark
+                //label={'Rôle'}
+                value={roleFilter}
+                values={['all', ...ClassUser.ALL_ROLES].map(item => ({ id: item, value: t(item, { ns: NS_ROLES }) }))}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                hasNull={false}
+              /></Grid>
+              <Grid size={'auto'}>            <SelectComponentDark
+                //label={'Rôle'}
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                values={['all_status', ...ClassUser.ALL_STATUS].map(item => ({ id: item, value: t(item, { ns: ClassUser.NS_COLLECTION }) }))}
+                hasNull={false}
+              /></Grid>
+              <Grid size={'auto'}>            <SelectComponentDark
+                //label={'Rôle'}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                values={['name', 'role'].map(item => ({ id: item, value: `Trier par ${t(item, { ns: NS_ROLES })}` }))}
+                hasNull={false}
+              /></Grid>
             </Grid>
-            <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'end'} sx={{height:'100%'}}>
+            <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'end'} sx={{ height: '100%' }}>
             </Stack>
           </Grid>
         </Grid>
@@ -274,27 +242,27 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
         {/* TABLE / LISTE */}
         <section className="card">
           <div className="table-header">
-            <span className="th th-user">Utilisateur</span>
-            <span className="th th-username">Username</span>
-            <span className="th th-role">Rôle</span>
-            <span className="th th-email">Email</span>
-            <span className="th th-status">Statut</span>
-            <span className="th th-group">Groupe / Langue</span>
-            <span className="th th-actions">Actions</span>
+            <span className="th th-user">{t('user', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-username">{t('display_name', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-role">{t('role', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-email">{t('email', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-status">{t('status', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-group">{t('connexion', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-actions">{t('actions', { ns: ClassUser.NS_COLLECTION })}</span>
           </div>
 
           <div className="table-body">
             {users.length === 0 && (
               <div className="empty-state">
-                Aucun utilisateur ne correspond à ces critères.
+                {t('not-found', { ns: ClassUser.NS_COLLECTION })}
               </div>
             )}
 
             {users.map((user, i) => (
-              <Box key={`${user?.uid}-${i}`} onClick={()=>{
-                setUserDialog(user);
-              }}>
-                <UserRow user={user} />
+              <Box key={`${user?.uid}-${i}`} onClick={() => {
+              setUserDialog(user);
+            }} sx={{cursor:'pointer'}}>
+                <UserRow user={user} setUserDialog={setUserDialog} lastChild={i === users.length - 1} />
               </Box>
             ))}
           </div>
@@ -304,17 +272,15 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
       <style jsx>{`
         .page {
           min-height: 100vh;
-          background: green;
           width:100%;
           padding:0;
-          color: #e5e7eb;
+          color: ${text.main};
           
         }
 
         .container {
           width: 100%;
           min-height: 100%;
-          background: cyan;
           padding:0;
         }
 
@@ -416,11 +382,12 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
         }
 
         .card {
-          background: #020617;
+          background: ${cardColor.main};
           border-radius: 16px;
-          border: 1px solid #1f2937;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-          padding: 8px 0 10px;
+          border: 1px solid ${cardColor.main};
+          
+          padding: 0;
+           overflow: hidden;           /* ✅ coupe les bords des enfants, y compris au hover */
         }
 
         .table-header {
@@ -434,12 +401,14 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
             minmax(0, 2.2fr)
             minmax(0, 1.5fr);
           gap: 8px;
-          padding: 8px 16px;
+          padding: 8px 15px;
           font-size: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.06em;
-          color: #6b7280;
-          border-bottom: 1px solid #111827;
+          color: ${'white'};
+          font-weight: 500;
+          border-bottom: 1px solid ${'black'};
+          background: ${'black'};
         }
 
         @media (max-width: 900px) {
@@ -474,7 +443,9 @@ function UsersPage({userDialog=null, setUserDialog=null}) {
   );
 }
 
-function UserRow({ user }) {
+function UserRow({ user, lastChild = false,setUserDialog=null }) {
+  const { theme } = useThemeMode();
+  const { greyLight, cardColor, text } = theme.palette;
   const { lang } = useLanguage();
   const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
   const roleCfg = ROLE_CONFIG[user.role];
@@ -482,23 +453,22 @@ function UserRow({ user }) {
 
   return (
     <>
-      <div className="row">
+      <div className={`row ${lastChild ? 'last-child' : ''}`}>
         {/* Utilisateur */}
         <div className="cell cell-user">
-          <Avatar user={user} />
           {user?.showAvatar?.({ size: 30, fontSize: '14px' })}
           <div className="user-text">
             <p className="user-name">
               {user.firstName || user.first_name || ''} {user.lastName || user.last_name || ''}
             </p>
-            <p className="user-id">{`Langue : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
+            <p className="user-id">{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
           </div>
         </div>
 
         {/* Username */}
         <div className="cell cell-username">
           <p className="text-main">@{user.username || user.display_name || ''}</p>
-          <p className="text-sub" style={{ display: 'none' }}>{`Langue : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
+          <p className="text-sub" style={{ display: 'none' }}>{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
         </div>
 
         {/* Rôle */}
@@ -507,14 +477,14 @@ function UserRow({ user }) {
             className="role-badge"
             style={{
               borderColor: roleCfg?.color || '',
-              color: roleCfg?.color || '',
+              color: '',
             }}
           >
             <span
               className="role-dot"
-              style={{ backgroundColor: roleCfg?.color || '' }}
+              style={{ backgroundColor: roleCfg?.color || '', display: 'none' }}
             />
-            {roleCfg?.label || ''}
+            {t(user?.role, { ns: NS_ROLES }) || ''}
           </span>
         </div>
 
@@ -531,7 +501,7 @@ function UserRow({ user }) {
               className="status-dot"
               style={{ backgroundColor: statusCfg?.color || '' }}
             />
-            { t(user?.status,{ns:ClassUser.NS_COLLECTION}) || ''}
+            {t(user?.status, { ns: ClassUser.NS_COLLECTION }) || ''}
           </span>
         </div>
 
@@ -543,8 +513,12 @@ function UserRow({ user }) {
 
         {/* Actions */}
         <div className="cell cell-actions">
-          <button className="mini-btn">Voir</button>
-          <button className="mini-btn ghost">Éditer</button>
+          <ButtonConfirm
+            label='Voir'
+            onClick={() => {
+              setUserDialog(user);
+            }}
+          />
         </div>
       </div>
 
@@ -563,12 +537,13 @@ function UserRow({ user }) {
           gap: 8px;
           padding: 10px 16px;
           font-size: 0.85rem;
-          border-bottom: 1px solid #050816;
+          border-bottom: 0.1px solid ${greyLight.main};
           align-items: center;
         }
 
-        .row:hover {
-          background: radial-gradient(circle at top left, #1d4ed822, #020617);
+        
+        .row.last-child {
+          border-bottom: none;
         }
 
         .cell {
@@ -620,14 +595,14 @@ function UserRow({ user }) {
           border: 1px solid;
           padding: 2px 8px;
           font-size: 0.75rem;
-          background: #020617;
+          background: ${roleCfg.color};
         }
 
         .role-dot {
           width: 7px;
           height: 7px;
           border-radius: 999px;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+          
         }
 
         .status-pill {
@@ -637,8 +612,8 @@ function UserRow({ user }) {
           border-radius: 999px;
           padding: 2px 8px;
           font-size: 0.75rem;
-          border: 1px solid #1f2937;
-          background: #020617;
+          border: 0.1px solid ${statusCfg?.color};
+          
         }
 
         .status-dot {
@@ -670,6 +645,10 @@ function UserRow({ user }) {
             margin-bottom: 8px;
             border: 1px solid #111827;
           }
+
+          .row.last-child {
+          border: 1px solid #111827;
+        }
 
           .cell-email,
           .cell-group {

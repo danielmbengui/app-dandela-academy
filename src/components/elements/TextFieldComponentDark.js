@@ -65,13 +65,14 @@ export default function TextFieldComponentDark({
             */
            background:cardColor.main,
             borderRadius: '20px',
+            
             //my: 1,
             '& .MuiOutlinedInput-root': {
                 '& fieldset': {
                     //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
                     color: blueDark.contrastText, // couleur par défaut
                     //border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
-                    border: `0.1px solid ${blueDark.main}`,
+                    border: `0.1px solid ${greyLight.main}`,
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
@@ -89,8 +90,9 @@ export default function TextFieldComponentDark({
                 },
                 '&.Mui-disabled fieldset': {
                     // borderColor: greyLight.main, // désactivé
-                    border: `0.1px solid ${blueDark.main}`,
+                    border: `0.1px solid ${cardColor.main}`,
                     color: ClassColor.GREY_LIGHT,
+                    cursor:'not-allowed'
                 },
                 '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
                     color: 'red',
@@ -115,10 +117,11 @@ export default function TextFieldComponentDark({
             },
             input: {
                 sx: { 
-                    color: blueDark.contrastText, // couleur par défaut
-                    background: blueDark.main, 
+                    color: cardColor.contrastText, // couleur par défaut
+                    background: cardColor.main, 
                     borderRadius:'20px',
                     fontSize:'14px',
+                    //boxShadow: '0.5px 0.5px rgba(0, 0, 0, 0.3)',
                     //maxHeight: maxHeight 
                 },
                 startAdornment: icon && (
@@ -133,7 +136,7 @@ export default function TextFieldComponentDark({
                             edge="end"
                             size="small"
                         >
-                            <CloseIcon sx={{ color: blueDark.contrastText }} fontSize="small" />
+                            <CloseIcon sx={{ color: cardColor.contrastText }} fontSize="small" />
                         </IconButton>
                     </InputAdornment>
                 ),

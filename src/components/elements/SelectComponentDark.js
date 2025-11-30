@@ -2,24 +2,30 @@
 import React from 'react';
 import { ClassColor } from '@/classes/ClassColor';
 import { useThemeMode } from '@/contexts/ThemeProvider';
+const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
 
 export default function SelectComponentDark({
     label, name, value, values = [],
     disabled = false, onChange,
     error, hasNull=true,
     display=true,
+    required=false,
     ...props
  }) {
 const {theme} = useThemeMode();
-const {blueDark, text} = theme.palette;
+const {blueDark, text, cardColor} = theme.palette;
     return (
         <div style={{display:display ? 'block' : 'none',}}>
             {
-                label && <label className="text-contentColor dark:text-contentColor-dark mb-3px block" style={{color:blueDark.main}}>
-                    {label}
+                label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block" style={{ fontSize: '0.9rem' }}>
+                    {label}{required && <b style={{ color: 'red' }}>*</b>}
                 </label>
             }
-            <div className="relative rounded-sm" style={{background:blueDark.main, borderRadius:'20px',}}>
+            <div className="relative rounded-sm" style={{
+                background:cardColor.main, 
+                borderRadius:'20px',
+                boxShadow: '0.5px 0.5px rgba(0, 0, 0, 0.3)',
+                }}>
                 <select
                     id={name}
                     name={name}
@@ -28,7 +34,7 @@ const {blueDark, text} = theme.palette;
                     disabled={disabled}
                     onChange={onChange}
 
-                    style={{fontSize:'0.9rem',fontWeight:'normal', color:disabled?ClassColor.GREY_LIGHT:text.reverse, cursor:disabled ? 'default' : 'pointer', background:'transparent', borderRadius:'20px' }} 
+                    style={{fontSize:'0.9rem',fontWeight:'300', color:disabled?ClassColor.GREY_LIGHT:text.main, cursor:disabled ? 'not-allowed' : 'pointer', background:'transparent', borderRadius:'20px' }} 
                     className="text-base w-full p-13px pr-30px py-3px focus:outline-none block appearance-none relative z-20 rounded-xl"
                     >
                     {
@@ -42,7 +48,7 @@ const {blueDark, text} = theme.palette;
                         })
                     }
                 </select>
-                <i style={{color:disabled?ClassColor.GREY_LIGHT:ClassColor.WHITE}} className="icofont-simple-down absolute top-1/2 right-3 -translate-y-1/2 block text-md z-15"></i>
+                <i style={{color:disabled?ClassColor.GREY_LIGHT:text.main}} className="icofont-simple-down absolute top-1/2 right-3 -translate-y-1/2 block text-md z-15"></i>
             </div>
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>

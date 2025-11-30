@@ -10,6 +10,7 @@
   "mobile": "Mobile",
   "tablet": "Tablet",
   "tv": "Television",
+  "watch": "Watch",
   "hardware": "Computer equipment",
   "food": "Kitchen equipment",
   "other": "Other",
@@ -22,6 +23,7 @@
   "uid": "ID",
   "uid_intern": "Number",
   "uid_room": "Room ID",
+  "room": "Room",
   "type": "Type",
   "category": "Category",
   "name": "Name",
@@ -35,5 +37,20 @@
   "buy_time": "Purchase date",
   "created_time": "Creation date",
   "last_edit_time": "Last update",
-  "btn-edit": "Edit"
+  "infos": "Information",
+  "btn-create": "Create",
+  "btn-edit": "Edit",
+  "btn-cancel": "Cancel",
+  "errors": {
+    "room": "Select a room",
+    "category": "Select a category",
+    "type": "Select a type",
+    "name": "Enter a valid name (between {{min}} and {{max}} characters)",
+    "brand": "Enter a valid brand (between {{min}} and {{max}} characters)",
+    "os": "Select a system",
+    "os_version": "Enter a valid version (between {{min}} and {{max}} characters)",
+    "buy_time": "Select a purchase date",
+    "status": "Select a status",
+    "main": "Fix the errors before continuing"
+  }
 }

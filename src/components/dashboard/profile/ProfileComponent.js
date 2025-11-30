@@ -1,7 +1,7 @@
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { IconCalendar, IconIdea } from "@/assets/icons/IconsComponent";
-import AccordionComponent from "@/components/dashboard/hub/AccordionComponent";
+import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDate } from "@/contexts/functions";

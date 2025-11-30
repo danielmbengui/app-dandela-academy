@@ -50,7 +50,8 @@ export default async function RootLayout({ children }) {
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
       </head>
       <body
-        className={`relative leading-[1.8] bg-bodyBg dark:bg-bodyBg-dark z-0  ${inter.className}`}
+        className={`relative leading-[1.8] z-0  ${inter.className}`}
+        style={{background:'var(--background)'}}
       >
        <Providers>
 

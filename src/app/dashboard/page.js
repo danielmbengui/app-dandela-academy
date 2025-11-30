@@ -7,7 +7,7 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
-import ComputersComponent from '@/components/dashboard/hub/ComputersComponent';
+import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
 
 // Liste mock des 25 ordinateurs
 const initialComputers = [
@@ -2445,7 +2445,7 @@ import { useMemo } from "react";
 import { Button } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassComputer } from '@/classes/ClassDevice';
+import { ClassHardware } from '@/classes/ClassDevice';
 
 const USERS_MOCK = [
   {
@@ -3149,7 +3149,7 @@ export default function DashboardHome() {
           name: "Admin room",
           name_normalized: "admin_room",
           //photo_url:"",
-          os:ClassComputer.OPERATING_SYSTEM.MACOS,
+          os:ClassHardware.OS.MACOS,
           floor: 1,
           enabled: true
         });
@@ -3165,7 +3165,7 @@ export default function DashboardHome() {
         });
         for (let i = 0; i < 2; i++) {
           //const countComputers = await ClassComputer.count() || 0;
-          const computerClass = new ClassComputer({
+          const computerClass = new ClassHardware({
             //uid: "",
             //uid_intern: "1",
             uid_room: room_admin.uid,
@@ -3173,20 +3173,20 @@ export default function DashboardHome() {
             //name: `PC-${sizeId.toString().padStart(2, '0')}`,
             //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
             enabled: true,
-            status: ClassComputer.STATUS.AVAILABLE,
-            type: ClassComputer.TYPE.DESKTOP,
-            os:ClassComputer.OPERATING_SYSTEM.MACOS,
+            status: ClassHardware.STATUS.AVAILABLE,
+            type: ClassHardware.TYPE.DESKTOP,
+            os:ClassHardware.OS.MACOS,
             os_version:"13.7.8",
             buy_time:new Date(2023, 7, 12),
             updates: [
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
           });
-          const computer = await ClassComputer.create(computerClass);
+          const computer = await ClassHardware.create(computerClass);
         }
         for (let i = 0; i < 25; i++) {
           //const countComputers = await ClassComputer.count() || 0;
-          const computerClass = new ClassComputer({
+          const computerClass = new ClassHardware({
             //uid: "",
             //uid_intern: "1",
             uid_room: room.uid,
@@ -3194,16 +3194,16 @@ export default function DashboardHome() {
             //name: `PC-${sizeId.toString().padStart(2, '0')}`,
             //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
             enabled: true,
-            status: ClassComputer.STATUS.AVAILABLE,
-            type: ClassComputer.TYPE.DESKTOP,
-            os:ClassComputer.OPERATING_SYSTEM.WINDOWS,
+            status: ClassHardware.STATUS.AVAILABLE,
+            type: ClassHardware.TYPE.DESKTOP,
+            os:ClassHardware.OS.WINDOWS,
             os_version:"10",
             buy_time:new Date(2023, 10, 12),
             updates: [
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
           });
-          const computer = await ClassComputer.create(computerClass);
+          const computer = await ClassHardware.create(computerClass);
         }
         
         //await ClassComputer.create(computer);

@@ -10,6 +10,7 @@
   "mobile": "Telemóvel",
   "tablet": "Tablet",
   "tv": "Televisão",
+  "watch": "Relógio",
   "hardware": "Equipamento informático",
   "food": "Material de cozinha",
   "other": "Outro",
@@ -22,6 +23,7 @@
   "uid": "ID",
   "uid_intern": "Número",
   "uid_room": "ID da sala",
+  "room": "Sala",
   "type": "Tipo",
   "category": "Categoria",
   "name": "Nome",
@@ -35,5 +37,20 @@
   "buy_time": "Data de compra",
   "created_time": "Data de criação",
   "last_edit_time": "Última atualização",
-  "btn-edit": "Editar"
+  "infos": "Informações",
+  "btn-create": "Criar",
+  "btn-edit": "Editar",
+  "btn-cancel": "Cancelar",
+  "errors": {
+    "room": "Seleciona uma sala",
+    "category": "Seleciona uma categoria",
+    "type": "Seleciona um tipo",
+    "name": "Insere um nome válido (entre {{min}} e {{max}} caracteres)",
+    "brand": "Insere uma marca válida (entre {{min}} e {{max}} caracteres)",
+    "os": "Seleciona um sistema",
+    "os_version": "Insere uma versão válida (entre {{min}} e {{max}} caracteres)",
+    "buy_time": "Seleciona uma data de compra",
+    "status": "Seleciona um estado",
+    "main": "Corrige os erros antes de continuar"
+  }
 }

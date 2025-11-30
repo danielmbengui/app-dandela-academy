@@ -7,7 +7,7 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
-import ComputersComponent from '@/components/dashboard/hub/ComputersComponent';
+import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
 
 // Liste mock des 25 ordinateurs
 const initialComputers = [
@@ -2171,7 +2171,7 @@ function CoursePage() {
   );
 }
 
-export default function DashboardComputerHome() {
+export default function DashboardComputersHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_COMPUTERS]);

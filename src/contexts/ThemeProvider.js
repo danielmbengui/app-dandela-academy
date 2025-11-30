@@ -167,9 +167,9 @@ export const ThemeProvider = ({ children }) => {
             },
         },
         typography: {
-allVariants: {
-      lineHeight: 1,
-    },
+            allVariants: {
+                lineHeight: 1,
+            },
             h1: {
                 //fontSize: '2.5rem',
                 fontSize: `1.8rem`,

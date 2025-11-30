@@ -1,10 +1,9 @@
 {
-    "all": "Todos",
-    "super-admin": "Super Admin",
-    "admin": "Admin",
-    "team": "Equipe",
-    "tutor": "Professor",
-    "student": "Estudante",
-    "professional": "Profissional"
-  }
-  
+  "all": "Todos os papéis",
+  "super-admin": "Super Admin",
+  "admin": "Admin",
+  "team": "Equipa",
+  "tutor": "Professor",
+  "student": "Estudante",
+  "professional": "Profissional"
+}

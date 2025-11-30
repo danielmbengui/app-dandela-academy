@@ -1,10 +1,9 @@
 {
-    "all": "All",
-    "super-admin": "Super Admin",
-    "admin": "Admin",
-    "team": "Team",
-    "tutor": "Tutor",
-    "student": "Student",
-    "professional": "Professional"
-  }
-  
+  "all": "All roles",
+  "super-admin": "Super Admin",
+  "admin": "Admin",
+  "team": "Team",
+  "tutor": "Teacher",
+  "student": "Student",
+  "professional": "Professional"
+}

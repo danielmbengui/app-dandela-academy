@@ -29,7 +29,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
     const { theme } = useThemeMode();
     const { primary, background } = theme.palette;
-    const [processing,setProcessing] = useState(false);
+    const [processing, setProcessing] = useState(false);
     return (
         <div>
             {
@@ -104,18 +104,16 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                         onChange({
                                             target: {
                                                 type: "date",
-                                                name: "birthday",
+                                                name: name,
                                                 value: newValue ? newValue.format("YYYY-MM-DD") : "" // ici on repasse en string
                                             }
                                         });
                                     }}
-                                    //sx={{cursor:'pointer', borderRadius: '7px', width: '100%' }}
                                     //inputClass={inputBase}
                                     //className={inputBase}
                                     slotProps={{
                                         textField: {
                                             size: "small",
-
                                             sx: {
                                                 width: '100%',
                                                 borderRadius: "7px",
@@ -128,21 +126,28 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                                     },
                                                     '&:hover fieldset': {
                                                         // borderColor: ClassColor.GREY_LIGHT, // au survol
-                                                        color: 'red', // couleur par défaut
-                                                        border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                                                        //color: 'red', // couleur par défaut
+                                                        border: `1px solid ${primary.main}`,
                                                     },
                                                     '&.Mui-focused fieldset': {
                                                         //borderColor: ClassColor.TRANSPARENT, // quand focus
-                                                        border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                                                        border: `2px solid ${primary.main}`,
                                                     },
                                                     '&.Mui-error fieldset': {
                                                         // borderColor: 'error.main', // en cas d'erreur
                                                         border: `0.1px solid ${'red'}`,
                                                     },
+                                                    '&.Mui-disabled': {
+                                                        cursor: 'not-allowed',      // curseur
+                                                        pointerEvents: 'auto',      // réactive les events pour voir le curseur
+                                                    },
                                                     '&.Mui-disabled fieldset': {
                                                         // borderColor: greyLight.main, // désactivé
                                                         border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
                                                         color: ClassColor.GREY_LIGHT,
+                                                    },
+                                                    '&.Mui-disabled .MuiOutlinedInput-input': {
+                                                        cursor: 'not-allowed',      // curseur sur le texte aussi
                                                     },
                                                     '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
                                                         color: 'red',
@@ -205,49 +210,49 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                 }
                 {
                     editable && <Stack direction={'row'} spacing={0.5}>
-                    <IconButton 
-                    onClick={()=>{
-                        if(onCancel) {
-                            onCancel();
-                        }
-                    }}
-                    sx={{
-                        display:processing ? 'none' : 'flex',
-                        background: 'red',
-                        color: background.main,
-                        width: { xs: '25px', sm: '25px' },
-                        height: { xs: '25px', sm: '25px' },
-                        '&:hover': {
-                            color: background.main,
-                            backgroundColor: 'red',
-                            boxShadow: '0 0 0 0.2rem rgba(255,0,0,.5)',
-                        },
-                    }} aria-label="delete" size="small">
-                        <RestartAltIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
-                    </IconButton>
-                    <IconButton 
-                    loading={processing}
-                    onClick={()=>{
-                        setProcessing(true);
-                        if(onSubmit) {
-                            onSubmit();  
-                        }
-                        setProcessing(false);
-                    }}
-                    sx={{
-                        background: primary.main,
-                        color: background.main,
-                        width: { xs: '25px', sm: '25px' },
-                        height: { xs: '25px', sm: '25px' },
-                        '&:hover': {
-                            color: background.main,
-                            backgroundColor: primary.main,
-                            boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
-                        },
-                    }} aria-label="delete" size="small">
-                        <CheckIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
-                    </IconButton>
-                </Stack>
+                        <IconButton
+                            onClick={() => {
+                                if (onCancel) {
+                                    onCancel();
+                                }
+                            }}
+                            sx={{
+                                display: processing ? 'none' : 'flex',
+                                background: 'red',
+                                color: background.main,
+                                width: { xs: '25px', sm: '25px' },
+                                height: { xs: '25px', sm: '25px' },
+                                '&:hover': {
+                                    color: background.main,
+                                    backgroundColor: 'red',
+                                    boxShadow: '0 0 0 0.2rem rgba(255,0,0,.5)',
+                                },
+                            }} aria-label="delete" size="small">
+                            <RestartAltIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
+                        </IconButton>
+                        <IconButton
+                            loading={processing}
+                            onClick={() => {
+                                setProcessing(true);
+                                if (onSubmit) {
+                                    onSubmit();
+                                }
+                                setProcessing(false);
+                            }}
+                            sx={{
+                                background: primary.main,
+                                color: background.main,
+                                width: { xs: '25px', sm: '25px' },
+                                height: { xs: '25px', sm: '25px' },
+                                '&:hover': {
+                                    color: background.main,
+                                    backgroundColor: primary.main,
+                                    boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
+                                },
+                            }} aria-label="delete" size="small">
+                            <CheckIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
+                        </IconButton>
+                    </Stack>
                 }
             </Stack>
 

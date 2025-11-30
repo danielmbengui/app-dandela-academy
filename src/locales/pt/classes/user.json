@@ -1,0 +1,19 @@
+{
+  "all": "Todos",
+  "all_status": "Todos os status",
+  "online": "Online",
+  "offline": "Offline",
+  "away": "Ausente",
+  "must-activate": "Verificação",
+  "unknown": "Desconhecido",
+  "placeholder_search": "Pesquisar por nome, nome de utilizador, email...",
+  "user": "Utilizador",
+  "display_name": "Conta",
+  "role": "Função",
+  "email": "Email",
+  "status": "Estado",
+  "connexion": "Conexão",
+  "actions": "Ações",
+  "lang": "Idioma",
+  "not-found": "Nenhum utilizador corresponde aos critérios."
+}

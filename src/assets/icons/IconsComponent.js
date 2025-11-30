@@ -245,9 +245,17 @@ export const IconTv = ({ width = 24, height = 24, color = '' }) => {
 export const IconUnknown = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="qlementine-icons:unknown-16" width={width} height={height} color={color} />)
 }
-
+export const IconRoom = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:round-meeting-room" width={width} height={height} color={color} />)
+}
 export const IconEmail = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="mdi-light:email" width={width} height={height} color={color} />)
+}
+export const IconEdit = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:round-edit" width={width} height={height} color={color} />)
+}
+export const IconRemove = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="gridicons:trash" width={width} height={height} color={color} />)
 }
 export const IconTiktok = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="ic:twotone-tiktok" width={width} height={height} color={color} />)

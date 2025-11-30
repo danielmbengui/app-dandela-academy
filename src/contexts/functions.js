@@ -201,6 +201,9 @@ export function getFormattedDateCompleteNumeric(date = null, lang = defaultLangu
   }
 }
 export function getFormattedDate(date = new Date(), lang = defaultLanguage) {
+  if(!date) {
+    return null;
+  }
   if (date instanceof Date) {
     return date.toLocaleDateString(lang, {
       year: 'numeric',
@@ -240,6 +243,15 @@ export function addDaysToDate(date, nDays = 0) {
   const resultat = new Date(date);
   resultat.setDate(resultat.getDate() + nDays);
   return resultat;
+}
+export function getStartOfDay(date) {
+  if(!(date instanceof Date)) {
+    return null;
+  }
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  return new Date(year,month,day,0,0,0);
 }
 export function translateWithVars(template = "", variables = {}) {
   return template.replace(/{{(.*?)}}/g, (_, key) => {

@@ -98,11 +98,22 @@
 }
 
 .dark {
-  --background: #000000;
-  --card-color: #020617;
+  --background: #1d1d1d;
+  --card-color: #000000;
   --font-color: #FFFFFF;
   --font-reverse-color: #000000;
-
+  /*
+    --background: #1d1d1d;
+  --background: #000000;
+    --primary: #1a5fde;
+  --blue: #1a5fde;
+  --blue-1: #164eb7;
+  --blue-dark: #0e357d;
+  --blue-dark-1: #092150;
+  --blue-dark-2: #040f24;
+  --blue-cyan: #26d3e2;
+  --blue-cyan-1: #24c1d3;
+  */
   --background-menu: #0C0E2B;
   --blueLight1: #0c0e2b;
   --borderColor: #312a57;

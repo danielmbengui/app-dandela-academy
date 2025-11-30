@@ -21,13 +21,13 @@ export default function TextFieldComponent({
     fullWidth = false,
     onChange = null,
     onClear = null,
-    maxHeight='2.5rem',
+    maxHeight = '2.5rem',
     onSubmit = () => { },
     ...props
 }) {
-    const {lang} = useLanguage();
+    const { lang } = useLanguage();
     const { theme } = useThemeMode();
-    const { blue, greyLight, text, primary } = theme.palette;
+    const { blue, greyLight, text, primary, cardColor } = theme.palette;
     return (<TextField
         className="shadow-sm"
         lang={lang}
@@ -47,6 +47,7 @@ export default function TextFieldComponent({
         onChange={onChange}
         onKeyDown={onSubmit}
         sx={{
+            pointerEvents: 'auto',
             //color:'black',
             //borderWidth:'1px',
             borderRadius: '7px',
@@ -59,21 +60,29 @@ export default function TextFieldComponent({
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
-                    color: 'red', // couleur par défaut
-                    border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    //color: 'red', // couleur par défaut
+                    border: `1px solid ${primary.main}`,
                 },
                 '&.Mui-focused fieldset': {
                     //borderColor: ClassColor.TRANSPARENT, // quand focus
-                    border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    border: `2px solid ${primary.main}`,
                 },
                 '&.Mui-error fieldset': {
                     // borderColor: 'error.main', // en cas d'erreur
                     border: `0.1px solid ${'red'}`,
                 },
+                // 👉 style quand le TextField est disabled
+                '&.Mui-disabled': {
+                    cursor: 'not-allowed',      // curseur
+                    pointerEvents: 'auto',      // réactive les events pour voir le curseur
+                },
                 '&.Mui-disabled fieldset': {
                     // borderColor: greyLight.main, // désactivé
                     border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
                     color: ClassColor.GREY_LIGHT,
+                },
+                '&.Mui-disabled .MuiOutlinedInput-input': {
+                    cursor: 'not-allowed',      // curseur sur le texte aussi
                 },
                 '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
                     color: 'red',
@@ -97,7 +106,11 @@ export default function TextFieldComponent({
                 }
             },
             input: {
-                sx: { background: ClassColor.TRANSPARENT, 
+                sx: {
+                    color: cardColor.contrastText, // couleur par défaut
+                    background: cardColor.main,
+                    //borderRadius:'20px',
+                    fontSize: '14px',
                     //maxHeight: maxHeight 
                 },
                 startAdornment: icon && (
