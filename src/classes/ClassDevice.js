@@ -106,7 +106,7 @@ export class ClassDevice {
     ];
     static MIN_LENGTH_NAME = 3;
     static MAX_LENGTH_NAME = 100;
-    static MIN_LENGTH_BRAND = 3;
+    static MIN_LENGTH_BRAND = 2;
     static MAX_LENGTH_BRAND = 100;
 
     constructor({
@@ -118,7 +118,7 @@ export class ClassDevice {
         photo_url = "",
         brand = "",
         enabled = false,
-        status = ClassDevice.STATUS.UNKNOWN,
+        status = "",
         category = "",
         type = "",
         buy_time = null,
@@ -401,7 +401,7 @@ export class ClassDevice {
     isErrorBrand() {
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
-        if (this._brand.length > 0 && (this._brand.length < ClassDevice.MIN_LENGTH_BRAND || this._brand.length > ClassDevice.MAX_LENGTH_BRAND)) return (true);
+        if (this._brand.length > 0 && (this._brand.length < this.MIN_LENGTH_BRAND || this._brand.length > this.MAX_LENGTH_BRAND)) return (true);
         //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
         return (false);
     }
@@ -660,14 +660,12 @@ export class ClassDevice {
         }
         return "NULL";
     }
-    static async create(data={}) {
+    static async create(data = {}) {
         const newRef = doc(this.colRef()); // id auto
         //data.uid = newRef.id;
-               // const data = this.toJSON();
+        // const data = this.toJSON();
         const model = this.makeDeviceInstance('', data);
         //model.uid = newRef.id;()
-
-        
         const countDevices = await this.count() || 0;
         const idDevice = countDevices + 1;
         const uid = newRef.id;
@@ -678,7 +676,7 @@ export class ClassDevice {
         const last_edit_time = new Date();
         const path = { ...model.toJSON(), uid, uid_intern, name, name_normalized, created_time, last_edit_time };
         console.log("REEEF ID", this.makeDeviceInstance(uid, path));
-         await setDoc(newRef, path);
+        await setDoc(newRef, path);
         return this.makeDeviceInstance(uid, path); // -> ClassModule
     }
     // Mettre à jour un module
@@ -694,10 +692,17 @@ export class ClassDevice {
             return null;
         }
     }
-    // Supprimer un module
-    static async remove(id) {
-        await deleteDoc(this.docRef(id));
-        return true;
+    // Supprimer un device
+    async remove() {
+        try {
+            const ref = this.constructor.docRef(this._uid);
+            await deleteDoc(ref);
+            console.log("REMOVED", ref);
+            return true;
+        } catch (error) {
+            console.log("ERRRROR", error);
+            return false;
+        }
     }
     // (Legacy) méthode de fetch directe
     static async fetchFromFirestore(uid) {

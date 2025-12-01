@@ -1,10 +1,10 @@
 {
   "title-page": "Início - Dandela Academy",
-  "description-page": "Uma escola online inovadora que forma estudantes e profissionais nas áreas digitais e de inteligência artificial.",
+  "description-page": "Uma escola online inovadora que forma estudantes e profissionais nas áreas do digital e da inteligência artificial.",
   "hello": "Olá",
   "welcome": "Bem-vindo",
   "language": "Idioma",
-  "loading": "A carregar...",
+  "loading": "Carregando...",
   "day": "Dia",
   "month": "Mês",
   "year": "Ano",
@@ -14,5 +14,6 @@
   "all-rights": "Todos os direitos reservados.",
   "and": "e",
   "light": "Claro",
-  "dark": "Escuro"
+  "dark": "Escuro",
+  "system": "Sistema"
 }

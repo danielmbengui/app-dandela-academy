@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 //import { DEFAULT_THEME } from '@/libs/constants/constants';
-import { DEFAULT_THEME, LOCAL_STORAGE_THEME, THEME_DARK, THEME_LIGHT } from '@/contexts/constants/constants';
+import { DEFAULT_THEME, LOCAL_STORAGE_THEME, THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from '@/contexts/constants/constants';
 
 const safeValue = (value, fallback) => (value ? value.trim() : fallback);
 
@@ -117,21 +117,56 @@ const useThemeColors = (themeMode) => {
 
     return themeColors;
 };
+function useSystemTheme() {
+    const [theme, setTheme] = useState('');
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+        const updateTheme = (e) => {
+            setTheme(e.matches ? 'dark' : 'light');
+            console.log("SYSTEM theme change", e.matches ? 'dark' : 'light')
+        };
+
+        // valeur initiale
+        setTheme(mq.matches ? 'dark' : 'light');
+        console.log("SYSTEM theme", mq.matches ? 'dark' : 'light')
+        // écoute les changements
+        mq.addEventListener('change', updateTheme);
+
+        return () => mq.removeEventListener('change', updateTheme);
+    }, []);
+
+    return theme;
+}
 
 export const ThemeProvider = ({ children }) => {
-    const [themeMode, setThemeMode] = useState(DEFAULT_THEME);
+    const [modeApp, setModeApp] = useState(DEFAULT_THEME);
+    const [themeMode, setThemeMode] = useState(THEME_LIGHT);
     const themeColors = useThemeColors(themeMode);
+    const themeSystem = useSystemTheme();
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         var theme = localStorage.getItem(LOCAL_STORAGE_THEME) || DEFAULT_THEME; // Récupère la donnée du localStorage
+        setModeApp(theme);
+        console.log("storage theme", theme);
+        if (theme === THEME_SYSTEM) {
+            theme = themeSystem || THEME_LIGHT;
+        }
+        console.log("system theme", themeSystem)
+        console.log("final theme", theme)
         //theme = DEFAULT_THEME;
         //localStorage.setItem(LOCAL_STORAGE_THEME, theme);
         document.documentElement.className = theme; // Applique la classe du thème
         //document.documentElement['data-theme'] = theme; // Applique la classe du thème
         setThemeMode(theme);
+        
         //localStorage.setItem(LOCAL_STORAGE_THEME, DEFAULT_THEME);
         //const actual = document.documentElement.className; // Applique la classe du thème
         //setThemeMode(actual);
-    }, []);
+    }, [themeSystem]);
 
     const toggleTheme = () => {
         var prev = DEFAULT_THEME;
@@ -148,8 +183,13 @@ export const ThemeProvider = ({ children }) => {
         //console.log("NEW MODE", newTheme);
     };
     const changeTheme = (newTheme) => {
-        setThemeMode(newTheme);
-        document.documentElement.className = newTheme; // Applique la classe du thème
+        var theme = newTheme;
+        setModeApp(theme);
+        if (newTheme === THEME_SYSTEM) {
+            theme = themeSystem;
+        }
+        setThemeMode(theme);
+        document.documentElement.className = theme; // Applique la classe du thème
         //document.documentElement['data-theme'] = newTheme; // Applique la classe du thème
         localStorage.setItem(LOCAL_STORAGE_THEME, newTheme);
     };
@@ -315,7 +355,7 @@ export const ThemeProvider = ({ children }) => {
     });
 
     return (
-        <ThemeContext.Provider value={{ mode: themeMode, toggleTheme, changeTheme, theme: muiTheme }}>
+        <ThemeContext.Provider value={{modeApp, mode: themeMode, toggleTheme, changeTheme, theme: muiTheme }}>
             <MuiThemeProvider theme={muiTheme}>{children}</MuiThemeProvider>
         </ThemeContext.Provider>
     );

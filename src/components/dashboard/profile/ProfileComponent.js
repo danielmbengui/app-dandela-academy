@@ -5,7 +5,7 @@ import AccordionComponent from "@/components/dashboard/elements/AccordionCompone
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDate } from "@/contexts/functions";
-import { languages, NS_DASHBOARD_PROFILE, NS_FORM, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
+import { languages, NS_COMMON, NS_DASHBOARD_PROFILE, NS_FORM, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Backdrop, Box, Button, CircularProgress, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import Field from "../elements/Field";
 import { ClassUser } from "@/classes/users/ClassUser";
 import SelectComponent from "@/components/elements/SelectComponent";
-import { THEME_DARK, THEME_LIGHT } from "@/contexts/constants/constants";
+import { THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from "@/contexts/constants/constants";
 import FieldTextComponent from "@/components/elements/FieldTextComponent";
 import CardComponent from "@/components/elements/CardComponent";
 const initialUser = {
@@ -423,7 +423,7 @@ function ProfilePage() {
     );
 }
 export default function ProfileComponent() {
-    const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
+    const { t } = useTranslation([NS_DASHBOARD_PROFILE, NS_COMMON, NS_LANGS]);
     const form = t('form', {returnObjects:true});
     const {
         'title-account': title_account,
@@ -451,7 +451,7 @@ export default function ProfileComponent() {
             setUserInfo(user.clone());
         }
     }, [isLoading]);
-    const { theme, changeTheme, mode } = useThemeMode();
+    const { theme, changeTheme, mode,modeApp } = useThemeMode();
     const { primary, primaryShadow, greyLight, text } = theme.palette;
     const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
     const onChangeField = (e) => {
@@ -714,8 +714,8 @@ export default function ProfileComponent() {
                                 label={title_theme}
                                 name={'theme'}
                                 //display={false}
-                                value={mode}
-                                values={[THEME_LIGHT, THEME_DARK].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_LANGS }) }))}
+                                value={modeApp}
+                                values={[THEME_LIGHT, THEME_DARK, THEME_SYSTEM].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_COMMON }) }))}
                                 onChange={(e) => {
                                     //console.log("NEW VALUE", e.target.value)
                                     changeTheme(e.target.value);

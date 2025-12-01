@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { ClassColor } from '@/classes/ClassColor';
-import { Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, Stack, Typography } from '@mui/material';
+import { Alert, Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, Slide, Snackbar, Stack, Typography } from '@mui/material';
 import { ClassHardware, ClassDevice } from '@/classes/ClassDevice';
 import { orderBy, where } from 'firebase/firestore';
 import SelectComponent from '@/components/elements/SelectComponent';
@@ -27,7 +27,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { cutString, getFormattedDate, getFormattedDateCompleteNumeric } from '@/contexts/functions';
 import { useLanguage } from '@/contexts/LangProvider';
-import { ClassUserAdmin, ClassUserSuperAdmin } from '@/classes/users/ClassUser';
+import { ClassUserAdmin, ClassUserIntern, ClassUserSuperAdmin } from '@/classes/users/ClassUser';
 import TextFieldComponent from '@/components/elements/TextFieldComponent';
 import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark';
 import DialogDevice from './DialogDevice';
@@ -79,12 +79,16 @@ const initialComputers = [
   { id: 24, name: "PC-24", status: "available" },
   { id: 25, name: "PC-25", status: "available" },
 ];
-
+function SlideTransition(props) {
+  return <Slide {...props} direction="up" />;
+}
 
 export default function ComputersComponent() {
+  const componentRef = useRef(null);
+  const { user } = useAuth();
   const { theme } = useThemeMode();
   const { text, greyLight } = theme.palette;
-  const { t } = useTranslation([ClassDevice.NS_COLLECTION, NS_DASHBOARD_COMPUTERS,NS_BUTTONS]);
+  const { t } = useTranslation([ClassDevice.NS_COLLECTION, NS_DASHBOARD_COMPUTERS, NS_BUTTONS]);
   const [computers] = useState(initialComputers);
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState(null);
@@ -92,6 +96,7 @@ export default function ComputersComponent() {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  const [success, setSuccess] = useState(false);
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState({});
   const [rooms, setRooms] = useState([]);
@@ -99,6 +104,23 @@ export default function ComputersComponent() {
   const [allComputers, setAllComputers] = useState([]);
   const [computersBis, setComputersBis] = useState([]);
   const [mode, setMode] = useState('');
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+
+    const updateTheme = (e) => {
+      //setTheme(e.matches ? 'dark' : 'light');
+    };
+
+    // valeur initiale
+    //setTheme(mq.matches ? 'dark' : 'light');
+console.log("WAAAA", mq)
+    // écoute les changements
+    mq.addEventListener('change', updateTheme);
+
+    return () => mq.removeEventListener('change', updateTheme);
+  }, []);
   useEffect(() => {
     async function initComputers() {
       const _schools = await ClassSchool.fetchListFromFirestore([
@@ -410,25 +432,32 @@ export default function ComputersComponent() {
       </>
     );
   }
+  const handleCloseSnackbar = (event, reason) => {
+    setSuccess(false);
+    if (reason === 'clickaway') {
+      return;
+    }
+  };
 
   const handleCardClick = (pc) => {
     setSelected(pc);
     setSelectedDevice(pc);
     setOpenDialog(true);
     setMode('read');
+    console.log("DEVICE", pc)
   };
 
   return (
-    <>
+    <Stack ref={componentRef} sx={{width:'100%', height:'100%'}}>
       <DialogDevice
-        updateList={updateComputersStatus} 
-        device={selectedDevice} 
+        updateList={updateComputersStatus}
+        device={selectedDevice}
         setDevice={setSelectedDevice}
         mode={mode}
         setMode={setMode}
       />
       <DialogNewDevice
-        updateList={updateComputersStatus} 
+        updateList={updateComputersStatus}
         isOpen={false}
         setIsOpen={setIsOpen}
       />
@@ -463,16 +492,18 @@ export default function ComputersComponent() {
           </Stack>
         </Stack>
         <Stack alignItems={'start'}>
-          <ButtonConfirm
-            label={t('new', {ns:NS_BUTTONS})}
-            onClick={async ()=>{
-              setMode('create');
-              //setIsOpen(true);
-              setSelectedDevice(new ClassDevice({}));
-              
-              //handleCardClick(new ClassDevice());
-            }}
-          />
+          {
+            user instanceof ClassUserIntern && <ButtonConfirm
+              label={t('new', { ns: NS_BUTTONS })}
+              onClick={async () => {
+                //setMode('create');
+                //setIsOpen(true);
+                //setSelectedDevice(new ClassHardware({uid_room:room.uid,status:ClassDevice.STATUS.AVAILABLE}));
+                setSuccess(true);
+                //handleCardClick(new ClassDevice());
+              }}
+            />
+          }
         </Stack>
         <Stack
           spacing={1}
@@ -539,6 +570,24 @@ export default function ComputersComponent() {
           </Grid>
         </Stack>
       </Stack>
-    </>
+      <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          open={success}
+          autoHideDuration={1500}
+          onClose={handleCloseSnackbar}
+        slots={{ transition: SlideTransition }}
+        //message="I love snacks"
+        //key={vertical + horizontal}
+        >
+          <Alert
+            //onClose={handleCloseSnackbar}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {"Le matériel a été supprimé avec succès !"}
+          </Alert>
+        </Snackbar>
+    </Stack>
   );
 }

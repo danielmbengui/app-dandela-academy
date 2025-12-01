@@ -1,7 +1,7 @@
 {
   "title-page": "Home - Dandela Academy",
-  "description-page": "An innovative online school training students and professionals in digital careers and artificial intelligence.",
-  "hello": "Hello",
+  "description-page": "An innovative online school that trains students and professionals in digital and artificial intelligence skills.",
+  "hello": "Hi",
   "welcome": "Welcome",
   "language": "Language",
   "loading": "Loading...",
@@ -14,5 +14,6 @@
   "all-rights": "All rights reserved.",
   "and": "and",
   "light": "Light",
-  "dark": "Dark"
+  "dark": "Dark",
+  "system": "System"
 }

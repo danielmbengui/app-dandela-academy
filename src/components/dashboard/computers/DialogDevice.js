@@ -42,7 +42,7 @@ import DialogConfirmAction from '../elements/DialogConfirmAction';
 function SimpleAlert({ text = "", severity = 'error' }) {
   return (<Alert severity={severity}>{text}</Alert>);
 }
-function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = [], updateList = null }) {
+function CreateComponent({device=null, setDevice = null, mode = '', setMode = null, rooms = [], updateList = null }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
@@ -50,7 +50,7 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
   const { user } = useAuth();
   const { lang } = useLanguage();
   const [processing, setProcessing] = useState(false);
-  const [deviceNew, setDeviceNew] = useState(new ClassDevice());
+  const [deviceNew, setDeviceNew] = useState(device);
   //const [rooms, setRooms] = useState([]);
   const [errors, setErrors] = useState({});
   const [showSnackbar, setShowSnackbar] = useState(false);
@@ -60,82 +60,87 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
     const { name, value, type } = e.target;
     console.log(name, value);
     setErrors(prev => ({ ...prev, [name]: '' }))
-    setDeviceNew(prev => {
+    setDevice(prev => {
       if (!prev || prev === null) {
         return prev;
       }
       prev.update({ [name]: type === 'date' ? new Date(value) : value });
-      if (name === 'category') {
-        if (value === ClassDevice.CATEGORY.HARDWARE) {
-          return new ClassHardware(prev.toJSON());
-        } else {
-          return new ClassDevice(prev.toJSON());
-        }
-      }
-      return prev.clone();
+      return prev;
     })
   }
+  const onClear = (name) => {
+    //const { name, value, type } = e.target;
+    console.log(name);
+    
+    setErrors(prev => ({ ...prev, [name]: '' }))
+    setDevice(prev => {
+      if (!prev || prev === null) {
+        return prev;
+      }
+      prev.update({ [name]: '' });
+      return prev;
+    });
+  }
   const handleClose = () => {
-    setDeviceNew(null);
+   // setDeviceNew(null);
     setDevice(null);
     setMode('');
     setErrors({});
   };
   const handleCloseSnackbar = (event, reason) => {
+    setSuccess(false);
     if (reason === 'clickaway') {
       return;
     }
-    setSuccess(false);
   };
-
   const onSubmit = async (e) => {
     setProcessing(true);
     try {
       const _errors = {};
-      if (!deviceNew.validCategory()) {
+      if (!device.validCategory()) {
         _errors.category = errorsTranslate.category || '';
       }
-      if (!deviceNew.validType()) {
+      if (!device.validType()) {
         _errors.type = errorsTranslate.type || '';
       }
+      /*
       if (!deviceNew.validName()) {
         _errors.name = translateWithVars(errorsTranslate.name, { min: ClassDevice.MIN_LENGTH_NAME, max: ClassDevice.MAX_LENGTH_NAME }) || '';
       }
-      if (!deviceNew.validBrand()) {
+      */
+      if (!device.validBrand()) {
         _errors.brand = translateWithVars(errorsTranslate.brand, { min: ClassDevice.MIN_LENGTH_BRAND, max: ClassDevice.MAX_LENGTH_BRAND }) || '';
       }
-      if (!deviceNew.validOs()) {
+      if (!device.validOs()) {
         _errors.os = errorsTranslate.os || '';
       }
-      if (!deviceNew.validOsVersion()) {
+      if (!device.validOsVersion()) {
         _errors.os_version = translateWithVars(errorsTranslate.os_version, { min: ClassHardware.MIN_LENGTH_OS_VERSION, max: ClassHardware.MAX_LENGTH_OS_VERSION }) || '';
       }
 
-      if (!deviceNew.validBuyTime()) {
+      if (!device.validBuyTime()) {
         _errors.buy_time = errorsTranslate.buy_time || '';
       }
-      if (!deviceNew.validStatus()) {
+      if (!device.validStatus()) {
         _errors.status = errorsTranslate.status || '';
       }
-      if (!deviceNew.uid_room) {
+      if (!device.uid_room) {
         _errors.room = errorsTranslate.room || '';
       }
       if (Object.keys(_errors).length > 0) {
         _errors.main = errorsTranslate.main || '';
       } else {
-        var newDevice = null;
-        if (deviceNew.category === ClassDevice.CATEGORY.HARDWARE) {
-          newDevice = await ClassHardware.create(deviceNew.toJSON);
-        }
-
+       var newDevice = await ClassHardware.create(device.toJSON());
         console.log("NEW DEVICE", newDevice)
+        
         if (newDevice) {
           setSuccess(true);
           setDevice(newDevice);
-          setDeviceNew(newDevice);
+          //setDeviceNew(newDevice);
           setMode('read');
           await updateList();
         }
+        
       }
       setErrors(_errors);
     } catch (error) {
@@ -146,23 +151,6 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
     }
   }
   return (<>
-    <Snackbar
-      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      open={success}
-      autoHideDuration={1500}
-      onClose={handleCloseSnackbar}
-    //message="I love snacks"
-    //key={vertical + horizontal}
-    >
-      <Alert
-        //onClose={handleCloseSnackbar}
-        severity="success"
-        variant="filled"
-        sx={{ width: '100%' }}
-      >
-        {"Le matériel a été crée avec succès !"}
-      </Alert>
-    </Snackbar>
     <DialogTitle id="scroll-dialog-title">
       <Stack direction={'row'} justifyContent={'space-between'}>
         <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
@@ -182,52 +170,43 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
         <SelectComponentDark
           label={t('room')}
           name={'uid_room'}
-          value={deviceNew?.uid_room}
+          value={device?.uid_room}
           values={rooms.map(room => ({ id: room.uid, value: room.name }))}
           onChange={onChangeValue}
-          hasNull={deviceNew?.uid_room === ''}
+          hasNull={device?.uid_room === ''}
           required
           error={errors.room}
         />
         <SelectComponentDark
           label={t('category')}
           name={'category'}
-          disabled={!deviceNew?.uid_room}
-          value={deviceNew?.category}
+          disabled={device?.uid_room===''}
+          value={device?.category}
           values={ClassDevice.ALL_CATEGORIES.map(category => ({ id: category, value: t(category) }))}
           onChange={onChangeValue}
-          hasNull={deviceNew?.category === ClassDevice.CATEGORY.UNKNOWN}
+          hasNull={device?.category === ClassDevice.CATEGORY.UNKNOWN}
           required
           error={errors.category}
         />
         <SelectComponentDark
           label={t('type')}
           name={'type'}
-          disabled={!deviceNew?.validCategory()}
-          value={deviceNew?.type}
-          values={ClassDevice.getTypesByCategory(deviceNew?.category).map(type => ({ id: type, value: t(type) }))}
+          disabled={!device?.validCategory()}
+          value={device?.type}
+          values={ClassDevice.getTypesByCategory(device?.category).map(type => ({ id: type, value: t(type) }))}
           onChange={onChangeValue}
-          hasNull={deviceNew?.type === ClassDevice.TYPE.UNKNOWN}
+          hasNull={device?.type === ClassDevice.TYPE.UNKNOWN}
           required
           error={errors.type}
         />
         <FieldComponent
-          label={t('name')}
-          name={'name'}
-          disabled={!deviceNew?.validType()}
-          type='text'
-          value={deviceNew?.name || ''}
-          onChange={onChangeValue}
-          required
-          error={errors.name}
-        />
-        <FieldComponent
           label={t('brand')}
           name={'brand'}
-          disabled={!deviceNew?.validType()}
+          disabled={!device?.validType()}
           type='text'
-          value={deviceNew?.brand || ''}
+          value={device?.brand || ''}
           onChange={onChangeValue}
+          onClear={()=>onClear('brand')}
           required
           error={errors.brand}
         />
@@ -236,21 +215,22 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
             <SelectComponentDark
               label={t('os')}
               name={'os'}
-              disabled={!deviceNew?.validType()}
-              value={deviceNew?.os}
+              disabled={!device?.validType()}
+              value={device?.os}
               values={ClassHardware.ALL_OS.map(category => ({ id: category, value: t(category) }))}
               onChange={onChangeValue}
-              hasNull={deviceNew?.os === ClassHardware.OS.UNKNOWN}
+              hasNull={device?.os === ClassHardware.OS.UNKNOWN}
               required
               error={errors.os}
             />
             <FieldComponent
               label={t('os_version')}
               name={'os_version'}
-              disabled={!deviceNew?.validType()}
+              disabled={!device?.validType()}
               type='text'
-              value={deviceNew?.os_version || ''}
+              value={device?.os_version || ''}
               onChange={onChangeValue}
+              onClear={()=>onClear('os_version')}
               required
               error={errors.os_version}
             />
@@ -259,23 +239,12 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
         <FieldComponent
           label={t('buy_time')}
           name={'buy_time'}
-          disabled={!deviceNew?.validType()}
+          disabled={!device?.validType()}
           type='date'
-          value={deviceNew?.buy_time || ''}
+          value={device?.buy_time || ''}
           onChange={onChangeValue}
           required
           error={errors.buy_time}
-        />
-        <SelectComponentDark
-          label={t('status')}
-          name={'status'}
-          disabled={!deviceNew?.validType()}
-          value={deviceNew?.status || ''}
-          values={ClassDevice.ALL_STATUS.map(status => ({ id: status, value: t(status) }))}
-          onChange={onChangeValue}
-          hasNull={deviceNew?.status === ClassDevice.STATUS.UNKNOWN || deviceNew?.status === ''}
-          required
-          error={errors.status}
         />
       </Stack>
     </DialogContent>
@@ -295,15 +264,33 @@ function CreateComponent({ setDevice = null, mode = '', setMode = null, rooms = 
         </Stack>
       }
     </DialogActions>
+    <Snackbar
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      open={success}
+      autoHideDuration={1500}
+      //onClose={handleCloseSnackbar}
+    //message="I love snacks"
+    //key={vertical + horizontal}
+    >
+      <Alert
+        //onClose={handleCloseSnackbar}
+        severity="success"
+        variant="filled"
+        sx={{ width: '100%' }}
+      >
+        {"Le matériel a été crée avec succès !"}
+      </Alert>
+    </Snackbar>
   </>)
 }
-function ReadComponent({ device = null, setDevice = null, setMode = null }) {
+function ReadComponent({ device = null, setDevice = null, setMode = null, updateList = null }) {
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
   const { user } = useAuth();
   const { lang } = useLanguage();
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const [wantRemove, setWantRemove] = useState(false);
+  const [removed, setRemoved] = useState(false);
 
   const handleClose = () => {
     setDevice(null);
@@ -372,7 +359,19 @@ function ReadComponent({ device = null, setDevice = null, setMode = null }) {
         </Stack>
       }
     </DialogActions>
-    <DialogConfirmAction title='Veux-tu supprimer ce matériel ?' setOpen={setWantRemove} open={wantRemove} />
+    <DialogConfirmAction
+      title='Veux-tu supprimer ce périphérique ?'
+      setOpen={setWantRemove}
+      open={wantRemove}
+      actionCancel={() => setWantRemove(false)}
+      actionConfirm={async () => {
+        const _removed = await device.remove();
+        setRemoved(_removed);
+        await updateList();
+        handleClose();
+      }}
+    //actionCancel={}
+    />
   </>);
 }
 function UpdateComponent({ device = null, setDevice = null, mode = '', setMode = null, updateList = null }) {
@@ -407,8 +406,9 @@ function UpdateComponent({ device = null, setDevice = null, mode = '', setMode =
     })
   }
   const handleClose = () => {
-    //setDeviceEdit(null);
-    setMode('read');
+    setDevice(null);
+    setDeviceEdit(null);
+    setMode('');
   };
 
   const handleSubmit = async () => {
@@ -518,7 +518,7 @@ function UpdateComponent({ device = null, setDevice = null, mode = '', setMode =
       {
         user instanceof ClassUserIntern && <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
-            <ButtonCancel disabled={processing} label={t('btn-cancel')} variant='contained' onClick={handleClose} />
+            <ButtonCancel disabled={processing} label={t('btn-cancel')} variant='contained' onClick={()=>setMode('read')} />
             {
               device && deviceEdit && !device.same(deviceEdit) && <ButtonConfirm loading={processing} label={t('btn-edit')} variant='contained'
                 onClick={handleSubmit} />
@@ -536,7 +536,7 @@ export default function DialogDevice({ device = null, setDevice = null, updateLi
   const [rooms, setRooms] = useState([]);
   useEffect(() => {
     async function initRooms() {
-      setDevice(device);
+      //setDevice(device);
       console.log("DEVICE", device)
       const _schools = await ClassSchool.fetchListFromFirestore([
         //where("school_uid", "==", schoolUid),
@@ -607,16 +607,15 @@ export default function DialogDevice({ device = null, setDevice = null, updateLi
         }}
       >
         {
-          mode === 'create' && <CreateComponent setDevice={setDevice} mode={mode} setMode={setMode} rooms={rooms} updateList={updateList} />
+          mode === 'create' && <CreateComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} rooms={rooms} updateList={updateList} />
         }
         {
-          mode === 'read' && <ReadComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} />
+          mode === 'read' && <ReadComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
         }
         {
           mode === 'edit' && <UpdateComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
         }
       </Dialog>
-
     </Stack>
   );
 }

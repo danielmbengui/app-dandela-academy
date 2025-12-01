@@ -34,6 +34,8 @@ export default function DialogConfirmAction({
   updateList = null,
   actionConfirm = null,
   actionCancel = null,
+  labelConfirm="Oui",
+  labelCancel="Non",
   open = false,
   setOpen = null
 }) {
@@ -62,7 +64,7 @@ export default function DialogConfirmAction({
   }
 
   const handleClose = () => {
-    setDevice(null);
+    //setDevice(null);
     //setDeviceEdit(null);
     //setMode('read');
     setOpen(false);
@@ -113,19 +115,23 @@ export default function DialogConfirmAction({
         <DialogTitle id="scroll-dialog-title">
           <Stack direction={'row'} justifyContent={'end'}>
 
-            <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
+            <CloseIcon sx={{ cursor: 'pointer' }} onClick={actionCancel} />
           </Stack>
         </DialogTitle>
         <DialogContent dividers={true} sx={{ p: { xs: 1, md: 3 }, pt: { xs: 0, md: 0 } }}>
           <Stack spacing={2} alignItems={'center'}>
             <Typography variant='h5'>{title}</Typography>
             <Stack direction={'row'} spacing={1} alignItems={'center'}>
-              <ButtonCancel disabled={processing} label={t('btn-cancel')} variant='contained'
-                onClick={handleClose} />
-              <ButtonConfirm disabled={processing} label={t('btn-create')} variant='contained' onClick={() => {
-
-                alert("cliked");
-              }} />
+              <ButtonCancel disabled={processing} label={labelCancel} variant='contained'
+                onClick={actionCancel} />
+              <ButtonConfirm loading={processing} disabled={processing} label={labelConfirm} variant='contained' 
+              onClick={()=>{
+                setProcessing(true);
+                actionConfirm();
+                setProcessing(false);
+                actionCancel();
+              }} 
+              />
             </Stack>
           </Stack>
 
