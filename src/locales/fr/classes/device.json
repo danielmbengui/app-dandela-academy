@@ -51,6 +51,12 @@
         "os_version": "Entre une version valide (entre {{min}} et {{max}} caractères)",
         "buy_time": "Selectionne une date d'achat",
         "status": "Sélectionne un statut",
-        "main":"Corrigez les erreurs avant de continuer"
+        "main":"Corrigez les erreurs avant de continuer",
+        "actions":"Une erreur est survenue, ressaie !"
+    },
+    "success":{
+        "create":"Le périphérique a été ajouté avec succès !",
+        "edit":"Le périphérique a été modifié avec succès !",
+        "remove":"Le périphérique a été supprimé avec succès !"
     }
 }

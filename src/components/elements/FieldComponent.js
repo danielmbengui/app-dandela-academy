@@ -23,7 +23,7 @@ const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm
 export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 1,
     icon = "", fullWidth = false,
     prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required = false,
-    editable = false, onSubmit = () => { }, onCancel = () => { } }) {
+    editable = false, onSubmit = () => { }, onCancel = () => { },autoComplete=[] }) {
     //console.log("FILED", name, type)
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
@@ -203,6 +203,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         placeholder={placeholder}
                         error={error}
                         type={type}
+                        autoComplete={autoComplete}
                         //helperText={error}
                         className={`${inputBase} ${error ? 'border-red-500' : ''}`}
                         fullWidth={fullWidth}

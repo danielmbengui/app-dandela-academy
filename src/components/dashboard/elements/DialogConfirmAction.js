@@ -57,7 +57,7 @@ export default function DialogConfirmAction({
       if (!prev || prev === null) {
         return prev;
       }
-      prev.update({ [name]: type === 'date' ? new Date(value) : value });
+      prev.updateFirestore({ [name]: type === 'date' ? new Date(value) : value });
       console.log("WAAAA10", ClassDevice.getTypesByCategory(prev.category))
       return prev.clone();
     })

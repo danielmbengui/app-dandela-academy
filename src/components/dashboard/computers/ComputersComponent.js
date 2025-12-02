@@ -17,22 +17,10 @@ import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import constants from 'constants';
 import DeviceCard from './DeviceCard';
-
-import CloseIcon from '@mui/icons-material/Close';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { cutString, getFormattedDate, getFormattedDateCompleteNumeric } from '@/contexts/functions';
-import { useLanguage } from '@/contexts/LangProvider';
 import { ClassUserAdmin, ClassUserIntern, ClassUserSuperAdmin } from '@/classes/users/ClassUser';
 import TextFieldComponent from '@/components/elements/TextFieldComponent';
-import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark';
 import DialogDevice from './DialogDevice';
 import ButtonConfirm from '../elements/ButtonConfirm';
-import DialogNewDevice from './DialogNewDevice';
 
 const TypographyComponent = ({ title = "", value = "" }) => {
   return (<Stack direction={'row'} spacing={1.5} justifyContent={'space-between'} sx={{ background: '' }}>
@@ -97,6 +85,7 @@ export default function ComputersComponent() {
   const [isOpen, setIsOpen] = useState(false);
 
   const [success, setSuccess] = useState(false);
+  const [textSuccess, setTextSuccess] = useState(false);
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState({});
   const [rooms, setRooms] = useState([]);
@@ -123,6 +112,8 @@ console.log("WAAAA", mq)
   }, []);
   useEffect(() => {
     async function initComputers() {
+      const ok = await ClassHardware.count([where('type', '==','ok')]);
+      console.log("NB", ok)
       const _schools = await ClassSchool.fetchListFromFirestore([
         //where("school_uid", "==", schoolUid),
         orderBy("name"),
@@ -455,11 +446,8 @@ console.log("WAAAA", mq)
         setDevice={setSelectedDevice}
         mode={mode}
         setMode={setMode}
-      />
-      <DialogNewDevice
-        updateList={updateComputersStatus}
-        isOpen={false}
-        setIsOpen={setIsOpen}
+        setSuccess={setSuccess}
+        setTextSuccess={setTextSuccess}
       />
       {
         //selectedDevice && <ScrollDialog updateList={updateComputersStatus} device={selectedDevice} setDevice={setSelectedDevice} isOpen={openDialog} setIsOpen={setOpenDialog} />
@@ -496,10 +484,10 @@ console.log("WAAAA", mq)
             user instanceof ClassUserIntern && <ButtonConfirm
               label={t('new', { ns: NS_BUTTONS })}
               onClick={async () => {
-                //setMode('create');
+                setMode('create');
                 //setIsOpen(true);
-                //setSelectedDevice(new ClassHardware({uid_room:room.uid,status:ClassDevice.STATUS.AVAILABLE}));
-                setSuccess(true);
+                setSelectedDevice(new ClassHardware({uid_room:room.uid,status:ClassDevice.STATUS.AVAILABLE}));
+                //setSuccess(true);
                 //handleCardClick(new ClassDevice());
               }}
             />
@@ -585,7 +573,7 @@ console.log("WAAAA", mq)
             variant="filled"
             sx={{ width: '100%' }}
           >
-            {"Le matériel a été supprimé avec succès !"}
+            {textSuccess}
           </Alert>
         </Snackbar>
     </Stack>

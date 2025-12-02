@@ -3149,7 +3149,7 @@ export default function DashboardHome() {
           name: "Admin room",
           name_normalized: "admin_room",
           //photo_url:"",
-          os:ClassHardware.OS.MACOS,
+          os: ClassHardware.OS.MACOS,
           floor: 1,
           enabled: true
         });
@@ -3169,20 +3169,20 @@ export default function DashboardHome() {
             //uid: "",
             //uid_intern: "1",
             uid_room: room_admin.uid,
-            brand:'iMac 2017',
+            brand: 'iMac 2017',
             //name: `PC-${sizeId.toString().padStart(2, '0')}`,
             //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
             enabled: true,
             status: ClassHardware.STATUS.AVAILABLE,
             type: ClassHardware.TYPE.DESKTOP,
-            os:ClassHardware.OS.MACOS,
-            os_version:"13.7.8",
-            buy_time:new Date(2023, 7, 12),
+            os: ClassHardware.OS.MACOS,
+            os_version: "13.7.8",
+            buy_time: new Date(2023, 7, 12),
             updates: [
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
           });
-          const computer = await ClassHardware.create(computerClass);
+          await computerClass.createFirestore();
         }
         for (let i = 0; i < 25; i++) {
           //const countComputers = await ClassComputer.count() || 0;
@@ -3190,22 +3190,22 @@ export default function DashboardHome() {
             //uid: "",
             //uid_intern: "1",
             uid_room: room.uid,
-            brand:'HP i7',
+            brand: 'HP i7',
             //name: `PC-${sizeId.toString().padStart(2, '0')}`,
             //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
             enabled: true,
             status: ClassHardware.STATUS.AVAILABLE,
             type: ClassHardware.TYPE.DESKTOP,
-            os:ClassHardware.OS.WINDOWS,
-            os_version:"10",
-            buy_time:new Date(2023, 10, 12),
+            os: ClassHardware.OS.WINDOWS,
+            os_version: "10",
+            buy_time: new Date(2023, 10, 12),
             updates: [
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
           });
-          const computer = await ClassHardware.create(computerClass);
+          await computerClass.createFirestore();
         }
-        
+
         //await ClassComputer.create(computer);
         setProcessing(false);
       }}

@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { IconButton, InputAdornment, TextField, } from "@mui/material";
+import { Autocomplete, IconButton, InputAdornment, TextField, } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 import PropTypes from 'prop-types';
@@ -22,12 +22,40 @@ export default function TextFieldComponent({
     onChange = null,
     onClear = null,
     maxHeight = '2.5rem',
+    autoComplete = [],
     onSubmit = () => { },
     ...props
 }) {
     const { lang } = useLanguage();
     const { theme } = useThemeMode();
     const { blue, greyLight, text, primary, cardColor } = theme.palette;
+    if (autoComplete.length > 0) {
+        /*
+        return (<Autocomplete
+            disablePortal
+            options={autoComplete}
+            fullWidth={fullWidth}
+            className="shadow-sm"
+            lang={lang}
+            disabled={disabled}
+            type={type}
+            label={label}
+            id={name}
+            name={name}
+            
+            renderInput={(params) => (<TextField
+
+                variant="outlined"
+                size={'small'}
+                fullWidth={fullWidth}
+
+                //
+                {...props}
+            />)}
+        />
+        )
+        */
+    }
     return (<TextField
         className="shadow-sm"
         lang={lang}

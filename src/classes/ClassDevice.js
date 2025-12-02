@@ -546,7 +546,7 @@ export class ClassDevice {
     static async alreadyExistByName(_name) {
         const q = query(
             collection(firestore, this.COLLECTION),
-            where("name_normalized", "==", this._name.toLowerCase().trim())
+            where("name_normalized", "==", _name.toLowerCase().trim())
         );
         const countSnap = await getCountFromServer(q);
         return countSnap.data().count > 0;
@@ -560,10 +560,11 @@ export class ClassDevice {
         return doc(firestore, this.COLLECTION, id).withConverter(this.converter);
     }
 
-    static async count() {
+    static async count(constraints = []) {
+        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
         //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const snap = await getCountFromServer(coll);
+        //const coll = this.colRef();
+        const snap = await getCountFromServer(q);
         return snap.data().count; // -> nombre total
     }
     /*
@@ -635,65 +636,69 @@ export class ClassDevice {
         return docs;
     }
     // Créer un user (avec option timestamps serveur)
-    static async createDeviceName(category, type, isLower = false) {
-        var prefix = isLower ? "device" : "DEVICE";
-        const count = await this.count();
-        if (category === ClassDevice.CATEGORY.HARDWARE) {
-            if (type === ClassHardware.TYPE.DESKTOP) {
-                prefix = isLower ? "pc" : "PC";
-            } else if (type === ClassHardware.TYPE.MOBILE) {
-                prefix = isLower ? "mobile" : "MOBILE";
-            } else if (type === ClassHardware.TYPE.TABLET) {
-                prefix = isLower ? "tablet" : "TABLET";
-            } else if (type === ClassHardware.TYPE.TV) {
-                prefix = isLower ? "tv" : "TV";
+    async createDeviceName(idDevice = '', isNormalized = false) {
+        var prefix = isNormalized ? "device" : "DEVICE";
+        const count = await this.constructor.count();
+
+        if (this._category === ClassDevice.CATEGORY.HARDWARE) {
+            if (this._type === ClassHardware.TYPE.DESKTOP) {
+                prefix = isNormalized ? "pc" : "PC";
+            } else if (this._type === ClassHardware.TYPE.MOBILE) {
+                prefix = isNormalized ? "mobile" : "MOBILE";
+            } else if (this._type === ClassHardware.TYPE.TABLET) {
+                prefix = isNormalized ? "tablet" : "TABLET";
+            } else if (this._type === ClassHardware.TYPE.WATCH) {
+                prefix = isNormalized ? "watch" : "WATCH";
+            } else if (this._type === ClassHardware.TYPE.TV) {
+                prefix = isNormalized ? "tv" : "TV";
             }
         }
-        return `${prefix}-${(count + 1).toString().padStart(2, '0')}`;;
+        return `${prefix}-${(idDevice).toString().padStart(2, '0')}`;;
     }
-    static async createDeviceNameNormalized(category, type) {
-        if (category === ClassDevice.CATEGORY.HARDWARE) {
-            if (type === ClassHardware.TYPE.DESKTOP) {
-                const count = await ClassHardware.count();
-                return `pc-${(count + 1).toString().padStart(2, '0')}`;
-            }
-        }
-        return "NULL";
-    }
-    static async create(data = {}) {
-        const newRef = doc(this.colRef()); // id auto
+    async createFirestore() {
+        const newRef = doc(this.constructor.colRef()); // id auto
         //data.uid = newRef.id;
         // const data = this.toJSON();
-        const model = this.makeDeviceInstance('', data);
+        //const model = this.constructor.makeDeviceInstance('', data);
         //model.uid = newRef.id;()
-        const countDevices = await this.count() || 0;
-        const idDevice = countDevices + 1;
+        const countAllDevices = await this.constructor.count() || 0;
+        const countTypeDevices = await this.constructor.count([where('type', '==', this._type)]) || 0;
+        console.log("log device count", countTypeDevices, countAllDevices)
+        const idDevice = countTypeDevices + 1;
         const uid = newRef.id;
-        const uid_intern = idDevice;
-        var name = await this.createDeviceName(data.category, data.type);
-        var name_normalized = await this.createDeviceName(data.category, data.type, true);
-        const created_time = new Date();
-        const last_edit_time = new Date();
-        const path = { ...model.toJSON(), uid, uid_intern, name, name_normalized, created_time, last_edit_time };
-        console.log("REEEF ID", this.makeDeviceInstance(uid, path));
-        await setDoc(newRef, path);
-        return this.makeDeviceInstance(uid, path); // -> ClassModule
+        //const uid_intern = idDevice;
+        //var name = await this.createDeviceName(data.category, data.type);
+        //var name_normalized = await this.createDeviceName(data.category, data.type, true);
+        //const created_time = new Date();
+        //const last_edit_time = new Date();
+        this._uid = uid;
+        this._uid_intern = countAllDevices + 1;
+        this._name = await this.createDeviceName(idDevice);
+        this._name_normalized = await this.createDeviceName(idDevice, true);
+        this._created_time = new Date();
+        this._last_edit_time = new Date();
+        //const path = { ...model.toJSON(), uid, uid_intern, name, name_normalized, created_time, last_edit_time };
+        console.log("REEEF ID", this.constructor.makeDeviceInstance(uid, this.toJSON()));
+        await setDoc(newRef, this.toJSON());
+        return this.constructor.makeDeviceInstance(uid, this.toJSON()); // -> ClassModule
     }
     // Mettre à jour un module
-    static async update(id, patch = {}) {
+    async updateFirestore() {
         try {
-            const ref = this.docRef(id);
-            const data = { ...patch, last_edit_time: new Date() };
-            await updateDoc(ref, data, { merge: true });
-            //console.log("UPDATE COMPLETED")
-            return (await getDoc(ref)).data(); // -> ClassDevice
+            const ref = this.constructor.docRef(this._uid);
+            this._last_edit_time = new Date();
+            //const data = { ...patch, last_edit_time: new Date() };
+            await updateDoc(ref, this.toJSON(), { merge: true });
+            console.log("UPDATE COMPLETED", { ...this })
+            //return (await getDoc(ref)).data(); // -> ClassDevice
+            return this.constructor.makeDeviceInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
             console.log("ERRROR", e)
             return null;
         }
     }
     // Supprimer un device
-    async remove() {
+    async removeFirestore() {
         try {
             const ref = this.constructor.docRef(this._uid);
             await deleteDoc(ref);
@@ -854,7 +859,7 @@ export class ClassHardware extends ClassDevice {
         super({
             ...props,
             category: ClassDevice.CATEGORY.HARDWARE,
-            //type: ClassComputer.TYPE.UNKNOWN
+            type: props.type || ClassHardware.TYPE.UNKNOWN,
         }); // le parent lit seulement ses clés (uid, email, type, role, ...)
         this._os = props.os || ClassHardware.OS.UNKNOWN;
         this._os_version = props.os_version || "";
@@ -934,4 +939,11 @@ export class ClassHardware extends ClassDevice {
         return (true);
     }
 
+    static async count(constraints = []) {
+        const q = query(this.colRef(),where('category', '==',ClassHardware.CATEGORY.HARDWARE), ...constraints);        //const qSnap = await getDocs(q);
+        //const coll = collection(firestore, ClassUser.COLLECTION);
+        //const coll = this.colRef();
+        const snap = await getCountFromServer(q);
+        return snap.data().count; // -> nombre total
+    }
 }

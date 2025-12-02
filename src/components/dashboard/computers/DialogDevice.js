@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { ClassColor } from '@/classes/ClassColor';
-import { Alert, Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, IconButton, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Autocomplete, Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, IconButton, Snackbar, Stack, TextField, Typography } from '@mui/material';
 import { ClassHardware, ClassDevice } from '@/classes/ClassDevice';
 import { orderBy, where } from 'firebase/firestore';
 import SelectComponent from '@/components/elements/SelectComponent';
@@ -42,11 +42,12 @@ import DialogConfirmAction from '../elements/DialogConfirmAction';
 function SimpleAlert({ text = "", severity = 'error' }) {
   return (<Alert severity={severity}>{text}</Alert>);
 }
-function CreateComponent({device=null, setDevice = null, mode = '', setMode = null, rooms = [], updateList = null }) {
+function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, mode = '', setMode = null, rooms = [], updateList = null }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
   const errorsTranslate = t('errors', { returnObjects: true });
+  const successTranslate = t('success', { returnObjects: true });
   const { user } = useAuth();
   const { lang } = useLanguage();
   const [processing, setProcessing] = useState(false);
@@ -54,11 +55,11 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
   //const [rooms, setRooms] = useState([]);
   const [errors, setErrors] = useState({});
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const [success, setSuccess] = useState(false);
+  //const [success, setSuccess] = useState(false);
 
   const onChangeValue = (e) => {
     const { name, value, type } = e.target;
-    console.log(name, value);
+    // console.log(name, value);
     setErrors(prev => ({ ...prev, [name]: '' }))
     setDevice(prev => {
       if (!prev || prev === null) {
@@ -71,7 +72,7 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
   const onClear = (name) => {
     //const { name, value, type } = e.target;
     console.log(name);
-    
+
     setErrors(prev => ({ ...prev, [name]: '' }))
     setDevice(prev => {
       if (!prev || prev === null) {
@@ -82,7 +83,7 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
     });
   }
   const handleClose = () => {
-   // setDeviceNew(null);
+    // setDeviceNew(null);
     setDevice(null);
     setMode('');
     setErrors({});
@@ -129,20 +130,22 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
       }
       if (Object.keys(_errors).length > 0) {
         _errors.main = errorsTranslate.main || '';
+        setErrors(_errors);
       } else {
-       var newDevice = await ClassHardware.create(device.toJSON());
-        console.log("NEW DEVICE", newDevice)
-        
+        var newDevice = await device.createFirestore();
+        console.log("NEW DEVICE", newDevice);
         if (newDevice) {
           setSuccess(true);
+          setTextSuccess(successTranslate.create || '');
+          setErrors({});
           setDevice(newDevice);
           //setDeviceNew(newDevice);
           setMode('read');
           await updateList();
         }
-        
+
       }
-      setErrors(_errors);
+
     } catch (error) {
       console.log("ERROR", error)
       return;
@@ -155,11 +158,11 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
       <Stack direction={'row'} justifyContent={'space-between'}>
         <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
           {
-            ClassDevice.getIcon({ type: deviceNew?.type, size: 'small', status: deviceNew?.status, extra: true })
+            ClassDevice.getIcon({ type: device?.type, size: 'small', status: device?.status, extra: true })
           }
           <Stack>
-            <Typography variant='h4'>{deviceNew?.name || t('name')}</Typography>
-            <Typography variant='h5' color='greyLight'>{deviceNew?.type !== ClassDevice.TYPE.UNKNOWN ? t(deviceNew?.type) : t('type')}</Typography>
+            <Typography variant='h4'>{device?.name || t('name')}</Typography>
+            <Typography variant='h5' color='greyLight'>{device?.type !== ClassDevice.TYPE.UNKNOWN ? t(device?.type) : t('type')}</Typography>
           </Stack>
         </Stack>
         <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
@@ -180,7 +183,7 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
         <SelectComponentDark
           label={t('category')}
           name={'category'}
-          disabled={device?.uid_room===''}
+          disabled={device?.uid_room === ''}
           value={device?.category}
           values={ClassDevice.ALL_CATEGORIES.map(category => ({ id: category, value: t(category) }))}
           onChange={onChangeValue}
@@ -206,12 +209,12 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
           type='text'
           value={device?.brand || ''}
           onChange={onChangeValue}
-          onClear={()=>onClear('brand')}
+          onClear={() => onClear('brand')}
           required
           error={errors.brand}
         />
         {
-          deviceNew?.validCategory() && <Stack spacing={1}>
+          device?.validCategory() && <Stack spacing={1}>
             <SelectComponentDark
               label={t('os')}
               name={'os'}
@@ -226,11 +229,55 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
             <FieldComponent
               label={t('os_version')}
               name={'os_version'}
+              //disabled={!device?.validType()}
+              type='text'
+              value={device?.os_version || ''}
+              onChange={onChangeValue}
+              onClear={() => onClear('os_version')}
+              required
+              error={errors.os_version}
+            //autoComplete={['yes', 'no'].map(item=>({label:item}))}
+            />
+            <Autocomplete
+              onClick={() => alert('ok')}
+              disablePortal
+              value={device?.os_version || ''}
+              options={['yes', 'no']}
+              fullWidth
+      
+              onChange={(e, newValue) => {
+                console.log("YEWS okay onchnage", newValue)
+                onChangeValue({
+                  target:{
+                  name: 'os_version',
+                  value: newValue,
+                  type: 'text'
+                }
+                })
+                //    const { name, value, type } = e.target;
+              }}
+
+              size={'small'}
+              //dffd
+              renderInput={(params) => <TextField
+                {...params}
+                variant="outlined"
+                label={t('os_version')}
+                name={'os_version'}
+                type='text'
+                value={device?.os_version || ''}
+                onChange={onChangeValue}
+              //onClear={() => onClear('os_version')}
+              />}
+            />
+            <FieldComponent
+              label={t('os_version')}
+              name={'os_version'}
               disabled={!device?.validType()}
               type='text'
               value={device?.os_version || ''}
               onChange={onChangeValue}
-              onClear={()=>onClear('os_version')}
+              onClear={() => onClear('os_version')}
               required
               error={errors.os_version}
             />
@@ -252,7 +299,7 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
       {
         user instanceof ClassUserIntern && <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
           {
-            mode === 'create' && <Stack spacing={1.5} sx={{ width: '100%', background: '' }} direction={'row'} alignItems={'center'} justifyContent={errors.main ? 'space-between' : 'end'}>
+            <Stack spacing={1.5} sx={{ width: '100%', background: '' }} direction={'row'} alignItems={'center'} justifyContent={errors.main ? 'space-between' : 'end'}>
               {
                 errors.main && <Stack sx={{ background: '', width: '100%' }}>
                   <SimpleAlert text={errors.main} />
@@ -264,26 +311,10 @@ function CreateComponent({device=null, setDevice = null, mode = '', setMode = nu
         </Stack>
       }
     </DialogActions>
-    <Snackbar
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      open={success}
-      autoHideDuration={1500}
-      //onClose={handleCloseSnackbar}
-    //message="I love snacks"
-    //key={vertical + horizontal}
-    >
-      <Alert
-        //onClose={handleCloseSnackbar}
-        severity="success"
-        variant="filled"
-        sx={{ width: '100%' }}
-      >
-        {"Le matériel a été crée avec succès !"}
-      </Alert>
-    </Snackbar>
   </>)
 }
-function ReadComponent({ device = null, setDevice = null, setMode = null, updateList = null }) {
+function ReadComponent({ setSuccess = null, setTextSuccess = '',
+  device = null, setDevice = null, setMode = null, updateList = null }) {
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
   const { user } = useAuth();
   const { lang } = useLanguage();
@@ -291,6 +322,7 @@ function ReadComponent({ device = null, setDevice = null, setMode = null, update
   const { primary, cardColor, text, greyLight } = theme.palette;
   const [wantRemove, setWantRemove] = useState(false);
   const [removed, setRemoved] = useState(false);
+  const successTranslate = t('success', { returnObjects: true });
 
   const handleClose = () => {
     setDevice(null);
@@ -365,34 +397,34 @@ function ReadComponent({ device = null, setDevice = null, setMode = null, update
       open={wantRemove}
       actionCancel={() => setWantRemove(false)}
       actionConfirm={async () => {
-        const _removed = await device.remove();
+        const _removed = await device.removeFirestore();
         setRemoved(_removed);
         await updateList();
+        setSuccess(true);
+        setTextSuccess(successTranslate.remove)
         handleClose();
+
       }}
     //actionCancel={}
     />
   </>);
 }
-function UpdateComponent({ device = null, setDevice = null, mode = '', setMode = null, updateList = null }) {
+function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, mode = '', setMode = null, updateList = null }) {
   const { theme } = useThemeMode();
   const { greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
+  const successTranslate = t('success', { returnObjects: true });
   const { user } = useAuth();
   const [deviceEdit, setDeviceEdit] = useState(null);
   const [processing, setProcessing] = useState(false);
   useEffect(() => {
-    if (mode === 'edit') {
-      if (device) {
-        console.log("updates", ClassDevice.getTypesByCategory('hardware'))
-        setDeviceEdit(device.clone());
-      } else {
-        setDeviceEdit(null);
-      }
+    if (device) {
+      console.log("updates", ClassDevice.getTypesByCategory('hardware'))
+      setDeviceEdit(device.clone());
     } else {
       setDeviceEdit(null);
     }
-  }, [mode]);
+  }, [device]);
   const onChangeValue = (e) => {
     const { name, value, type } = e.target;
     console.log(name, value);
@@ -401,7 +433,7 @@ function UpdateComponent({ device = null, setDevice = null, mode = '', setMode =
         return prev;
       }
       prev.update({ [name]: type === 'date' ? new Date(value) : value });
-      console.log("WAAAA10", prev)
+      console.log("WAAAA10", prev.clone())
       return prev.clone();
     })
   }
@@ -410,20 +442,20 @@ function UpdateComponent({ device = null, setDevice = null, mode = '', setMode =
     setDeviceEdit(null);
     setMode('');
   };
-
   const handleSubmit = async () => {
     setProcessing(true);
     console.log("OOOOK", device.toJSON())
-    const newDevice = await ClassHardware.update(device.uid, deviceEdit.toJSON());
+    const newDevice = await deviceEdit.updateFirestore();
     if (newDevice) {
       setDevice(newDevice);
       setDeviceEdit(newDevice);
       setMode('read');
+      setSuccess(true);
+      setTextSuccess(successTranslate.edit)
       await updateList();
     }
     setProcessing(false);
   }
-
   return (<>
     <DialogTitle id="scroll-dialog-title">
       <Stack direction={'row'} justifyContent={'space-between'}>
@@ -518,7 +550,7 @@ function UpdateComponent({ device = null, setDevice = null, mode = '', setMode =
       {
         user instanceof ClassUserIntern && <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
-            <ButtonCancel disabled={processing} label={t('btn-cancel')} variant='contained' onClick={()=>setMode('read')} />
+            <ButtonCancel disabled={processing} label={t('btn-cancel')} variant='contained' onClick={() => setMode('read')} />
             {
               device && deviceEdit && !device.same(deviceEdit) && <ButtonConfirm loading={processing} label={t('btn-edit')} variant='contained'
                 onClick={handleSubmit} />
@@ -530,7 +562,7 @@ function UpdateComponent({ device = null, setDevice = null, mode = '', setMode =
   </>)
 }
 
-export default function DialogDevice({ device = null, setDevice = null, updateList = null, mode = 'read', setMode = null }) {
+export default function DialogDevice({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, updateList = null, mode = 'read', setMode = null }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const [rooms, setRooms] = useState([]);
@@ -607,13 +639,13 @@ export default function DialogDevice({ device = null, setDevice = null, updateLi
         }}
       >
         {
-          mode === 'create' && <CreateComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} rooms={rooms} updateList={updateList} />
+          mode === 'create' && <CreateComponent setTextSuccess={setTextSuccess} setSuccess={setSuccess} device={device} setDevice={setDevice} mode={mode} setMode={setMode} rooms={rooms} updateList={updateList} />
         }
         {
-          mode === 'read' && <ReadComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
+          mode === 'read' && <ReadComponent setTextSuccess={setTextSuccess} setSuccess={setSuccess} device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
         }
         {
-          mode === 'edit' && <UpdateComponent device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
+          mode === 'edit' && <UpdateComponent setTextSuccess={setTextSuccess} setSuccess={setSuccess} device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
         }
       </Dialog>
     </Stack>
