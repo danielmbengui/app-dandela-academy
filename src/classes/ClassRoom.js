@@ -23,6 +23,12 @@ export class ClassRoom {
         ALREADY_EXISTS: 'already-exists',
         UNKNOWN: 'unknown',
     });
+    static CATEGORY = Object.freeze({
+        HARDWARE: 'hardware',
+        FOOD_MATERIAL: 'food-material',
+        OTHER: 'other',
+        UNKNOWN: 'unknown',
+    });
     static TYPE = Object.freeze({
         ADMIN: 'admin-room',
         ROOM: 'room',
@@ -39,6 +45,7 @@ export class ClassRoom {
         name_normalized = "",
         photo_url = "",
         floor = "",
+        categories = [],
         enabled = false,
         created_time = new Date(),
         last_edit_time = new Date(),
@@ -51,6 +58,7 @@ export class ClassRoom {
         this._name_normalized = name_normalized;
         this._photo_url = photo_url;
         this._floor = floor;
+        this._categories = this._normalizeCategories(categories);
         this._enabled = Boolean(enabled);
 
         this._created_time = created_time instanceof Date
@@ -66,6 +74,19 @@ export class ClassRoom {
     // --- normalisation interne ---
     _touchLastEdit() {
         this._last_edit_time = new Date();
+    }
+    _normalizeCategory(category) {
+        return Object.values(ClassRoom.CATEGORY).includes(category)
+            ? category
+            : ClassRoom.CATEGORY.UNKNOWN;
+    }
+    _normalizeCategories(categories) {
+        const array = [];
+        for (let i = 0; i < categories.length; i++) {
+            const element = categories[i];
+            array.push(this._normalizeCategory(element));
+        }
+        return [...new Set(array)].filter(item=>item!==ClassRoom.CATEGORY.UNKNOWN);
     }
 
     // --- GETTERS ---
@@ -94,6 +115,9 @@ export class ClassRoom {
 
     get floor() {
         return this._floor;
+    }
+    get categories() {
+        return this._categories;
     }
 
     get enabled() {
@@ -144,6 +168,10 @@ export class ClassRoom {
         this._floor = value;
         this._touchLastEdit();
     }
+    set categories(value) {
+        this._categories = value;
+        this._touchLastEdit();
+    }
 
     set enabled(value) {
         this._enabled = Boolean(value);
@@ -176,7 +204,7 @@ export class ClassRoom {
         }
     }
     clone() {
-        return ClassRoom.makeUserInstance(this._uid, this.toJSON());
+        return ClassRoom.makeRoomInstance(this._uid, this.toJSON());
     }
 
     // ---------- VALIDATIONS ----------
@@ -204,7 +232,7 @@ export class ClassRoom {
         if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
         return null;
     }
-    static makeUserInstance(uid, data = {}) {
+    static makeRoomInstance(uid, data = {}) {
         return new ClassRoom({ uid, ...data });
     }
     static get converter() {
@@ -218,7 +246,7 @@ export class ClassRoom {
                 const data = snapshot.data(options) || {};
                 var _created_time = ClassRoom._toJsDate(data.created_time);
                 var _last_edit_time = ClassRoom._toJsDate(data.last_edit_time);
-                return ClassRoom.makeUserInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time });
+                return ClassRoom.makeRoomInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time });
             },
         };
     }
@@ -249,10 +277,11 @@ export class ClassRoom {
         return doc(firestore, this.COLLECTION, id).withConverter(this.converter);
     }
 
-    static async count() {
+    static async count(constraints = []) {
+        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
         //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const snap = await getCountFromServer(coll);
+        //const coll = this.colRef();
+        const snap = await getCountFromServer(q);
         return snap.data().count; // -> nombre total
     }
     /*
@@ -322,27 +351,31 @@ export class ClassRoom {
         const qSnap = await getDocs(q);
         return qSnap.docs.map(item => item.data());
     }
-
     // Créer un user (avec option timestamps serveur)
-    static async create(data = {}) {
-        const newRef = doc(this.colRef()); // id auto
-        //data.uid = newRef.id;
-        const model = data instanceof ClassRoom ? data : new ClassRoom({ ...data });
-        //model.uid = newRef.id;()
-        //console.log("REEEF ID", newRef, model.toJSON());
-        const countRoom = await ClassRoom.count() || 0;
-        const idRoom = countRoom + 1;
-        const uid = newRef.id;
-        const uid_intern = idRoom;
-        const created_time = model.created_time;
-        const last_edit_time = new Date();
-        const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
-        await setDoc(newRef, path);
-        return new ClassRoom(path); // -> ClassModule
+    createRoomName(idRoom = '', isNormalized = false) {
+        var prefix = isNormalized ? "room" : "ROOM";
+        
+        return `${prefix}-${(idRoom).toString().padStart(2, '0')}`;;
+    }
+    // Créer un user (avec option timestamps serveur)
+    async createFirestore() {
+        const newRef = doc(this.constructor.colRef()); // id auto
+        const count = await this.constructor.count() || 0;
+        //const countRoom = await ClassRoom.count() || 0;
+        const idRoom = count + 1;
+        this._uid = newRef.id;
+        this._uid_intern = idRoom;
+        this._name = this.createRoomName(idRoom);
+        this._name_normalized = this.createRoomName(idRoom, true);
+        //this._enabled = true;
+        this._created_time = new Date();
+        this._last_edit_time = new Date();
+        await setDoc(newRef, this.toJSON());
+        return this.constructor.makeRoomInstance(this._uid, this.toJSON()); // -> ClassModule
     }
 
     // Mettre à jour un module
-    static async update(id, patch = {}) {
+    static async updateFirestore(id, patch = {}) {
         try {
             const ref = ClassRoom.docRef(id);
             const data = { ...patch, last_edit_time: new Date() };

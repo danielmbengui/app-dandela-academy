@@ -12,7 +12,7 @@
   "tv": "Televisão",
   "watch": "Relógio",
   "hardware": "Equipamento informático",
-  "food": "Material de cozinha",
+  "food": "Equipamento de cozinha",
   "other": "Outro",
   "windows": "Windows",
   "macos": "macOS",
@@ -38,6 +38,7 @@
   "created_time": "Data de criação",
   "last_edit_time": "Última atualização",
   "infos": "Informações",
+  "not-found": "Nenhum dispositivo corresponde a estes critérios.",
   "btn-create": "Criar",
   "btn-edit": "Editar",
   "btn-cancel": "Cancelar",
@@ -51,6 +52,12 @@
     "os_version": "Insere uma versão válida (entre {{min}} e {{max}} caracteres)",
     "buy_time": "Seleciona uma data de compra",
     "status": "Seleciona um estado",
-    "main": "Corrige os erros antes de continuar"
+    "main": "Corrige os erros antes de continuar",
+    "actions": "Ocorreu um erro, tenta novamente!"
+  },
+  "success": {
+    "create": "O dispositivo foi adicionado com sucesso!",
+    "edit": "O dispositivo foi modificado com sucesso!",
+    "remove": "O dispositivo foi removido com sucesso!"
   }
 }

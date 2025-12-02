@@ -38,6 +38,7 @@
   "created_time": "Creation date",
   "last_edit_time": "Last update",
   "infos": "Information",
+  "not-found": "No device matches these criteria.",
   "btn-create": "Create",
   "btn-edit": "Edit",
   "btn-cancel": "Cancel",
@@ -51,6 +52,12 @@
     "os_version": "Enter a valid version (between {{min}} and {{max}} characters)",
     "buy_time": "Select a purchase date",
     "status": "Select a status",
-    "main": "Fix the errors before continuing"
+    "main": "Fix the errors before continuing",
+    "actions": "An error occurred, please try again!"
+  },
+  "success": {
+    "create": "The device has been successfully added!",
+    "edit": "The device has been successfully updated!",
+    "remove": "The device has been successfully removed!"
   }
 }

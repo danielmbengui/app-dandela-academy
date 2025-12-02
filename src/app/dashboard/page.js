@@ -1498,8 +1498,6 @@ const mockUser = {
   lastName: "Mbengui",
   role: "student", // "student" | "teacher" | "admin"
 };
-
-
 const initialTeacher = {
   firstName: "Ana",
   lastName: "Silva",
@@ -3142,33 +3140,37 @@ export default function DashboardHome() {
           address: "Zango III, Luanda, Angola",
           enabled: true
         });
-        const room_admin = await ClassRoom.create({
+        const room = new ClassRoom({
           // uid : "",
           //uid_intern : "",
           uid_school: school.uid,
           name: "Admin room",
           name_normalized: "admin_room",
           //photo_url:"",
-          os: ClassHardware.OS.MACOS,
+          //os: ClassHardware.OS.MACOS,
+          categories: [ClassRoom.CATEGORY.HARDWARE],
           floor: 1,
           enabled: true
         });
-        const room = await ClassRoom.create({
+        const room_1 = new ClassRoom({
           // uid : "",
           //uid_intern : "",
           uid_school: school.uid,
-          name: "Root room",
-          name_normalized: "root_room",
+          //name: "Root room",
+          //name_normalized: "root_room",
+          categories: [ClassRoom.CATEGORY.HARDWARE],
           //photo_url:"",
           floor: 1,
           enabled: true
         });
+        await room.createFirestore();
+        await room_1.createFirestore();
         for (let i = 0; i < 2; i++) {
           //const countComputers = await ClassComputer.count() || 0;
-          const computerClass = new ClassHardware({
+          const computer = new ClassHardware({
             //uid: "",
             //uid_intern: "1",
-            uid_room: room_admin.uid,
+            uid_room: room.uid,
             brand: 'iMac 2017',
             //name: `PC-${sizeId.toString().padStart(2, '0')}`,
             //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
@@ -3182,14 +3184,14 @@ export default function DashboardHome() {
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
           });
-          await computerClass.createFirestore();
+          await computer.createFirestore();
         }
         for (let i = 0; i < 25; i++) {
           //const countComputers = await ClassComputer.count() || 0;
-          const computerClass = new ClassHardware({
+          const computer = new ClassHardware({
             //uid: "",
             //uid_intern: "1",
-            uid_room: room.uid,
+            uid_room: room_1.uid,
             brand: 'HP i7',
             //name: `PC-${sizeId.toString().padStart(2, '0')}`,
             //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
@@ -3203,9 +3205,8 @@ export default function DashboardHome() {
               { status: 'created', description: 'created_description', created_time: new Date() }
             ],
           });
-          await computerClass.createFirestore();
+          await computer.createFirestore();
         }
-
         //await ClassComputer.create(computer);
         setProcessing(false);
       }}

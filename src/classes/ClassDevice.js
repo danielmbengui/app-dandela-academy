@@ -151,7 +151,7 @@ export class ClassDevice {
             ? last_edit_time
             : null;
 
-        this._updates = Array.isArray(updates) ? updates.slice() : [];
+        this._updates = Array.isArray(updates) ? this._normalizeUpdates(updates).slice() : [];
     }
     static allStatusToObject() {
         return ClassDevice.ALL_STATUS.map((item) => ({ uid: item, name: item }))
@@ -168,7 +168,6 @@ export class ClassDevice {
             : ClassDevice.STATUS.UNKNOWN;
     }
 
-
     _normalizeCategory(category) {
         return Object.values(ClassDevice.CATEGORY).includes(category)
             ? category
@@ -176,6 +175,18 @@ export class ClassDevice {
     }
     _normalizeType(type = "") {
         return ClassDevice.TYPE.UNKNOWN;
+    }
+    _normalizeUpdates(updates = []) {
+        const _updates = [];
+        for (let i = 0; i < updates.length; i++) {
+            const element = updates[i];
+            if(element instanceof ClassUpdate) {
+                _updates.push(element);
+            } else {
+                _updates.push(new ClassUpdate(element));
+            }
+        }
+        return _updates;
     }
     // --- GETTERS ---
 
@@ -310,7 +321,7 @@ export class ClassDevice {
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
-        console.log("OUUUT", out)
+        //console.log("OUUUT", out)
         const cleaned = Object.fromEntries(
             Object.entries(out)
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
@@ -516,7 +527,7 @@ export class ClassDevice {
                 // chaque classe a un .toJSON() propre
                 var updates = [];
                 if (deviceInstance?.updates?.length > 0) {
-                    updates = deviceInstance.updates.map(device => device.toJSON());
+                    updates = deviceInstance.updates.map(update => update?.toJSON ? update.toJSON() : update);
                 }
                 return deviceInstance?.toJSON ? { ...deviceInstance.toJSON(), updates } : deviceInstance;
             },
@@ -663,7 +674,7 @@ export class ClassDevice {
         //model.uid = newRef.id;()
         const countAllDevices = await this.constructor.count() || 0;
         const countTypeDevices = await this.constructor.count([where('type', '==', this._type)]) || 0;
-        console.log("log device count", countTypeDevices, countAllDevices)
+        //console.log("log device count", countTypeDevices, countAllDevices)
         const idDevice = countTypeDevices + 1;
         const uid = newRef.id;
         //const uid_intern = idDevice;
@@ -678,7 +689,7 @@ export class ClassDevice {
         this._created_time = new Date();
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, name, name_normalized, created_time, last_edit_time };
-        console.log("REEEF ID", this.constructor.makeDeviceInstance(uid, this.toJSON()));
+        //console.log("REEEF ID", this.constructor.makeDeviceInstance(uid, this.toJSON()));
         await setDoc(newRef, this.toJSON());
         return this.constructor.makeDeviceInstance(uid, this.toJSON()); // -> ClassModule
     }
@@ -940,7 +951,7 @@ export class ClassHardware extends ClassDevice {
     }
 
     static async count(constraints = []) {
-        const q = query(this.colRef(),where('category', '==',ClassHardware.CATEGORY.HARDWARE), ...constraints);        //const qSnap = await getDocs(q);
+        const q = query(this.colRef(), where('category', '==', ClassHardware.CATEGORY.HARDWARE), ...constraints);        //const qSnap = await getDocs(q);
         //const coll = collection(firestore, ClassUser.COLLECTION);
         //const coll = this.colRef();
         const snap = await getCountFromServer(q);

@@ -38,6 +38,7 @@
     "created_time": "Date de création",
     "last_edit_time": "Dernière mise à jour",
     "infos": "Informations",
+    "not-found": "Aucun périphérique ne correspond à ces critères.",
     "btn-create": "Créer",
     "btn-edit": "Modifier",
     "btn-cancel": "Annuler",
@@ -51,12 +52,12 @@
         "os_version": "Entre une version valide (entre {{min}} et {{max}} caractères)",
         "buy_time": "Selectionne une date d'achat",
         "status": "Sélectionne un statut",
-        "main":"Corrigez les erreurs avant de continuer",
-        "actions":"Une erreur est survenue, ressaie !"
+        "main": "Corrigez les erreurs avant de continuer",
+        "actions": "Une erreur est survenue, ressaie !"
     },
-    "success":{
-        "create":"Le périphérique a été ajouté avec succès !",
-        "edit":"Le périphérique a été modifié avec succès !",
-        "remove":"Le périphérique a été supprimé avec succès !"
+    "success": {
+        "create": "Le périphérique a été ajouté avec succès !",
+        "edit": "Le périphérique a été modifié avec succès !",
+        "remove": "Le périphérique a été supprimé avec succès !"
     }
 }

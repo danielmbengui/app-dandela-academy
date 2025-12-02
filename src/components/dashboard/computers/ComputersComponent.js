@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { ClassColor } from '@/classes/ClassColor';
-import { Alert, Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, Slide, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Backdrop, Box, Button, Chip, CircularProgress, Container, Divider, Grid, IconButton, Slide, Snackbar, Stack, Typography } from '@mui/material';
 import { ClassHardware, ClassDevice } from '@/classes/ClassDevice';
 import { orderBy, where } from 'firebase/firestore';
 import SelectComponent from '@/components/elements/SelectComponent';
@@ -21,7 +21,7 @@ import { ClassUserAdmin, ClassUserIntern, ClassUserSuperAdmin } from '@/classes/
 import TextFieldComponent from '@/components/elements/TextFieldComponent';
 import DialogDevice from './DialogDevice';
 import ButtonConfirm from '../elements/ButtonConfirm';
-
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 const TypographyComponent = ({ title = "", value = "" }) => {
   return (<Stack direction={'row'} spacing={1.5} justifyContent={'space-between'} sx={{ background: '' }}>
     <Typography fontWeight={'bold'}>{title}</Typography>
@@ -78,11 +78,13 @@ export default function ComputersComponent() {
   const { text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION, NS_DASHBOARD_COMPUTERS, NS_BUTTONS]);
   const [computers] = useState(initialComputers);
-  const [filter, setFilter] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [selected, setSelected] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   const [success, setSuccess] = useState(false);
   const [textSuccess, setTextSuccess] = useState(false);
@@ -104,7 +106,7 @@ export default function ComputersComponent() {
 
     // valeur initiale
     //setTheme(mq.matches ? 'dark' : 'light');
-console.log("WAAAA", mq)
+    console.log("WAAAA", mq)
     // écoute les changements
     mq.addEventListener('change', updateTheme);
 
@@ -112,7 +114,7 @@ console.log("WAAAA", mq)
   }, []);
   useEffect(() => {
     async function initComputers() {
-      const ok = await ClassHardware.count([where('type', '==','ok')]);
+      const ok = await ClassHardware.count([where('type', '==', 'ok')]);
       console.log("NB", ok)
       const _schools = await ClassSchool.fetchListFromFirestore([
         //where("school_uid", "==", schoolUid),
@@ -122,28 +124,30 @@ console.log("WAAAA", mq)
       //console.log("SCHHOLlist", _schools)
 
       setSchools(_schools);
-      const _school = _schools[0];
-      setSchool(_school);
-      const _rooms = await ClassRoom.fetchListFromFirestore([
-        where("uid_school", "==", _school.uid),
-        orderBy("uid_intern"),
-        //limit(25),
-      ]);
-      // console.log("ROOMS list", _rooms)
-      setRooms(_rooms);
-      const _room = _rooms[0];
-      setRoom(_room);
-      const _computers = await ClassHardware.fetchListFromFirestore([
-        //where("uid_room", "==", _room.uid),
-        //where("status", "==", filter),
-        orderBy("uid_intern"),
-        //limit(25),
-      ]);
-      //console.log("computer list", _rooms)
-      //console.log("computer index", _computers);
+      if (_schools.length > 0) {
+        const _school = _schools[0];
+        setSchool(_school);
+        const _rooms = await ClassRoom.fetchListFromFirestore([
+          where("uid_school", "==", _school.uid),
+          orderBy("uid_intern"),
+          //limit(25),
+        ]);
+        // console.log("ROOMS list", _rooms)
+        setRooms(_rooms);
+        const _room = _rooms[0];
+        setRoom(_room);
+        const _computers = await ClassHardware.fetchListFromFirestore([
+          //where("uid_room", "==", _room.uid),
+          //where("status", "==", filter),
+          orderBy("uid_intern"),
+          //limit(25),
+        ]);
+        //console.log("computer list", _rooms)
+        //console.log("computer index", _computers);
 
-      setAllComputers(_computers);
-      setComputersBis(_computers.filter(item => item.uid_room === _room.uid));
+        setAllComputers(_computers);
+        setComputersBis(_computers.filter(item => item.uid_room === _room.uid));
+      }
     }
     initComputers();
   }, []);
@@ -153,14 +157,23 @@ console.log("WAAAA", mq)
     if (room) {
       _computers = _computers.filter(item => item.uid_room === room.uid);
     }
-    if (filter !== 'all') {
-      _computers = _computers.filter(item => item.status === filter);
+    if (filterStatus !== 'all') {
+      _computers = _computers.filter(item => item.status === filterStatus);
+    }
+    if (filterType !== 'all') {
+      _computers = _computers.filter(item => item.type === filterType);
     }
     //console.log('EVENT filter', _computers);
     setComputersBis(_computers);
-  }, [filter]);
+  }, [filterStatus, filterType]);
 
-  const onChangeRoom = async (e) => {
+  const onChangeSchool = (e) => {
+    const { value } = e.target;
+    const uidSchool = value;
+    const _rooms = [];
+  }
+
+  const onChangeRoom = (e) => {
     const { value } = e.target;
     const uidRoom = value;
     var _computers = [...allComputers];
@@ -173,8 +186,8 @@ console.log("WAAAA", mq)
     } else {
       setRoom(null);
     }
-    if (filter !== 'all') {
-      _computers = _computers.filter(item => item.status === filter);
+    if (filterStatus !== 'all') {
+      _computers = _computers.filter(item => item.status === filterStatus);
     }
     //console.log('EVENT', _computers);
     setComputersBis(_computers);
@@ -194,8 +207,11 @@ console.log("WAAAA", mq)
     if (room) {
       _computers = _computers.filter(item => item.uid_room === room.uid);
     }
-    if (filter !== 'all') {
-      _computers = _computers.filter(item => item.status === filter);
+    if (filterStatus !== 'all') {
+      _computers = _computers.filter(item => item.status === filterStatus);
+    }
+    if (filterType !== 'all') {
+      _computers = _computers.filter(item => item.type === filterType);
     }
     //console.log('EVENT filter', _computers);
     setComputersBis(_computers);
@@ -255,7 +271,7 @@ console.log("WAAAA", mq)
     all: {
       label: "Tous",
       badgeBg: "transparent",
-      badgeBorder: ClassColor.WHITE,
+      badgeBorder: "var(--font-color)",
       badgeText: "#e5e7eb",
       glow: "#6b728055",
     },
@@ -429,7 +445,6 @@ console.log("WAAAA", mq)
       return;
     }
   };
-
   const handleCardClick = (pc) => {
     setSelected(pc);
     setSelectedDevice(pc);
@@ -439,7 +454,7 @@ console.log("WAAAA", mq)
   };
 
   return (
-    <Stack ref={componentRef} sx={{width:'100%', height:'100%'}}>
+    <Stack ref={componentRef} sx={{ width: '100%', height: '100%' }}>
       <DialogDevice
         updateList={updateComputersStatus}
         device={selectedDevice}
@@ -456,7 +471,20 @@ console.log("WAAAA", mq)
         <Stack spacing={1}>
           <Stack alignItems={'start'} sx={{ background: '' }}>
             <Grid spacing={1} container>
-              <Grid size={{ xs: 'grow', sm: 'auto' }}>
+              {
+                schools.length > 0 && <Grid size={{ xs: 12, sm: 'auto' }}>
+                  <SelectComponentDark
+                    label={t('school', { ns: NS_DASHBOARD_COMPUTERS })}
+                    value={school?.uid || ''}
+                    values={schools.map(item => ({ id: item.uid, value: item.name }))}
+                    onChange={onChangeRoom}
+                    hasNull={false}
+                    disabled={schools.length === 1}
+                  />
+                </Grid>
+              }
+              {
+                rooms.length > 0 && <Grid size={{ xs: 12, sm: 'auto' }}>
                 <SelectComponentDark
                   label={t('room', { ns: NS_DASHBOARD_COMPUTERS })}
                   value={room?.uid || ''}
@@ -465,33 +493,82 @@ console.log("WAAAA", mq)
                   hasNull={false}
                 />
               </Grid>
-              <Grid size={{ xs: 'grow', sm: 'auto' }}>
-
+              }
+              <Grid size={{ xs: 12, sm: 'auto' }} sx={{display:schools.length>0 && rooms.length>0 ? 'block' : 'none'}}>
+                <SelectComponentDark
+                  label={t('type')}
+                  value={filterType}
+                  values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassHardware.ALL_TYPES.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  hasNull={false}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 'auto' }} sx={{display:schools.length>0 && rooms.length>0 ? 'block' : 'none'}}>
                 <SelectComponentDark
                   label={t('status', { ns: NS_DASHBOARD_COMPUTERS })}
-                  value={filter}
+                  value={filterStatus}
                   values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassDevice.ALL_STATUS.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
-                  onChange={(e) => setFilter(e.target.value)}
+                  onChange={(e) => setFilterStatus(e.target.value)}
                   hasNull={false}
                 />
               </Grid>
             </Grid>
 
           </Stack>
+          <Stack sx={{ width: { xs: '100%', sm: '40%' } }}>
+            {
+              schools.length === 0 && <Alert
+                severity="warning"
+                action={
+                  <Button variant={'contained'} color="warning" size="small">
+                    {'Créer'}
+                  </Button>
+                }
+              >
+                {"Il n'y a pas d'école disponible, veuillez en créer une."}
+              </Alert>
+            }
+            {
+              rooms.length === 0 && <Alert
+                severity="warning"
+                action={
+                  <Button variant={'contained'} color="warning" size="small">
+                    {'Créer'}
+                  </Button>
+                }
+              >
+                {"Il n'y a pas de salles disponibles, veuillez en créer une."}
+              </Alert>
+            }
+          </Stack>
         </Stack>
-        <Stack alignItems={'start'}>
-          {
-            user instanceof ClassUserIntern && <ButtonConfirm
-              label={t('new', { ns: NS_BUTTONS })}
+        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+          <Typography><b>{'Total : '}</b>{computersBis.length}</Typography>
+          <Stack direction={'row'} alignItems={'center'}>
+            <IconButton loading={refresh}
               onClick={async () => {
-                setMode('create');
-                //setIsOpen(true);
-                setSelectedDevice(new ClassHardware({uid_room:room.uid,status:ClassDevice.STATUS.AVAILABLE}));
-                //setSuccess(true);
-                //handleCardClick(new ClassDevice());
+                setRefresh(true);
+                await updateComputersStatus();
+                setRefresh(false);
               }}
-            />
-          }
+              color="primary" aria-label="add to shopping cart" size='small'>
+              <RestartAltIcon />
+            </IconButton>
+            {
+              user instanceof ClassUserIntern && <ButtonConfirm
+                label={t('new', { ns: NS_BUTTONS })}
+                loading={selectedDevice}
+                onClick={async () => {
+                  setMode('create');
+                  //setIsOpen(true);
+                  setSelectedDevice(new ClassHardware({ uid_room: room.uid, status: ClassDevice.STATUS.AVAILABLE }));
+                  //setSuccess(true);
+                  //handleCardClick(new ClassDevice());
+                }}
+              />
+            }
+          </Stack>
+
         </Stack>
         <Stack
           spacing={1}
@@ -504,7 +581,7 @@ console.log("WAAAA", mq)
             //boxShadow: '0 18px 45px rgba(0, 0, 0, 0.4)',
           }}>
           <Stack spacing={1} direction={'row'} sx={{ background: '', width: '100%' }} className='legend'>
-            {filter === 'all' ? <>
+            {filterStatus === 'all' ? <>
               <Box sx={{ display: { md: 'none' } }}>
                 <LegendItem status="all" value={computersBis.length} />
               </Box>
@@ -517,23 +594,28 @@ console.log("WAAAA", mq)
               </Stack>
             </> : <>
               {
-                (filter === 'available') && <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
+                (filterStatus === 'available') && <LegendItem status="available" value={computersBis.filter((c) => c.status === "available").length} />
               }
               {
-                (filter === 'busy') && <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
+                (filterStatus === 'busy') && <LegendItem status="busy" value={computersBis.filter((c) => c.status === "busy").length} />
               }
               {
-                (filter === 'maintenance') && <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
+                (filterStatus === 'maintenance') && <LegendItem status="maintenance" value={computersBis.filter((c) => c.status === "maintenance").length} />
               }
               {
-                (filter === 'reparation') && <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
+                (filterStatus === 'reparation') && <LegendItem status="reparation" value={computersBis.filter((c) => c.status === "reparation").length} />
               }
               {
-                (filter === 'hs') && <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
+                (filterStatus === 'hs') && <LegendItem status="hs" value={computersBis.filter((c) => c.status === "hs").length} />
               }
             </>}
           </Stack>
-          <Grid container sx={{ width: '100%', background: '' }} justifyContent={'stretch'} spacing={0.5}>
+          <Grid container sx={{ width: '100%', background: '' }} justifyContent={computersBis.length === 0 ? 'center' : 'stretch'} spacing={0.5}>
+            {computersBis.length === 0 && (
+              <div className="empty-state">
+                {t('not-found', { ns: ClassDevice.NS_COLLECTION })}
+              </div>
+            )}
             {computersBis.map((pc, i) => (
               <Grid key={`${pc.uid}-${i}`} size={{ xs: 6, sm: 'auto' }} justifyItems={'stretch'}>
                 <ComputerCard
@@ -541,17 +623,6 @@ console.log("WAAAA", mq)
                   isSelected={selectedDevice?.uid === pc.uid}
                   onClick={() => handleCardClick(pc)}
                 />
-                <div style={{ display: 'none' }}>
-                  <DeviceCard
-                    //key={d.uid}
-                    device={pc}
-                    onClick={() => console.log("open details", d.uid)}
-                    onEdit={(dev) => console.log("edit", dev.uid)}
-                    onToggleEnabled={(dev) =>
-                      console.log("toggle enabled", dev.uid, dev.enabled)
-                    }
-                  />
-                </div>
               </Grid>
 
             ))}
@@ -559,23 +630,23 @@ console.log("WAAAA", mq)
         </Stack>
       </Stack>
       <Snackbar
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          open={success}
-          autoHideDuration={1500}
-          onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        open={success}
+        autoHideDuration={1500}
+        onClose={handleCloseSnackbar}
         slots={{ transition: SlideTransition }}
-        //message="I love snacks"
-        //key={vertical + horizontal}
+      //message="I love snacks"
+      //key={vertical + horizontal}
+      >
+        <Alert
+          //onClose={handleCloseSnackbar}
+          severity="success"
+          variant="filled"
+          sx={{ width: '100%' }}
         >
-          <Alert
-            //onClose={handleCloseSnackbar}
-            severity="success"
-            variant="filled"
-            sx={{ width: '100%' }}
-          >
-            {textSuccess}
-          </Alert>
-        </Snackbar>
+          {textSuccess}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 }
