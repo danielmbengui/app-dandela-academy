@@ -22,21 +22,9 @@ import TextFieldComponent from '@/components/elements/TextFieldComponent';
 import DialogDevice from './DialogDevice';
 import ButtonConfirm from '../elements/ButtonConfirm';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-const TypographyComponent = ({ title = "", value = "" }) => {
-  return (<Stack direction={'row'} spacing={1.5} justifyContent={'space-between'} sx={{ background: '' }}>
-    <Typography fontWeight={'bold'}>{title}</Typography>
-    <Typography noWrap sx={{ lineHeight: 1.15 }}>{value}</Typography>
-  </Stack>)
-}
-const FieldComponent = ({ title = "", value = "", setValue }) => {
-  return (<Stack direction={'row'} spacing={1.5} justifyContent={'space-between'} sx={{ background: '' }}>
-    <Typography fontWeight={'bold'}>{title}</Typography>
-    <TextFieldComponent />
-    <Typography noWrap sx={{ lineHeight: 1.15 }}>{value}</Typography>
-  </Stack>)
-}
-
-
+import { useSchool } from '@/contexts/SchoolProvider';
+import { useRoom } from '@/contexts/RoomProvider';
+import DialogSchool from './DialogSchool';
 
 
 // Liste mock des 25 ordinateurs
@@ -77,7 +65,6 @@ export default function ComputersComponent() {
   const { theme } = useThemeMode();
   const { text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION, NS_DASHBOARD_COMPUTERS, NS_BUTTONS]);
-  const [computers] = useState(initialComputers);
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selected, setSelected] = useState(null);
@@ -88,109 +75,71 @@ export default function ComputersComponent() {
 
   const [success, setSuccess] = useState(false);
   const [textSuccess, setTextSuccess] = useState(false);
-  const [schools, setSchools] = useState([]);
-  const [school, setSchool] = useState({});
-  const [rooms, setRooms] = useState([]);
-  const [room, setRoom] = useState(null);
+  //const [schools, setSchools] = useState([]);
+  //const [school, setSchool] = useState({});
+  //const [rooms, setRooms] = useState([]);
+  //const [room, setRoom] = useState(null);
   const [allComputers, setAllComputers] = useState([]);
   const [computersBis, setComputersBis] = useState([]);
   const [mode, setMode] = useState('');
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const mq = window.matchMedia('(prefers-color-scheme: light)');
-
-    const updateTheme = (e) => {
-      //setTheme(e.matches ? 'dark' : 'light');
-    };
-
-    // valeur initiale
-    //setTheme(mq.matches ? 'dark' : 'light');
-    console.log("WAAAA", mq)
-    // écoute les changements
-    mq.addEventListener('change', updateTheme);
-
-    return () => mq.removeEventListener('change', updateTheme);
-  }, []);
-  useEffect(() => {
-    async function initComputers() {
-      const ok = await ClassHardware.count([where('type', '==', 'ok')]);
-      console.log("NB", ok)
-      const _schools = await ClassSchool.fetchListFromFirestore([
-        //where("school_uid", "==", schoolUid),
-        orderBy("name"),
-        //limit(25),
-      ]);
-      //console.log("SCHHOLlist", _schools)
-
-      setSchools(_schools);
-      if (_schools.length > 0) {
-        const _school = _schools[0];
-        setSchool(_school);
-        const _rooms = await ClassRoom.fetchListFromFirestore([
-          where("uid_school", "==", _school.uid),
-          orderBy("uid_intern"),
-          //limit(25),
-        ]);
-        // console.log("ROOMS list", _rooms)
-        setRooms(_rooms);
-        const _room = _rooms[0];
-        setRoom(_room);
-        const _computers = await ClassHardware.fetchListFromFirestore([
-          //where("uid_room", "==", _room.uid),
-          //where("status", "==", filter),
-          orderBy("uid_intern"),
-          //limit(25),
-        ]);
-        //console.log("computer list", _rooms)
-        //console.log("computer index", _computers);
-
-        setAllComputers(_computers);
-        setComputersBis(_computers.filter(item => item.uid_room === _room.uid));
-      }
-    }
-    initComputers();
-  }, []);
+  const { schools,school,isLoading:isLoadingSchool } = useSchool();
+  const { rooms, room, changeRoom, getOneRoom, getOneRoomName,
+    filterTypeComputers,
+    setFilterTypeComputers,
+    filterStatusComputers,
+    setFilterStatusComputers,
+    computers,
+    updateComputersList,
+  isLoading:isLoadingRoom } = useRoom();
 
   useEffect(() => {
-    var _computers = [...allComputers];
+    console.log("One room", getOneRoom("MsIyd1hZKq8l8ayzFS88"));
+    var _computers = [...computers];
+    /*
     if (room) {
       _computers = _computers.filter(item => item.uid_room === room.uid);
     }
     if (filterStatus !== 'all') {
       _computers = _computers.filter(item => item.status === filterStatus);
     }
+    
+    
     if (filterType !== 'all') {
       _computers = _computers.filter(item => item.type === filterType);
     }
+    */
     //console.log('EVENT filter', _computers);
     setComputersBis(_computers);
-  }, [filterStatus, filterType]);
-
+  }, [filterStatus, filterType, computers]);
+useEffect(()=>{
+console.log("is loading sschool", schools)
+}, [isLoadingSchool])
   const onChangeSchool = (e) => {
     const { value } = e.target;
     const uidSchool = value;
     const _rooms = [];
   }
 
-  const onChangeRoom = (e) => {
+  const onChangeRoom = async (e) => {
     const { value } = e.target;
     const uidRoom = value;
-    var _computers = [...allComputers];
+    await changeRoom(uidRoom);
+    var _computers = [...computers];
+    console.log("computers change", _computers)
     if (uidRoom !== 'all') {
       const indexRoom = ClassRoom.indexOf(rooms, uidRoom);
       const _room = rooms[indexRoom];
-
-      setRoom(_room);
+      //setRoom(_room);
       _computers = _computers.filter(item => item.uid_room === uidRoom);
     } else {
-      setRoom(null);
+      //setRoom(null);
     }
     if (filterStatus !== 'all') {
       _computers = _computers.filter(item => item.status === filterStatus);
     }
     //console.log('EVENT', _computers);
     setComputersBis(_computers);
+
   }
 
   const updateComputersStatus = async () => {
@@ -352,6 +301,7 @@ export default function ComputersComponent() {
         </div>
         <p className="pc-name">{computer.name}</p>
         <StatusBadge status={computer.status} />
+        <p className="pc-id">{getOneRoomName(computer?.uid_room) || ''}</p>
         <p className="pc-id">#{computer?.id?.toString().padStart(2, "0") || computer.uid_intern || ''}</p>
 
         <style jsx>{`
@@ -453,10 +403,14 @@ export default function ComputersComponent() {
     console.log("DEVICE", pc)
   };
 
+  if(isLoadingSchool || isLoadingRoom) {
+    return(<CircularProgress />)
+  }
+
   return (
     <Stack ref={componentRef} sx={{ width: '100%', height: '100%' }}>
       <DialogDevice
-        updateList={updateComputersStatus}
+        updateList={updateComputersList}
         device={selectedDevice}
         setDevice={setSelectedDevice}
         mode={mode}
@@ -485,37 +439,39 @@ export default function ComputersComponent() {
               }
               {
                 rooms.length > 0 && <Grid size={{ xs: 12, sm: 'auto' }}>
-                <SelectComponentDark
-                  label={t('room', { ns: NS_DASHBOARD_COMPUTERS })}
-                  value={room?.uid || ''}
-                  values={rooms.map(item => ({ id: item.uid, value: item.name }))}
-                  onChange={onChangeRoom}
-                  hasNull={false}
-                />
-              </Grid>
+                  <SelectComponentDark
+                    label={t('room', { ns: NS_DASHBOARD_COMPUTERS })}
+                    value={room?.uid || ''}
+                    //values={rooms.map(item => ({ id: item.uid, value: item.name }))}
+                    values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...rooms.map(item => ({ uid: item.uid, name: item.name }))].map(item => ({ id: item.uid, value: item.name }))}
+
+                    onChange={onChangeRoom}
+                    hasNull={false}
+                  />
+                </Grid>
               }
-              <Grid size={{ xs: 12, sm: 'auto' }} sx={{display:schools.length>0 && rooms.length>0 ? 'block' : 'none'}}>
+              <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: schools.length > 0 && rooms.length > 0 ? 'block' : 'none' }}>
                 <SelectComponentDark
                   label={t('type')}
-                  value={filterType}
+                  value={filterTypeComputers}
                   values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassHardware.ALL_TYPES.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
-                  onChange={(e) => setFilterType(e.target.value)}
+                  onChange={(e) => setFilterTypeComputers(e.target.value)}
                   hasNull={false}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 'auto' }} sx={{display:schools.length>0 && rooms.length>0 ? 'block' : 'none'}}>
+              <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: schools.length > 0 && rooms.length > 0 ? 'block' : 'none' }}>
                 <SelectComponentDark
                   label={t('status', { ns: NS_DASHBOARD_COMPUTERS })}
-                  value={filterStatus}
+                  value={filterStatusComputers}
                   values={[{ uid: 'all', name: `-- ${t('all')} --` }, ...ClassDevice.ALL_STATUS.map(item => ({ uid: item, name: t(item) }))].map(item => ({ id: item.uid, value: item.name }))}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                  onChange={(e) => setFilterStatusComputers(e.target.value)}
                   hasNull={false}
                 />
               </Grid>
             </Grid>
 
           </Stack>
-          <Stack sx={{ width: { xs: '100%', sm: '40%' } }}>
+          <Stack sx={{ width: { xs: '100%', sm: '35%' } }}>
             {
               schools.length === 0 && <Alert
                 severity="warning"
@@ -525,33 +481,39 @@ export default function ComputersComponent() {
                   </Button>
                 }
               >
-                {"Il n'y a pas d'école disponible, veuillez en créer une."}
+                <Stack>
+                  <Typography>{"Il n'y a pas d'école disponible, veuillez en créer une."}</Typography>
+                  <Button variant={'contained'} color="warning" size="small">
+                    {'Créer'}
+                  </Button>
+                </Stack>
               </Alert>
             }
             {
               rooms.length === 0 && <Alert
                 severity="warning"
-                action={
+              >
+                <Stack alignItems={'start'} spacing={1}>
+                  <Typography variant='p'>{"Il n'y a pas de salles disponibles, veuillez en créer une."}</Typography>
                   <Button variant={'contained'} color="warning" size="small">
                     {'Créer'}
                   </Button>
-                }
-              >
-                {"Il n'y a pas de salles disponibles, veuillez en créer une."}
+                </Stack>
               </Alert>
             }
           </Stack>
         </Stack>
         <Stack direction={'row'} alignItems={'center'} spacing={1}>
-          <Typography><b>{'Total : '}</b>{computersBis.length}</Typography>
+          <Typography><b>{'Total : '}</b>{computers.length}</Typography>
           <Stack direction={'row'} alignItems={'center'}>
             <IconButton loading={refresh}
               onClick={async () => {
                 setRefresh(true);
-                await updateComputersStatus();
+                await updateComputersList();
                 setRefresh(false);
               }}
-              color="primary" aria-label="add to shopping cart" size='small'>
+              color="primary" aria-label="add to shopping cart" size='small'
+              sx={{display:'none'}}>
               <RestartAltIcon />
             </IconButton>
             {
@@ -561,7 +523,7 @@ export default function ComputersComponent() {
                 onClick={async () => {
                   setMode('create');
                   //setIsOpen(true);
-                  setSelectedDevice(new ClassHardware({ uid_room: room.uid, status: ClassDevice.STATUS.AVAILABLE }));
+                  setSelectedDevice(new ClassHardware({ uid_room: room?.uid || '', status: ClassDevice.STATUS.AVAILABLE }));
                   //setSuccess(true);
                   //handleCardClick(new ClassDevice());
                 }}
@@ -610,13 +572,13 @@ export default function ComputersComponent() {
               }
             </>}
           </Stack>
-          <Grid container sx={{ width: '100%', background: '' }} justifyContent={computersBis.length === 0 ? 'center' : 'stretch'} spacing={0.5}>
-            {computersBis.length === 0 && (
+          <Grid container sx={{ width: '100%', background: '' }} justifyContent={computers.length === 0 ? 'center' : 'stretch'} spacing={0.5}>
+            {computers.length === 0 && (
               <div className="empty-state">
                 {t('not-found', { ns: ClassDevice.NS_COLLECTION })}
               </div>
             )}
-            {computersBis.map((pc, i) => (
+            {computers.map((pc, i) => (
               <Grid key={`${pc.uid}-${i}`} size={{ xs: 6, sm: 'auto' }} justifyItems={'stretch'}>
                 <ComputerCard
                   computer={pc}

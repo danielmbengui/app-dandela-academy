@@ -198,7 +198,7 @@ export class ClassSchool {
         }
     }
     clone() {
-        return ClassSchool.makeUserInstance(this._uid, this.toJSON());
+        return ClassSchool.makeSchoolInstance(this._uid, this.toJSON());
         //return new ClassUser(this.toJSON());
     }
 
@@ -227,7 +227,7 @@ export class ClassSchool {
         if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
         return null;
     }
-    static makeUserInstance(uid, data = {}) {
+    static makeSchoolInstance(uid, data = {}) {
         return new ClassSchool({ uid, ...data });
     }
     static get converter() {
@@ -239,9 +239,9 @@ export class ClassSchool {
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
-                var _created_time = ClassSchool._toJsDate(data.created_time);
-                var _last_edit_time = ClassSchool._toJsDate(data.last_edit_time);
-                return ClassSchool.makeUserInstance(uid, { ...data, created_time: _created_time, last_edit_time: _last_edit_time });
+                var created_time = ClassSchool._toJsDate(data.created_time);
+                var last_edit_time = ClassSchool._toJsDate(data.last_edit_time);
+                return ClassSchool.makeSchoolInstance(uid, { ...data, created_time, last_edit_time });
             },
         };
     }
@@ -344,23 +344,29 @@ export class ClassSchool {
         const qSnap = await getDocs(q);
         return qSnap.docs.map(item => item.data());
     }
-
+    async createNameNormalized(name='') {
+        return (name.replace(" ", "_").toLowerCase());
+    }
     // Créer un user (avec option timestamps serveur)
-    static async create(data = {}) {
-        const newRef = doc(this.colRef()); // id auto
+    async create(data = {}) {
+        const newRef = doc(this.constructor.colRef()); // id auto
         //data.uid = newRef.id;
         const model = data instanceof ClassSchool ? data : new ClassSchool({ ...data });
         //model.uid = newRef.id;()
-        //console.log("REEEF ID", newRef, model.toJSON());
-        const countSchool = await ClassSchool.count() || 0;
+
+        const countSchool = await this.constructor.count() || 0;
         const idSchool = countSchool + 1;
-        const uid = newRef.id;
-        const uid_intern = idSchool;
-        const created_time = model.created_time;
-        const last_edit_time = new Date();
-        const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
-        await setDoc(newRef, path);
-        return new ClassSchool(path); // -> ClassModule
+        this._uid = newRef.id;
+        this._uid_intern = idSchool;
+        this._name_normalized = createNameNormalized(this._name);
+       // const uid = newRef.id;
+        //const uid_intern = idSchool;
+        //this._enabled = false;
+        this._created_time = new Date();
+        this._last_edit_time = new Date();
+        //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
+        await setDoc(newRef, this.toJSON());
+        return this.constructor.makeSchoolInstance(this._uid, this.toJSON());// -> ClassModule
     }
 
     // Mettre à jour un module

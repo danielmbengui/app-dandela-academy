@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
-import { IconDashboard, IconEdit, IconMobile, IconRemove, } from "@/assets/icons/IconsComponent";
+import { IconDashboard, IconEdit, IconMobile, IconRemove, IconSchool, } from "@/assets/icons/IconsComponent";
 import { THEME_DARK, THEME_LIGHT, WEBSITE_START_YEAR } from "@/contexts/constants/constants";
 import { NS_DASHBOARD_COMPUTERS, NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -57,6 +57,19 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
   const [errors, setErrors] = useState({});
   const [showSnackbar, setShowSnackbar] = useState(false);
   //const [success, setSuccess] = useState(false);
+
+  /*
+          const school = await ClassSchool.create({
+            //uid: "",
+            //uid_intern: '',
+            name: "Dandela Academy Zango III",
+            //name_normalized: "Dandela Academy Zango III",
+            photo_url: "",
+            address: "Zango III, Luanda, Angola",
+            //enabled: true
+          });
+  */
+ 
 
   const onChangeValue = (e) => {
     const { name, value, type } = e.target;
@@ -161,9 +174,9 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
           {
             ClassDevice.getIcon({ type: device?.type, size: 'small', status: device?.status, extra: true })
           }
+          <IconSchool />
           <Stack>
-            <Typography variant='h4'>{device?.name || t('name')}</Typography>
-            <Typography variant='h5' color='greyLight'>{device?.type !== ClassDevice.TYPE.UNKNOWN ? t(device?.type) : t('type')}</Typography>
+            <Typography variant='h4'>{'Nouvelle école'}</Typography>
           </Stack>
         </Stack>
         <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
@@ -193,21 +206,10 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
           required
           error={errors.category}
         />
-        <SelectComponentDark
-          label={t('type')}
-          name={'type'}
-          disabled={!device?.validCategory()}
-          value={device?.type}
-          values={ClassDevice.getTypesByCategory(device?.category).map(type => ({ id: type, value: t(type) }))}
-          onChange={onChangeValue}
-          hasNull={device?.type === ClassDevice.TYPE.UNKNOWN}
-          required
-          error={errors.type}
-        />
         <FieldComponent
           label={t('brand')}
           name={'brand'}
-          disabled={!device?.validType()}
+          //disabled={!device?.validType()}
           type='text'
           value={device?.brand || ''}
           onChange={onChangeValue}
@@ -216,11 +218,11 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
           error={errors.brand}
         />
         {
-          device?.validCategory() && <Stack spacing={1}>
+          <Stack spacing={1}>
             <SelectComponentDark
               label={t('os')}
               name={'os'}
-              disabled={!device?.validType()}
+             // disabled={!device?.validType()}
               value={device?.os}
               values={ClassHardware.ALL_OS.map(category => ({ id: category, value: t(category) }))}
               onChange={onChangeValue}
@@ -275,7 +277,7 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
             <FieldComponent
               label={t('os_version')}
               name={'os_version'}
-              disabled={!device?.validType()}
+             // disabled={!device?.validType()}
               type='text'
               value={device?.os_version || ''}
               onChange={onChangeValue}
@@ -288,7 +290,7 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
         <FieldComponent
           label={t('buy_time')}
           name={'buy_time'}
-          disabled={!device?.validType()}
+        //  disabled={!device?.validType()}
           type='date'
           value={device?.buy_time || ''}
           onChange={onChangeValue}
@@ -566,7 +568,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
   </>)
 }
 
-export default function DialogDevice({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, updateList = null, mode = 'read', setMode = null }) {
+export default function DialogSchool({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, updateList = null, mode = 'read', setMode = null }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const [rooms, setRooms] = useState([]);

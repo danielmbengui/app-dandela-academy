@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
+import { SchoolProvider, useSchool } from '@/contexts/SchoolProvider';
+import { RoomProvider } from '@/contexts/RoomProvider';
 
 // Liste mock des 25 ordinateurs
 const initialComputers = [
@@ -128,9 +130,8 @@ function ComputersPage() {
               Occupés
             </button>
             <button
-              className={`chip ${
-                filter === "maintenance" ? "chip-active" : ""
-              }`}
+              className={`chip ${filter === "maintenance" ? "chip-active" : ""
+                }`}
               onClick={() => setFilter("maintenance")}
             >
               Maintenance
@@ -494,8 +495,8 @@ function ComputerCard({ computer, isSelected, onClick }) {
           transition: transform 0.12s ease, box-shadow 0.12s ease,
             border-color 0.12s ease, background 0.12s ease;
           box-shadow: ${isSelected
-            ? "0 0 0 1px #1d4ed8, 0 12px 35px rgba(0,0,0,0.6)"
-            : "0 10px 25px rgba(0,0,0,0.5)"};
+          ? "0 0 0 1px #1d4ed8, 0 12px 35px rgba(0,0,0,0.6)"
+          : "0 10px 25px rgba(0,0,0,0.5)"};
         }
 
         .pc-card:hover {
@@ -883,17 +884,15 @@ function DashboardPage() {
                     7 jours
                   </button>
                   <button
-                    className={`chip ${
-                      timeRange === "30j" ? "chip-active" : ""
-                    }`}
+                    className={`chip ${timeRange === "30j" ? "chip-active" : ""
+                      }`}
                     onClick={() => setTimeRange("30j")}
                   >
                     30 jours
                   </button>
                   <button
-                    className={`chip ${
-                      timeRange === "all" ? "chip-active" : ""
-                    }`}
+                    className={`chip ${timeRange === "all" ? "chip-active" : ""
+                      }`}
                     onClick={() => setTimeRange("all")}
                   >
                     Tout
@@ -942,9 +941,8 @@ function DashboardPage() {
                 {mockMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`message-item ${
-                      msg.unread ? "message-unread" : ""
-                    }`}
+                    className={`message-item ${msg.unread ? "message-unread" : ""
+                      }`}
                   >
                     <div className="message-avatar">
                       {msg.from
@@ -1654,10 +1652,10 @@ function CoursePage() {
                 {loadingAction
                   ? "Chargement..."
                   : course.isUserEnrolled
-                  ? "Me désinscrire"
-                  : isFull
-                  ? "Cours complet"
-                  : "M'inscrire à ce cours"}
+                    ? "Me désinscrire"
+                    : isFull
+                      ? "Cours complet"
+                      : "M'inscrire à ce cours"}
               </button>
             )}
 
@@ -2180,8 +2178,11 @@ export default function DashboardComputersHome() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { user, login, logout } = useAuth();
+  const { school } = useSchool();
 
-  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
-    <ComputersComponent />
-  </DashboardPageWrapper>)
+  return (<RoomProvider uidSchool={school?.uid}>
+    <DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
+      <ComputersComponent />
+    </DashboardPageWrapper>
+  </RoomProvider>)
 }

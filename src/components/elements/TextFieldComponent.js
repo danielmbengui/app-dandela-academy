@@ -30,7 +30,7 @@ export default function TextFieldComponent({
     const { theme } = useThemeMode();
     const { blue, greyLight, text, primary, cardColor } = theme.palette;
     if (autoComplete.length > 0) {
-        /*
+        
         return (<Autocomplete
             disablePortal
             options={autoComplete}
@@ -54,7 +54,7 @@ export default function TextFieldComponent({
             />)}
         />
         )
-        */
+        
     }
     return (<TextField
         className="shadow-sm"

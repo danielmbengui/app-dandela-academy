@@ -1,0 +1,225 @@
+'use client';
+
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { ClassUser } from '@/classes/users/ClassUser';
+import {
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signOut,
+    updateProfile,
+    sendPasswordResetEmail,
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    OAuthProvider,
+    GoogleAuthProvider,
+    TwitterAuthProvider,
+    signInWithPopup,
+    fetchSignInMethodsForEmail,
+    sendSignInLinkToEmail,
+    updatePassword,
+} from 'firebase/auth';
+
+import {
+    doc,
+    onSnapshot,
+    collection,
+    getDocs,
+    query,
+    where,
+    setDoc,
+    updateDoc,
+} from 'firebase/firestore';
+import { useLanguage } from './LangProvider';
+//import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
+import { useTranslation } from 'react-i18next';
+import { NS_ERRORS } from '@/contexts/i18n/settings';
+import { translateWithVars } from '@/contexts/functions';
+import { auth, firestore } from '@/contexts/firebase/config';
+import { ClassUserExtern } from '@/classes/users/extern/ClassUserExtern';
+import { ClassUserStudent } from '@/classes/users/extern/ClassUserStudent';
+import { ClassUserProfessional } from '@/classes/users/extern/ClassUserProfessional';
+import { PAGE_HOME } from '@/contexts/constants/constants_pages';
+import { ClassUserIntern } from '@/classes/users/intern/ClassUserIntern';
+import { ClassUserAdmin } from '@/classes/users/intern/ClassUserAdmin';
+import { ClassUserTutor } from '@/classes/users/intern/ClassUserTutor';
+import { ClassSchool } from '@/classes/ClassSchool';
+import { ClassRoom } from '@/classes/ClassRoom';
+import { ClassDevice, ClassHardware } from '@/classes/ClassDevice';
+
+// import { ClassUser } from '@/classes/ClassUser';
+
+const COLLECTION_USERS = ClassUser.COLLECTION;
+const RoomContext = createContext(null);
+export const useRoom = () => useContext(RoomContext);
+
+export function RoomProvider({ children, uidSchool = '' }) {
+    const router = useRouter();
+    const { lang } = useLanguage();
+    const { t } = useTranslation([NS_ERRORS])
+
+    const [room, setRoom] = useState(null);           // ton user métier (ou snapshot)
+    const [rooms, setRooms] = useState([]);           // ton user métier (ou snapshot)
+    const [computers, setComputers] = useState([]);           // ton user métier (ou snapshot)
+    const [filterTypeComputers, setFilterTypeComputers] = useState('all');
+    const [filterStatusComputers, setFilterStatusComputers] = useState('all');
+
+    /*
+        if (uidRoom !== 'all') {
+          const indexRoom = ClassRoom.indexOf(rooms, uidRoom);
+          const _room = rooms[indexRoom];
+          //setRoom(_room);
+          _computers = _computers.filter(item => item.uid_room === uidRoom);
+        } else {
+          //setRoom(null);
+        }
+        if (filterStatus !== 'all') {
+          _computers = _computers.filter(item => item.status === filterStatus);
+        }
+    */
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [isConnected, setIsConnected] = useState(false);
+
+    const [isErrorSignIn, setIsErrorSignIn] = useState(false);
+    const [textErrorSignIn, setTextErrorSignIn] = useState('');
+    const [provider, setProvider] = useState('');
+    // écoute du doc utilisateur
+    const listenToRooms = useCallback((uidSchool) => {
+        const colRef = ClassRoom.colRef(); // par ex.
+        console.log("Col ref provider", colRef);
+        const snapshotRooms = onSnapshot(colRef, async (snap) => {
+            // snap est un QuerySnapshot
+            console.log("snap", snap.size);
+            if (snap.empty) {
+                setRooms([]);
+                setRoom(null);
+                setIsLoading(false);
+                return;
+            }
+            console.log("is not empty");
+            var _rooms = await ClassRoom.fetchListFromFirestore();
+            if (uidSchool) {
+                const exists = await ClassSchool.alreadyExist(uidSchool);
+                if (exists) {
+                    _rooms = await ClassRoom.fetchListFromFirestore([where('uid_school', '==', uidSchool)]);
+                }
+            }
+            setRooms(_rooms);
+            /*
+            if (!room || room === null) {
+                const _room = _rooms[0];
+                //setRoom(_room);
+                setRoom(prev => {
+                    if (!prev) return _room;
+                    if (prev?.update) {
+                        prev.update(_room.toJSON()); // ou data.toJSON() si besoin
+                        return prev.clone();
+                    }
+                    return prev;
+                });
+            }
+            */
+            console.log("ROOMS provider", _rooms);
+            /*
+                        const _schools = snap.docs.map(docSnap => docSnap.data());
+                        setRooms(_schools);
+                        
+                        // par exemple : garder la première école
+                        const _school = _schools[0];
+                        console.log("one school provider", _school);
+                        setRoom(prev => {
+                            if (!prev) return _school;
+                            if (prev?.update) {
+                                prev.update(_school.toJSON()); // ou data.toJSON() si besoin
+                                return prev;
+                            }
+                            return prev;
+                        });
+                        */
+            setIsLoading(false);
+        });
+        return snapshotRooms;
+    }, []);
+    async function initComputers() {
+        var _computers = [];
+        const constraints = [];
+        if (filterTypeComputers !== 'all') {
+            constraints.push(where("type", '==', filterTypeComputers));
+        }
+        if (filterStatusComputers !== 'all') {
+            constraints.push(where("status", '==', filterStatusComputers));
+        }
+        if (room) {
+            constraints.push(where("uid_room", '==', room.uid));
+        }
+        _computers = await ClassHardware.fetchListFromFirestore(constraints);
+        _computers = _computers.sort((a, b) => a.uid_intern - b.uid_intern);
+        console.log("has room", _computers);
+        setComputers(_computers);
+        console.log("ROOM computers", _computers)
+    }
+
+    function getOneRoom(uid = '') {
+        if (!uid || uid === '' || uid === null) {
+            return null;
+        }
+        const _room = rooms.find(item => item.uid === uid);
+        return _room;
+    }
+    function getOneRoomName(uid = '') {
+        if (!uid || uid === '' || uid === null) {
+            return '';
+        }
+        const _room = rooms.find(item => item.uid === uid);
+        return _room?.name || '';
+    }
+    // session
+    useEffect(() => {
+        const listener = listenToRooms(uidSchool);
+        console.log("uid school", uidSchool);
+        return () => listener?.();
+    }, []);
+    useEffect(() => {
+        initComputers();
+    }, [room, filterTypeComputers, filterStatusComputers]);
+
+    async function changeRoom(uid = '') {
+        var _room = null;
+        var existsRoom = await ClassRoom.alreadyExist(uid);
+        if (existsRoom) {
+            _room = await ClassRoom.fetchFromFirestore(uid);
+        }
+        setRoom(_room);
+    }
+
+    async function updateComputersList() {
+        await initComputers();
+    }
+
+    // actions
+
+
+    const value = {
+        rooms,
+        room,
+        setRoom,
+        changeRoom,
+        getOneRoom,
+        getOneRoomName,
+        filterTypeComputers,
+        updateComputersList,
+        setFilterTypeComputers,
+        filterStatusComputers,
+        setFilterStatusComputers,
+        computers,
+        isLoading,
+        isConnected,
+        isErrorSignIn,
+        textErrorSignIn,
+
+    };
+    //if (isLoading) return <LoadingComponent />;
+    //if (!user) return (<LoginComponent />);
+    return <RoomContext.Provider value={value}>{children}</RoomContext.Provider>;
+}

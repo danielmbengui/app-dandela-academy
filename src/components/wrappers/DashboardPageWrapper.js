@@ -72,7 +72,7 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                 backgroundSize: 'cover',        // l'image couvre tout l'écran
                 backgroundPosition: 'center',   // centrée
                 backgroundRepeat: 'no-repeat',  // pas de répétition
-                background:'var(--blue-dark)'
+                background:'black'
 
             }}>
             <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, background: 'rgba(0,0,0,0.1)', width: '100%', height: '100%' }}>
