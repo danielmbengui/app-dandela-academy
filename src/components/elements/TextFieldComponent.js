@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Autocomplete, IconButton, InputAdornment, TextField, } from "@mui/material";
+import { Autocomplete, IconButton, InputAdornment, TextField, Typography, } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 import PropTypes from 'prop-types';
@@ -19,7 +19,7 @@ export default function TextFieldComponent({
     error = false,
     helperText = "",
     fullWidth = false,
-    onChange = null,
+    onChange: onChangeValue = null,
     onClear = null,
     maxHeight = '2.5rem',
     autoComplete = [],
@@ -30,31 +30,100 @@ export default function TextFieldComponent({
     const { theme } = useThemeMode();
     const { blue, greyLight, text, primary, cardColor } = theme.palette;
     if (autoComplete.length > 0) {
-        
-        return (<Autocomplete
-            disablePortal
-            options={autoComplete}
-            fullWidth={fullWidth}
-            className="shadow-sm"
-            lang={lang}
-            disabled={disabled}
-            type={type}
-            label={label}
-            id={name}
-            name={name}
-            
-            renderInput={(params) => (<TextField
 
+        return (<Autocomplete
+            onClick={() => alert('ok')}
+            disablePortal
+            value={value}
+            options={autoComplete}
+            fullWidth
+            disabled={disabled}
+            noOptionsText={<Typography>{"Pas d'options"}</Typography>}
+
+            onChange={(e, newValue, reason) => {
+                console.log("YEWS okay onchnage COMPONDNT", newValue, reason)
+                onChangeValue({
+                    target: {
+                        name: name,
+                        value: newValue,
+                        type: type,
+                    }
+                })
+                //    const { name, value, type } = e.target;
+            }}
+            onInputChange={(e, newValue, reason) => {
+                console.log("YEWS okay onchnage COMPONDNT", newValue, reason)
+                onChangeValue({
+                    target: {
+                        name: name,
+                        value: newValue,
+                        type: type,
+                    }
+                })
+                //    const { name, value, type } = e.target;
+            }}
+            size={'small'}
+            renderInput={(params) => <TextField
+                {...params}
                 variant="outlined"
                 size={'small'}
-                fullWidth={fullWidth}
-
-                //
+                label={label}
+                name={name}
+                disabled={disabled}
+                type={type}
+                value={value}
+                onChange={onChangeValue}
+                error={error}
+                placeholder={placeholder}
+                onKeyDown={onSubmit}
+                sx={{
+                    pointerEvents: 'auto',
+                    //color:'black',
+                    //borderWidth:'1px',
+                    borderRadius: '7px',
+                    //my: 1,
+                    '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                            //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
+                            color: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
+                            border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                        },
+                        '&:hover fieldset': {
+                            // borderColor: ClassColor.GREY_LIGHT, // au survol
+                            //color: 'red', // couleur par défaut
+                            border: `1px solid ${primary.main}`,
+                        },
+                        '&.Mui-focused fieldset': {
+                            //borderColor: ClassColor.TRANSPARENT, // quand focus
+                            border: `2px solid ${primary.main}`,
+                        },
+                        '&.Mui-error fieldset': {
+                            // borderColor: 'error.main', // en cas d'erreur
+                            border: `0.1px solid ${'red'}`,
+                        },
+                        // 👉 style quand le TextField est disabled
+                        '&.Mui-disabled': {
+                            cursor: 'not-allowed',      // curseur
+                            pointerEvents: 'auto',      // réactive les events pour voir le curseur
+                        },
+                        '&.Mui-disabled fieldset': {
+                            // borderColor: greyLight.main, // désactivé
+                            border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                            color: ClassColor.GREY_LIGHT,
+                        },
+                        '&.Mui-disabled .MuiOutlinedInput-input': {
+                            cursor: 'not-allowed',      // curseur sur le texte aussi
+                        },
+                        '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
+                            color: 'red',
+                        },
+                    },
+                }}
                 {...props}
-            />)}
+            />}
         />
         )
-        
+
     }
     return (<TextField
         className="shadow-sm"
@@ -72,7 +141,7 @@ export default function TextFieldComponent({
         //helperText={error ? error : ''}
         //helperText={isErrorCompany ? `Le nom doit contenir entre ${MIN_LENGTH_COMPANY} et ${MAX_LENGTH_COMPANY}` : ''}
         placeholder={placeholder}
-        onChange={onChange}
+        onChange={onChangeValue}
         onKeyDown={onSubmit}
         sx={{
             pointerEvents: 'auto',
@@ -160,7 +229,6 @@ export default function TextFieldComponent({
 
             }
         }}
-        //
         {...props}
     />)
 }

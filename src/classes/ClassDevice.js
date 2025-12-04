@@ -74,9 +74,9 @@ export class ClassDevice {
             glow: "#6b728055",
         },
         all: {
-            label: 'all-status',
+            label: 'all',
             badgeBg: "transparent",
-            badgeBorder: ClassColor.WHITE,
+            badgeBorder: "var(--font-color)",
             badgeText: "#e5e7eb",
             glow: "#6b728055",
         },
@@ -649,20 +649,8 @@ export class ClassDevice {
     // Créer un user (avec option timestamps serveur)
     async createDeviceName(idDevice = '', isNormalized = false) {
         var prefix = isNormalized ? "device" : "DEVICE";
-        const count = await this.constructor.count();
-
         if (this._category === ClassDevice.CATEGORY.HARDWARE) {
-            if (this._type === ClassHardware.TYPE.DESKTOP) {
-                prefix = isNormalized ? "pc" : "PC";
-            } else if (this._type === ClassHardware.TYPE.MOBILE) {
-                prefix = isNormalized ? "mobile" : "MOBILE";
-            } else if (this._type === ClassHardware.TYPE.TABLET) {
-                prefix = isNormalized ? "tablet" : "TABLET";
-            } else if (this._type === ClassHardware.TYPE.WATCH) {
-                prefix = isNormalized ? "watch" : "WATCH";
-            } else if (this._type === ClassHardware.TYPE.TV) {
-                prefix = isNormalized ? "tv" : "TV";
-            }
+            prefix = isNormalized ? this._type.toLocaleLowerCase() : this._type.toUpperCase();
         }
         return `${prefix}-${(idDevice).toString().padStart(2, '0')}`;;
     }
@@ -700,7 +688,7 @@ export class ClassDevice {
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, this.toJSON(), { merge: true });
-            console.log("UPDATE COMPLETED", { ...this })
+            //console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeDeviceInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
@@ -713,7 +701,7 @@ export class ClassDevice {
         try {
             const ref = this.constructor.docRef(this._uid);
             await deleteDoc(ref);
-            console.log("REMOVED", ref);
+            //console.log("REMOVED", ref);
             return true;
         } catch (error) {
             console.log("ERRRROR", error);
@@ -848,7 +836,7 @@ export class ClassHardware extends ClassDevice {
         UBUNTU: 'ubuntu',
         UNKNOWN: 'unknown',
     });
-    static MIN_LENGTH_OS_VERSION = 3;
+    static MIN_LENGTH_OS_VERSION = 0;
     static MAX_LENGTH_OS_VERSION = 100;
     static ALL_OS = [
         ClassHardware.OS.WINDOWS,
@@ -872,7 +860,7 @@ export class ClassHardware extends ClassDevice {
             category: ClassDevice.CATEGORY.HARDWARE,
             type: props.type || ClassHardware.TYPE.UNKNOWN,
         }); // le parent lit seulement ses clés (uid, email, type, role, ...)
-        this._os = props.os || ClassHardware.OS.UNKNOWN;
+        this._os = props.os || '';
         this._os_version = props.os_version || "";
     }
     // 🔁 Getters & Setters
@@ -925,11 +913,12 @@ export class ClassHardware extends ClassDevice {
     isErrorOs() {
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
-        if (this._os.length > 0 && !ClassHardware.ALL_OS.includes(this._os)) return (true);        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        //if (this._os.length > 0 && !ClassHardware.ALL_OS.includes(this._os)) return (true);        //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
+        if (this._os.length>0 && this._os.length > ClassHardware.MAX_LENGTH_OS_VERSION) return (true);
         return (false);
     }
     validOs() {
-        if (!this._os || this._os.length === 0 || this.isErrorOs()) return (false);
+        if (this.isErrorOs()) return (false);
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
         //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);
@@ -938,12 +927,12 @@ export class ClassHardware extends ClassDevice {
     isErrorOsVersion() {
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
-        if (this._os_version.length > 0 && (this._os_version.length < ClassHardware.MIN_LENGTH_OS_VERSION || this._os_version.length > ClassHardware.MAX_LENGTH_OS_VERSION)) return (true);
+        if (this._os_version.length > 0 && this._os_version.length > ClassHardware.MAX_LENGTH_OS_VERSION) return (true);
         //if (this._type.length > 0 && this._type === ClassDevice.TYPE.UNKNOWN) return (true);
         return (false);
     }
     validOsVersion() {
-        if (!this._os_version || this._os_version.length === 0 || this.isErrorOsVersion()) return (false);
+        if (this.isErrorOsVersion()) return (false);
         //if (!this._last_name || this._last_name.length === 0) return (false);
         //console.log("YEEEES",this._last_name)
         //if (this._last_name.length >= ClassUser.MIN_LENGTH_LAST_NAME && this._last_name.length < ClassUser.MAX_LENGTH_LAST_NAME) (true);

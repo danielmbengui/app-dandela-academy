@@ -1,572 +1,925 @@
-// /pages/app/courses/index.js
-"use client";
-import React, { useMemo, useState } from "react";
-import {
-  Box,
-  Stack,
-  Typography,
-  Paper,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Chip,
-  Button,
-  Divider,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableContainer,
-  useMediaQuery,
-  Drawer,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import CloseIcon from "@mui/icons-material/Close";
-import SchoolIcon from "@mui/icons-material/School";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PeopleIcon from "@mui/icons-material/People";
-import CategoryIcon from "@mui/icons-material/Category";
-import { useTheme } from "@mui/material/styles";
+"use client"
+import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
+import { useState } from "react";
 
-// ---- MOCK (à remplacer par tes données Firestore) ----
-const MOCK_COURSES = [
+const mockStats = {
+  activeStudents: 124,
+  activeTeachers: 8,
+  todayLessons: 5,
+  freeComputers: 17,
+  completionRate: 82,
+  certificatesThisMonth: 21,
+};
+
+const mockNextLessons = [
   {
-    id: "excel-50",
-    title: "Excel 50 - Maîtriser les bases",
-    code: "EXC-050",
-    category: "Bureautique",
-    level: "Débutant",
-    durationHours: 12,
-    status: "actif",
+    id: 1,
+    title: "Excel – Niveau Intermédiaire",
+    teacher: "Ana Silva",
+    time: "Aujourd'hui • 14:00",
+    room: "Salle 3",
     enrolled: 18,
-    maxStudents: 25,
-    tutorName: "João Pereira",
-    nextSession: "2026-01-15",
-    shortDescription:
-      "Découvrir les fonctions essentielles d'Excel pour le monde professionnel.",
+    capacity: 22,
   },
   {
-    id: "ai-text",
-    title: "IA Textuelle - ChatGPT & Co",
-    code: "AI-TXT-101",
-    category: "Intelligence artificielle",
-    level: "Intermédiaire",
-    durationHours: 20,
-    status: "brouillon",
-    enrolled: 0,
-    maxStudents: 30,
-    tutorName: "Daniel Mbengui",
-    nextSession: null,
-    shortDescription:
-      "Apprendre à utiliser l'IA textuelle pour gagner du temps au quotidien.",
+    id: 2,
+    title: "Initiation à l’IA générative",
+    teacher: "João Pereira",
+    time: "Aujourd'hui • 16:30",
+    room: "Salle 2",
+    enrolled: 14,
+    capacity: 20,
   },
   {
-    id: "web-dev",
-    title: "Développement Web Moderne",
-    code: "WEB-200",
-    category: "Développement",
-    level: "Avancé",
-    durationHours: 40,
-    status: "archivé",
-    enrolled: 46,
-    maxStudents: 50,
-    tutorName: "Floriane A.",
-    nextSession: "2025-11-10",
-    shortDescription:
-      "HTML, CSS, JavaScript moderne et introduction aux frameworks.",
+    id: 3,
+    title: "Word – Mise en page avancée",
+    teacher: "Marie Dupont",
+    time: "Demain • 09:00",
+    room: "Salle 1",
+    enrolled: 20,
+    capacity: 20,
   },
 ];
 
-// ---- Petites fonctions UI ----
-function getStatusConfig(status) {
-  switch (status) {
-    case "actif":
-      return { label: "Actif", color: "success" };
-    case "brouillon":
-      return { label: "Brouillon", color: "warning" };
-    case "archivé":
-      return { label: "Archivé", color: "default" };
-    default:
-      return { label: status, color: "default" };
-  }
-}
+const mockMessages = [
+  {
+    id: 1,
+    from: "Support Dandela Academy",
+    time: "Il y a 1 h",
+    preview: "Un nouveau cours IA a été publié dans le catalogue.",
+    type: "info",
+  },
+  {
+    id: 2,
+    from: "Système",
+    time: "Hier",
+    preview: "3 nouveaux étudiants ont rejoint la cohorte 2025.",
+    type: "success",
+  },
+  {
+    id: 3,
+    from: "Infra",
+    time: "Il y a 2 jours",
+    preview: "1 ordinateur signalé en maintenance dans la salle principale.",
+    type: "warning",
+  },
+];
 
-export default function CoursesListPage() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+export default function DandelaDashboardHome() {
+  const [activeMenu, setActiveMenu] = useState("accueil");
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [editValues, setEditValues] = useState(null);
-
-  const categories = useMemo(() => {
-    const set = new Set(MOCK_COURSES.map((c) => c.category));
-    return Array.from(set);
-  }, []);
-
-  const filteredCourses = useMemo(() => {
-    return MOCK_COURSES.filter((course) => {
-      const text = (
-        course.title +
-        course.code +
-        course.category +
-        course.tutorName
-      )
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "");
-
-      const query = search
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "");
-
-      if (query && !text.includes(query)) return false;
-      if (statusFilter !== "all" && course.status !== statusFilter)
-        return false;
-      if (categoryFilter !== "all" && course.category !== categoryFilter)
-        return false;
-      return true;
-    });
-  }, [search, statusFilter, categoryFilter]);
-
-  const handleSelectCourse = (course) => {
-    setSelectedCourse(course);
-    setEditMode(false);
-    setEditValues(course);
-  };
-
-  const handleCloseDrawer = () => {
-    setSelectedCourse(null);
-    setEditMode(false);
-    setEditValues(null);
-  };
-
-  const handleChangeEditField = (field, value) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSaveCourse = () => {
-    // 👉 Ici tu pourras appeler ton API / Firestore pour sauvegarder
-    console.log("SAVE COURSE", editValues);
-    setSelectedCourse(editValues);
-    setEditMode(false);
-    // Optionnel : afficher un snackbar de succès
-  };
-
-  const handleCreateCourse = () => {
-    // 👉 Redirection vers une page /app/courses/new ou ouverture d'un autre drawer
-    console.log("Create new course…");
+  const handleMenuClick = (key) => {
+    // Ici tu peux remplacer par un vrai route.push('/app/...') plus tard
+    setActiveMenu(key);
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: theme.palette.background.default,
-        p: { xs: 2, md: 3 },
-      }}
-    >
-      {/* Header */}
-      <Stack direction="row" justifyContent="space-between" mb={3} gap={2}>
-        <Box>
-          <Typography variant="h4" fontWeight={600}>
-            Liste des cours
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Gère tous les modules de Dandela Academy : création, édition,
-            archivage.
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateCourse}
-        >
-          Nouveau cours
-        </Button>
-      </Stack>
+<DashboardPageWrapper>
+<div className="page">
+      <div className="shell">
+        {/* TOPBAR */}
+        <header className="topbar">
+          <div className="brand">
+            <div className="logo-circle">DA</div>
+            <div>
+              <p className="brand-name">Dandela Academy</p>
+              <p className="brand-sub">Tableau de bord</p>
+            </div>
+          </div>
 
-      {/* Filtres */}
-      <Paper
-        sx={{
-          p: 2,
-          mb: 3,
-          borderRadius: 3,
-          boxShadow: "0 10px 30px rgba(15,23,42,0.15)",
-        }}
+          <div className="topbar-right">
+            <button className="notif-btn">🔔</button>
+            <div className="user-pill">
+              <div className="user-avatar">DM</div>
+              <div className="user-text">
+                <p className="user-name">Daniel</p>
+                <p className="user-role">Admin</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* LAYOUT AVEC SIDEBAR */}
+        <div className="layout">
+          {/* SIDEBAR */}
+          <aside className="sidebar">
+            <nav className="nav">
+              <NavItem
+                label="Accueil"
+                icon="🏠"
+                active={activeMenu === "accueil"}
+                onClick={() => handleMenuClick("accueil")}
+              />
+              <NavItem
+                label="Ordinateurs"
+                icon="💻"
+                active={activeMenu === "ordinateurs"}
+                onClick={() => handleMenuClick("ordinateurs")}
+              />
+              <NavItem
+                label="Utilisateurs"
+                icon="👥"
+                active={activeMenu === "utilisateurs"}
+                onClick={() => handleMenuClick("utilisateurs")}
+              />
+              <NavItem
+                label="Calendrier"
+                icon="📅"
+                active={activeMenu === "calendrier"}
+                onClick={() => handleMenuClick("calendrier")}
+              />
+              <NavItem
+                label="Cours"
+                icon="📚"
+                active={activeMenu === "cours"}
+                onClick={() => handleMenuClick("cours")}
+              />
+              <NavItem
+                label="Profil"
+                icon="🙋‍♂️"
+                active={activeMenu === "profil"}
+                onClick={() => handleMenuClick("profil")}
+              />
+              <NavItem
+                label="Paramètres"
+                icon="⚙️"
+                active={activeMenu === "parametres"}
+                onClick={() => handleMenuClick("parametres")}
+              />
+            </nav>
+
+            <div className="sidebar-footer">
+              <p className="sidebar-hint">
+                Version <span>v1.0.0</span>
+              </p>
+            </div>
+          </aside>
+
+          {/* CONTENU PRINCIPAL */}
+          <main className="content">
+            {/* HEADER SECTION */}
+            <section className="content-header">
+              <div>
+                <p className="welcome-text">Bienvenue sur ton dashboard 👋</p>
+                <h1>Accueil</h1>
+                <p className="muted">
+                  Accède rapidement aux ordinateurs, utilisateurs, cours et
+                  calendrier de Dandela Academy.
+                </p>
+              </div>
+              <div className="header-actions">
+                <button className="btn ghost">Nouvel étudiant</button>
+                <button className="btn primary">Créer un cours</button>
+              </div>
+            </section>
+
+            {/* STATS */}
+            <section className="stats-grid">
+              <StatCard
+                label="Étudiants actifs"
+                value={mockStats.activeStudents}
+                helper="Connectés / inscrits récemment"
+              />
+              <StatCard
+                label="Professeurs actifs"
+                value={mockStats.activeTeachers}
+                helper="Sessions à venir"
+              />
+              <StatCard
+                label="Cours aujourd'hui"
+                value={mockStats.todayLessons}
+                helper="Sur l’ensemble du campus"
+              />
+              <StatCard
+                label="Ordinateurs disponibles"
+                value={mockStats.freeComputers}
+                helper="Salle informatique principale"
+              />
+              <StatCard
+                label="Taux de complétion"
+                value={`${mockStats.completionRate}%`}
+                helper="Moyenne globale des cours"
+                barValue={mockStats.completionRate}
+              />
+              <StatCard
+                label="Certificats ce mois"
+                value={mockStats.certificatesThisMonth}
+                helper="Diplômes délivrés"
+              />
+            </section>
+
+            {/* GRILLE PRINCIPALE */}
+            <section className="main-grid">
+              {/* COL GAUCHE : cours à venir + raccourcis */}
+              <div className="main-col">
+                <div className="card">
+                  <div className="card-header">
+                    <h2>Cours à venir</h2>
+                    <button className="link-btn">Voir le calendrier</button>
+                  </div>
+                  <div className="lesson-list">
+                    {mockNextLessons.map((lesson) => (
+                      <div key={lesson.id} className="lesson-item">
+                        <div>
+                          <p className="lesson-title">{lesson.title}</p>
+                          <p className="lesson-sub">
+                            {lesson.teacher} • {lesson.room}
+                          </p>
+                          <p className="lesson-time">{lesson.time}</p>
+                        </div>
+                        <div className="lesson-meta">
+                          <p className="lesson-counter">
+                            {lesson.enrolled}/{lesson.capacity}
+                          </p>
+                          <p className="lesson-counter-sub">inscrits</p>
+                          <button className="mini-btn">Ouvrir</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card">
+                  <div className="card-header">
+                    <h2>Accès rapide</h2>
+                  </div>
+                  <div className="quick-links">
+                    <QuickLink
+                      label="Gérer les ordinateurs"
+                      description="Voir l’état des 25 postes de travail."
+                      emoji="💻"
+                    />
+                    <QuickLink
+                      label="Liste des utilisateurs"
+                      description="Étudiants, professeurs, admins."
+                      emoji="👥"
+                    />
+                    <QuickLink
+                      label="Créer un nouveau cours"
+                      description="Ajouter un module au catalogue."
+                      emoji="📘"
+                    />
+                    <QuickLink
+                      label="Consulter le calendrier"
+                      description="Vue globale des sessions."
+                      emoji="📅"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* COL DROITE : messages + résumé système */}
+              <div className="side-col">
+                <div className="card">
+                  <div className="card-header">
+                    <h2>Activité récente</h2>
+                    <button className="link-btn">Tout voir</button>
+                  </div>
+                  <div className="message-list">
+                    {mockMessages.map((msg) => (
+                      <DashboardMessage key={msg.id} msg={msg} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card">
+                  <div className="card-header">
+                    <h2>Vue système</h2>
+                  </div>
+                  <ul className="system-list">
+                    <li>
+                      <span>Utilisateurs totaux :</span> 178 (mock)
+                    </li>
+                    <li>
+                      <span>Cours actifs :</span> 14 (mock)
+                    </li>
+                    <li>
+                      <span>Ordinateurs :</span> 25 (mock)
+                    </li>
+                    <li>
+                      <span>Dernière sauvegarde :</span> Aujourd&apos;hui •
+                      03:15
+                    </li>
+                  </ul>
+                  <p className="system-note">
+                    Ces données sont fictives. Tu pourras les remplacer par les
+                    vraies valeurs venant de Firestore / API.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .page {
+          min-height: 100vh;
+          background: radial-gradient(circle at top, #111827, #020617 55%);
+          padding: 32px 12px;
+          color: #e5e7eb;
+          display: flex;
+          justify-content: center;
+        }
+
+        .shell {
+          width: 100%;
+          max-width: 1280px;
+          border-radius: 24px;
+          border: 1px solid #1f2937;
+          background: #020617;
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .topbar {
+          height: 60px;
+          padding: 0 18px;
+          border-bottom: 1px solid #111827;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: linear-gradient(90deg, #020617, #020617 40%, #0b1120);
+        }
+
+        .brand {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .logo-circle {
+          width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.85rem;
+          font-weight: 700;
+        }
+
+        .brand-name {
+          margin: 0;
+          font-size: 0.95rem;
+          font-weight: 600;
+        }
+
+        .brand-sub {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #9ca3af;
+        }
+
+        .topbar-right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .notif-btn {
+          width: 30px;
+          height: 30px;
+          border-radius: 999px;
+          border: 1px solid #1f2937;
+          background: #020617;
+          cursor: pointer;
+        }
+
+        .user-pill {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          border-radius: 999px;
+          padding: 4px 8px;
+          background: #020617;
+          border: 1px solid #1f2937;
+        }
+
+        .user-avatar {
+          width: 26px;
+          height: 26px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #22c55e, #16a34a);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+
+        .user-text {
+          font-size: 0.75rem;
+        }
+
+        .user-name {
+          margin: 0;
+        }
+
+        .user-role {
+          margin: 0;
+          color: #9ca3af;
+        }
+
+        .layout {
+          display: grid;
+          grid-template-columns: 220px minmax(0, 1fr);
+          min-height: 520px;
+        }
+
+        @media (max-width: 900px) {
+          .layout {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .sidebar {
+          border-right: 1px solid #111827;
+          padding: 14px 10px 10px;
+          background: radial-gradient(circle at top, #020617, #020617 55%);
+        }
+
+        @media (max-width: 900px) {
+          .sidebar {
+            display: none;
+          }
+        }
+
+        .nav {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .sidebar-footer {
+          margin-top: 18px;
+          font-size: 0.75rem;
+          color: #6b7280;
+        }
+
+        .sidebar-hint span {
+          color: #e5e7eb;
+        }
+
+        .content {
+          padding: 18px 18px 22px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .content-header {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+
+        .welcome-text {
+          margin: 0 0 4px;
+          font-size: 0.85rem;
+          color: #9ca3af;
+        }
+
+        h1 {
+          margin: 0;
+          font-size: 1.7rem;
+        }
+
+        .muted {
+          margin: 4px 0 0;
+          font-size: 0.9rem;
+          color: #9ca3af;
+          max-width: 500px;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .btn {
+          border-radius: 999px;
+          padding: 8px 14px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+
+        .btn.primary {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          border-color: transparent;
+        }
+
+        .btn.ghost {
+          background: transparent;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        @media (max-width: 900px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 650px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .main-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+          gap: 14px;
+          margin-top: 4px;
+        }
+
+        @media (max-width: 980px) {
+          .main-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .main-col,
+        .side-col {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .card {
+          background: #020617;
+          border-radius: 16px;
+          border: 1px solid #1f2937;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+          padding: 14px 14px 16px;
+        }
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+
+        .card-header h2 {
+          margin: 0;
+          font-size: 1.05rem;
+        }
+
+        .link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          font-size: 0.8rem;
+          color: #60a5fa;
+          cursor: pointer;
+        }
+
+        .lesson-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .lesson-item {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          border: 1px solid #111827;
+          background: #020617;
+        }
+
+        .lesson-title {
+          margin: 0 0 3px;
+          font-size: 0.95rem;
+        }
+
+        .lesson-sub {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+
+        .lesson-time {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #60a5fa;
+        }
+
+        .lesson-meta {
+          min-width: 90px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          justify-content: center;
+          gap: 2px;
+        }
+
+        .lesson-counter {
+          margin: 0;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+
+        .lesson-counter-sub {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #9ca3af;
+        }
+
+        .mini-btn {
+          border-radius: 999px;
+          padding: 4px 10px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.75rem;
+          cursor: pointer;
+        }
+
+        .quick-links {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+
+        @media (max-width: 700px) {
+          .quick-links {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .message-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .system-list {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 8px;
+          font-size: 0.85rem;
+        }
+
+        .system-list li {
+          margin-bottom: 4px;
+        }
+
+        .system-list span {
+          color: #9ca3af;
+        }
+
+        .system-note {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+      `}</style>
+    </div>
+</DashboardPageWrapper>
+  );
+}
+
+/** Nav item dans la sidebar */
+function NavItem({ label, icon, active, onClick }) {
+  return (
+    <>
+      <button
+        type="button"
+        className={`nav-item ${active ? "nav-item-active" : ""}`}
+        onClick={onClick}
       >
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          gap={2}
-          alignItems={{ xs: "stretch", md: "center" }}
-        >
-          <TextField
-            fullWidth
-            size="small"
-            label="Rechercher un cours"
-            placeholder="Titre, code, formateur…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
+        <span className="nav-icon">{icon}</span>
+        <span className="nav-label">{label}</span>
+      </button>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Statut</InputLabel>
-            <Select
-              label="Statut"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <MenuItem value="all">Tous</MenuItem>
-              <MenuItem value="actif">Actifs</MenuItem>
-              <MenuItem value="brouillon">Brouillons</MenuItem>
-              <MenuItem value="archivé">Archivés</MenuItem>
-            </Select>
-          </FormControl>
+      <style jsx>{`
+        .nav-item {
+          width: 100%;
+          border-radius: 999px;
+          padding: 6px 10px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: #9ca3af;
+          font-size: 0.88rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          text-align: left;
+        }
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Catégorie</InputLabel>
-            <Select
-              label="Catégorie"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <MenuItem value="all">Toutes</MenuItem>
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Stack>
-      </Paper>
+        .nav-item-active {
+          background: linear-gradient(135deg, #1f2937, #111827);
+          border-color: #2563eb;
+          color: #e5e7eb;
+        }
 
-      {/* Liste des cours */}
-      {isMobile ? (
-        // --- Version cartes (mobile) ---
-        <Stack spacing={2}>
-          {filteredCourses.map((course) => {
-            const statusCfg = getStatusConfig(course.status);
-            return (
-              <Paper
-                key={course.id}
-                sx={{
-                  p: 2,
-                  borderRadius: 3,
-                  cursor: "pointer",
-                  "&:hover": {
-                    boxShadow: "0 10px 22px rgba(15,23,42,0.25)",
-                    transform: "translateY(-1px)",
-                  },
-                  transition: "all 0.15s ease-out",
-                }}
-                onClick={() => handleSelectCourse(course)}
-              >
-                <Stack direction="row" justifyContent="space-between" mb={1}>
-                  <Typography fontWeight={600}>{course.title}</Typography>
-                  <Chip
-                    size="small"
-                    label={statusCfg.label}
-                    color={statusCfg.color}
-                    variant="outlined"
-                  />
-                </Stack>
-                <Typography variant="body2" color="text.secondary" mb={1}>
-                  {course.shortDescription}
-                </Typography>
-                <Stack
-                  direction="row"
-                  spacing={1.5}
-                  alignItems="center"
-                  flexWrap="wrap"
-                >
-                  <Chip
-                    size="small"
-                    icon={<CategoryIcon fontSize="small" />}
-                    label={course.category}
-                    variant="outlined"
-                  />
-                  <Chip
-                    size="small"
-                    icon={<SchoolIcon fontSize="small" />}
-                    label={`Niveau : ${course.level}`}
-                    variant="outlined"
-                  />
-                  <Chip
-                    size="small"
-                    icon={<AccessTimeIcon fontSize="small" />}
-                    label={`${course.durationHours} h`}
-                    variant="outlined"
-                  />
-                </Stack>
-              </Paper>
-            );
-          })}
-        </Stack>
-      ) : (
-        // --- Version tableau (desktop) ---
-        <Paper
-          sx={{
-            borderRadius: 3,
-            overflow: "hidden",
-            boxShadow: "0 16px 40px rgba(15,23,42,0.25)",
-          }}
-        >
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Cours</TableCell>
-                  <TableCell>Code</TableCell>
-                  <TableCell>Catégorie</TableCell>
-                  <TableCell>Niveau</TableCell>
-                  <TableCell>Durée</TableCell>
-                  <TableCell>Formateur</TableCell>
-                  <TableCell align="center">Inscrits</TableCell>
-                  <TableCell>Statut</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredCourses.map((course) => {
-                  const statusCfg = getStatusConfig(course.status);
-                  const ratio = `${course.enrolled}/${course.maxStudents}`;
-                  return (
-                    <TableRow
-                      key={course.id}
-                      hover
-                      sx={{ cursor: "pointer" }}
-                      onClick={() => handleSelectCourse(course)}
-                    >
-                      <TableCell>
-                        <Stack spacing={0.3}>
-                          <Typography fontWeight={600}>
-                            {course.title}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            noWrap
-                          >
-                            {course.shortDescription}
-                          </Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>{course.code}</TableCell>
-                      <TableCell>{course.category}</TableCell>
-                      <TableCell>{course.level}</TableCell>
-                      <TableCell>{course.durationHours} h</TableCell>
-                      <TableCell>{course.tutorName}</TableCell>
-                      <TableCell align="center">
-                        <Stack
-                          direction="row"
-                          spacing={0.5}
-                          justifyContent="center"
-                          alignItems="center"
-                        >
-                          <PeopleIcon sx={{ fontSize: 16 }} />
-                          <Typography variant="body2">{ratio}</Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          size="small"
-                          label={statusCfg.label}
-                          color={statusCfg.color}
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectCourse(course);
-                            setEditMode(true);
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {filteredCourses.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={9} align="center">
-                      <Typography variant="body2" color="text.secondary">
-                        Aucun cours trouvé avec ces filtres.
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      )}
+        .nav-icon {
+          font-size: 1rem;
+        }
 
-      {/* Drawer détails / édition */}
-      <Drawer
-        anchor="right"
-        open={Boolean(selectedCourse)}
-        onClose={handleCloseDrawer}
-        PaperProps={{
-          sx: { width: { xs: "100%", md: 420 }, p: 2.5 },
-        }}
-      >
-        {selectedCourse && editValues && (
-          <Stack spacing={2} height="100%">
-            <Stack direction="row" justifyContent="space-between" mb={1}>
-              <Typography variant="h6" fontWeight={600}>
-                {editMode ? "Modifier le cours" : "Détails du cours"}
-              </Typography>
-              <IconButton size="small" onClick={handleCloseDrawer}>
-                <CloseIcon />
-              </IconButton>
-            </Stack>
+        .nav-label {
+          flex: 1;
+        }
+      `}</style>
+    </>
+  );
+}
 
-            <Chip
-              size="small"
-              label={getStatusConfig(editValues.status).label}
-              color={getStatusConfig(editValues.status).color}
-              sx={{ alignSelf: "flex-start" }}
+/** Carte de stats */
+function StatCard({ label, value, helper, barValue }) {
+  return (
+    <>
+      <div className="stat-card">
+        <p className="stat-label">{label}</p>
+        <p className="stat-value">{value}</p>
+        {helper && <p className="stat-helper">{helper}</p>}
+        {typeof barValue === "number" && (
+          <div className="stat-bar">
+            <div
+              className="stat-bar-fill"
+              style={{ width: `${barValue}%` }}
             />
-
-            <Divider />
-
-            <Stack spacing={1.5} flex={1} overflow="auto">
-              <TextField
-                label="Titre du cours"
-                value={editValues.title}
-                onChange={(e) =>
-                  handleChangeEditField("title", e.target.value)
-                }
-                fullWidth
-                disabled={!editMode}
-              />
-              <TextField
-                label="Code"
-                value={editValues.code}
-                onChange={(e) => handleChangeEditField("code", e.target.value)}
-                fullWidth
-                disabled={!editMode}
-              />
-              <TextField
-                label="Catégorie"
-                value={editValues.category}
-                onChange={(e) =>
-                  handleChangeEditField("category", e.target.value)
-                }
-                fullWidth
-                disabled={!editMode}
-              />
-              <TextField
-                label="Niveau"
-                value={editValues.level}
-                onChange={(e) =>
-                  handleChangeEditField("level", e.target.value)
-                }
-                fullWidth
-                disabled={!editMode}
-              />
-              <TextField
-                label="Formateur principal"
-                value={editValues.tutorName}
-                onChange={(e) =>
-                  handleChangeEditField("tutorName", e.target.value)
-                }
-                fullWidth
-                disabled={!editMode}
-              />
-              <TextField
-                label="Durée (heures)"
-                type="number"
-                value={editValues.durationHours}
-                onChange={(e) =>
-                  handleChangeEditField("durationHours", Number(e.target.value))
-                }
-                fullWidth
-                disabled={!editMode}
-              />
-              <TextField
-                label="Description courte"
-                multiline
-                minRows={3}
-                value={editValues.shortDescription}
-                onChange={(e) =>
-                  handleChangeEditField("shortDescription", e.target.value)
-                }
-                fullWidth
-                disabled={!editMode}
-              />
-            </Stack>
-
-            <Divider sx={{ my: 1 }} />
-
-            <Stack direction="row" justifyContent="space-between" gap={1}>
-              {!editMode ? (
-                <>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => setEditMode(true)}
-                    startIcon={<EditIcon />}
-                  >
-                    Modifier
-                  </Button>
-                  <Button
-                    variant="text"
-                    color="error"
-                    fullWidth
-                    onClick={() => console.log("TODO: archive/delete")}
-                  >
-                    Archiver / Supprimer
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => {
-                      setEditMode(false);
-                      setEditValues(selectedCourse);
-                    }}
-                  >
-                    Annuler
-                  </Button>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={handleSaveCourse}
-                  >
-                    Sauvegarder
-                  </Button>
-                </>
-              )}
-            </Stack>
-          </Stack>
+          </div>
         )}
-      </Drawer>
-    </Box>
+      </div>
+
+      <style jsx>{`
+        .stat-card {
+          background: #020617;
+          border-radius: 14px;
+          border: 1px solid #1f2937;
+          padding: 10px 12px;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-label {
+          margin: 0 0 4px;
+          font-size: 0.8rem;
+          color: #9ca3af;
+        }
+
+        .stat-value {
+          margin: 0;
+          font-size: 1.4rem;
+          font-weight: 600;
+        }
+
+        .stat-helper {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+
+        .stat-bar {
+          margin-top: 8px;
+          height: 6px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .stat-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+      `}</style>
+    </>
+  );
+}
+
+/** Carte “accès rapide” */
+function QuickLink({ emoji, label, description }) {
+  return (
+    <>
+      <button type="button" className="quick-link">
+        <div className="q-emoji">{emoji}</div>
+        <div className="q-text">
+          <p className="q-label">{label}</p>
+          <p className="q-desc">{description}</p>
+        </div>
+      </button>
+
+      <style jsx>{`
+        .quick-link {
+          border-radius: 12px;
+          border: 1px solid #111827;
+          background: #020617;
+          padding: 8px 10px;
+          display: flex;
+          gap: 8px;
+          cursor: pointer;
+          text-align: left;
+        }
+
+        .quick-link:hover {
+          background: radial-gradient(circle at top left, #1d4ed822, #020617);
+          border-color: #1f2937;
+        }
+
+        .q-emoji {
+          font-size: 1.2rem;
+        }
+
+        .q-text {
+          font-size: 0.85rem;
+        }
+
+        .q-label {
+          margin: 0 0 2px;
+          font-weight: 500;
+        }
+
+        .q-desc {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+      `}</style>
+    </>
+  );
+}
+
+/** Messages dans le panneau “Activité récente” */
+function DashboardMessage({ msg }) {
+  const typeConfig = {
+    info: { border: "#3b82f6", emoji: "ℹ️" },
+    success: { border: "#22c55e", emoji: "✅" },
+    warning: { border: "#f97316", emoji: "⚠️" },
+  }[msg.type || "info"];
+
+  return (
+    <>
+      <div className="dash-msg">
+        <div className="dash-emoji">{typeConfig.emoji}</div>
+        <div className="dash-body">
+          <div className="dash-header">
+            <span className="dash-from">{msg.from}</span>
+            <span className="dash-time">{msg.time}</span>
+          </div>
+          <p className="dash-preview">{msg.preview}</p>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .dash-msg {
+          display: flex;
+          gap: 8px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          border: 1px solid ${typeConfig.border}33;
+          background: #020617;
+        }
+
+        .dash-emoji {
+          font-size: 1.1rem;
+        }
+
+        .dash-body {
+          flex: 1;
+          font-size: 0.82rem;
+        }
+
+        .dash-header {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.75rem;
+        }
+
+        .dash-from {
+          font-weight: 500;
+        }
+
+        .dash-time {
+          color: #6b7280;
+        }
+
+        .dash-preview {
+          margin: 3px 0 0;
+          color: #e5e7eb;
+        }
+      `}</style>
+    </>
   );
 }

@@ -83,7 +83,7 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                         </Stack>
                     </Toolbar>
                     <Divider />
-                    <List sx={{ py: 2, background: '', width: '100%', height: '100%', }}>
+                    <List sx={{ py: 2,px:1.5, background: '', width: '100%', height: '100%', }}>
                         {
                             user?.menuDashboard().map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
@@ -173,18 +173,16 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
     }
 
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', }}>
             <CssBaseline />
             <AppBar
                 elevation={1}
                 position="fixed"
                 sx={{
-                    //maxHeight:'40px',
-                    //p:2,
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    ml: { sm: `${drawerWidth}px` },
-                    background: cardColor.main,
+                    background: cardColor.main, 
+                    //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
+                
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', p: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{xs:'space-between',sm:'end'}} sx={{width:'100%', background:''}}>

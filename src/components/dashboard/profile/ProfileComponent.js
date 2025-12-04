@@ -18,6 +18,7 @@ import SelectComponent from "@/components/elements/SelectComponent";
 import { THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from "@/contexts/constants/constants";
 import FieldTextComponent from "@/components/elements/FieldTextComponent";
 import CardComponent from "@/components/elements/CardComponent";
+import SelectComponentDark from "@/components/elements/SelectComponentDark";
 const initialUser = {
     firstName: "Daniel",
     lastName: "Mbengui",
@@ -33,17 +34,26 @@ const initialUser = {
     language: "fr",
     theme: "light",
 };
-function ProfilePage() {
+function ProfilePage({ user: userConnected = null }) {
+    const { theme } = useThemeMode();
+    const { greyLight } = theme.palette;
     const [user, setUser] = useState(initialUser);
     const [isEditing, setIsEditing] = useState(false);
-    const [draft, setDraft] = useState(initialUser);
+    const [draft, setDraft] = useState(userConnected);
+    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
         setDraft((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? checked : value,
+            [name]: type === "checkbox" ? checked : type === 'date' ? new Date(value) || null : value,
+        }));
+    };
+    const handleClear = (name) => {
+        setDraft((prev) => ({
+            ...prev,
+            [name]: '',
         }));
     };
 
@@ -59,7 +69,7 @@ function ProfilePage() {
 
     const handleSave = (e) => {
         e.preventDefault();
-        setUser(draft);
+        //setUser(draft);
         setIsEditing(false);
 
         // Ici tu pourras appeler ton API / Firestore / etc.
@@ -106,6 +116,90 @@ function ProfilePage() {
                     {/* Infos personnelles */}
                     <section className="card">
                         <h2>Informations personnelles</h2>
+                        <div className="field">
+                            <FieldComponent
+                                label={'prénom(s)'}
+                                name={'first_name'}
+                                type="text"
+                                value={draft?.first_name}
+                                onChange={handleChange}
+                                onClear={()=>handleClear('first_name')}
+                                error={errors.first_name}
+                            />
+                        </div>
+                        <div className="field">
+                            <FieldComponent
+                                label={'nom(s)'}
+                                name={'last_name'}
+                                type="text"
+                                value={draft?.last_name}
+                                onChange={handleChange}
+                                onClear={()=>handleClear('last_name')}
+                                error={errors.last_name}
+                            />
+                        </div>
+                        <div className="field">
+                            <FieldComponent
+                                label={'Nom dhtilisateur'}
+                                name={'display_name'}
+                                type="text"
+                                value={draft?.display_name}
+                                onChange={handleChange}
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.display_name}
+                            />
+                        </div>
+                        <div className="field">
+                            <FieldComponent
+                                label={'Email personnel'}
+                                name={'email'}
+                                type="email"
+                                value={draft?.email}
+                                onChange={handleChange}
+                                
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.email}
+                            />
+                        </div>
+                        <div className="field">
+                            <FieldComponent
+                                label={'Téléphone'}
+                                name={'phone_number'}
+                                type="phone"
+                                value={draft?.phone_number}
+                                onChange={handleChange}
+                                
+                                onClear={()=>handleClear('phone_number')}
+                                error={errors.phone_number}
+                            />
+                        </div>
+                        <div className="field">
+                            <FieldComponent
+                                label={`Email de l'école`}
+                                name={'email_academy'}
+                                type="email"
+                                value={draft?.email_academy}
+                                onChange={handleChange}
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.email_academy}
+                            />
+                        </div>
+                        <div className="field">
+                            <FieldComponent
+                                label={'date de naissance'}
+                                name={'birthday'}
+                                type="date"
+                                value={draft?.birthday}
+                                onChange={handleChange}
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.birthday}
+                            />
+                        </div>
+                        
+                        
                         <div className="field">
                             <label>Prénom</label>
                             <input
@@ -161,6 +255,18 @@ function ProfilePage() {
                     {/* Infos système / compte */}
                     <section className="card">
                         <h2>Informations de compte</h2>
+                        <div className="field">
+                            <SelectComponentDark
+                                label={`Role`}
+                                name={'role'}
+                                value={draft?.role}
+                                values={ClassUser.ALL_ROLES.map(role=>({id:role, value:role}))}
+                                onChange={handleChange}
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.role}
+                            />
+                        </div>
                         <div className="field">
                             <label>Rôle</label>
                             <select
@@ -265,15 +371,16 @@ function ProfilePage() {
         .page {
           min-height: 100vh;
           background: #0f172a;
-          padding: 40px 16px;
-          color: #e5e7eb;
+          background:red;
+          padding: 20px 0px;
+          color: var(--font-color);
           display: flex;
           justify-content: center;
         }
 
         .container {
           width: 100%;
-          max-width: 1100px;
+          padding:0;
         }
 
         .header {
@@ -307,9 +414,9 @@ function ProfilePage() {
         }
 
         .muted {
-          margin: 4px 0 0;
+          margin: 0;
           font-size: 0.9rem;
-          color: #9ca3af;
+          color: ${greyLight.main};
         }
 
         .grid {
@@ -332,11 +439,11 @@ function ProfilePage() {
         }
 
         .card {
-          background: #020617;
-          border-radius: 16px;
+          background: var(--card-color);
+          border-radius: 10px;
           padding: 20px;
-          border: 1px solid #1f2937;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+          border: 1px solid var(--card-color);
+          
         }
 
         .card h2 {
@@ -424,23 +531,23 @@ function ProfilePage() {
 }
 export default function ProfileComponent() {
     const { t } = useTranslation([NS_DASHBOARD_PROFILE, NS_COMMON, NS_LANGS]);
-    const form = t('form', {returnObjects:true});
+    const form = t('form', { returnObjects: true });
     const {
         'title-account': title_account,
         'title-perso': title_perso,
         'title-settings': title_settings,
         email: title_email,
-        phone_number:title_phone_number,
-        uid:title_uid,
-        display_name:title_name,
-        first_name:title_first_name,
-        last_name:title_last_name,
+        phone_number: title_phone_number,
+        uid: title_uid,
+        display_name: title_name,
+        first_name: title_first_name,
+        last_name: title_last_name,
         role: title_role,
         birthday: title_birthday,
         lang: title_lang,
         theme: title_theme,
-      } = form;
-    console.log("FORM",t('form', {returnObjects:true}))
+    } = form;
+    console.log("FORM", t('form', { returnObjects: true }))
     const { lang, changeLang } = useLanguage();
     const { user, isLoading } = useAuth();
     const [userInfo, setUserInfo] = useState(new ClassUser());
@@ -451,7 +558,7 @@ export default function ProfileComponent() {
             setUserInfo(user.clone());
         }
     }, [isLoading]);
-    const { theme, changeTheme, mode,modeApp } = useThemeMode();
+    const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { primary, primaryShadow, greyLight, text } = theme.palette;
     const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
     const onChangeField = (e) => {
@@ -525,7 +632,7 @@ export default function ProfileComponent() {
         // On EDIT infos
     }
     return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
-        <ProfilePage />
+        <ProfilePage user={user} />
         <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
             <Stack spacing={{ xs: 1, sm: 2 }} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} sx={{ background: '' }}>
                 {
@@ -575,156 +682,156 @@ export default function ProfileComponent() {
             }}>
                 <Stack spacing={1}>
                     <CardComponent>
-                    <Stack spacing={1.5}>
-                        <Typography variant="h2">{title_account}</Typography>
-                        <Stack spacing={1}>
-                            <FieldTextComponent
-                                label={title_role}
-                                name={'role'}
-                                value={t(userInfo?.role, { ns: NS_ROLES })}
-                                values={ClassUser.ALL_ROLES.map(role => ({ id: role, value: t(role, { ns: NS_ROLES }) }))}
-                                disabled={true}
-                            />
-                            <FieldTextComponent
-                                label={title_uid}
-                                name={'uid'}
-                                value={userInfo?.uid}
-                                type='text'
-                                disabled={true}
-                                error={errors.uid}
-                            />
-                            <FieldTextComponent
-                                label={title_name}
-                                name={'display_name'}
-                                value={userInfo?.display_name}
-                                type='text'
-                                disabled={true}
-                                error={errors.display_name}
-                            />
-                            <FieldTextComponent
-                                label={title_email}
-                                name={'email_academy'}
-                                value={userInfo?.email_academy}
-                                type='email'
-                                disabled={true}
-                                error={errors.email_academy}
-                                onChange={onChangeField}
+                        <Stack spacing={1.5}>
+                            <Typography variant="h2">{title_account}</Typography>
+                            <Stack spacing={1}>
+                                <FieldTextComponent
+                                    label={title_role}
+                                    name={'role'}
+                                    value={t(userInfo?.role, { ns: NS_ROLES })}
+                                    values={ClassUser.ALL_ROLES.map(role => ({ id: role, value: t(role, { ns: NS_ROLES }) }))}
+                                    disabled={true}
+                                />
+                                <FieldTextComponent
+                                    label={title_uid}
+                                    name={'uid'}
+                                    value={userInfo?.uid}
+                                    type='text'
+                                    disabled={true}
+                                    error={errors.uid}
+                                />
+                                <FieldTextComponent
+                                    label={title_name}
+                                    name={'display_name'}
+                                    value={userInfo?.display_name}
+                                    type='text'
+                                    disabled={true}
+                                    error={errors.display_name}
+                                />
+                                <FieldTextComponent
+                                    label={title_email}
+                                    name={'email_academy'}
+                                    value={userInfo?.email_academy}
+                                    type='email'
+                                    disabled={true}
+                                    error={errors.email_academy}
+                                    onChange={onChangeField}
 
-                            />
+                                />
 
 
 
+                            </Stack>
                         </Stack>
-                    </Stack>
                     </CardComponent>
                 </Stack>
 
             </Grid>
             <Grid size={{ xs: 12, sm: 'grow' }}>
                 <Stack spacing={1}>
-                <CardComponent>
-                    <Stack spacing={1.5}>
-                        <Typography variant="h2">{title_perso}</Typography>
-                        <Stack spacing={1}>
-                            <FieldTextComponent
-                                label={title_email}
-                                name={'email'}
-                                value={userInfo?.email}
-                                type='email'
-                                disabled={true}
-                                error={errors.email}
-                            />
-                            {
-                                user?.phone_number && <FieldTextComponent
-                                    label={title_phone_number}
-                                    name={'phone_number'}
-                                    value={userInfo?.phone_number}
-                                    type='phone'
+                    <CardComponent>
+                        <Stack spacing={1.5}>
+                            <Typography variant="h2">{title_perso}</Typography>
+                            <Stack spacing={1}>
+                                <FieldTextComponent
+                                    label={title_email}
+                                    name={'email'}
+                                    value={userInfo?.email}
+                                    type='email'
                                     disabled={true}
-                                    error={errors.phone_number}
+                                    error={errors.email}
                                 />
-                            }
-                            <FieldTextComponent
-                                label={title_birthday}
-                                name={'birthday'}
-                                value={getFormattedDate(userInfo?.birthday, lang)}
-                                type='date'
-                                disabled={true}
-                                error={errors.birthday}
-                                onChange={onChangeField}
-                            />
-                            <FieldComponent
-                                label={title_first_name}
-                                name={'first_name'}
-                                value={userInfo?.first_name}
-                                type='text'
-                                disabled={false}
-                                error={errors.first_name}
-                                onChange={onChangeField}
-                                onClear={() => {
-                                    onClearField('first_name');
-                                }}
-                                editable={userInfo?.first_name !== user?.first_name}
-                                onCancel={() => {
-                                    onResetField('first_name');
-                                }}
-                                onSubmit={onEditForm}
-                            />
-                            <FieldComponent
-                                label={title_last_name}
-                                name={'last_name'}
-                                value={userInfo?.last_name}
-                                type='text'
-                                disabled={false}
-                                error={errors.last_name}
-                                onChange={onChangeField}
-                                onClear={() => {
-                                    onClearField('last_name');
-                                }}
-                                editable={userInfo?.last_name !== user?.last_name}
-                                onCancel={() => {
-                                    setErrors(prev => prev.last_name = '');
-                                    setUserInfo(prev => {
-                                        if (!prev) return prev;
-                                        prev.update({ last_name: user.last_name });
-                                        return prev.clone();
-                                    });
-                                }}
-                                onSubmit={onEditForm}
-                            />
+                                {
+                                    user?.phone_number && <FieldTextComponent
+                                        label={title_phone_number}
+                                        name={'phone_number'}
+                                        value={userInfo?.phone_number}
+                                        type='phone'
+                                        disabled={true}
+                                        error={errors.phone_number}
+                                    />
+                                }
+                                <FieldTextComponent
+                                    label={title_birthday}
+                                    name={'birthday'}
+                                    value={getFormattedDate(userInfo?.birthday, lang)}
+                                    type='date'
+                                    disabled={true}
+                                    error={errors.birthday}
+                                    onChange={onChangeField}
+                                />
+                                <FieldComponent
+                                    label={title_first_name}
+                                    name={'first_name'}
+                                    value={userInfo?.first_name}
+                                    type='text'
+                                    disabled={false}
+                                    error={errors.first_name}
+                                    onChange={onChangeField}
+                                    onClear={() => {
+                                        onClearField('first_name');
+                                    }}
+                                    editable={userInfo?.first_name !== user?.first_name}
+                                    onCancel={() => {
+                                        onResetField('first_name');
+                                    }}
+                                    onSubmit={onEditForm}
+                                />
+                                <FieldComponent
+                                    label={title_last_name}
+                                    name={'last_name'}
+                                    value={userInfo?.last_name}
+                                    type='text'
+                                    disabled={false}
+                                    error={errors.last_name}
+                                    onChange={onChangeField}
+                                    onClear={() => {
+                                        onClearField('last_name');
+                                    }}
+                                    editable={userInfo?.last_name !== user?.last_name}
+                                    onCancel={() => {
+                                        setErrors(prev => prev.last_name = '');
+                                        setUserInfo(prev => {
+                                            if (!prev) return prev;
+                                            prev.update({ last_name: user.last_name });
+                                            return prev.clone();
+                                        });
+                                    }}
+                                    onSubmit={onEditForm}
+                                />
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </CardComponent>
-                <CardComponent>
-                    <Stack spacing={1.5}>
-                        <Typography variant="h2">{title_settings}</Typography>
-                        <Stack spacing={1}>
-                            <SelectComponent
-                                label={title_lang}
-                                name={'lang'}
-                                value={lang}
-                                values={languages.map(lang => ({ id: lang, value: t(lang, { ns: NS_LANGS }) }))}
-                                onChange={(e) => {
-                                    //console.log("NEW VALUE", e.target.value)
-                                    changeLang(e.target.value);
-                                }}
-                                hasNull={false}
-                            />
-                            <SelectComponent
-                                label={title_theme}
-                                name={'theme'}
-                                //display={false}
-                                value={modeApp}
-                                values={[THEME_LIGHT, THEME_DARK, THEME_SYSTEM].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_COMMON }) }))}
-                                onChange={(e) => {
-                                    //console.log("NEW VALUE", e.target.value)
-                                    changeTheme(e.target.value);
-                                }}
-                                hasNull={false}
-                            />
+                    </CardComponent>
+                    <CardComponent>
+                        <Stack spacing={1.5}>
+                            <Typography variant="h2">{title_settings}</Typography>
+                            <Stack spacing={1}>
+                                <SelectComponent
+                                    label={title_lang}
+                                    name={'lang'}
+                                    value={lang}
+                                    values={languages.map(lang => ({ id: lang, value: t(lang, { ns: NS_LANGS }) }))}
+                                    onChange={(e) => {
+                                        //console.log("NEW VALUE", e.target.value)
+                                        changeLang(e.target.value);
+                                    }}
+                                    hasNull={false}
+                                />
+                                <SelectComponent
+                                    label={title_theme}
+                                    name={'theme'}
+                                    //display={false}
+                                    value={modeApp}
+                                    values={[THEME_LIGHT, THEME_DARK, THEME_SYSTEM].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_COMMON }) }))}
+                                    onChange={(e) => {
+                                        //console.log("NEW VALUE", e.target.value)
+                                        changeTheme(e.target.value);
+                                    }}
+                                    hasNull={false}
+                                />
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </CardComponent>
+                    </CardComponent>
                 </Stack>
             </Grid>
         </Grid>

@@ -9,35 +9,6 @@ import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
 
-// Liste mock des 25 ordinateurs
-const initialComputers = [
-  { id: 1, name: "PC-01", status: "available" },
-  { id: 2, name: "PC-02", status: "available" },
-  { id: 3, name: "PC-03", status: "in_use" },
-  { id: 4, name: "PC-04", status: "in_use" },
-  { id: 5, name: "PC-05", status: "maintenance" },
-  { id: 6, name: "PC-06", status: "available" },
-  { id: 7, name: "PC-07", status: "offline" },
-  { id: 8, name: "PC-08", status: "in_use" },
-  { id: 9, name: "PC-09", status: "available" },
-  { id: 10, name: "PC-10", status: "available" },
-  { id: 11, name: "PC-11", status: "in_use" },
-  { id: 12, name: "PC-12", status: "maintenance" },
-  { id: 13, name: "PC-13", status: "available" },
-  { id: 14, name: "PC-14", status: "offline" },
-  { id: 15, name: "PC-15", status: "available" },
-  { id: 16, name: "PC-16", status: "in_use" },
-  { id: 17, name: "PC-17", status: "available" },
-  { id: 18, name: "PC-18", status: "maintenance" },
-  { id: 19, name: "PC-19", status: "in_use" },
-  { id: 20, name: "PC-20", status: "available" },
-  { id: 21, name: "PC-21", status: "available" },
-  { id: 22, name: "PC-22", status: "offline" },
-  { id: 23, name: "PC-23", status: "in_use" },
-  { id: 24, name: "PC-24", status: "available" },
-  { id: 25, name: "PC-25", status: "available" },
-];
-
 // Mapping des statuts → label + couleurs
 const STATUS_CONFIG = {
   available: {
@@ -69,612 +40,69 @@ const STATUS_CONFIG = {
     glow: "#6b728055",
   },
 };
-
-function ComputersPage() {
-  const [computers] = useState(initialComputers);
-  const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState(null);
-
-  const filteredComputers =
-    filter === "all"
-      ? computers
-      : computers.filter((pc) => pc.status === filter);
-
-  const handleCardClick = (pc) => {
-    setSelected(pc);
-  };
-
-  return (
-    <div className="page">
-      <main className="container">
-        {/* HEADER */}
-        <header className="header">
-          <div>
-            <p className="breadcrumb">Dashboard / Parc machines</p>
-            <h1>État des ordinateurs</h1>
-            <p className="muted">
-              Vue d&apos;ensemble des 25 postes de travail sur le site, avec
-              leur disponibilité en temps réel.
-            </p>
-          </div>
-
-          <div className="legend">
-            <LegendItem status="available" />
-            <LegendItem status="in_use" />
-            <LegendItem status="maintenance" />
-            <LegendItem status="offline" />
-          </div>
-        </header>
-
-        {/* FILTRES + STATS QUICK */}
-        <section className="toolbar">
-          <div className="chips">
-            <button
-              className={`chip ${filter === "all" ? "chip-active" : ""}`}
-              onClick={() => setFilter("all")}
-            >
-              Tous
-            </button>
-            <button
-              className={`chip ${filter === "available" ? "chip-active" : ""}`}
-              onClick={() => setFilter("available")}
-            >
-              Disponibles
-            </button>
-            <button
-              className={`chip ${filter === "in_use" ? "chip-active" : ""}`}
-              onClick={() => setFilter("in_use")}
-            >
-              Occupés
-            </button>
-            <button
-              className={`chip ${filter === "maintenance" ? "chip-active" : ""
-                }`}
-              onClick={() => setFilter("maintenance")}
-            >
-              Maintenance
-            </button>
-            <button
-              className={`chip ${filter === "offline" ? "chip-active" : ""}`}
-              onClick={() => setFilter("offline")}
-            >
-              HS / Hors ligne
-            </button>
-          </div>
-
-          <div className="counts">
-            <CountBubble
-              label="Disponibles"
-              value={computers.filter((c) => c.status === "available").length}
-            />
-            <CountBubble
-              label="Occupés"
-              value={computers.filter((c) => c.status === "in_use").length}
-            />
-            <CountBubble
-              label="Maintenance"
-              value={computers.filter((c) => c.status === "maintenance").length}
-            />
-            <CountBubble
-              label="HS"
-              value={computers.filter((c) => c.status === "offline").length}
-            />
-          </div>
-        </section>
-
-        {/* GRID + PANEL */}
-        <section className="layout">
-          {/* GRID DES ORDIS */}
-          <div className="grid">
-            {filteredComputers.map((pc) => (
-              <ComputerCard
-                key={pc.id}
-                computer={pc}
-                isSelected={selected?.id === pc.id}
-                onClick={() => handleCardClick(pc)}
-              />
-            ))}
-          </div>
-
-          {/* PANNEAU DÉTAILS */}
-          <aside className="side-panel">
-            {selected ? (
-              <>
-                <h2>Détails du poste</h2>
-                <div className="side-icon-wrapper">
-                  <ComputerIconLarge status={selected.status} />
-                </div>
-                <p className="side-name">{selected.name}</p>
-                <StatusBadge status={selected.status} big />
-
-                <div className="side-info">
-                  <p>
-                    <span>Identifiant interne :</span> #{selected.id}
-                  </p>
-                  <p>
-                    <span>Emplacement :</span> Salle informatique principale
-                  </p>
-                  <p>
-                    <span>Type :</span> Poste fixe
-                  </p>
-                  <p>
-                    <span>OS :</span> Windows 11 (exemple)
-                  </p>
-                  <p>
-                    <span>Dernière mise à jour :</span> 14.11.2025
-                  </p>
-                </div>
-
-                <p className="side-note">
-                  Cette partie pourra être reliée à ta vraie base de données
-                  (Firestore, API interne) pour afficher les specs, l&apos;état
-                  des mises à jour, l&apos;historique des pannes, etc.
-                </p>
-              </>
-            ) : (
-              <div className="side-empty">
-                <p>Sélectionne un ordinateur dans la grille pour voir les détails.</p>
-              </div>
-            )}
-          </aside>
-        </section>
-      </main>
-
-      <style jsx>{`
-        .page {
-          min-height: 100vh;
-          background: #020617;
-          padding: 40px 16px;
-          color: #e5e7eb;
-          display: flex;
-          justify-content: center;
-        }
-
-        .container {
-          width: 100%;
-          max-width: 1200px;
-        }
-
-        .header {
-          display: flex;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 24px;
-          align-items: flex-start;
-        }
-
-        .breadcrumb {
-          margin: 0 0 4px;
-          font-size: 0.75rem;
-          color: #6b7280;
-        }
-
-        h1 {
-          margin: 0 0 6px;
-          font-size: 1.8rem;
-        }
-
-        .muted {
-          margin: 0;
-          font-size: 0.9rem;
-          color: #9ca3af;
-          max-width: 460px;
-        }
-
-        .legend {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          justify-content: flex-end;
-        }
-
-        .toolbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 16px;
-          margin-bottom: 18px;
-          flex-wrap: wrap;
-        }
-
-        .chips {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-
-        .chip {
-          border-radius: 999px;
-          padding: 4px 10px;
-          border: 1px solid #1f2937;
-          background: #020617;
-          color: #9ca3af;
-          font-size: 0.78rem;
-          cursor: pointer;
-        }
-
-        .chip-active {
-          background: #111827;
-          border-color: #2563eb;
-          color: #e5e7eb;
-        }
-
-        .counts {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-
-        .layout {
-          display: grid;
-          grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
-          gap: 16px;
-        }
-
-        @media (max-width: 980px) {
-          .layout {
-            grid-template-columns: 1fr;
-          }
-
-          .header {
-            flex-direction: column;
-          }
-        }
-
-        .grid {
-          background: #020617;
-          border-radius: 16px;
-          border: 1px solid #1f2937;
-          padding: 12px;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 10px;
-        }
-
-        @media (max-width: 1000px) {
-          .grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 800px) {
-          .grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        .side-panel {
-          background: #020617;
-          border-radius: 16px;
-          border: 1px solid #1f2937;
-          padding: 16px 16px 18px;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-          min-height: 220px;
-        }
-
-        .side-panel h2 {
-          margin: 0 0 12px;
-          font-size: 1.1rem;
-        }
-
-        .side-icon-wrapper {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 8px;
-        }
-
-        .side-name {
-          text-align: center;
-          margin: 0;
-          font-weight: 600;
-          font-size: 1rem;
-        }
-
-        .side-info {
-          margin-top: 12px;
-          font-size: 0.85rem;
-        }
-
-        .side-info p {
-          margin: 2px 0;
-        }
-
-        .side-info span {
-          color: #9ca3af;
-        }
-
-        .side-note {
-          margin-top: 12px;
-          font-size: 0.78rem;
-          color: #6b7280;
-        }
-
-        .side-empty {
-          font-size: 0.9rem;
-          color: #9ca3af;
-          margin-top: 10px;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-/** Composants réutilisables **/
-
-function LegendItem({ status }) {
-  const cfg = STATUS_CONFIG[status];
-  return (
-    <div className="legend-item">
-      <span className="legend-dot" />
-      <span className="legend-label">{cfg.label}</span>
-
-      <style jsx>{`
-        .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.78rem;
-          color: #e5e7eb;
-        }
-        .legend-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 999px;
-          border: 2px solid ${cfg.badgeBorder};
-          background: ${cfg.badgeBg};
-          box-shadow: 0 0 10px ${cfg.glow};
-        }
-        .legend-label {
-          color: #9ca3af;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function CountBubble({ label, value }) {
-  return (
-    <div className="count-bubble">
-      <span className="count-value">{value}</span>
-      <span className="count-label">{label}</span>
-
-      <style jsx>{`
-        .count-bubble {
-          padding: 4px 10px;
-          border-radius: 999px;
-          border: 1px solid #1f2937;
-          background: #020617;
-          font-size: 0.78rem;
-          display: inline-flex;
-          align-items: baseline;
-          gap: 4px;
-        }
-        .count-value {
-          font-weight: 600;
-        }
-        .count-label {
-          color: #9ca3af;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function ComputerCard({ computer, isSelected, onClick }) {
-  const cfg = STATUS_CONFIG[computer.status];
-
-  return (
-    <button className="pc-card" onClick={onClick} type="button">
-      <div className="pc-icon-wrapper">
-        <ComputerIconSmall status={computer.status} />
-      </div>
-      <p className="pc-name">{computer.name}</p>
-      <StatusBadge status={computer.status} />
-      <p className="pc-id">#{computer.id.toString().padStart(2, "0")}</p>
-
-      <style jsx>{`
-        .pc-card {
-          border-radius: 14px;
-          border: 1px solid ${isSelected ? cfg.badgeBorder : "#111827"};
-          background: radial-gradient(circle at top, ${cfg.glow}, #020617);
-          padding: 8px 8px 9px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          transition: transform 0.12s ease, box-shadow 0.12s ease,
-            border-color 0.12s ease, background 0.12s ease;
-          box-shadow: ${isSelected
-          ? "0 0 0 1px #1d4ed8, 0 12px 35px rgba(0,0,0,0.6)"
-          : "0 10px 25px rgba(0,0,0,0.5)"};
-        }
-
-        .pc-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
-          border-color: ${cfg.badgeBorder};
-        }
-
-        .pc-icon-wrapper {
-          margin-bottom: 2px;
-        }
-
-        .pc-name {
-          margin: 0;
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-
-        .pc-id {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #9ca3af;
-        }
-      `}</style>
-    </button>
-  );
-}
-
-function StatusBadge({ status, big = false }) {
-  const cfg = STATUS_CONFIG[status];
-
-  return (
-    <>
-      <span className={`badge ${big ? "badge-big" : ""}`}>
-        <span className="dot" />
-        {cfg.label}
-      </span>
-
-      <style jsx>{`
-        .badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          padding: 2px 8px;
-          border-radius: 999px;
-          border: 1px solid ${cfg.badgeBorder};
-          background: ${cfg.badgeBg};
-          color: ${cfg.badgeText};
-          font-size: 0.72rem;
-          white-space: nowrap;
-        }
-
-        .badge-big {
-          margin-top: 6px;
-          font-size: 0.8rem;
-          padding: 3px 10px;
-        }
-
-        .dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 999px;
-          background: ${cfg.badgeBorder};
-          box-shadow: 0 0 8px ${cfg.glow};
-        }
-      `}</style>
-    </>
-  );
-}
-
-/** Icône "ordinateur de maison" en mode petit **/
-function ComputerIconSmall({ status }) {
-  const cfg = STATUS_CONFIG[status];
-
-  return (
-    <div className="icon">
-      <div className="screen" />
-      <div className="stand" />
-      <div className="base" />
-
-      <style jsx>{`
-        .icon {
-          width: 42px;
-          height: 38px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-        }
-
-        .screen {
-          width: 100%;
-          height: 22px;
-          border-radius: 8px;
-          border: 2px solid #111827;
-          background: linear-gradient(
-            135deg,
-            ${cfg.badgeBorder}33,
-            #020617 65%
-          );
-          box-shadow: inset 0 0 0 1px #020617, 0 0 10px ${cfg.glow};
-        }
-
-        .stand {
-          width: 8px;
-          height: 6px;
-          margin-top: 2px;
-          border-radius: 4px;
-          background: #0b1120;
-          border: 1px solid #111827;
-        }
-
-        .base {
-          width: 24px;
-          height: 4px;
-          margin-top: 2px;
-          border-radius: 999px;
-          background: #020617;
-          border: 1px solid #111827;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-/** Version "large" pour le panneau de droite **/
-function ComputerIconLarge({ status }) {
-  const cfg = STATUS_CONFIG[status];
-
-  return (
-    <div className="icon-large">
-      <div className="screen" />
-      <div className="stand" />
-      <div className="base" />
-
-      <style jsx>{`
-        .icon-large {
-          width: 90px;
-          height: 70px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-        }
-
-        .screen {
-          width: 100%;
-          height: 42px;
-          border-radius: 12px;
-          border: 2px solid #111827;
-          background: radial-gradient(
-            circle at top left,
-            ${cfg.badgeBorder}44,
-            #020617 70%
-          );
-          box-shadow: inset 0 0 0 1px #020617, 0 0 16px ${cfg.glow};
-        }
-
-        .stand {
-          width: 12px;
-          height: 10px;
-          margin-top: 4px;
-          border-radius: 6px;
-          background: #020617;
-          border: 1px solid #111827;
-        }
-
-        .base {
-          width: 40px;
-          height: 6px;
-          margin-top: 3px;
-          border-radius: 999px;
-          background: #020617;
-          border: 1px solid #111827;
-        }
-      `}</style>
-    </div>
-  );
-}
-
+const mockStats = {
+  activeStudents: 124,
+  activeTeachers: 8,
+  todayLessons: 5,
+  freeComputers: 17,
+  completionRate: 82,
+  certificatesThisMonth: 21,
+};
+
+const mockNextLessons = [
+  {
+    id: 1,
+    title: "Excel – Niveau Intermédiaire",
+    teacher: "Ana Silva",
+    time: "Aujourd'hui • 14:00",
+    room: "Salle 3",
+    enrolled: 18,
+    capacity: 22,
+  },
+  {
+    id: 2,
+    title: "Initiation à l’IA générative",
+    teacher: "João Pereira",
+    time: "Aujourd'hui • 16:30",
+    room: "Salle 2",
+    enrolled: 14,
+    capacity: 20,
+  },
+  {
+    id: 3,
+    title: "Word – Mise en page avancée",
+    teacher: "Marie Dupont",
+    time: "Demain • 09:00",
+    room: "Salle 1",
+    enrolled: 20,
+    capacity: 20,
+  },
+];
+
+const mockMessages = [
+  {
+    id: 1,
+    from: "Support Dandela Academy",
+    time: "Il y a 1 h",
+    preview: "Un nouveau cours IA a été publié dans le catalogue.",
+    type: "info",
+  },
+  {
+    id: 2,
+    from: "Système",
+    time: "Hier",
+    preview: "3 nouveaux étudiants ont rejoint la cohorte 2025.",
+    type: "success",
+  },
+  {
+    id: 3,
+    from: "Infra",
+    time: "Il y a 2 jours",
+    preview: "1 ordinateur signalé en maintenance dans la salle principale.",
+    type: "warning",
+  },
+];
+/*
 const mockStats = {
   totalCourses: 12,
   activeCourses: 4,
@@ -683,6 +111,7 @@ const mockStats = {
   hoursLearned: 142,
   certificates: 3,
 };
+*/
 
 const mockCourses = [
   {
@@ -716,7 +145,7 @@ const mockTeachers = [
   { id: 2, name: "João Pereira", specialty: "IA / Automatisation", courses: 3 },
   { id: 3, name: "Marie Dupont", specialty: "Bureautique avancée", courses: 2 },
 ];
-
+/*
 const mockMessages = [
   {
     id: 1,
@@ -743,7 +172,7 @@ const mockMessages = [
     unread: false,
   },
 ];
-
+*/
 const mockCertificates = [
   {
     id: 1,
@@ -1010,7 +439,7 @@ function DashboardPage() {
         .page {
           min-height: 100vh;
           background: #020617;
-          padding: 40px 16px;
+          padding: 40px 0px;
           color: #e5e7eb;
           display: flex;
           justify-content: center;
@@ -1018,7 +447,8 @@ function DashboardPage() {
 
         .container {
           width: 100%;
-          max-width: 1200px;
+          background: red;
+          padding:0;
         }
 
         .header {
@@ -1027,6 +457,7 @@ function DashboardPage() {
           justify-content: space-between;
           gap: 16px;
           margin-bottom: 24px;
+          background: green;
         }
 
         .welcome {
@@ -2377,6 +1808,810 @@ import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
 
 
+/** Nav item dans la sidebar */
+function NavItem({ label, icon, active, onClick }) {
+  return (
+    <>
+      <button
+        type="button"
+        className={`nav-item ${active ? "nav-item-active" : ""}`}
+        onClick={onClick}
+      >
+        <span className="nav-icon">{icon}</span>
+        <span className="nav-label">{label}</span>
+      </button>
+
+      <style jsx>{`
+        .nav-item {
+          width: 100%;
+          border-radius: 999px;
+          padding: 6px 10px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: #9ca3af;
+          font-size: 0.88rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          text-align: left;
+        }
+
+        .nav-item-active {
+          background: linear-gradient(135deg, #1f2937, #111827);
+          border-color: #2563eb;
+          color: #e5e7eb;
+        }
+
+        .nav-icon {
+          font-size: 1rem;
+        }
+
+        .nav-label {
+          flex: 1;
+        }
+      `}</style>
+    </>
+  );
+}
+
+/** Carte de stats */
+function StatCard({ label, value, helper, barValue }) {
+  return (
+    <>
+      <div className="stat-card">
+        <p className="stat-label">{label}</p>
+        <p className="stat-value">{value}</p>
+        {helper && <p className="stat-helper">{helper}</p>}
+        {typeof barValue === "number" && (
+          <div className="stat-bar">
+            <div
+              className="stat-bar-fill"
+              style={{ width: `${barValue}%` }}
+            />
+          </div>
+        )}
+      </div>
+
+      <style jsx>{`
+        .stat-card {
+          background: #020617;
+          border-radius: 14px;
+          border: 1px solid #1f2937;
+          padding: 10px 12px;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-label {
+          margin: 0 0 4px;
+          font-size: 0.8rem;
+          color: #9ca3af;
+        }
+
+        .stat-value {
+          margin: 0;
+          font-size: 1.4rem;
+          font-weight: 600;
+        }
+
+        .stat-helper {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+
+        .stat-bar {
+          margin-top: 8px;
+          height: 6px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .stat-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+      `}</style>
+    </>
+  );
+}
+
+/** Carte “accès rapide” */
+function QuickLink({ emoji, label, description }) {
+  return (
+    <>
+      <button type="button" className="quick-link">
+        <div className="q-emoji">{emoji}</div>
+        <div className="q-text">
+          <p className="q-label">{label}</p>
+          <p className="q-desc">{description}</p>
+        </div>
+      </button>
+
+      <style jsx>{`
+        .quick-link {
+          border-radius: 12px;
+          border: 1px solid #111827;
+          background: #020617;
+          padding: 8px 10px;
+          display: flex;
+          gap: 8px;
+          cursor: pointer;
+          text-align: left;
+        }
+
+        .quick-link:hover {
+          background: radial-gradient(circle at top left, #1d4ed822, #020617);
+          border-color: #1f2937;
+        }
+
+        .q-emoji {
+          font-size: 1.2rem;
+        }
+
+        .q-text {
+          font-size: 0.85rem;
+        }
+
+        .q-label {
+          margin: 0 0 2px;
+          font-weight: 500;
+        }
+
+        .q-desc {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+      `}</style>
+    </>
+  );
+}
+
+/** Messages dans le panneau “Activité récente” */
+function DashboardMessage({ msg }) {
+  const typeConfig = {
+    info: { border: "#3b82f6", emoji: "ℹ️" },
+    success: { border: "#22c55e", emoji: "✅" },
+    warning: { border: "#f97316", emoji: "⚠️" },
+  }[msg.type || "info"];
+
+  return (
+    <>
+      <div className="dash-msg">
+        <div className="dash-emoji">{typeConfig.emoji}</div>
+        <div className="dash-body">
+          <div className="dash-header">
+            <span className="dash-from">{msg.from}</span>
+            <span className="dash-time">{msg.time}</span>
+          </div>
+          <p className="dash-preview">{msg.preview}</p>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .dash-msg {
+          display: flex;
+          gap: 8px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          border: 1px solid ${typeConfig.border}33;
+          background: #020617;
+        }
+
+        .dash-emoji {
+          font-size: 1.1rem;
+        }
+
+        .dash-body {
+          flex: 1;
+          font-size: 0.82rem;
+        }
+
+        .dash-header {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.75rem;
+        }
+
+        .dash-from {
+          font-weight: 500;
+        }
+
+        .dash-time {
+          color: #6b7280;
+        }
+
+        .dash-preview {
+          margin: 3px 0 0;
+          color: #e5e7eb;
+        }
+      `}</style>
+    </>
+  );
+}
+
+
+function DandelaDashboardHome() {
+  const [activeMenu, setActiveMenu] = useState("accueil");
+
+  const handleMenuClick = (key) => {
+    // Ici tu peux remplacer par un vrai route.push('/app/...') plus tard
+    setActiveMenu(key);
+  };
+
+  return (<div className="page">
+    <div className="shell">
+      {/* TOPBAR */}
+      <header className="topbar">
+        <div className="brand">
+          <div className="logo-circle">DA</div>
+          <div>
+            <p className="brand-name">Dandela Academy</p>
+            <p className="brand-sub">Tableau de bord</p>
+          </div>
+        </div>
+
+        <div className="topbar-right">
+          <button className="notif-btn">🔔</button>
+          <div className="user-pill">
+            <div className="user-avatar">DM</div>
+            <div className="user-text">
+              <p className="user-name">Daniel</p>
+              <p className="user-role">Admin</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* LAYOUT AVEC SIDEBAR */}
+      <div className="layout">
+
+
+        {/* CONTENU PRINCIPAL */}
+        <main className="content">
+          {/* HEADER SECTION */}
+          <section className="content-header">
+            <div>
+              <p className="welcome-text">Bienvenue sur ton dashboard 👋</p>
+              <h1>Accueil</h1>
+              <p className="muted">
+                Accède rapidement aux ordinateurs, utilisateurs, cours et
+                calendrier de Dandela Academy.
+              </p>
+            </div>
+            <div className="header-actions">
+              <button className="btn ghost">Nouvel étudiant</button>
+              <button className="btn primary">Créer un cours</button>
+            </div>
+          </section>
+
+          {/* STATS */}
+          <section className="stats-grid">
+            <StatCard
+              label="Étudiants actifs"
+              value={mockStats.activeStudents}
+              helper="Connectés / inscrits récemment"
+            />
+            <StatCard
+              label="Professeurs actifs"
+              value={mockStats.activeTeachers}
+              helper="Sessions à venir"
+            />
+            <StatCard
+              label="Cours aujourd'hui"
+              value={mockStats.todayLessons}
+              helper="Sur l’ensemble du campus"
+            />
+            <StatCard
+              label="Ordinateurs disponibles"
+              value={mockStats.freeComputers}
+              helper="Salle informatique principale"
+            />
+            <StatCard
+              label="Taux de complétion"
+              value={`${mockStats.completionRate}%`}
+              helper="Moyenne globale des cours"
+              barValue={mockStats.completionRate}
+            />
+            <StatCard
+              label="Certificats ce mois"
+              value={mockStats.certificatesThisMonth}
+              helper="Diplômes délivrés"
+            />
+          </section>
+
+          {/* GRILLE PRINCIPALE */}
+          <section className="main-grid">
+            {/* COL GAUCHE : cours à venir + raccourcis */}
+            <div className="main-col">
+              <div className="card">
+                <div className="card-header">
+                  <h2>Cours à venir</h2>
+                  <button className="link-btn">Voir le calendrier</button>
+                </div>
+                <div className="lesson-list">
+                  {mockNextLessons.map((lesson) => (
+                    <div key={lesson.id} className="lesson-item">
+                      <div>
+                        <p className="lesson-title">{lesson.title}</p>
+                        <p className="lesson-sub">
+                          {lesson.teacher} • {lesson.room}
+                        </p>
+                        <p className="lesson-time">{lesson.time}</p>
+                      </div>
+                      <div className="lesson-meta">
+                        <p className="lesson-counter">
+                          {lesson.enrolled}/{lesson.capacity}
+                        </p>
+                        <p className="lesson-counter-sub">inscrits</p>
+                        <button className="mini-btn">Ouvrir</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <h2>Accès rapide</h2>
+                </div>
+                <div className="quick-links">
+                  <QuickLink
+                    label="Gérer les ordinateurs"
+                    description="Voir l’état des 25 postes de travail."
+                    emoji="💻"
+                  />
+                  <QuickLink
+                    label="Liste des utilisateurs"
+                    description="Étudiants, professeurs, admins."
+                    emoji="👥"
+                  />
+                  <QuickLink
+                    label="Créer un nouveau cours"
+                    description="Ajouter un module au catalogue."
+                    emoji="📘"
+                  />
+                  <QuickLink
+                    label="Consulter le calendrier"
+                    description="Vue globale des sessions."
+                    emoji="📅"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* COL DROITE : messages + résumé système */}
+            <div className="side-col">
+              <div className="card">
+                <div className="card-header">
+                  <h2>Activité récente</h2>
+                  <button className="link-btn">Tout voir</button>
+                </div>
+                <div className="message-list">
+                  {mockMessages.map((msg) => (
+                    <DashboardMessage key={msg.id} msg={msg} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <h2>Vue système</h2>
+                </div>
+                <ul className="system-list">
+                  <li>
+                    <span>Utilisateurs totaux :</span> 178 (mock)
+                  </li>
+                  <li>
+                    <span>Cours actifs :</span> 14 (mock)
+                  </li>
+                  <li>
+                    <span>Ordinateurs :</span> 25 (mock)
+                  </li>
+                  <li>
+                    <span>Dernière sauvegarde :</span> Aujourd&apos;hui •
+                    03:15
+                  </li>
+                </ul>
+                <p className="system-note">
+                  Ces données sont fictives. Tu pourras les remplacer par les
+                  vraies valeurs venant de Firestore / API.
+                </p>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <style jsx>{`
+      .page {
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #111827, #020617 55%);
+        background: red;
+        padding: 10px 0px;
+        color: #e5e7eb;
+        display: flex;
+        justify-content: center;
+      }
+
+      .shell {
+        width: 100%;
+        max-width: 1280px;
+        border-radius: 24px;
+        border: 1px solid #1f2937;
+        background: var(--card-color);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        height: 60px;
+        padding: 0 18px;
+        border-bottom: 1px solid #111827;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(90deg, #020617, #020617 40%, #0b1120);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      .brand-name {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .brand-sub {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .notif-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        border: 1px solid #1f2937;
+        background: #020617;
+        cursor: pointer;
+      }
+
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 4px 8px;
+        background: #020617;
+        border: 1px solid #1f2937;
+      }
+
+      .user-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .user-text {
+        font-size: 0.75rem;
+      }
+
+      .user-name {
+        margin: 0;
+      }
+
+      .user-role {
+        margin: 0;
+        color: #9ca3af;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 220px minmax(1fr, 1fr);
+        min-height: 520px;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .sidebar {
+        border-right: 1px solid #111827;
+        padding: 14px 10px 10px;
+        background: radial-gradient(circle at top, #020617, #020617 55%);
+      }
+
+      @media (max-width: 900px) {
+        .sidebar {
+          display: none;
+        }
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .sidebar-footer {
+        margin-top: 18px;
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+
+      .sidebar-hint span {
+        color: #e5e7eb;
+      }
+
+      .content {
+        padding: 18px 18px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .welcome-text {
+        margin: 0 0 4px;
+        font-size: 0.85rem;
+        color: #9ca3af;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.7rem;
+      }
+
+      .muted {
+        margin: 4px 0 0;
+        font-size: 0.9rem;
+        color: #9ca3af;
+        max-width: 500px;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border-radius: 999px;
+        padding: 8px 14px;
+        border: 1px solid #374151;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        border-color: transparent;
+      }
+
+      .btn.ghost {
+        background: transparent;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      @media (max-width: 900px) {
+        .stats-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 650px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+        gap: 14px;
+        margin-top: 4px;
+      }
+
+      @media (max-width: 980px) {
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .main-col,
+      .side-col {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .card {
+        background: #020617;
+        border-radius: 16px;
+        border: 1px solid #1f2937;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        padding: 14px 14px 16px;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .card-header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+      }
+
+      .link-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0.8rem;
+        color: #60a5fa;
+        cursor: pointer;
+      }
+
+      .lesson-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .lesson-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid #111827;
+        background: #020617;
+      }
+
+      .lesson-title {
+        margin: 0 0 3px;
+        font-size: 0.95rem;
+      }
+
+      .lesson-sub {
+        margin: 0;
+        font-size: 0.78rem;
+        color: #9ca3af;
+      }
+
+      .lesson-time {
+        margin: 4px 0 0;
+        font-size: 0.78rem;
+        color: #60a5fa;
+      }
+
+      .lesson-meta {
+        min-width: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 2px;
+      }
+
+      .lesson-counter {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .lesson-counter-sub {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
+      .mini-btn {
+        border-radius: 999px;
+        padding: 4px 10px;
+        border: 1px solid #374151;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+
+      .quick-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      @media (max-width: 700px) {
+        .quick-links {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .message-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .system-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 8px;
+        font-size: 0.85rem;
+      }
+
+      .system-list li {
+        margin-bottom: 4px;
+      }
+
+      .system-list span {
+        color: #9ca3af;
+      }
+
+      .system-note {
+        margin: 4px 0 0;
+        font-size: 0.78rem;
+        color: #6b7280;
+      }
+    `}</style>
+  </div>);
+}
 export default function DashboardHome() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
@@ -2391,7 +2626,7 @@ export default function DashboardHome() {
 
 
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
-    En construction...
+   <DandelaDashboardHome />
     <Button
       loading={processing}
       onClick={async () => {

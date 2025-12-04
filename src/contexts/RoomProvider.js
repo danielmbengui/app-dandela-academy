@@ -87,56 +87,24 @@ export function RoomProvider({ children, uidSchool = '' }) {
     // écoute du doc utilisateur
     const listenToRooms = useCallback((uidSchool) => {
         const colRef = ClassRoom.colRef(); // par ex.
-        console.log("Col ref provider", colRef);
+        //console.log("Col ref provider", colRef);
         const snapshotRooms = onSnapshot(colRef, async (snap) => {
             // snap est un QuerySnapshot
-            console.log("snap", snap.size);
+            //console.log("snap", snap.size);
             if (snap.empty) {
                 setRooms([]);
                 setRoom(null);
                 setIsLoading(false);
                 return;
             }
-            console.log("is not empty");
-            var _rooms = await ClassRoom.fetchListFromFirestore();
+            //console.log("is not empty");
+            var _rooms = snap.docs.map(doc=>doc.data());
             if (uidSchool) {
-                const exists = await ClassSchool.alreadyExist(uidSchool);
-                if (exists) {
-                    _rooms = await ClassRoom.fetchListFromFirestore([where('uid_school', '==', uidSchool)]);
-                }
+                _rooms = _rooms.filter(item=>item.uid_school === uidSchool);
             }
+            _rooms.sort((a,b)=>a.uid_intern-b.uid_intern);
             setRooms(_rooms);
-            /*
-            if (!room || room === null) {
-                const _room = _rooms[0];
-                //setRoom(_room);
-                setRoom(prev => {
-                    if (!prev) return _room;
-                    if (prev?.update) {
-                        prev.update(_room.toJSON()); // ou data.toJSON() si besoin
-                        return prev.clone();
-                    }
-                    return prev;
-                });
-            }
-            */
-            console.log("ROOMS provider", _rooms);
-            /*
-                        const _schools = snap.docs.map(docSnap => docSnap.data());
-                        setRooms(_schools);
-                        
-                        // par exemple : garder la première école
-                        const _school = _schools[0];
-                        console.log("one school provider", _school);
-                        setRoom(prev => {
-                            if (!prev) return _school;
-                            if (prev?.update) {
-                                prev.update(_school.toJSON()); // ou data.toJSON() si besoin
-                                return prev;
-                            }
-                            return prev;
-                        });
-                        */
+            //console.log("ROOMS provider", _rooms);
             setIsLoading(false);
         });
         return snapshotRooms;
@@ -155,9 +123,9 @@ export function RoomProvider({ children, uidSchool = '' }) {
         }
         _computers = await ClassHardware.fetchListFromFirestore(constraints);
         _computers = _computers.sort((a, b) => a.uid_intern - b.uid_intern);
-        console.log("has room", _computers);
+        //console.log("has room", _computers);
         setComputers(_computers);
-        console.log("ROOM computers", _computers)
+        //console.log("ROOM computers", _computers)
     }
 
     function getOneRoom(uid = '') {
@@ -177,7 +145,7 @@ export function RoomProvider({ children, uidSchool = '' }) {
     // session
     useEffect(() => {
         const listener = listenToRooms(uidSchool);
-        console.log("uid school", uidSchool);
+        //console.log("uid school", uidSchool);
         return () => listener?.();
     }, []);
     useEffect(() => {
@@ -207,12 +175,12 @@ export function RoomProvider({ children, uidSchool = '' }) {
         changeRoom,
         getOneRoom,
         getOneRoomName,
-        filterTypeComputers,
-        updateComputersList,
-        setFilterTypeComputers,
-        filterStatusComputers,
-        setFilterStatusComputers,
-        computers,
+        //filterTypeComputers,
+        //updateComputersList,
+        //setFilterTypeComputers,
+        //filterStatusComputers,
+        //setFilterStatusComputers,
+        //computers,
         isLoading,
         isConnected,
         isErrorSignIn,

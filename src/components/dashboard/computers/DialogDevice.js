@@ -39,25 +39,31 @@ import DialogTypographyComponent from '../elements/DialogTypographyComponent';
 import FieldComponent from '@/components/elements/FieldComponent';
 import DialogConfirmAction from '../elements/DialogConfirmAction';
 import { useRoom } from '@/contexts/RoomProvider';
+import { useDevice } from '@/contexts/DeviceProvider';
 
 function SimpleAlert({ text = "", severity = 'error' }) {
   return (<Alert severity={severity}>{text}</Alert>);
 }
-function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, mode = '', setMode = null, rooms = [], updateList = null }) {
+function CreateComponent({mode = '', setMode = null, }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
   const errorsTranslate = t('errors', { returnObjects: true });
   const successTranslate = t('success', { returnObjects: true });
   const { user } = useAuth();
-  const { lang } = useLanguage();
-  const [processing, setProcessing] = useState(false);
-  const [deviceNew, setDeviceNew] = useState(device);
-  //const [rooms, setRooms] = useState([]);
+  //const [deviceNew, setDeviceNew] = useState(device);
+  const { room, rooms } = useRoom();
+  const [device, setDevice] = useState(null);
   const [errors, setErrors] = useState({});
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  //const [success, setSuccess] = useState(false);
 
+  const { create, changeDevice,isLoading, } = useDevice();
+  useEffect(() => {
+    if (mode === 'create') {
+      setDevice(new ClassHardware({ uid_room: room?.uid || '', status: ClassDevice.STATUS.AVAILABLE }));
+    } else {
+      setDevice(null);
+    }
+  }, [mode])
   const onChangeValue = (e) => {
     const { name, value, type } = e.target;
     // console.log(name, value);
@@ -85,16 +91,12 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
   }
   const handleClose = () => {
     // setDeviceNew(null);
-    setDevice(null);
+    //setDevice(null);
+    changeDevice();
     setMode('');
     setErrors({});
   };
-  const handleCloseSnackbar = (event, reason) => {
-    setSuccess(false);
-    if (reason === 'clickaway') {
-      return;
-    }
-  };
+
   const onSubmit = async (e) => {
     setProcessing(true);
     try {
@@ -105,11 +107,6 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
       if (!device.validType()) {
         _errors.type = errorsTranslate.type || '';
       }
-      /*
-      if (!deviceNew.validName()) {
-        _errors.name = translateWithVars(errorsTranslate.name, { min: ClassDevice.MIN_LENGTH_NAME, max: ClassDevice.MAX_LENGTH_NAME }) || '';
-      }
-      */
       if (!device.validBrand()) {
         _errors.brand = translateWithVars(errorsTranslate.brand, { min: ClassDevice.MIN_LENGTH_BRAND, max: ClassDevice.MAX_LENGTH_BRAND }) || '';
       }
@@ -119,7 +116,6 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
       if (!device.validOsVersion()) {
         _errors.os_version = translateWithVars(errorsTranslate.os_version, { min: ClassHardware.MIN_LENGTH_OS_VERSION, max: ClassHardware.MAX_LENGTH_OS_VERSION }) || '';
       }
-
       if (!device.validBuyTime()) {
         _errors.buy_time = errorsTranslate.buy_time || '';
       }
@@ -133,23 +129,24 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
         _errors.main = errorsTranslate.main || '';
         setErrors(_errors);
       } else {
-        var newDevice = await device.createFirestore();
+        //await create();
+        var newDevice = await create(device);
         console.log("NEW DEVICE", newDevice);
         if (newDevice) {
-          setSuccess(true);
-          setTextSuccess(successTranslate.create || '');
+          //setTextSuccess(successTranslate.create || '');
           setErrors({});
-          setDevice(newDevice);
+          //setDevice(newDevice);
           //setDeviceNew(newDevice);
           setMode('read');
-          await updateList();
+          //changeDevice(newDevice.uid);
+          //await updateList();
         }
 
       }
 
     } catch (error) {
       console.log("ERROR", error)
-      return;
+      return null;
     } finally {
       setProcessing(false);
     }
@@ -180,7 +177,7 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
           hasNull={device?.uid_room === ''}
           required
           error={errors.room}
-          
+
         />
         <SelectComponentDark
           label={t('category')}
@@ -196,7 +193,8 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
         <SelectComponentDark
           label={t('type')}
           name={'type'}
-          disabled={!device?.validCategory()}
+          //disabled={!device?.validCategory()}
+          disabled={device?.uid_room === '' || !device?.validCategory()}
           value={device?.type}
           values={ClassDevice.getTypesByCategory(device?.category).map(type => ({ id: type, value: t(type) }))}
           onChange={onChangeValue}
@@ -217,61 +215,21 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
         />
         {
           device?.validCategory() && <Stack spacing={1}>
-            <SelectComponentDark
+            <FieldComponent
               label={t('os')}
               name={'os'}
               disabled={!device?.validType()}
-              value={device?.os}
-              values={ClassHardware.ALL_OS.map(category => ({ id: category, value: t(category) }))}
+              type='text'
+              value={device?.os || ''}
+              //onChange={onChangeValue}
               onChange={onChangeValue}
-              hasNull={device?.os === ClassHardware.OS.UNKNOWN}
+              onClear={() => onClear('os')}
               required
               error={errors.os}
+              autoComplete={ClassHardware.ALL_OS.map(item => t(item)).sort((a, b) => a.localeCompare(b))}
+            //options={['yes', 'no'].map(item=>({label:item}))}
             />
-            <FieldComponent
-              label={t('os_version')}
-              name={'os_version'}
-              //disabled={!device?.validType()}
-              type='text'
-              value={device?.os_version || ''}
-              onChange={onChangeValue}
-              onClear={() => onClear('os_version')}
-              required
-              error={errors.os_version}
-            //autoComplete={['yes', 'no'].map(item=>({label:item}))}
-            />
-            <Autocomplete
-              onClick={() => alert('ok')}
-              disablePortal
-              value={device?.os_version || ''}
-              options={['yes', 'no']}
-              fullWidth
-      
-              onChange={(e, newValue) => {
-                console.log("YEWS okay onchnage", newValue)
-                onChangeValue({
-                  target:{
-                  name: 'os_version',
-                  value: newValue,
-                  type: 'text'
-                }
-                })
-                //    const { name, value, type } = e.target;
-              }}
 
-              size={'small'}
-              //dffd
-              renderInput={(params) => <TextField
-                {...params}
-                variant="outlined"
-                label={t('os_version')}
-                name={'os_version'}
-                type='text'
-                value={device?.os_version || ''}
-                onChange={onChangeValue}
-              //onClear={() => onClear('os_version')}
-              />}
-            />
             <FieldComponent
               label={t('os_version')}
               name={'os_version'}
@@ -307,7 +265,7 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
                   <SimpleAlert text={errors.main} />
                 </Stack>
               }
-              <ButtonConfirm loading={processing} label={t('btn-create')} variant='contained' onClick={onSubmit} />
+              <ButtonConfirm loading={isLoading} label={t('btn-create')} variant='contained' onClick={onSubmit} />
             </Stack>
           }
         </Stack>
@@ -315,19 +273,19 @@ function CreateComponent({ setSuccess = null, setTextSuccess = '', device = null
     </DialogActions>
   </>)
 }
-function ReadComponent({ setSuccess = null, setTextSuccess = '',
-  device = null, setDevice = null, setMode = null, updateList = null }) {
+function ReadComponent({setMode = null,}) {
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
   const { user } = useAuth();
   const { lang } = useLanguage();
   const { theme } = useThemeMode();
-  const { primary, cardColor, text, greyLight } = theme.palette;
+  const { getOneRoomName } = useRoom();
+  const { primary, greyLight } = theme.palette;
   const [wantRemove, setWantRemove] = useState(false);
-  const [removed, setRemoved] = useState(false);
-  const successTranslate = t('success', { returnObjects: true });
+  const { device, changeDevice, remove } = useDevice();
 
   const handleClose = () => {
-    setDevice(null);
+    //setDevice(null);
+    changeDevice();
     setMode('');
   };
   const handleRemove = () => {
@@ -346,7 +304,7 @@ function ReadComponent({ setSuccess = null, setTextSuccess = '',
           }
           <Stack>
             <Typography variant='h4'>{device?.name || '---'}</Typography>
-            <Typography variant='h5' color='greyLight'>{t(device?.type)}</Typography>
+            <Typography variant='h5' color='greyLight'>{getOneRoomName(device?.uid_room) || '---'}</Typography>
           </Stack>
         </Stack>
         <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
@@ -399,11 +357,12 @@ function ReadComponent({ setSuccess = null, setTextSuccess = '',
       open={wantRemove}
       actionCancel={() => setWantRemove(false)}
       actionConfirm={async () => {
-        const _removed = await device.removeFirestore();
-        setRemoved(_removed);
-        await updateList();
-        setSuccess(true);
-        setTextSuccess(successTranslate.remove)
+        const _removed = await remove();
+        //const _removed = await device.removeFirestore();
+        //setRemoved(_removed);
+        //await updateList();
+        //setSuccess(_removed);
+        //setTextSuccess(_removed ? successTranslate.remove : '')
         handleClose();
 
       }}
@@ -411,14 +370,16 @@ function ReadComponent({ setSuccess = null, setTextSuccess = '',
     />
   </>);
 }
-function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, mode = '', setMode = null, updateList = null }) {
+function UpdateComponent({setMode = null, }) {
   const { theme } = useThemeMode();
   const { greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
-  const successTranslate = t('success', { returnObjects: true });
+  const errorsTranslate = t('errors', { returnObjects: true });
   const { user } = useAuth();
+  const { rooms, getOneRoomName } = useRoom();
+  const { device, changeDevice, update,isLoading } = useDevice();
   const [deviceEdit, setDeviceEdit] = useState(null);
-  const [processing, setProcessing] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (device) {
@@ -441,24 +402,63 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
     })
   }
   const handleClose = () => {
-    setDevice(null);
+    //setDevice(null);
+    changeDevice();
     setDeviceEdit(null);
     setMode('');
   };
   const handleSubmit = async () => {
-    setProcessing(true);
-    console.log("OOOOK", device.toJSON())
-    const newDevice = await deviceEdit.updateFirestore();
-    if (newDevice) {
-      setDevice(newDevice);
-      setDeviceEdit(newDevice);
-      setMode('read');
-      setSuccess(true);
-      setTextSuccess(successTranslate.edit)
-      await updateList();
-      //await updateComputersList();
+    //setProcessing(true);
+    try {
+      const _errors = {};
+      if (!deviceEdit.validCategory()) {
+        _errors.category = errorsTranslate.category || '';
+      }
+      if (!deviceEdit.validType()) {
+        _errors.type = errorsTranslate.type || '';
+      }
+      if (!deviceEdit.validBrand()) {
+        _errors.brand = translateWithVars(errorsTranslate.brand, { min: ClassDevice.MIN_LENGTH_BRAND, max: ClassDevice.MAX_LENGTH_BRAND }) || '';
+      }
+      if (!device.validOs()) {
+        _errors.os = errorsTranslate.os || '';
+      }
+      if (!deviceEdit.validOsVersion()) {
+        _errors.os_version = translateWithVars(errorsTranslate.os_version, { min: ClassHardware.MIN_LENGTH_OS_VERSION, max: ClassHardware.MAX_LENGTH_OS_VERSION }) || '';
+      } 
+      if (!deviceEdit.validBuyTime()) {
+        _errors.buy_time = errorsTranslate.buy_time || '';
+      }
+      if (!deviceEdit.validStatus()) {
+        _errors.status = errorsTranslate.status || '';
+      }
+      if (!deviceEdit.uid_room) {
+        _errors.room = errorsTranslate.room || '';
+      }
+      console.log("errrrorw", _errors)
+      if (Object.keys(_errors).length > 0) {
+        _errors.main = errorsTranslate.main || '';
+        setErrors(_errors);
+      } else {
+        console.log("OOOOK", deviceEdit.toJSON())
+        const newDevice = await update(deviceEdit);
+        if (newDevice) {
+          //changeDevice(newDevice.uid);
+          //setDevice(newDevice);
+          //setDeviceEdit(newDevice);
+          setMode('read');
+         // setSuccess(true);
+          //setTextSuccess(successTranslate.edit)
+          //await updateList();
+          //await updateComputersList();
+        }
+      }
+    } catch (error) {
+      console.log("ERROR", error)
+      return;
+    } finally {
+      //setProcessing(false);
     }
-    setProcessing(false);
   }
   return (<>
     <DialogTitle id="scroll-dialog-title">
@@ -469,7 +469,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
           }
           <Stack>
             <Typography variant='h4'>{deviceEdit?.name || '---'}</Typography>
-            <Typography variant='h5' color='greyLight'>{t(deviceEdit?.type)}</Typography>
+            <Typography variant='h5' color='greyLight'>{getOneRoomName(device?.uid_room) || '---'}</Typography>
           </Stack>
         </Stack>
         <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
@@ -489,12 +489,23 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
         </Divider>
         <Stack spacing={1} sx={{ width: '100%' }}>
           <SelectComponentDark
+            label={t('room')}
+            name={'uid_room'}
+            value={device?.uid_room}
+            values={rooms.map(room => ({ id: room.uid, value: room.name }))}
+            onChange={onChangeValue}
+            hasNull={device?.uid_room === ''}
+            required
+            error={errors.room}
+          />
+          <SelectComponentDark
             label={t('category')}
             name={'category'}
             value={deviceEdit?.category}
             values={ClassDevice.ALL_CATEGORIES.map(category => ({ id: category, value: t(category) }))}
             onChange={onChangeValue}
             hasNull={false}
+            error={errors.category}
           />
           <SelectComponentDark
             label={t('type')}
@@ -503,6 +514,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             values={ClassDevice.getTypesByCategory(deviceEdit?.category).map(type => ({ id: type, value: t(type) }))}
             onChange={onChangeValue}
             hasNull={false}
+            error={errors.type}
           />
           <FieldComponent
             label={t('name')}
@@ -510,6 +522,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             type='text'
             value={deviceEdit?.name || ''}
             onChange={onChangeValue}
+            error={errors.name}
           />
           <FieldComponent
             label={t('brand')}
@@ -517,6 +530,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             type='text'
             value={deviceEdit?.brand || ''}
             onChange={onChangeValue}
+            error={errors.brand}
           />
           <FieldComponent
             label={t('os')}
@@ -524,6 +538,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             type='text'
             value={deviceEdit?.os || ''}
             onChange={onChangeValue}
+            error={errors.os}
           />
           <FieldComponent
             label={t('os_version')}
@@ -531,6 +546,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             type='text'
             value={deviceEdit?.os_version || ''}
             onChange={onChangeValue}
+            error={errors.os_version}
           />
           <FieldComponent
             label={t('buy_time')}
@@ -538,6 +554,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             type='date'
             value={deviceEdit?.buy_time || ''}
             onChange={onChangeValue}
+            error={errors.buy_time}
           />
           <SelectComponentDark
             label={t('status')}
@@ -546,6 +563,7 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
             values={ClassDevice.ALL_STATUS.map(status => ({ id: status, value: t(status) }))}
             onChange={onChangeValue}
             hasNull={false}
+            error={errors.status}
           />
         </Stack>
       </Stack>
@@ -554,9 +572,9 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
       {
         user instanceof ClassUserIntern && <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
-            <ButtonCancel disabled={processing} label={t('btn-cancel')} variant='contained' onClick={() => setMode('read')} />
+            <ButtonCancel disabled={isLoading} label={t('btn-cancel')} variant='contained' onClick={() => setMode('read')} />
             {
-              device && deviceEdit && !device.same(deviceEdit) && <ButtonConfirm loading={processing} label={t('btn-edit')} variant='contained'
+              device && deviceEdit && !device.same(deviceEdit) && <ButtonConfirm loading={isLoading} label={t('btn-edit')} variant='contained'
                 onClick={handleSubmit} />
             }
           </Stack>
@@ -566,42 +584,22 @@ function UpdateComponent({ setSuccess = null, setTextSuccess = '', device = null
   </>)
 }
 
-export default function DialogDevice({ setSuccess = null, setTextSuccess = '', device = null, setDevice = null, updateList = null, mode = 'read', setMode = null }) {
+export default function DialogDevice({ mode = 'read', setMode = null }) {
   const { theme } = useThemeMode();
-  const { primary, cardColor, text, greyLight } = theme.palette;
-  const [rooms, setRooms] = useState([]);
-  useEffect(() => {
-    async function initRooms() {
-      //setDevice(device);
-      console.log("DEVICE", device)
-      const _schools = await ClassSchool.fetchListFromFirestore([
-        //where("school_uid", "==", schoolUid),
-        orderBy("name"),
-        //limit(25),
-      ]);
-      const _school = _schools[0];
-      const _rooms = await ClassRoom.fetchListFromFirestore([
-        where("uid_school", "==", _school.uid),
-        orderBy("uid_intern"),
-        //limit(25),
-      ]);
-      setRooms(_rooms);
-      const _room = _rooms[0];
-    }
-    if (mode === 'create' || mode === 'edit') {
-      initRooms();
-    }
-  }, [mode]);
+  const { cardColor, text, greyLight } = theme.palette;
+  const { device, changeDevice, } = useDevice();
 
   const handleClose = () => {
-    setDevice(null);
+    //setDevice(null);
     //setDeviceEdit(null);
+    changeDevice();
     setMode('');
   };
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }}>
       <Dialog
+        //inert
         //fullWidth
         maxWidth={'md'}
         open={device}
@@ -643,13 +641,13 @@ export default function DialogDevice({ setSuccess = null, setTextSuccess = '', d
         }}
       >
         {
-          mode === 'create' && <CreateComponent setTextSuccess={setTextSuccess} setSuccess={setSuccess} device={device} setDevice={setDevice} mode={mode} setMode={setMode} rooms={rooms} updateList={updateList} />
+          mode === 'create' && <CreateComponent mode={mode} setMode={setMode} />
         }
         {
-          mode === 'read' && <ReadComponent setTextSuccess={setTextSuccess} setSuccess={setSuccess} device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
+          mode === 'read' && <ReadComponent setMode={setMode} />
         }
         {
-          mode === 'edit' && <UpdateComponent setTextSuccess={setTextSuccess} setSuccess={setSuccess} device={device} setDevice={setDevice} mode={mode} setMode={setMode} updateList={updateList} />
+          mode === 'edit' && <UpdateComponent setMode={setMode} />
         }
       </Dialog>
     </Stack>

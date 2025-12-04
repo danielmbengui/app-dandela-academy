@@ -208,6 +208,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
               placeholder={t('placeholder_search', {ns:ClassUser.NS_COLLECTION})}
               fullWidth
               onChange={(e) => setSearch(e.target.value)}
+              onClear={()=>setSearch('')}
             />
           </Grid>
           <Grid size={'grow'}>

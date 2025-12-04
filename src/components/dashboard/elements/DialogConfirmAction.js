@@ -74,6 +74,7 @@ export default function DialogConfirmAction({
     <Stack sx={{ width: '100%', height: '100%' }}>
       <Dialog
         //fullWidth
+        inert={processing}
         maxWidth={'md'}
         open={open}
         //onClose={handleClose}
