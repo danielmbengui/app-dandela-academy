@@ -214,6 +214,20 @@ export function getFormattedDate(date = new Date(), lang = defaultLanguage) {
     return date;
   }
 }
+export function getFormattedDateNumeric(date = new Date(), lang = defaultLanguage) {
+  if(!date) {
+    return null;
+  }
+  if (date instanceof Date) {
+    return date.toLocaleDateString(lang, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+  } else {
+    return date;
+  }
+}
 export function getFormattedMonth(date = new Date(), lang = defaultLanguage, type='long') {
   if (date instanceof Date) {
     return date.toLocaleDateString(lang, {

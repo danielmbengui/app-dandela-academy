@@ -1,6 +1,10 @@
 "use client"
+import { ClassLesson } from "@/classes/ClassLesson";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
+import { getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric } from "@/contexts/functions";
+import { NS_LANGS } from "@/contexts/i18n/settings";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -9,8 +13,10 @@ const initialCourse = {
   category: "Bureautique",
   level: "Débutant",
   language: "Français",
-  format: "hybrid", // "online" | "onsite" | "hybrid"
+  lang: "fr",
+  format: "onsite", // "online" | "onsite" | "hybrid"
   isCertified: true,
+  certified: true,
   certificateProvider: "Dandela Academy",
   isOfficialCertificate: true,
   price: 290,
@@ -19,16 +25,30 @@ const initialCourse = {
   installmentExample: "2 x 150 CHF",
   startDate: "2025-03-10",
   endDate: "2025-04-05",
+  start_date: new Date(2025,2,10),
+  end_date: new Date(2025,3,5),
   durationHours: 24,
+  duration:16,
   sessionsPerWeek: 2,
+  sessions_count: 1,
+  sessions_type:'weekly',
   scheduleText: "Mardi & Jeudi • 18:30 – 20:30",
   location: "Campus central – Salle 3",
   onlinePlatform: "Classe virtuelle Dandela (via navigateur)",
   seatsTotal: 20,
   seatsTaken: 12,
+  seats_availables: 34,
+  seats_taken: 19,
   description:
     "Maîtrise les bases d’Excel pour être opérationnel au travail : formules, mises en forme, tableaux, graphiques et bonnes pratiques pour gagner du temps au quotidien.",
   objectives: [
+    "Comprendre l’interface et la logique d’Excel",
+    "Créer et mettre en forme des tableaux professionnels",
+    "Utiliser les formules de base (SOMME, MOYENNE, SI, NB.SI, etc.)",
+    "Concevoir des graphiques clairs et lisibles",
+    "Gagner du temps grâce aux formats conditionnels et aux filtres",
+  ],
+  goals: [
     "Comprendre l’interface et la logique d’Excel",
     "Créer et mettre en forme des tableaux professionnels",
     "Utiliser les formules de base (SOMME, MOYENNE, SI, NB.SI, etc.)",
@@ -40,11 +60,24 @@ const initialCourse = {
     "Professionnels souhaitant consolider leurs bases en bureautique",
     "Étudiants ou stagiaires qui utilisent Excel dans leurs études",
   ],
+  target_audiences: [
+    "Personnes en reconversion ou en recherche d’emploi",
+    "Professionnels souhaitant consolider leurs bases en bureautique",
+    "Étudiants ou stagiaires qui utilisent Excel dans leurs études",
+  ],
   prerequisites: [
     "Savoir utiliser un ordinateur (souris, clavier, navigation simple)",
     "Aucun prérequis sur Excel n’est nécessaire",
   ],
   programOutline: [
+    "Introduction à Excel & prise en main de l’interface",
+    "Création et mise en forme de tableaux",
+    "Formules et fonctions essentielles",
+    "Tri, filtres et mises en forme conditionnelles",
+    "Graphiques et visualisation de données",
+    "Mise en pratique sur un mini-projet",
+  ],
+  programs: [
     "Introduction à Excel & prise en main de l’interface",
     "Création et mise en forme de tableaux",
     "Formules et fonctions essentielles",
@@ -70,13 +103,19 @@ const FORMAT_CONFIG = {
 };
 
 export default function CourseEnrollmentPage() {
+  const {t} = useTranslation([NS_LANGS]);
+  const lesson = new ClassLesson(initialCourse);
+  const schedule = {...lesson.sessions_schedule, saturday:{is_open:true,open_hour:8,close_hour:12}};
+  lesson.sessions_schedule = schedule;
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const seatsLeft = Math.max(course.seatsTotal - course.seatsTaken, 0);
+  const seatsLeft = Math.max(lesson.seats_availables - lesson.seats_taken, 0);
   const isFull = seatsLeft <= 0 && !isEnrolled;
-  const formatCfg = FORMAT_CONFIG[course.format];
+  const formatCfg = FORMAT_CONFIG[lesson.format];
+
+  
 
   const handleToggleEnroll = () => {
     if (isFull && !isEnrolled) return;
@@ -110,11 +149,11 @@ export default function CourseEnrollmentPage() {
         {/* HEADER */}
         <header className="header">
           <div>
-            <p className="breadcrumb">Catalogue / Cours / {course.code}</p>
-            <h1>{course.title}</h1>
+          <p className="breadcrumb">Catalogue / Cours / {lesson.code}</p>
+          <h1>{lesson.title}</h1>
             <p className="muted">
-              Code : {course.code} • Niveau : {course.level} • Langue :{" "}
-              {course.language}
+              Code : {lesson.code} • Niveau : {lesson.level} • Langue :{" "}
+              {t(lesson.lang)}
             </p>
 
             <div className="badges">
@@ -129,7 +168,7 @@ export default function CourseEnrollmentPage() {
                 {formatCfg.label}
               </span>
 
-              {course.isCertified && (
+              {lesson.certified && (
                 <span className="badge-cert">
                   🎓 Certifié {course.certificateProvider}
                 </span>
@@ -140,12 +179,12 @@ export default function CourseEnrollmentPage() {
           {/* CARTE INSCRIPTION */}
           <aside className="enroll-card">
             <p className="price">
-              {course.price}{" "}
-              <span className="currency">{course.currency}</span>
+              {lesson.price}{" "}
+              <span className="currency">{lesson.currency}</span>
             </p>
             <p className="price-helper">
-              {course.durationHours}h de formation •{" "}
-              {course.sessionsPerWeek} séances / semaine
+              {lesson.duration}h de formation •{" "}
+              {lesson.sessions_count} séance(s) / semaine {lesson.sessions_type}
             </p>
 
             {course.hasInstallments && (
@@ -159,20 +198,20 @@ export default function CourseEnrollmentPage() {
               <div>
                 <p className="date-label">Début</p>
                 <p className="date-value">
-                  {formatDate(course.startDate)}
+                  {getFormattedDateNumeric(lesson.start_date)}
                 </p>
               </div>
               <div>
                 <p className="date-label">Fin</p>
                 <p className="date-value">
-                  {formatDate(course.endDate)}
+                  {getFormattedDateNumeric(lesson.end_date)}
                 </p>
               </div>
             </div>
 
             <div className="seats">
               <p className="seats-line">
-                {course.seatsTaken}/{course.seatsTotal} places occupées
+                {lesson.seats_taken}/{lesson.seats_availables} places occupées
               </p>
               <p className="seats-left">
                 {isFull
@@ -210,13 +249,13 @@ export default function CourseEnrollmentPage() {
           <div className="main-col">
             <div className="card">
               <h2>À propos de ce cours</h2>
-              <p className="description">{course.description}</p>
+              <p className="description">{lesson.description}</p>
             </div>
 
             <div className="card">
               <h2>Objectifs pédagogiques</h2>
               <ul className="list">
-                {course.objectives.map((item, idx) => (
+                {lesson.goals.map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
@@ -225,7 +264,7 @@ export default function CourseEnrollmentPage() {
             <div className="card">
               <h2>Programme</h2>
               <ol className="list ordered">
-                {course.programOutline.map((item, idx) => (
+                {lesson.programs.map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ol>
@@ -234,7 +273,7 @@ export default function CourseEnrollmentPage() {
             <div className="card">
               <h2>Pré-requis</h2>
               <ul className="list">
-                {course.prerequisites.map((item, idx) => (
+                {lesson.prerequisites.map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
@@ -243,7 +282,7 @@ export default function CourseEnrollmentPage() {
             <div className="card">
               <h2>Pour qui ?</h2>
               <ul className="list">
-                {course.targetAudience.map((item, idx) => (
+                {lesson.target_audiences.map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
@@ -257,13 +296,13 @@ export default function CourseEnrollmentPage() {
               <InfoRow label="Format" value={formatCfg.label} />
               <InfoRow
                 label="Durée totale"
-                value={`${course.durationHours} heures`}
+                value={`${lesson.duration} heures`}
               />
               <InfoRow
                 label="Rythme"
-                value={`${course.sessionsPerWeek} sessions par semaine`}
+                value={`${lesson.sessions_count} sessions par semaine ${lesson.sessions_type}`}
               />
-              <InfoRow label="Horaires" value={course.scheduleText} />
+              <InfoRow label="Horaires" value={`${Object.keys(lesson.sessions_schedule)[5]} • ${lesson.sessions_schedule.saturday.open_hour} - ${lesson.sessions_schedule.saturday.close_hour}`} />
               {course.format !== "online" && (
                 <InfoRow label="Lieu" value={course.location} />
               )}
