@@ -2628,6 +2628,7 @@ export default function DashboardHome() {
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
    <DandelaDashboardHome />
     <Button
+    sx={{display:'none'}}
       loading={processing}
       onClick={async () => {
         setProcessing(true);
