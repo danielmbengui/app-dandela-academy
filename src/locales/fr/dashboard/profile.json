@@ -6,9 +6,9 @@
     "active-lessons":"Cours actifs",
     "completed-lessons":"Cours terminés",
     "form": {
-        "title-perso":"Informations personnelles",
-        "title-account":"Informations compte",
-        "title-settings":"Paramètres",
+        "title_perso":"Informations personnelles",
+        "title_account":"Informations compte",
+        "title_settings":"Paramètres",
         "uid": "ID utilisateur",
         "display_name": "Nom utilisateur",
         "last_name": "Nom(s)",

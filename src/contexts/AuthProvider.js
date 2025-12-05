@@ -57,6 +57,8 @@ export function AuthProvider({ children }) {
 
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
+    const [processing, setProcessing] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
 
     const [isErrorSignIn, setIsErrorSignIn] = useState(false);
@@ -87,7 +89,7 @@ export function AuthProvider({ children }) {
                 await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             //const myUser = ClassUser.makeUserInstance(uid, data.toJSON());
-            //console.log("DATA listne user admin after", myUser);
+            
             //const ref = doc(firestore, ClassUser.COLLECTION, fbUser.uid);
             // Si tu as une classe métier :
             // const model = new ClassUser(data);
@@ -97,10 +99,11 @@ export function AuthProvider({ children }) {
                 if (!prev || prev === null) {
                     return data;
                 }
+                console.log("DATA listne user admin after", data);
                 //return _user;
                 // si tu utilises une classe avec .update(), garde-la
                 if (prev?.update) { prev.update(data.toJSON()); return prev; }
-                return prev;
+                return prev.clone();
             });
             setIsConnected(true);
             setIsLoading(false);
@@ -130,6 +133,32 @@ export function AuthProvider({ children }) {
         });
         return () => unsubAuth();
     }, [auth]);
+
+    async function update(_user = null) {
+        if (!_user || _user === null || !(_user instanceof ClassUser)) return;
+        //setIsLoading(true);
+        setProcessing(true);
+        //var newDevice = await _device.createFirestore();
+        var _updated = await _user.updateFirestore();
+        try {
+            if (_updated) {
+                setUser(_updated);
+                //setSuccess(true);
+                //setTextSuccess(successTranslate.edit);
+            } else {
+                setUser(null);
+                //setSuccess(false);
+                //setTextSuccess('');
+            }
+        } catch (error) {
+            console.log("ERROR", error)
+            return;
+        } finally {
+            //setIsLoading(false);
+            setProcessing(false);
+        }
+        return _updated;
+    }
 
     // actions
     const createAccount = async (e, email, password) => {
@@ -263,7 +292,6 @@ export function AuthProvider({ children }) {
         // router.replace("/");
         console.log("DISC OK");
     };
-
     const editPassword = async (e, newPassword) => {
         e?.preventDefault?.();
         await updatePassword(auth.currentUser, newPassword).then(async (user) => {
@@ -278,12 +306,10 @@ export function AuthProvider({ children }) {
             console.log("ERRRROR password", error);
         });
     }
-
     const sendVerification = async () => {
         if (auth.currentUser) await sendEmailVerification(auth.currentUser);
         console.log("SUCCESS", auth.currentUser.email)
     };
-
     const sendResetPassword = async (e, email) => {
         e?.preventDefault?.();
         const q = query(collection(firestore, ClassUser.COLLECTION), where('email', '==', email));
@@ -292,7 +318,6 @@ export function AuthProvider({ children }) {
             await sendPasswordResetEmail(auth, email);
         }
     };
-
     const updateUserProfile = async (newProfile) => {
         if (!auth.currentUser) return;
         await updateProfile(auth.currentUser, {
@@ -301,7 +326,6 @@ export function AuthProvider({ children }) {
         });
         setUser((u) => ({ ...(u || {}), ...newProfile }));
     };
-
     const removeErrorSigIn = () => {
         setIsErrorSignIn(false);
         setTextErrorSignIn('');
@@ -316,6 +340,8 @@ export function AuthProvider({ children }) {
         isErrorSignIn,
         textErrorSignIn,
         provider,
+        update,
+        processing,
         removeErrorSigIn,
         createAccount,
         signIn,

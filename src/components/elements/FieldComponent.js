@@ -143,7 +143,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                                     },
                                                     '&.Mui-disabled fieldset': {
                                                         // borderColor: greyLight.main, // désactivé
-                                                        border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                                                        border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
                                                         color: ClassColor.GREY_LIGHT,
                                                     },
                                                     '&.Mui-disabled .MuiOutlinedInput-input': {

@@ -1,500 +1,324 @@
 "use client"
-import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const mockStats = {
-  activeStudents: 124,
-  activeTeachers: 8,
-  todayLessons: 5,
-  freeComputers: 17,
-  completionRate: 82,
-  certificatesThisMonth: 21,
+const COURSES_MOCK = [
+  {
+    id: "excel-101",
+    title: "Excel – Compétences essentielles pour le travail",
+    code: "EXCEL-101",
+    category: "Bureautique",
+    level: "Débutant",
+    language: "Français",
+    format: "hybrid", // "online" | "onsite" | "hybrid"
+    isCertified: true,
+    price: 290,
+    currency: "CHF",
+    startDate: "2025-03-10",
+    endDate: "2025-04-05",
+    seatsTotal: 20,
+    seatsTaken: 12,
+    status: "open", // "open" | "full" | "finished" | "draft"
+  },
+  {
+    id: "excel-102",
+    title: "Excel – Niveau intermédiaire",
+    code: "EXCEL-102",
+    category: "Bureautique",
+    level: "Intermédiaire",
+    language: "Français",
+    format: "onsite",
+    isCertified: true,
+    price: 350,
+    currency: "CHF",
+    startDate: "2025-04-15",
+    endDate: "2025-05-10",
+    seatsTotal: 18,
+    seatsTaken: 18,
+    status: "full",
+  },
+  {
+    id: "pbi-201",
+    title: "Power BI – Visualisation de données",
+    code: "PBI-201",
+    category: "Data / BI",
+    level: "Intermédiaire",
+    language: "Portugais",
+    format: "online",
+    isCertified: true,
+    price: 420,
+    currency: "CHF",
+    startDate: "2025-05-01",
+    endDate: "2025-06-05",
+    seatsTotal: 25,
+    seatsTaken: 19,
+    status: "open",
+  },
+  {
+    id: "ia-101",
+    title: "Initiation à l’IA générative",
+    code: "IA-101",
+    category: "IA / Digital",
+    level: "Débutant",
+    language: "Français",
+    format: "online",
+    isCertified: false,
+    price: 180,
+    currency: "CHF",
+    startDate: "2025-02-10",
+    endDate: "2025-02-28",
+    seatsTotal: 30,
+    seatsTaken: 30,
+    status: "finished",
+  },
+  {
+    id: "office-100",
+    title: "Pack Office – Bases essentielles (Word, Excel, PowerPoint)",
+    code: "OFFICE-100",
+    category: "Bureautique",
+    level: "Débutant",
+    language: "Français",
+    format: "hybrid",
+    isCertified: true,
+    price: 390,
+    currency: "CHF",
+    startDate: "2025-06-01",
+    endDate: "2025-07-01",
+    seatsTotal: 22,
+    seatsTaken: 8,
+    status: "draft",
+  },
+];
+
+const LEVEL_OPTIONS = ["Tous les niveaux", "Débutant", "Intermédiaire", "Avancé"];
+
+const FORMAT_CONFIG = {
+  online: { label: "En ligne", color: "#3b82f6" },
+  onsite: { label: "Présentiel", color: "#22c55e" },
+  hybrid: { label: "Hybride", color: "#a855f7" },
 };
 
-const mockNextLessons = [
-  {
-    id: 1,
-    title: "Excel – Niveau Intermédiaire",
-    teacher: "Ana Silva",
-    time: "Aujourd'hui • 14:00",
-    room: "Salle 3",
-    enrolled: 18,
-    capacity: 22,
+const STATUS_CONFIG = {
+  open: {
+    label: "Inscriptions ouvertes",
+    color: "#22c55e",
+    bg: "#022c22",
   },
-  {
-    id: 2,
-    title: "Initiation à l’IA générative",
-    teacher: "João Pereira",
-    time: "Aujourd'hui • 16:30",
-    room: "Salle 2",
-    enrolled: 14,
-    capacity: 20,
+  full: {
+    label: "Complet",
+    color: "#f97316",
+    bg: "#451a03",
   },
-  {
-    id: 3,
-    title: "Word – Mise en page avancée",
-    teacher: "Marie Dupont",
-    time: "Demain • 09:00",
-    room: "Salle 1",
-    enrolled: 20,
-    capacity: 20,
+  finished: {
+    label: "Terminé",
+    color: "#9ca3af",
+    bg: "#0b1120",
   },
-];
+  draft: {
+    label: "Brouillon",
+    color: "#eab308",
+    bg: "#422006",
+  },
+};
 
-const mockMessages = [
-  {
-    id: 1,
-    from: "Support Dandela Academy",
-    time: "Il y a 1 h",
-    preview: "Un nouveau cours IA a été publié dans le catalogue.",
-    type: "info",
-  },
-  {
-    id: 2,
-    from: "Système",
-    time: "Hier",
-    preview: "3 nouveaux étudiants ont rejoint la cohorte 2025.",
-    type: "success",
-  },
-  {
-    id: 3,
-    from: "Infra",
-    time: "Il y a 2 jours",
-    preview: "1 ordinateur signalé en maintenance dans la salle principale.",
-    type: "warning",
-  },
-];
+export default function CoursesListPage() {
+  const [search, setSearch] = useState("");
+  const [levelFilter, setLevelFilter] = useState("Tous les niveaux");
+  const [formatFilter, setFormatFilter] = useState("all");
+  const [certFilter, setCertFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("date_start");
 
-export default function DandelaDashboardHome() {
-  const [activeMenu, setActiveMenu] = useState("accueil");
+  const filteredCourses = useMemo(() => {
+    let list = [...COURSES_MOCK];
 
-  const handleMenuClick = (key) => {
-    // Ici tu peux remplacer par un vrai route.push('/app/...') plus tard
-    setActiveMenu(key);
-  };
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      list = list.filter((c) => {
+        const full = `${c.title} ${c.code} ${c.category}`.toLowerCase();
+        return full.includes(s);
+      });
+    }
+
+    if (levelFilter !== "Tous les niveaux") {
+      list = list.filter((c) => c.level === levelFilter);
+    }
+
+    if (formatFilter !== "all") {
+      list = list.filter((c) => c.format === formatFilter);
+    }
+
+    if (certFilter !== "all") {
+      const mustBeCertified = certFilter === "certified";
+      list = list.filter((c) => c.isCertified === mustBeCertified);
+    }
+
+    if (statusFilter !== "all") {
+      list = list.filter((c) => c.status === statusFilter);
+    }
+
+    if (sortBy === "date_start") {
+      list.sort(
+        (a, b) =>
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
+    } else if (sortBy === "price") {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "title") {
+      list.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return list;
+  }, [search, levelFilter, formatFilter, certFilter, statusFilter, sortBy]);
 
   return (
-<DashboardPageWrapper>
-<div className="page">
-      <div className="shell">
-        {/* TOPBAR */}
-        <header className="topbar">
-          <div className="brand">
-            <div className="logo-circle">DA</div>
-            <div>
-              <p className="brand-name">Dandela Academy</p>
-              <p className="brand-sub">Tableau de bord</p>
-            </div>
+    <div className="page">
+      <main className="container">
+        {/* HEADER */}
+        <header className="header">
+          <div>
+            <p className="breadcrumb">Dashboard / Cours</p>
+            <h1>Liste des cours</h1>
+            <p className="muted">
+              Gère tous les modules de Dandela Academy : état des inscriptions,
+              formats, certifications et tarifs.
+            </p>
           </div>
 
-          <div className="topbar-right">
-            <button className="notif-btn">🔔</button>
-            <div className="user-pill">
-              <div className="user-avatar">DM</div>
-              <div className="user-text">
-                <p className="user-name">Daniel</p>
-                <p className="user-role">Admin</p>
-              </div>
-            </div>
+          <div className="header-actions">
+            <button className="btn ghost">Exporter (.csv)</button>
+            <button className="btn primary">Créer un cours</button>
           </div>
         </header>
 
-        {/* LAYOUT AVEC SIDEBAR */}
-        <div className="layout">
-          {/* SIDEBAR */}
-          <aside className="sidebar">
-            <nav className="nav">
-              <NavItem
-                label="Accueil"
-                icon="🏠"
-                active={activeMenu === "accueil"}
-                onClick={() => handleMenuClick("accueil")}
-              />
-              <NavItem
-                label="Ordinateurs"
-                icon="💻"
-                active={activeMenu === "ordinateurs"}
-                onClick={() => handleMenuClick("ordinateurs")}
-              />
-              <NavItem
-                label="Utilisateurs"
-                icon="👥"
-                active={activeMenu === "utilisateurs"}
-                onClick={() => handleMenuClick("utilisateurs")}
-              />
-              <NavItem
-                label="Calendrier"
-                icon="📅"
-                active={activeMenu === "calendrier"}
-                onClick={() => handleMenuClick("calendrier")}
-              />
-              <NavItem
-                label="Cours"
-                icon="📚"
-                active={activeMenu === "cours"}
-                onClick={() => handleMenuClick("cours")}
-              />
-              <NavItem
-                label="Profil"
-                icon="🙋‍♂️"
-                active={activeMenu === "profil"}
-                onClick={() => handleMenuClick("profil")}
-              />
-              <NavItem
-                label="Paramètres"
-                icon="⚙️"
-                active={activeMenu === "parametres"}
-                onClick={() => handleMenuClick("parametres")}
-              />
-            </nav>
+        {/* BARRE DE FILTRES */}
+        <section className="toolbar">
+          <div className="search-block">
+            <input
+              type="text"
+              placeholder="Rechercher par titre, code, catégorie..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-            <div className="sidebar-footer">
-              <p className="sidebar-hint">
-                Version <span>v1.0.0</span>
-              </p>
-            </div>
-          </aside>
+          <div className="filters">
+            <select
+              value={levelFilter}
+              onChange={(e) => setLevelFilter(e.target.value)}
+            >
+              {LEVEL_OPTIONS.map((lvl) => (
+                <option key={lvl} value={lvl}>
+                  {lvl}
+                </option>
+              ))}
+            </select>
 
-          {/* CONTENU PRINCIPAL */}
-          <main className="content">
-            {/* HEADER SECTION */}
-            <section className="content-header">
-              <div>
-                <p className="welcome-text">Bienvenue sur ton dashboard 👋</p>
-                <h1>Accueil</h1>
-                <p className="muted">
-                  Accède rapidement aux ordinateurs, utilisateurs, cours et
-                  calendrier de Dandela Academy.
-                </p>
+            <select
+              value={formatFilter}
+              onChange={(e) => setFormatFilter(e.target.value)}
+            >
+              <option value="all">Tous les formats</option>
+              <option value="online">En ligne</option>
+              <option value="onsite">Présentiel</option>
+              <option value="hybrid">Hybride</option>
+            </select>
+
+            <select
+              value={certFilter}
+              onChange={(e) => setCertFilter(e.target.value)}
+            >
+              <option value="all">Certifié / non certifié</option>
+              <option value="certified">Certifiés</option>
+              <option value="not_certified">Non certifiés</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="open">Inscriptions ouvertes</option>
+              <option value="full">Complet</option>
+              <option value="finished">Terminés</option>
+              <option value="draft">Brouillons</option>
+            </select>
+
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="date_start">Trier par date de début</option>
+              <option value="price">Trier par prix</option>
+              <option value="title">Trier par titre</option>
+            </select>
+          </div>
+        </section>
+
+        {/* TABLE / LISTE */}
+        <section className="card">
+          <div className="table-header">
+            <span className="th th-title">Cours</span>
+            <span className="th th-code">Code / Catégorie</span>
+            <span className="th th-format">Format</span>
+            <span className="th th-level">Niveau / Langue</span>
+            <span className="th th-dates">Dates</span>
+            <span className="th th-price">Prix</span>
+            <span className="th th-seats">Places</span>
+            <span className="th th-status">Statut</span>
+            <span className="th th-actions">Actions</span>
+          </div>
+
+          <div className="table-body">
+            {filteredCourses.length === 0 && (
+              <div className="empty-state">
+                Aucun cours ne correspond à ces critères.
               </div>
-              <div className="header-actions">
-                <button className="btn ghost">Nouvel étudiant</button>
-                <button className="btn primary">Créer un cours</button>
-              </div>
-            </section>
+            )}
 
-            {/* STATS */}
-            <section className="stats-grid">
-              <StatCard
-                label="Étudiants actifs"
-                value={mockStats.activeStudents}
-                helper="Connectés / inscrits récemment"
-              />
-              <StatCard
-                label="Professeurs actifs"
-                value={mockStats.activeTeachers}
-                helper="Sessions à venir"
-              />
-              <StatCard
-                label="Cours aujourd'hui"
-                value={mockStats.todayLessons}
-                helper="Sur l’ensemble du campus"
-              />
-              <StatCard
-                label="Ordinateurs disponibles"
-                value={mockStats.freeComputers}
-                helper="Salle informatique principale"
-              />
-              <StatCard
-                label="Taux de complétion"
-                value={`${mockStats.completionRate}%`}
-                helper="Moyenne globale des cours"
-                barValue={mockStats.completionRate}
-              />
-              <StatCard
-                label="Certificats ce mois"
-                value={mockStats.certificatesThisMonth}
-                helper="Diplômes délivrés"
-              />
-            </section>
-
-            {/* GRILLE PRINCIPALE */}
-            <section className="main-grid">
-              {/* COL GAUCHE : cours à venir + raccourcis */}
-              <div className="main-col">
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Cours à venir</h2>
-                    <button className="link-btn">Voir le calendrier</button>
-                  </div>
-                  <div className="lesson-list">
-                    {mockNextLessons.map((lesson) => (
-                      <div key={lesson.id} className="lesson-item">
-                        <div>
-                          <p className="lesson-title">{lesson.title}</p>
-                          <p className="lesson-sub">
-                            {lesson.teacher} • {lesson.room}
-                          </p>
-                          <p className="lesson-time">{lesson.time}</p>
-                        </div>
-                        <div className="lesson-meta">
-                          <p className="lesson-counter">
-                            {lesson.enrolled}/{lesson.capacity}
-                          </p>
-                          <p className="lesson-counter-sub">inscrits</p>
-                          <button className="mini-btn">Ouvrir</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Accès rapide</h2>
-                  </div>
-                  <div className="quick-links">
-                    <QuickLink
-                      label="Gérer les ordinateurs"
-                      description="Voir l’état des 25 postes de travail."
-                      emoji="💻"
-                    />
-                    <QuickLink
-                      label="Liste des utilisateurs"
-                      description="Étudiants, professeurs, admins."
-                      emoji="👥"
-                    />
-                    <QuickLink
-                      label="Créer un nouveau cours"
-                      description="Ajouter un module au catalogue."
-                      emoji="📘"
-                    />
-                    <QuickLink
-                      label="Consulter le calendrier"
-                      description="Vue globale des sessions."
-                      emoji="📅"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* COL DROITE : messages + résumé système */}
-              <div className="side-col">
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Activité récente</h2>
-                    <button className="link-btn">Tout voir</button>
-                  </div>
-                  <div className="message-list">
-                    {mockMessages.map((msg) => (
-                      <DashboardMessage key={msg.id} msg={msg} />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Vue système</h2>
-                  </div>
-                  <ul className="system-list">
-                    <li>
-                      <span>Utilisateurs totaux :</span> 178 (mock)
-                    </li>
-                    <li>
-                      <span>Cours actifs :</span> 14 (mock)
-                    </li>
-                    <li>
-                      <span>Ordinateurs :</span> 25 (mock)
-                    </li>
-                    <li>
-                      <span>Dernière sauvegarde :</span> Aujourd&apos;hui •
-                      03:15
-                    </li>
-                  </ul>
-                  <p className="system-note">
-                    Ces données sont fictives. Tu pourras les remplacer par les
-                    vraies valeurs venant de Firestore / API.
-                  </p>
-                </div>
-              </div>
-            </section>
-          </main>
-        </div>
-      </div>
+            {filteredCourses.map((course) => (
+              <CourseRow key={course.id} course={course} />
+            ))}
+          </div>
+        </section>
+      </main>
 
       <style jsx>{`
         .page {
           min-height: 100vh;
-          background: radial-gradient(circle at top, #111827, #020617 55%);
-          padding: 32px 12px;
+          background: #020617;
+          padding: 40px 16px;
           color: #e5e7eb;
           display: flex;
           justify-content: center;
         }
 
-        .shell {
+        .container {
           width: 100%;
-          max-width: 1280px;
-          border-radius: 24px;
-          border: 1px solid #1f2937;
-          background: #020617;
-          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
+          max-width: 1150px;
         }
 
-        .topbar {
-          height: 60px;
-          padding: 0 18px;
-          border-bottom: 1px solid #111827;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: linear-gradient(90deg, #020617, #020617 40%, #0b1120);
-        }
-
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .logo-circle {
-          width: 32px;
-          height: 32px;
-          border-radius: 999px;
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.85rem;
-          font-weight: 700;
-        }
-
-        .brand-name {
-          margin: 0;
-          font-size: 0.95rem;
-          font-weight: 600;
-        }
-
-        .brand-sub {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #9ca3af;
-        }
-
-        .topbar-right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .notif-btn {
-          width: 30px;
-          height: 30px;
-          border-radius: 999px;
-          border: 1px solid #1f2937;
-          background: #020617;
-          cursor: pointer;
-        }
-
-        .user-pill {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          border-radius: 999px;
-          padding: 4px 8px;
-          background: #020617;
-          border: 1px solid #1f2937;
-        }
-
-        .user-avatar {
-          width: 26px;
-          height: 26px;
-          border-radius: 999px;
-          background: linear-gradient(135deg, #22c55e, #16a34a);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.75rem;
-          font-weight: 600;
-        }
-
-        .user-text {
-          font-size: 0.75rem;
-        }
-
-        .user-name {
-          margin: 0;
-        }
-
-        .user-role {
-          margin: 0;
-          color: #9ca3af;
-        }
-
-        .layout {
-          display: grid;
-          grid-template-columns: 220px minmax(0, 1fr);
-          min-height: 520px;
-        }
-
-        @media (max-width: 900px) {
-          .layout {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .sidebar {
-          border-right: 1px solid #111827;
-          padding: 14px 10px 10px;
-          background: radial-gradient(circle at top, #020617, #020617 55%);
-        }
-
-        @media (max-width: 900px) {
-          .sidebar {
-            display: none;
-          }
-        }
-
-        .nav {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .sidebar-footer {
-          margin-top: 18px;
-          font-size: 0.75rem;
-          color: #6b7280;
-        }
-
-        .sidebar-hint span {
-          color: #e5e7eb;
-        }
-
-        .content {
-          padding: 18px 18px 22px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .content-header {
+        .header {
           display: flex;
           justify-content: space-between;
           gap: 16px;
+          margin-bottom: 24px;
           align-items: flex-start;
           flex-wrap: wrap;
         }
 
-        .welcome-text {
+        .breadcrumb {
           margin: 0 0 4px;
-          font-size: 0.85rem;
-          color: #9ca3af;
+          font-size: 0.75rem;
+          color: #6b7280;
         }
 
         h1 {
-          margin: 0;
-          font-size: 1.7rem;
+          margin: 0 0 6px;
+          font-size: 1.8rem;
         }
 
         .muted {
-          margin: 4px 0 0;
+          margin: 0;
           font-size: 0.9rem;
           color: #9ca3af;
-          max-width: 500px;
+          max-width: 480px;
         }
 
         .header-actions {
@@ -522,42 +346,48 @@ export default function DandelaDashboardHome() {
           background: transparent;
         }
 
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 10px;
-        }
-
-        @media (max-width: 900px) {
-          .stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 650px) {
-          .stats-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .main-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
-          gap: 14px;
-          margin-top: 4px;
-        }
-
-        @media (max-width: 980px) {
-          .main-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .main-col,
-        .side-col {
+        .toolbar {
           display: flex;
-          flex-direction: column;
-          gap: 12px;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+
+        .search-block {
+          flex: 1;
+          min-width: 220px;
+        }
+
+        .search-block input {
+          width: 100%;
+          border-radius: 999px;
+          border: 1px solid #1f2937;
+          padding: 8px 12px;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.9rem;
+          outline: none;
+        }
+
+        .search-block input::placeholder {
+          color: #6b7280;
+        }
+
+        .filters {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .filters select {
+          border-radius: 999px;
+          border: 1px solid #1f2937;
+          background: #020617;
+          color: #e5e7eb;
+          padding: 6px 10px;
+          font-size: 0.83rem;
+          outline: none;
         }
 
         .card {
@@ -565,89 +395,262 @@ export default function DandelaDashboardHome() {
           border-radius: 16px;
           border: 1px solid #1f2937;
           box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-          padding: 14px 14px 16px;
+          padding: 8px 0 10px;
         }
 
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+        .table-header {
+          display: grid;
+          grid-template-columns:
+            minmax(0, 2.5fr)
+            minmax(0, 1.6fr)
+            minmax(0, 1.4fr)
+            minmax(0, 1.7fr)
+            minmax(0, 1.7fr)
+            minmax(0, 1.4fr)
+            minmax(0, 1.4fr)
+            minmax(0, 1.7fr)
+            minmax(0, 1.5fr);
           gap: 8px;
-          margin-bottom: 10px;
+          padding: 8px 16px;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #6b7280;
+          border-bottom: 1px solid #111827;
         }
 
-        .card-header h2 {
-          margin: 0;
-          font-size: 1.05rem;
+        @media (max-width: 980px) {
+          .table-header {
+            display: none;
+          }
+
+          .card {
+            padding: 10px;
+          }
         }
 
-        .link-btn {
-          background: none;
-          border: none;
-          padding: 0;
-          margin: 0;
-          font-size: 0.8rem;
-          color: #60a5fa;
-          cursor: pointer;
+        .th {
+          white-space: nowrap;
         }
 
-        .lesson-list {
+        .table-body {
           display: flex;
           flex-direction: column;
-          gap: 8px;
         }
 
-        .lesson-item {
-          display: flex;
-          justify-content: space-between;
-          gap: 10px;
-          padding: 8px 10px;
-          border-radius: 12px;
-          border: 1px solid #111827;
+        .empty-state {
+          padding: 16px;
+          text-align: center;
+          font-size: 0.9rem;
+          color: #9ca3af;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function CourseRow({ course }) {
+  const formatCfg = FORMAT_CONFIG[course.format];
+  const statusCfg = STATUS_CONFIG[course.status];
+  const seatsLeft = Math.max(course.seatsTotal - course.seatsTaken, 0);
+
+  return (
+    <>
+      <div className="row">
+        {/* Titre / description */}
+        <div className="cell cell-title">
+          <p className="course-title">{course.title}</p>
+          <p className="course-sub">
+            {course.category} • {course.isCertified ? "Certifié" : "Non certifié"}
+          </p>
+        </div>
+
+        {/* Code / catégorie */}
+        <div className="cell cell-code">
+          <p className="text-main">{course.code}</p>
+          <p className="text-sub">{course.category}</p>
+        </div>
+
+        {/* Format */}
+        <div className="cell cell-format">
+          <span
+            className="format-pill"
+            style={{
+              borderColor: formatCfg.color,
+              color: formatCfg.color,
+            }}
+          >
+            <span
+              className="pill-dot"
+              style={{ backgroundColor: formatCfg.color }}
+            />
+            {formatCfg.label}
+          </span>
+        </div>
+
+        {/* Niveau / langue */}
+        <div className="cell cell-level">
+          <p className="text-main">{course.level}</p>
+          <p className="text-sub">{course.language}</p>
+        </div>
+
+        {/* Dates */}
+        <div className="cell cell-dates">
+          <p className="text-main">
+            Du {formatDate(course.startDate)} au {formatDate(course.endDate)}
+          </p>
+          <p className="text-sub">
+            Durée : {estimateDurationWeeks(course.startDate, course.endDate)}{" "}
+            semaines (approx.)
+          </p>
+        </div>
+
+        {/* Prix */}
+        <div className="cell cell-price">
+          <p className="text-main">
+            {course.price} {course.currency}
+          </p>
+          {course.isCertified && (
+            <p className="text-sub">Éligible certificate</p>
+          )}
+        </div>
+
+        {/* Places */}
+        <div className="cell cell-seats">
+          <p className="text-main">
+            {course.seatsTaken}/{course.seatsTotal} inscrits
+          </p>
+          <p className="text-sub">
+            {course.status === "finished"
+              ? "Session terminée"
+              : seatsLeft <= 0
+              ? "Aucune place restante"
+              : `${seatsLeft} place(s) libre(s)`}
+          </p>
+        </div>
+
+        {/* Statut */}
+        <div className="cell cell-status">
+          <span
+            className="status-badge"
+            style={{
+              backgroundColor: statusCfg.bg,
+              color: statusCfg.color,
+              borderColor: statusCfg.color,
+            }}
+          >
+            {statusCfg.label}
+          </span>
+        </div>
+
+        {/* Actions */}
+        <div className="cell cell-actions">
+          <button className="mini-btn">Voir</button>
+          <button className="mini-btn ghost">Éditer</button>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .row {
+          display: grid;
+          grid-template-columns:
+            minmax(0, 2.5fr)
+            minmax(0, 1.6fr)
+            minmax(0, 1.4fr)
+            minmax(0, 1.7fr)
+            minmax(0, 1.7fr)
+            minmax(0, 1.4fr)
+            minmax(0, 1.4fr)
+            minmax(0, 1.7fr)
+            minmax(0, 1.5fr);
+          gap: 8px;
+          padding: 10px 16px;
+          font-size: 0.85rem;
+          border-bottom: 1px solid #050816;
+          align-items: center;
+        }
+
+        .row:hover {
+          background: radial-gradient(circle at top left, #1d4ed822, #020617);
+        }
+
+        .cell {
+          min-width: 0;
+        }
+
+        .cell-title {
+          min-width: 0;
+        }
+
+        .course-title {
+          margin: 0;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .course-sub {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .text-main {
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .text-sub {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #6b7280;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .format-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border-radius: 999px;
+          border: 1px solid;
+          padding: 2px 8px;
+          font-size: 0.75rem;
           background: #020617;
         }
 
-        .lesson-title {
-          margin: 0 0 3px;
-          font-size: 0.95rem;
+        .pill-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 999px;
         }
 
-        .lesson-sub {
-          margin: 0;
-          font-size: 0.78rem;
-          color: #9ca3af;
-        }
-
-        .lesson-time {
-          margin: 4px 0 0;
-          font-size: 0.78rem;
-          color: #60a5fa;
-        }
-
-        .lesson-meta {
-          min-width: 90px;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          justify-content: center;
-          gap: 2px;
-        }
-
-        .lesson-counter {
-          margin: 0;
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-
-        .lesson-counter-sub {
-          margin: 0;
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          border-radius: 999px;
+          border: 1px solid;
+          padding: 2px 8px;
           font-size: 0.75rem;
-          color: #9ca3af;
+          white-space: nowrap;
+        }
+
+        .cell-actions {
+          display: flex;
+          gap: 4px;
+          justify-content: flex-end;
         }
 
         .mini-btn {
           border-radius: 999px;
-          padding: 4px 10px;
+          padding: 4px 8px;
           border: 1px solid #374151;
           background: #020617;
           color: #e5e7eb;
@@ -655,271 +658,41 @@ export default function DandelaDashboardHome() {
           cursor: pointer;
         }
 
-        .quick-links {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 8px;
+        .mini-btn.ghost {
+          background: transparent;
         }
 
-        @media (max-width: 700px) {
-          .quick-links {
+        @media (max-width: 980px) {
+          .row {
             grid-template-columns: 1fr;
+            padding: 10px 10px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            border: 1px solid #111827;
+          }
+
+          .cell-actions {
+            justify-content: flex-end;
           }
         }
-
-        .message-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .system-list {
-          list-style: none;
-          padding: 0;
-          margin: 0 0 8px;
-          font-size: 0.85rem;
-        }
-
-        .system-list li {
-          margin-bottom: 4px;
-        }
-
-        .system-list span {
-          color: #9ca3af;
-        }
-
-        .system-note {
-          margin: 4px 0 0;
-          font-size: 0.78rem;
-          color: #6b7280;
-        }
-      `}</style>
-    </div>
-</DashboardPageWrapper>
-  );
-}
-
-/** Nav item dans la sidebar */
-function NavItem({ label, icon, active, onClick }) {
-  return (
-    <>
-      <button
-        type="button"
-        className={`nav-item ${active ? "nav-item-active" : ""}`}
-        onClick={onClick}
-      >
-        <span className="nav-icon">{icon}</span>
-        <span className="nav-label">{label}</span>
-      </button>
-
-      <style jsx>{`
-        .nav-item {
-          width: 100%;
-          border-radius: 999px;
-          padding: 6px 10px;
-          border: 1px solid transparent;
-          background: transparent;
-          color: #9ca3af;
-          font-size: 0.88rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          text-align: left;
-        }
-
-        .nav-item-active {
-          background: linear-gradient(135deg, #1f2937, #111827);
-          border-color: #2563eb;
-          color: #e5e7eb;
-        }
-
-        .nav-icon {
-          font-size: 1rem;
-        }
-
-        .nav-label {
-          flex: 1;
-        }
       `}</style>
     </>
   );
 }
 
-/** Carte de stats */
-function StatCard({ label, value, helper, barValue }) {
-  return (
-    <>
-      <div className="stat-card">
-        <p className="stat-label">{label}</p>
-        <p className="stat-value">{value}</p>
-        {helper && <p className="stat-helper">{helper}</p>}
-        {typeof barValue === "number" && (
-          <div className="stat-bar">
-            <div
-              className="stat-bar-fill"
-              style={{ width: `${barValue}%` }}
-            />
-          </div>
-        )}
-      </div>
-
-      <style jsx>{`
-        .stat-card {
-          background: #020617;
-          border-radius: 14px;
-          border: 1px solid #1f2937;
-          padding: 10px 12px;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-        }
-
-        .stat-label {
-          margin: 0 0 4px;
-          font-size: 0.8rem;
-          color: #9ca3af;
-        }
-
-        .stat-value {
-          margin: 0;
-          font-size: 1.4rem;
-          font-weight: 600;
-        }
-
-        .stat-helper {
-          margin: 4px 0 0;
-          font-size: 0.78rem;
-          color: #6b7280;
-        }
-
-        .stat-bar {
-          margin-top: 8px;
-          height: 6px;
-          border-radius: 999px;
-          background: #020617;
-          border: 1px solid #1f2937;
-          overflow: hidden;
-        }
-
-        .stat-bar-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #22c55e, #16a34a);
-        }
-      `}</style>
-    </>
-  );
+/** Helper pour formater une date YYYY-MM-DD → JJ.MM.AAAA */
+function formatDate(iso) {
+  if (!iso) return "-";
+  const [y, m, d] = iso.split("-");
+  return `${d}.${m}.${y}`;
 }
 
-/** Carte “accès rapide” */
-function QuickLink({ emoji, label, description }) {
-  return (
-    <>
-      <button type="button" className="quick-link">
-        <div className="q-emoji">{emoji}</div>
-        <div className="q-text">
-          <p className="q-label">{label}</p>
-          <p className="q-desc">{description}</p>
-        </div>
-      </button>
-
-      <style jsx>{`
-        .quick-link {
-          border-radius: 12px;
-          border: 1px solid #111827;
-          background: #020617;
-          padding: 8px 10px;
-          display: flex;
-          gap: 8px;
-          cursor: pointer;
-          text-align: left;
-        }
-
-        .quick-link:hover {
-          background: radial-gradient(circle at top left, #1d4ed822, #020617);
-          border-color: #1f2937;
-        }
-
-        .q-emoji {
-          font-size: 1.2rem;
-        }
-
-        .q-text {
-          font-size: 0.85rem;
-        }
-
-        .q-label {
-          margin: 0 0 2px;
-          font-weight: 500;
-        }
-
-        .q-desc {
-          margin: 0;
-          font-size: 0.78rem;
-          color: #9ca3af;
-        }
-      `}</style>
-    </>
-  );
-}
-
-/** Messages dans le panneau “Activité récente” */
-function DashboardMessage({ msg }) {
-  const typeConfig = {
-    info: { border: "#3b82f6", emoji: "ℹ️" },
-    success: { border: "#22c55e", emoji: "✅" },
-    warning: { border: "#f97316", emoji: "⚠️" },
-  }[msg.type || "info"];
-
-  return (
-    <>
-      <div className="dash-msg">
-        <div className="dash-emoji">{typeConfig.emoji}</div>
-        <div className="dash-body">
-          <div className="dash-header">
-            <span className="dash-from">{msg.from}</span>
-            <span className="dash-time">{msg.time}</span>
-          </div>
-          <p className="dash-preview">{msg.preview}</p>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .dash-msg {
-          display: flex;
-          gap: 8px;
-          padding: 8px 10px;
-          border-radius: 12px;
-          border: 1px solid ${typeConfig.border}33;
-          background: #020617;
-        }
-
-        .dash-emoji {
-          font-size: 1.1rem;
-        }
-
-        .dash-body {
-          flex: 1;
-          font-size: 0.82rem;
-        }
-
-        .dash-header {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.75rem;
-        }
-
-        .dash-from {
-          font-weight: 500;
-        }
-
-        .dash-time {
-          color: #6b7280;
-        }
-
-        .dash-preview {
-          margin: 3px 0 0;
-          color: #e5e7eb;
-        }
-      `}</style>
-    </>
-  );
+/** Estimation très simple en semaines (pour l'affichage) */
+function estimateDurationWeeks(start, end) {
+  if (!start || !end) return "-";
+  const s = new Date(start);
+  const e = new Date(end);
+  const diffMs = e.getTime() - s.getTime();
+  const weeks = diffMs / (1000 * 60 * 60 * 24 * 7);
+  return Math.max(1, Math.round(weeks));
 }

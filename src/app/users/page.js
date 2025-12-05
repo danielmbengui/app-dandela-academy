@@ -24,6 +24,7 @@ import TextFieldComponent from '@/components/elements/TextFieldComponent';
 import FieldComponent from '@/components/elements/FieldComponent';
 import DialogUser from '@/components/dashboard/users/DialogUser';
 import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
+import { ClassColor } from '@/classes/ClassColor';
 
 const USERS_MOCK = [
   {
@@ -538,7 +539,7 @@ function UserRow({ user, lastChild = false,setUserDialog=null }) {
           gap: 8px;
           padding: 10px 16px;
           font-size: 0.85rem;
-          border-bottom: 0.1px solid ${greyLight.main};
+          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
           align-items: center;
         }
 

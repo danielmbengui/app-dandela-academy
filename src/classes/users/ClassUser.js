@@ -18,7 +18,7 @@ import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS } from "@/contexts/constants/constants_pages";
 import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors, IconUsers } from "@/assets/icons/IconsComponent";
-import { isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
+import { getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
 
@@ -59,7 +59,7 @@ export class ClassUser {
 
         CREATED: 'CREATED',
         VALIDATED_BY_TEAM: 'VALIDATED_BY_TEAM',
-        
+
         FIRST_CONNEXION: 'FIRST_CONNEXION',
         MUST_VERIFY_MAIL: 'MUST_VERIFY_MAIL',
         MUST_ACCEPT_PRIVACY: 'MUST_ACCEPT_PRIVACY',
@@ -69,7 +69,7 @@ export class ClassUser {
         CONNECTED: 'connected',
         DISCONNECTED: 'disconnected',
     });
-    
+
     static MIN_YEARS_OLD = 10;
     static MAX_YEARS_OLD = 100;
     static MIN_LENGTH_LAST_NAME = 3;
@@ -115,6 +115,8 @@ export class ClassUser {
         phone_number = "",
         preferred_language = defaultLanguage,
         accept_privacy = false,
+        newsletter = false,
+        notif_by_email = false,
         status = ClassUser.STATUS.UNKNOWN,
         last_connexion_time = null,
         created_time = null,
@@ -130,7 +132,10 @@ export class ClassUser {
         this._last_name = last_name;
         this._email_verified = email_verified;
         this._activated = activated;
-        
+
+        this._newsletter = newsletter;
+        this._notif_by_email = notif_by_email;
+
         this._birthday = birthday;
         this._display_name = display_name;
         this._photo_url = photo_url;
@@ -138,7 +143,7 @@ export class ClassUser {
         this._preferred_language = preferred_language;
         this._accept_privacy = accept_privacy;
         this._status = status;
-        this._last_connexion_time=last_connexion_time;
+        this._last_connexion_time = last_connexion_time;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
     }
@@ -176,12 +181,17 @@ export class ClassUser {
     get email() { return this._email; }
     set email(val) { this._email = val; }
 
+    get newsletter() { return this._newsletter; }
+    set newsletter(val) { this._newsletter = val; }
+    get notif_by_email() { return this._notif_by_email; }
+    set notif_by_email(val) { this._notif_by_email = val; }
+
     get email_academy() { return this._email_academy; }
     set email_academy(val) { this._email_academy = val; }
 
     get email_verified() { return this._email_verified; }
     set email_verified(val) { this._email_verified = val; }
-    
+
     get last_connexion_time() { return this._last_connexion_time; }
     set last_connexion_time(val) { this._last_connexion_time = val; }
     get created_time() { return this._created_time; }
@@ -202,7 +212,7 @@ export class ClassUser {
     get activated() { return this._activated; }
     set activated(val) { this._activated = val; }
 
-    showAvatar({size=30, fontSize='14px'}) {
+    showAvatar({ size = 30, fontSize = '14px' }) {
         return (<Avatar
             sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: size, height: size }}
             alt={this.getCompleteName()}
@@ -248,6 +258,59 @@ export class ClassUser {
         return cleaned;
 
         //return entries;
+    }
+    same(object) {
+        if (!(object instanceof ClassUser)) {
+            return false;
+        }
+        if (this._uid.trim() !== object.uid.trim()) {
+            return false;
+        }
+        if (this._type.trim() !== object.type.trim()) {
+            return false;
+        }
+        if (this._verified_by_team !== object.verified_by_team) {
+            return false;
+        }
+        if (this._first_name.trim() !== object.first_name.trim()) {
+            return false;
+        }
+        if (this._last_name.trim() !== object.last_name.trim()) {
+            return false;
+        }
+        if (this._display_name.trim() !== object.display_name.trim()) {
+            return false;
+        }
+        if (this._photo_url.trim() !== object.photo_url.trim()) {
+            return false;
+        }
+        if (this._email.trim() !== object.email.trim()) {
+            return false;
+        }
+        if (this._email_academy.trim() !== object.email_academy.trim()) {
+            return false;
+        }
+        if (this._phone_number.trim() !== object.phone_number.trim()) {
+            return false;
+        }
+        if (this._email_verified !== object.email_verified) {
+            return false;
+        }
+        if (this._activated !== object.activated) {
+            return false;
+        }
+        if (this._newsletter !== object.newsletter) {
+            return false;
+        }
+        if (this._notif_by_email !== object.notif_by_email) {
+            return false;
+        }
+        const jsonDay = getStartOfDay(this._birthday).getTime();
+        const objectDay = getStartOfDay(object.birthday).getTime();
+        if (jsonDay !== objectDay) {
+            return false;
+        }
+        return true;
     }
     update(props = {}) {
         for (const key in props) {
@@ -372,7 +435,7 @@ export class ClassUser {
                 icon: <IconLessons width={18} height={18} />,
             }*/]
         },
-         {
+        {
             name: "computers",
             path: PAGE_DASHBOARD_COMPUTERS,
             icon: <IconComputers width={20} height={20} />,
@@ -468,7 +531,7 @@ export class ClassUser {
                 var last_connexion_time = ClassUser._toJsDate(data.last_connexion_time);
                 var _created_time = data.created_time ? new Date(data.created_time.seconds * 1_000) : null;
                 var _last_edit_time = data.last_edit_time ? new Date(data.last_edit_time.seconds * 1_000) : null;
-                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_connexion_time,created_time: _created_time, last_edit_time: _last_edit_time });
+                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_connexion_time, created_time: _created_time, last_edit_time: _last_edit_time });
             },
         };
     }
@@ -614,6 +677,27 @@ export class ClassUser {
             return null;
         }
 
+    }
+    async updateFirestore() {
+        try {
+            const ref = this.constructor.docRef(this._uid);
+            this._uid = this._uid.trim();
+            this._first_name = this._first_name.trim();
+            this._last_name = this._last_name.trim();
+            this._display_name = this._display_name.trim();
+            this._email = this._email.trim();
+            this._email_academy = this._email_academy.trim();
+            this._status = this._status.trim();
+            this._last_edit_time = new Date();
+            //const data = { ...patch, last_edit_time: new Date() };
+            await updateDoc(ref, this.toJSON(), { merge: true });
+            //console.log("UPDATE COMPLETED", { ...this })
+            //return (await getDoc(ref)).data(); // -> ClassDevice
+            return this.constructor.makeUserInstance(this._uid, this.toJSON()); // -> ClassModule
+        } catch (e) {
+            console.log("ERRROR", e)
+            return null;
+        }
     }
 
     // Supprimer un module

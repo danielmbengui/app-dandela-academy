@@ -4,7 +4,7 @@ import { IconCalendar, IconIdea } from "@/assets/icons/IconsComponent";
 import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
-import { getFormattedDate } from "@/contexts/functions";
+import { getFormattedDate, getFormattedDateCompleteNumeric } from "@/contexts/functions";
 import { languages, NS_COMMON, NS_DASHBOARD_PROFILE, NS_FORM, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -19,6 +19,9 @@ import { THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from "@/contexts/constants/cons
 import FieldTextComponent from "@/components/elements/FieldTextComponent";
 import CardComponent from "@/components/elements/CardComponent";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
+import { t } from "i18next";
+import CheckboxComponent from "@/components/elements/CheckboxComponent";
+import { ClassColor } from "@/classes/ClassColor";
 const initialUser = {
     firstName: "Daniel",
     lastName: "Mbengui",
@@ -34,96 +37,94 @@ const initialUser = {
     language: "fr",
     theme: "light",
 };
-function ProfilePage({ user: userConnected = null }) {
-    const { theme } = useThemeMode();
+function ProfilePage() {
+    const { lang, changeLang } = useLanguage();
+    const { user, isLoading, update, processing } = useAuth();
+    const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_DASHBOARD_PROFILE]);
+    const translateLabels = t('form', {ns:NS_DASHBOARD_PROFILE, returnObjects: true})
+    const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { greyLight } = theme.palette;
-    const [user, setUser] = useState(initialUser);
-    const [isEditing, setIsEditing] = useState(false);
-    const [draft, setDraft] = useState(userConnected);
-    const [errors, setErrors] = useState({});
 
+    const [userEdit, setUserEdit] = useState(user);
+    const [errors, setErrors] = useState({});
+    useEffect(() => {
+        setUserEdit(user.clone());
+    }, [user]);
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-
-        setDraft((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : type === 'date' ? new Date(value) || null : value,
-        }));
+        setErrors(prev => ({ ...prev, [name]: '' }));
+        setUserEdit(prev => {
+            if (!prev || prev === null) {
+                return prev;
+            }
+            prev.update({ [name]: type === "checkbox" ? checked : type === 'date' ? new Date(value) || null : value });
+            return prev;
+        });
     };
     const handleClear = (name) => {
-        setDraft((prev) => ({
-            ...prev,
-            [name]: '',
-        }));
+        setErrors(prev => ({ ...prev, [name]: '' }));
+        setUserEdit(prev => {
+            if (!prev || prev === null) {
+                return prev;
+            }
+            prev.update({ [name]: '' });
+            return prev;
+        });
     };
-
-    const handleEdit = () => {
-        setDraft(user);
-        setIsEditing(true);
-    };
-
-    const handleCancel = () => {
-        setDraft(user);
-        setIsEditing(false);
-    };
-
-    const handleSave = (e) => {
-        e.preventDefault();
+    const handleSave = async (e) => {
+        //e.preventDefault();
         //setUser(draft);
-        setIsEditing(false);
-
+        //setIsEditing(false);
+        await update(userEdit);
         // Ici tu pourras appeler ton API / Firestore / etc.
         // ex: await fetch("/api/user", { method: "PUT", body: JSON.stringify(draft) })
-        console.log("Profil sauvegardé :", draft);
+        console.log("Profil sauvegardé :", userEdit);
     };
-
     return (
         <div className="page">
             <main className="container">
                 <header className="header">
-                    <div className="avatar">
-                        {user.firstName[0]}
-                        {user.lastName[0]}
-                    </div>
+                    {
+                        user?.showAvatar({ size: 60, fontSize: '18px' })
+                    }
                     <div>
                         <h1>
-                            {user.firstName} {user.lastName}
+                            {user?.first_name} {user?.last_name.toUpperCase()}
                         </h1>
                         <p className="muted">
-                            #{user.userNumber} • {user.role} • {user.type}
+                            @{user?.display_name} • {t(user?.role, { ns: NS_ROLES })} • {user?.type}
                         </p>
                     </div>
                     <div className="header-actions">
-                        {!isEditing && (
-                            <button className="btn primary" onClick={handleEdit}>
-                                Modifier le profil
-                            </button>
-                        )}
-                        {isEditing && (
-                            <>
-                                <button className="btn" onClick={handleCancel}>
-                                    Annuler
-                                </button>
-                                <button className="btn primary" onClick={handleSave}>
-                                    Enregistrer
-                                </button>
-                            </>
-                        )}
+                        {
+                            user && userEdit && !user.same(userEdit) && <Stack spacing={1} direction={'row'} alignItems={'center'}>
+                                <ButtonCancel
+                                    label="Annuler"
+                                    onClick={() => setUserEdit(user.clone())}
+                                    disabled={processing}
+                                />
+                                <ButtonConfirm
+                                    label="Modifier mon profil"
+                                    onClick={handleSave}
+                                    loading={processing}
+                                />
+                            </Stack>
+                        }
                     </div>
                 </header>
 
                 <form onSubmit={handleSave} className="grid">
                     {/* Infos personnelles */}
                     <section className="card">
-                        <h2>Informations personnelles</h2>
+                        <h2>{translateLabels.title_perso}</h2>
                         <div className="field">
                             <FieldComponent
                                 label={'prénom(s)'}
                                 name={'first_name'}
                                 type="text"
-                                value={draft?.first_name}
+                                value={userEdit?.first_name}
                                 onChange={handleChange}
-                                onClear={()=>handleClear('first_name')}
+                                onClear={() => handleClear('first_name')}
                                 error={errors.first_name}
                             />
                         </div>
@@ -132,9 +133,9 @@ function ProfilePage({ user: userConnected = null }) {
                                 label={'nom(s)'}
                                 name={'last_name'}
                                 type="text"
-                                value={draft?.last_name}
+                                value={userEdit?.last_name}
                                 onChange={handleChange}
-                                onClear={()=>handleClear('last_name')}
+                                onClear={() => handleClear('last_name')}
                                 error={errors.last_name}
                             />
                         </div>
@@ -143,7 +144,7 @@ function ProfilePage({ user: userConnected = null }) {
                                 label={'Nom dhtilisateur'}
                                 name={'display_name'}
                                 type="text"
-                                value={draft?.display_name}
+                                value={userEdit?.display_name}
                                 onChange={handleChange}
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
@@ -155,23 +156,11 @@ function ProfilePage({ user: userConnected = null }) {
                                 label={'Email personnel'}
                                 name={'email'}
                                 type="email"
-                                value={draft?.email}
+                                value={userEdit?.email}
                                 onChange={handleChange}
-                                
+
                                 //onClear={()=>handleClear('first_name')}
                                 error={errors.email}
-                            />
-                        </div>
-                        <div className="field">
-                            <FieldComponent
-                                label={'Téléphone'}
-                                name={'phone_number'}
-                                type="phone"
-                                value={draft?.phone_number}
-                                onChange={handleChange}
-                                
-                                onClear={()=>handleClear('phone_number')}
-                                error={errors.phone_number}
                             />
                         </div>
                         <div className="field">
@@ -179,7 +168,7 @@ function ProfilePage({ user: userConnected = null }) {
                                 label={`Email de l'école`}
                                 name={'email_academy'}
                                 type="email"
-                                value={draft?.email_academy}
+                                value={userEdit?.email_academy}
                                 onChange={handleChange}
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
@@ -191,76 +180,36 @@ function ProfilePage({ user: userConnected = null }) {
                                 label={'date de naissance'}
                                 name={'birthday'}
                                 type="date"
-                                value={draft?.birthday}
+                                value={userEdit?.birthday}
                                 onChange={handleChange}
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
                                 error={errors.birthday}
                             />
                         </div>
-                        
-                        
-                        <div className="field">
-                            <label>Prénom</label>
-                            <input
-                                type="text"
-                                name="firstName"
-                                value={draft.firstName}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </div>
-                        <div className="field">
-                            <label>Nom</label>
-                            <input
-                                type="text"
-                                name="lastName"
-                                value={draft.lastName}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </div>
-                        <div className="field">
-                            <label>Date de naissance</label>
-                            <input
-                                type="date"
-                                name="birthDate"
-                                value={draft.birthDate}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </div>
-                        <div className="field">
-                            <label>Email personnel</label>
-                            <input
-                                type="email"
-                                name="personalEmail"
-                                value={draft.personalEmail}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </div>
-                        <div className="field">
-                            <label>Email de l&apos;école</label>
-                            <input
-                                type="email"
-                                name="schoolEmail"
-                                value={draft.schoolEmail}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </div>
                     </section>
 
                     {/* Infos système / compte */}
                     <section className="card">
-                        <h2>Informations de compte</h2>
+                        <h2>{translateLabels.title_account}</h2>
+                        <div className="field">
+                            <FieldComponent
+                                label={'uid utilisateur'}
+                                name={'uid'}
+                                type="text"
+                                value={userEdit?.uid}
+                                onChange={handleChange}
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.uid}
+                            />
+                        </div>
                         <div className="field">
                             <SelectComponentDark
                                 label={`Role`}
                                 name={'role'}
-                                value={draft?.role}
-                                values={ClassUser.ALL_ROLES.map(role=>({id:role, value:role}))}
+                                value={userEdit?.role}
+                                values={ClassUser.ALL_ROLES.map(role => ({ id: role, value: t(role, { ns: NS_ROLES }) }))}
                                 onChange={handleChange}
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
@@ -268,100 +217,76 @@ function ProfilePage({ user: userConnected = null }) {
                             />
                         </div>
                         <div className="field">
-                            <label>Rôle</label>
-                            <select
-                                name="role"
-                                value={draft.role}
+                            <FieldTextComponent
+                                label={'date création'}
+                                name={'created_time'}
+                                type="date"
+                                value={getFormattedDateCompleteNumeric(userEdit?.created_time, lang)}
                                 onChange={handleChange}
-                                disabled={!isEditing}
-                            >
-                                <option value="Étudiant">Étudiant</option>
-                                <option value="Professeur">Professeur</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Super admin">Super admin</option>
-                            </select>
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.created_time}
+                            />
                         </div>
-
                         <div className="field">
-                            <label>Type</label>
-                            <select
-                                name="type"
-                                value={draft.type}
+                            <FieldTextComponent
+                                label={'date dernière mise à jour'}
+                                name={'last_edit_time'}
+                                type="date"
+                                value={getFormattedDateCompleteNumeric(userEdit?.last_edit_time, lang)}
                                 onChange={handleChange}
-                                disabled={!isEditing}
-                            >
-                                <option value="Temps plein">Temps plein</option>
-                                <option value="Temps partiel">Temps partiel</option>
-                                <option value="Invité">Invité</option>
-                            </select>
-                        </div>
-
-                        <div className="field">
-                            <label>Numéro d&apos;utilisateur</label>
-                            <input
-                                type="text"
-                                name="userNumber"
-                                value={draft.userNumber}
-                                onChange={handleChange}
-                                disabled={!isEditing}
+                                disabled={true}
+                                //onClear={()=>handleClear('first_name')}
+                                error={errors.last_edit_time}
                             />
                         </div>
 
                         <hr className="divider" />
 
-                        <h3>Paramètres</h3>
-
+                        <h3>{translateLabels.title_settings}</h3>
                         <div className="field inline">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="notificationsEmail"
-                                    checked={draft.notificationsEmail}
-                                    onChange={handleChange}
-                                    disabled={!isEditing}
-                                />
-                                Recevoir les notifications par email
-                            </label>
+                            <CheckboxComponent
+                                label={'Recevoir la newsletter'}
+                                name={'newsletter'}
+                                checked={userEdit?.newsletter}
+                                onChange={handleChange}
+                            />
                         </div>
-
                         <div className="field inline">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="newsletter"
-                                    checked={draft.newsletter}
-                                    onChange={handleChange}
-                                    disabled={!isEditing}
-                                />
-                                Recevoir la newsletter
-                            </label>
+                            <CheckboxComponent
+                                label={'Recevoir les notifications par email'}
+                                name={'notif_by_email'}
+                                checked={userEdit?.notif_by_email}
+                                onChange={handleChange}
+                            />
                         </div>
 
                         <div className="field">
-                            <label>Langue de l&apos;interface</label>
-                            <select
-                                name="language"
-                                value={draft.language}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            >
-                                <option value="fr">Français</option>
-                                <option value="en">Anglais</option>
-                                <option value="pt">Portugais</option>
-                            </select>
+                            <SelectComponentDark
+                                label={'langue'}
+                                name={'lang'}
+                                value={lang}
+                                values={languages.map(lang => ({ id: lang, value: t(lang, { ns: NS_LANGS }) }))}
+                                onChange={(e) => {
+                                    //console.log("NEW VALUE", e.target.value)
+                                    changeLang(e.target.value);
+                                }}
+                                hasNull={false}
+                            />
                         </div>
-
                         <div className="field">
-                            <label>Thème</label>
-                            <select
-                                name="theme"
-                                value={draft.theme}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            >
-                                <option value="light">Clair</option>
-                                <option value="dark">Sombre</option>
-                            </select>
+                            <SelectComponentDark
+                                label={'theme'}
+                                name={'theme'}
+                                //display={false}
+                                value={modeApp}
+                                values={[THEME_LIGHT, THEME_DARK, THEME_SYSTEM].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_COMMON }) }))}
+                                onChange={(e) => {
+                                    //console.log("NEW VALUE", e.target.value)
+                                    changeTheme(e.target.value);
+                                }}
+                                hasNull={false}
+                            />
                         </div>
                     </section>
                 </form>
@@ -370,8 +295,6 @@ function ProfilePage({ user: userConnected = null }) {
             <style jsx>{`
         .page {
           min-height: 100vh;
-          background: #0f172a;
-          background:red;
           padding: 20px 0px;
           color: var(--font-color);
           display: flex;
@@ -380,24 +303,26 @@ function ProfilePage({ user: userConnected = null }) {
 
         .container {
           width: 100%;
-          padding:0;
+          padding:0px;
         }
 
         .header {
           display: flex;
           align-items: center;
           gap: 16px;
-          margin-bottom: 24px;
+          margin-bottom: 15px;
         }
 
         .header h1 {
           margin: 0;
-          font-size: 1.8rem;
+          font-size: 1.5rem;
+          line-height: 1.5rem;
         }
 
         .header-actions {
           margin-left: auto;
           display: flex;
+          align-items:center;
           gap: 8px;
         }
 
@@ -522,7 +447,7 @@ function ProfilePage({ user: userConnected = null }) {
 
         .divider {
           border: none;
-          border-top: 1px solid #1f2937;
+          border-top: 1px solid ${ClassColor.GREY_HYPER_LIGHT};
           margin: 12px 0;
         }
       `}</style>
@@ -550,20 +475,18 @@ export default function ProfileComponent() {
     console.log("FORM", t('form', { returnObjects: true }))
     const { lang, changeLang } = useLanguage();
     const { user, isLoading } = useAuth();
-    const [userInfo, setUserInfo] = useState(new ClassUser());
+    const [userEdit, setUserEdit] = useState(new ClassUser());
     const [isEditing, setIsEditing] = useState(false);
     const [errors, setErrors] = useState({});
     useEffect(() => {
-        if (!isLoading) {
-            setUserInfo(user.clone());
-        }
-    }, [isLoading]);
+        setUserEdit(user.clone());
+    }, [user]);
     const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { primary, primaryShadow, greyLight, text } = theme.palette;
     const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
     const onChangeField = (e) => {
         const { value, name, type } = e.target;
-        console.log("EVENT", name, type, userInfo)
+        console.log("EVENT", name, type, userEdit)
         //e.preventDefault();
         //userInfo.update({ first_name: value });
         //setErrors(prev => ({ ...prev, [name]: '' }));
@@ -578,7 +501,7 @@ export default function ProfileComponent() {
             setIsEditing(false);
         }
         */
-        setUserInfo(prev => {
+        setUserEdit(prev => {
             if (!prev) return user;
             prev.update({ [name]: value });
             return prev.clone();
@@ -592,7 +515,7 @@ export default function ProfileComponent() {
             delete prev[name];
             return prev;
         });
-        setUserInfo(prev => {
+        setUserEdit(prev => {
             if (!prev) return prev;
             prev.update({ [name]: '' });
             return prev.clone();
@@ -606,7 +529,7 @@ export default function ProfileComponent() {
             delete prev[name];
             return prev;
         });
-        setUserInfo(prev => {
+        setUserEdit(prev => {
             if (!prev) return prev;
             prev.update({ [name]: user?.[name] });
             return prev.clone();
@@ -615,10 +538,10 @@ export default function ProfileComponent() {
     const onEditForm = async () => {
         setIsEditing(true);
         const _errors = {};
-        if (!userInfo.validLastName()) {
+        if (!userEdit.validLastName()) {
             _errors.last_name = "erreur nom";
         }
-        if (!userInfo.validFirstName()) {
+        if (!userEdit.validFirstName()) {
             _errors.first_name = "erreur prénom";
         }
         setErrors(_errors);
@@ -627,213 +550,11 @@ export default function ProfileComponent() {
             return;
         }
         //setUserInfo();
-        await ClassUser.update(user.uid, userInfo.toJSON());
+        await ClassUser.update(user.uid, userEdit.toJSON());
         setIsEditing(false);
         // On EDIT infos
     }
     return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
-        <ProfilePage user={user} />
-        <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} justifyContent={'space-between'} sx={{ width: '100%', background: '', }}>
-            <Stack spacing={{ xs: 1, sm: 2 }} direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} sx={{ background: '' }}>
-                {
-                    user?.showAvatar({ size: 55, fontSize: '18px' })
-                }
-                <Stack alignItems={{ xs: 'center', sm: 'start' }}>
-                    <Typography sx={{ textAlign: 'center' }} variant="h1">{user?.getCompleteName() || ''}</Typography>
-                    <Stack justifyContent={'center'} alignItems={{ xs: 'center', sm: 'start' }} sx={{ color: greyLight.main }}>
-                        <Typography variant="caption" sx={{ color: text.main }}>{user?.email_academy || ''}</Typography>
-                        <Typography variant="caption" sx={{ color: primary.main }}>{t(user?.role, { ns: NS_ROLES })}</Typography>
-                    </Stack>
-
-                </Stack>
-            </Stack>
-
-            {
-                isEditing && <Stack direction={'row'} alignItems={'center'} sx={{ background: 'green' }} spacing={1}>
-                    <ButtonCancel
-                        label="Annuler"
-                        //loading={true}
-                        //disabled={true}
-                        onClick={() => {
-                            setUserInfo(user.clone());
-                            setIsEditing(false);
-                        }}
-                    />
-                    <ButtonConfirm
-                        label="Confirmer"
-                        //loading={true}
-                        //isabled={true}
-                        onClick={() => {
-                            onEditForm();
-                            //alert('click okay');
-
-                        }}
-                    />
-                </Stack>
-            }
-        </Stack>
-        <Grid container spacing={1.5} sx={{ background: '' }}>
-            <Grid size={{ xs: 12, sm: 6.5 }} sx={{
-                //background: 'var(--card-color)',
-                //borderRadius: '10px',
-                //padding: { xs: '15px', sm: '20px' },
-                //border: `1px solid ${greyLight.main}`,
-                //boxShadow: ` 0 18px 45px rgba(0, 0, 0, 0.4)`,
-            }}>
-                <Stack spacing={1}>
-                    <CardComponent>
-                        <Stack spacing={1.5}>
-                            <Typography variant="h2">{title_account}</Typography>
-                            <Stack spacing={1}>
-                                <FieldTextComponent
-                                    label={title_role}
-                                    name={'role'}
-                                    value={t(userInfo?.role, { ns: NS_ROLES })}
-                                    values={ClassUser.ALL_ROLES.map(role => ({ id: role, value: t(role, { ns: NS_ROLES }) }))}
-                                    disabled={true}
-                                />
-                                <FieldTextComponent
-                                    label={title_uid}
-                                    name={'uid'}
-                                    value={userInfo?.uid}
-                                    type='text'
-                                    disabled={true}
-                                    error={errors.uid}
-                                />
-                                <FieldTextComponent
-                                    label={title_name}
-                                    name={'display_name'}
-                                    value={userInfo?.display_name}
-                                    type='text'
-                                    disabled={true}
-                                    error={errors.display_name}
-                                />
-                                <FieldTextComponent
-                                    label={title_email}
-                                    name={'email_academy'}
-                                    value={userInfo?.email_academy}
-                                    type='email'
-                                    disabled={true}
-                                    error={errors.email_academy}
-                                    onChange={onChangeField}
-
-                                />
-
-
-
-                            </Stack>
-                        </Stack>
-                    </CardComponent>
-                </Stack>
-
-            </Grid>
-            <Grid size={{ xs: 12, sm: 'grow' }}>
-                <Stack spacing={1}>
-                    <CardComponent>
-                        <Stack spacing={1.5}>
-                            <Typography variant="h2">{title_perso}</Typography>
-                            <Stack spacing={1}>
-                                <FieldTextComponent
-                                    label={title_email}
-                                    name={'email'}
-                                    value={userInfo?.email}
-                                    type='email'
-                                    disabled={true}
-                                    error={errors.email}
-                                />
-                                {
-                                    user?.phone_number && <FieldTextComponent
-                                        label={title_phone_number}
-                                        name={'phone_number'}
-                                        value={userInfo?.phone_number}
-                                        type='phone'
-                                        disabled={true}
-                                        error={errors.phone_number}
-                                    />
-                                }
-                                <FieldTextComponent
-                                    label={title_birthday}
-                                    name={'birthday'}
-                                    value={getFormattedDate(userInfo?.birthday, lang)}
-                                    type='date'
-                                    disabled={true}
-                                    error={errors.birthday}
-                                    onChange={onChangeField}
-                                />
-                                <FieldComponent
-                                    label={title_first_name}
-                                    name={'first_name'}
-                                    value={userInfo?.first_name}
-                                    type='text'
-                                    disabled={false}
-                                    error={errors.first_name}
-                                    onChange={onChangeField}
-                                    onClear={() => {
-                                        onClearField('first_name');
-                                    }}
-                                    editable={userInfo?.first_name !== user?.first_name}
-                                    onCancel={() => {
-                                        onResetField('first_name');
-                                    }}
-                                    onSubmit={onEditForm}
-                                />
-                                <FieldComponent
-                                    label={title_last_name}
-                                    name={'last_name'}
-                                    value={userInfo?.last_name}
-                                    type='text'
-                                    disabled={false}
-                                    error={errors.last_name}
-                                    onChange={onChangeField}
-                                    onClear={() => {
-                                        onClearField('last_name');
-                                    }}
-                                    editable={userInfo?.last_name !== user?.last_name}
-                                    onCancel={() => {
-                                        setErrors(prev => prev.last_name = '');
-                                        setUserInfo(prev => {
-                                            if (!prev) return prev;
-                                            prev.update({ last_name: user.last_name });
-                                            return prev.clone();
-                                        });
-                                    }}
-                                    onSubmit={onEditForm}
-                                />
-                            </Stack>
-                        </Stack>
-                    </CardComponent>
-                    <CardComponent>
-                        <Stack spacing={1.5}>
-                            <Typography variant="h2">{title_settings}</Typography>
-                            <Stack spacing={1}>
-                                <SelectComponent
-                                    label={title_lang}
-                                    name={'lang'}
-                                    value={lang}
-                                    values={languages.map(lang => ({ id: lang, value: t(lang, { ns: NS_LANGS }) }))}
-                                    onChange={(e) => {
-                                        //console.log("NEW VALUE", e.target.value)
-                                        changeLang(e.target.value);
-                                    }}
-                                    hasNull={false}
-                                />
-                                <SelectComponent
-                                    label={title_theme}
-                                    name={'theme'}
-                                    //display={false}
-                                    value={modeApp}
-                                    values={[THEME_LIGHT, THEME_DARK, THEME_SYSTEM].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_COMMON }) }))}
-                                    onChange={(e) => {
-                                        //console.log("NEW VALUE", e.target.value)
-                                        changeTheme(e.target.value);
-                                    }}
-                                    hasNull={false}
-                                />
-                            </Stack>
-                        </Stack>
-                    </CardComponent>
-                </Stack>
-            </Grid>
-        </Grid>
+        <ProfilePage />
     </Stack>)
 }

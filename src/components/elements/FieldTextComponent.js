@@ -32,8 +32,8 @@ export default function FieldTextComponent({ label, name, value, disabled = fals
     const [processing,setProcessing] = useState(false);
     return (
         <div>
-            {
-                label && <label className="text-contentColor dark:text-contentColor-dark mb-3px block" style={{ fontSize: '0.9rem' }}>
+                        {
+                label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block" style={{ fontSize: '0.9rem' }}>
                     {label}{required && <b style={{ color: 'red' }}>*</b>}
                 </label>
             }
