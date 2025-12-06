@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { IconDashboard, } from "@/assets/icons/IconsComponent";
+import { IconCertificate, IconDashboard, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -11,13 +11,13 @@ import ComputersComponent from '@/components/dashboard/computers/ComputersCompon
 
 
 import { useMemo } from "react";
-import { Box, Button, Grid, Stack, TextField } from '@mui/material';
+import { Box, Button, Grid, Stack, TextField, Typography } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
 import SelectComponentDark from '@/components/elements/SelectComponentDark';
 import { ClassUser } from '@/classes/users/ClassUser';
-import { getFormattedDateComplete, getFormattedDateCompleteNumeric } from '@/contexts/functions';
+import { formatDuration, getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedDateNumeric } from '@/contexts/functions';
 import { useLanguage } from '@/contexts/LangProvider';
 import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark';
 import TextFieldComponent from '@/components/elements/TextFieldComponent';
@@ -25,6 +25,12 @@ import FieldComponent from '@/components/elements/FieldComponent';
 import DialogUser from '@/components/dashboard/users/DialogUser';
 import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
 import { ClassColor } from '@/classes/ClassColor';
+import { ClassLesson } from '@/classes/ClassLesson';
+import BadgeFormatLesson from '@/components/dashboard/lessons/BadgeFormatLesson';
+import BadgeStatusLesson from '@/components/dashboard/lessons/BadgeStatusLesson';
+import { useRouter } from 'next/navigation';
+import { PAGE_LESSONS } from '@/contexts/constants/constants_pages';
+import { useLesson } from '@/contexts/LessonProvider';
 
 const USERS_MOCK = [
   {
@@ -134,7 +140,19 @@ const STATUS_CONFIG_1 = {
   ['must-activate']: { label: 'Pas activé', color: `red` },
 };
 
-function LessonsPage({ userDialog = null, setUserDialog = null }) {
+const TABLE_SPACE = `grid-template-columns:
+            minmax(0, 2.0fr)
+            minmax(0, 2.0fr)
+            minmax(0, 1.5fr)
+            minmax(0, 1.5fr)
+            minmax(0, 3.0fr)
+            minmax(0, 1.5fr)
+            minmax(0, 2.25fr)
+            minmax(0, 1.75fr)
+            minmax(0, 1.5fr);`
+
+function LessonsComponent({ userDialog = null, setUserDialog = null }) {
+  const router = useRouter();
   const { theme } = useThemeMode();
   const { text, cardColor, greyLight, blueDark } = theme.palette;
   const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION]);
@@ -144,18 +162,12 @@ function LessonsPage({ userDialog = null, setUserDialog = null }) {
   const [sortBy, setSortBy] = useState("name");
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([]);
+  const [_, setLessons] = useState([]);
+  const {lessons, changeLesson} = useLesson();
+
 
   useEffect(() => {
-    async function init() {
-      const _users = await ClassUser.fetchListFromFirestore();
-      console.log("USERS", _users);
-      setAllUsers(_users);
-      setUsers(_users);
-    }
-    init();
-  }, []);
-  useEffect(() => {
-    let list = [...allUsers];
+    let list = [...lessons];
 
     if (roleFilter !== "all") {
       list = list.filter((u) => u.role === roleFilter);
@@ -193,7 +205,9 @@ function LessonsPage({ userDialog = null, setUserDialog = null }) {
     } else if (sortBy === "role") {
       list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
     }
-    setUsers(list);
+    //const ok = ClassLesson.translate();
+    
+   // setUsers(list);
   }, [search, roleFilter, statusFilter, sortBy]);
 
 
@@ -206,10 +220,10 @@ function LessonsPage({ userDialog = null, setUserDialog = null }) {
           <Grid size={{ xs: 12, sm: 6 }} sx={{ background: '' }}>
             <TextFieldComponentDark
               value={search}
-              placeholder={t('placeholder_search', {ns:ClassUser.NS_COLLECTION})}
+              placeholder={t('placeholder_search', { ns: ClassUser.NS_COLLECTION })}
               fullWidth
               onChange={(e) => setSearch(e.target.value)}
-              onClear={()=>setSearch('')}
+              onClear={() => setSearch('')}
             />
           </Grid>
           <Grid size={'grow'}>
@@ -244,27 +258,31 @@ function LessonsPage({ userDialog = null, setUserDialog = null }) {
         {/* TABLE / LISTE */}
         <section className="card">
           <div className="table-header">
-            <span className="th th-user">{t('user', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-username">{t('display_name', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-role">{t('role', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-email">{t('email', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-status">{t('status', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-group">{t('connexion', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-actions">{t('actions', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-user">{"Cours"}</span>
+            <span className="th th-username">{"Code"}</span>
+            <span className="th th-role">{"Type"}</span>
+            <span className="th th-email">{"Niveau"}</span>
+            <span className="th th-status">{"Date"}</span>
+            <span className="th th-group">{"Prix"}</span>
+            <span className="th th-actions">{"Places"}</span>
+            <span className="th th-actions">{"Statut"}</span>
+            <span className="th th-actions">{"Actions"}</span>
           </div>
 
           <div className="table-body">
-            {users.length === 0 && (
+            {lessons.length === 0 && (
               <div className="empty-state">
-                {t('not-found', { ns: ClassUser.NS_COLLECTION })}
+                {t('not-found', { ns: ClassLesson.NS_COLLECTION })}
               </div>
             )}
 
-            {users.map((user, i) => (
-              <Box key={`${user?.uid}-${i}`} onClick={() => {
-              setUserDialog(user);
-            }} sx={{cursor:'pointer'}}>
-                <LessonRow user={user} setUserDialog={setUserDialog} lastChild={i === users.length - 1} />
+            {lessons.map((lesson, i) => (
+              <Box key={`${lesson.uid}-${i}`} onClick={() => {
+                //setUserDialog(user);
+                //changeLesson(lesson.uid);
+                router.push(`${PAGE_LESSONS}/${lesson.uid}`)
+              }} sx={{ cursor: 'pointer' }}>
+                <LessonRow lesson={lesson} lastChild={i === lessons.length - 1} />
               </Box>
             ))}
           </div>
@@ -394,14 +412,7 @@ function LessonsPage({ userDialog = null, setUserDialog = null }) {
 
         .table-header {
           display: grid;
-          grid-template-columns:
-            minmax(0, 2.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 2.3fr)
-            minmax(0, 1.4fr)
-            minmax(0, 2.2fr)
-            minmax(0, 1.5fr);
+          ${TABLE_SPACE}
           gap: 8px;
           padding: 8px 15px;
           font-size: 0.75rem;
@@ -445,7 +456,7 @@ function LessonsPage({ userDialog = null, setUserDialog = null }) {
   );
 }
 
-function LessonRow({ user: lesson, lastChild = false,setUserDialog=null }) {
+function UserRow({ user: lesson, lastChild = false, setUserDialog = null }) {
   const { theme } = useThemeMode();
   const { greyLight, cardColor, text } = theme.palette;
   const { lang } = useLanguage();
@@ -668,6 +679,237 @@ function LessonRow({ user: lesson, lastChild = false,setUserDialog=null }) {
   );
 }
 
+function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
+  const router = useRouter();
+  const { theme } = useThemeMode();
+  const { greyLight, cardColor, text } = theme.palette;
+  const { lang } = useLanguage();
+  const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
+  const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
+  const roleCfg = FORMAT_CONFIG[lesson?.format];
+  const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
+
+  return (
+    <>
+      <div className={`row ${lastChild ? 'last-child' : ''}`}>
+        {/* Utilisateur */}
+        <div className="cell cell-user">
+          {lesson?.showAvatar?.({ size: 30, fontSize: '14px' })}
+          <div className="user-text">
+            <p className="user-name">
+              {lesson?.title}
+            </p>
+            {
+              lesson?.certified && <p className="user-id">{lesson?.category}</p>
+            }
+          </div>
+        </div>
+
+        {/* Username */}
+        <div className="cell cell-username">
+          <p className="text-main">{lesson?.code}</p>
+          <p className="text-sub">{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${t(lesson.lang, { ns: NS_LANGS }) || ''}` || ''}</p>
+        </div>
+
+        {/* Rôle */}
+        <div className="cell cell-role">
+          <BadgeFormatLesson format={lesson?.format} />
+        </div>
+
+        {/* Email */}
+        <div className="cell cell-email">
+          <p className="text-main">{lesson?.level}</p>
+          <Stack direction={'row'} alignItems={'center'} spacing={0.5} sx={{ display: lesson?.certified ? 'flex' : 'none' }}>
+            <IconCertificate color='#6b7280' height={15} width={15} />
+            <p className="text-sub" style={{
+              marginLeft:"1px",
+              fontSize: '0.75rem',
+              color: '#6b7280',
+            }}>{"Certifié"}</p>
+          </Stack>
+        </div>
+
+                 {/* Dates */}
+        <div className="cell cell-group">
+          <p className="text-main">{`${getFormattedDateNumeric(lesson?.start_date)} - ${getFormattedDateNumeric(lesson?.end_date)}`}</p>
+          <p className="text-sub">{`Durée : ${formatDuration(lesson?.duration)}`}</p>
+        </div>
+
+                         {/* Prix */}
+        <div className="cell cell-group">
+          <p className="text-main">{`${lesson?.price} ${lesson.currency}`}</p>
+          <p className="text-sub" style={{display:'none'}}>{`Durée : ${formatDuration(lesson?.duration)}`}</p>
+        </div>
+
+                                 {/* Disponibilité */}
+        <div className="cell cell-group">
+          <p className="text-main">{`${lesson?.seats_taken}/${lesson?.seats_availables} inscrits`}</p>
+          {
+            lesson?.seats_taken < lesson?.seats_availables && <p className="text-sub">{`${lesson?.seats_availables - lesson?.seats_taken} place(s) disponible(s)`}</p>
+          }
+          {
+            lesson?.seats_taken === lesson?.seats_availables && <p className="text-sub">{`Complet`}</p>
+          }
+        </div>
+
+        {/* Statut */}
+        <div className="cell cell-status">
+          <BadgeStatusLesson status={lesson?.status} />
+        </div>
+
+
+        {/* Actions */}
+        <div className="cell cell-actions">
+          <ButtonConfirm
+            label='Voir'
+            onClick={() => {
+              router.push(`${PAGE_LESSONS}/${lesson?.uid}`)
+              //setUserDialog(lesson);
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Styles spécifiques à la row */}
+      <style jsx>{`
+        .row {
+          display: grid;
+          ${TABLE_SPACE}
+          gap: 8px;
+          padding: 10px 16px;
+          font-size: 0.85rem;
+          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          align-items: center;
+        }
+
+        
+        .row.last-child {
+          border-bottom: none;
+        }
+
+        .cell {
+          min-width: 0;
+        }
+
+        .cell-user {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .user-text {
+          min-width: 0;
+        }
+
+        .user-name {
+          margin: 0;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-id {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #6b7280;
+        }
+
+        .text-main {
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .text-sub {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #6b7280;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .role-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border-radius: 999px;
+          border: 1px solid;
+          padding: 2px 8px;
+          font-size: 0.75rem;
+          background: ${roleCfg.color};
+        }
+
+        .role-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 999px;
+          
+        }
+
+        .status-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border-radius: 999px;
+          padding: 2px 8px;
+          font-size: 0.75rem;
+          border: 0.1px solid ${statusCfg?.color};
+          
+        }
+
+        .status-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 999px;
+        }
+
+        .mini-btn {
+          border-radius: 999px;
+          padding: 4px 8px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.75rem;
+          cursor: pointer;
+          margin-right: 4px;
+        }
+
+        .mini-btn.ghost {
+          background: transparent;
+        }
+
+        @media (max-width: 900px) {
+          .row {
+            grid-template-columns: 1fr;
+            padding: 10px 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #111827;
+          }
+
+          .row.last-child {
+          border: 1px solid #111827;
+        }
+
+          .cell-email,
+          .cell-group {
+            margin-top: -4px;
+          }
+
+          .cell-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
+
 function Avatar({ user }) {
   const initials = `${user?.firstName?.[0] || user?.first_name?.[0] || ''}${user.lastName?.[0] || user.last_name?.[0] || ''}`;
 
@@ -720,7 +962,7 @@ function Avatar({ user }) {
   );
 }
 
-export default function DashboardUsersHome() {
+export default function LessonsPage() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_USERS]);
@@ -738,50 +980,16 @@ export default function DashboardUsersHome() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
 
-  const filteredUsers = useMemo(() => {
-    //const _users = await ClassUser.fetchListFromFirestore();
-    //console.log("USERS memo", _users);
-    let list = [...USERS_MOCK];
-
-    if (roleFilter !== "all") {
-      list = list.filter((u) => u.role === roleFilter);
-    }
-
-    if (statusFilter !== "all") {
-      list = list.filter((u) => u.status === statusFilter);
-    }
-
-    if (search.trim()) {
-      const s = search.toLowerCase();
-      list = list.filter((u) => {
-        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-        return (
-          fullName.includes(s) ||
-          u.username.toLowerCase().includes(s) ||
-          u.email.toLowerCase().includes(s) ||
-          u.schoolEmail.toLowerCase().includes(s)
-        );
-      });
-    }
-
-    if (sortBy === "name") {
-      list.sort((a, b) =>
-        `${a.lastName} ${a.firstName}`.localeCompare(
-          `${b.lastName} ${b.firstName}`
-        )
-      );
-    } else if (sortBy === "role") {
-      list.sort((a, b) => a.role.localeCompare(b.role));
-    }
-    return list;
-  }, [search, roleFilter, statusFilter, sortBy]);
 
 
 
-  return (<DashboardPageWrapper title={'Cours'} subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}>
+  return (<DashboardPageWrapper 
+  title={'Cours'} 
+  titles={[{name:t('lessons', {ns:NS_DASHBOARD_MENU}), url:''}]}
+  subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}>
     <DialogUser userDialog={user} setUserDialog={setUser} />
     <Stack sx={{ width: '100%', height: '100%' }}>
-      <LessonsPage userDialog={user} setUserDialog={setUser} />
+      <LessonsComponent userDialog={user} setUserDialog={setUser} />
     </Stack>
   </DashboardPageWrapper>)
   /*

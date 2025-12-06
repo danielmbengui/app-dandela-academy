@@ -5,6 +5,15 @@ import allExamples from 'libphonenumber-js/mobile/examples';
 import { getExampleNumber } from 'libphonenumber-js'
 import { ClassCountry } from '@/classes/ClassCountry';
 
+export function formatDuration(duration=0) {
+    const hour = parseInt(duration);
+    const minutes = (duration - hour) * 60;
+    if(hour<1 && minutes > 0) {
+      return `${minutes}min`
+    }
+    return `${hour}h${minutes>0 ? minutes : ''}`;
+}
+
 
 export const cutString = (text = "", maxLength = 50) => {
   if (!text) return '';

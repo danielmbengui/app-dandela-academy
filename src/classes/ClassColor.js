@@ -37,11 +37,6 @@ export class ClassColor {
     static BLUE_HYPER_LIGHT = "#d0e1ff";
     static BLUE_DARK = "#001131";
     static BLUE_LIGHT = "#6bb8f6";
-
-    //#e9ad0f
-    //#ffcf31
-
-
     static ORANGE_DARK = "#F16924";
     static ORANGE_HYPER_LIGHT = "#fddcbd";
     static GREY_HYPER_LIGHT = "#e4e4e4";

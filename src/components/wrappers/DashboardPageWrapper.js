@@ -16,8 +16,8 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Button, Container, Grid, Stack } from '@mui/material';
-import { IconDashboard, IconDropDown, IconEmail, IconLogo } from '@/assets/icons/IconsComponent';
+import { Breadcrumbs, Button, Chip, Container, Grid, Stack } from '@mui/material';
+import { IconDashboard, IconDropDown, IconEmail, IconLessons, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
@@ -32,16 +32,18 @@ import RegisterComponent from '../login/RegisterComponent';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Preloader from '../shared/Preloader';
+import CustomizedBreadcrumbs from '../elements/CustomizedBreadcrumbs';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const drawerWidth = 240;
 
-function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></>, ...props }) {
+function DashboardPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const { theme } = useThemeMode();
-    const { primary, background,cardColor, backgroundMenu, text, blueDark } = theme.palette;
+    const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, login, logout } = useAuth();
     const [accordionMenu, setAccordionMenu] = useState('');
     const path = usePathname();
@@ -72,7 +74,7 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                 backgroundSize: 'cover',        // l'image couvre tout l'écran
                 backgroundPosition: 'center',   // centrée
                 backgroundRepeat: 'no-repeat',  // pas de répétition
-                background:'black'
+                background: 'black'
 
             }}>
             <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, background: 'rgba(0,0,0,0.1)', width: '100%', height: '100%' }}>
@@ -83,11 +85,11 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                         </Stack>
                     </Toolbar>
                     <Divider />
-                    <List sx={{ py: 2,px:1.5, background: '', width: '100%', height: '100%', }}>
+                    <List sx={{ py: 2, px: 1.5, background: '', width: '100%', height: '100%', }}>
                         {
                             user?.menuDashboard().map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
-                                const isPath = path === menuItem.path;
+                                const isPath = path.includes(menuItem.path);
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: ClassColor.WHITE, background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{ px: 1, py: 1, background: isPath ? ClassColor.WHITE : '', borderRadius: isPath ? '5px' : '0px' }}>
@@ -179,34 +181,34 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
                 elevation={1}
                 position="fixed"
                 sx={{
-                    background: cardColor.main, 
+                    background: cardColor.main,
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
-                
+
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', p: 2, }}>
-                    <Stack direction={'row'} alignItems={'center'} justifyContent={{xs:'space-between',sm:'end'}} sx={{width:'100%', background:''}}>
+                    <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>
                         <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' }, color: text.main }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            sx={{ mr: 2, display: { sm: 'none' }, color: text.main }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
 
-                    <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 0.5,px:1, height: '100%', color: text.main, border:`1px solid ${ClassColor.GREY_LIGHT}`, borderRadius:'20px' }}>
-                        {
-                            user?.showAvatar({size:25,fontSize:'8px'})
-                        }
-                        <Stack>
-                            <Typography variant={'string'} noWrap fontSize={'12px'}>
-                            {user?.getCompleteName() || ''}
-                        </Typography>
+                        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 0.5, px: 1, height: '100%', color: text.main, border: `1px solid ${ClassColor.GREY_LIGHT}`, borderRadius: '20px' }}>
+                            {
+                                user?.showAvatar({ size: 25, fontSize: '8px' })
+                            }
+                            <Stack>
+                                <Typography variant={'string'} noWrap fontSize={'12px'}>
+                                    {user?.getCompleteName() || ''}
+                                </Typography>
+                            </Stack>
+                            <IconDropDown height={6} />
                         </Stack>
-                        <IconDropDown height={6} />
-                    </Stack>
                     </Stack>
                 </Toolbar>
             </AppBar>
@@ -251,14 +253,37 @@ function DashboardPageWrapper({ children, title = "", subtitle = "", icon = <></
             >
                 <Toolbar />
                 <Container maxWidth={'xl'} sx={{ py: 1, background: '', }}>
-                    <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{background:'', width:'100%', height:'100%'}}>
-                        <Stack direction={'row'} alignItems={'start'} justifyContent={'start'} spacing={0.5}>
-                            <div style={{color:primary.main}}>{icon}</div><Typography variant='h3'>{title}</Typography>
+                    <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
+                        <Stack sx={{ width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
+                            <Breadcrumbs maxItems={2} sx={{ color:'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
+                                {
+                                    titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                                        <div style={{ color: primary.main }}>{icon}</div>
+                                        <Typography variant='h5'>{titles[0].name}</Typography>
+                                    </Stack>
+                                }
+                                {
+                                    titles.length > 1 && titles.map((title, i) => {
+                                        if (i < titles.length - 1) {
+                                            return (<Link underline="hover" color="inherit" href={title.url} >
+                                                <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                                                    {
+                                                        i === 0 && <div style={{ color: primary.main }}>{icon}</div>
+                                                    }
+                                                    <Typography variant='h5'>{title.name}</Typography>
+                                                </Stack>
+                                            </Link>)
+                                        }
+                                        return (<Typography sx={{ color: 'text.primary', }}>{title.name}</Typography>)
+                                    })
+                                }
+                            </Breadcrumbs>
+                            <Typography sx={{ color: 'var(--grey-light)' }}>{subtitle}</Typography>
+
                         </Stack>
-                            <Typography sx={{ color: ClassColor.GREY_LIGHT }}>{subtitle}</Typography>
-                            <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{mt:1, width:'100%',height:'100%', background:''}}>
-                                {children}
-                            </Stack>
+                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ mt: 1, width: '100%', height: '100%', background: '' }}>
+                            {children}
+                        </Stack>
                     </Stack>
                 </Container>
             </Box>

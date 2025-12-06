@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS } from "@/contexts/constants/constants_pages";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS } from "@/contexts/constants/constants_pages";
 import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors, IconUsers } from "@/assets/icons/IconsComponent";
 import { getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
@@ -425,6 +425,7 @@ export class ClassUser {
                 icon: <IconLessons width={18} height={18} />,
             }*/]
         },
+        
         {
             name: "users",
             path: PAGE_DASHBOARD_USERS,
@@ -434,6 +435,11 @@ export class ClassUser {
                 path: PAGE_DASHBOARD_HOME,
                 icon: <IconLessons width={18} height={18} />,
             }*/]
+        },     
+        {
+            name: "lessons",
+            path: PAGE_LESSONS,
+            icon: <IconLessons width={18} height={18} />,
         },
         {
             name: "computers",
@@ -456,11 +462,6 @@ export class ClassUser {
             }*/]
         },
         /*
-        {
-            name: "lessons",
-            path: PAGE_DASHBOARD_LESSONS,
-            icon: <IconLessons width={18} height={18} />,
-        },
         {
             name: "tutors",
             path: PAGE_DASHBOARD_TUTORS,

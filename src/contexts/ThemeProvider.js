@@ -28,7 +28,7 @@ const useThemeColors = (themeMode) => {
         // var(--blue-light-1)
 
         backgroundMenu: '#F5F4F4',
-        greyLight: "#b3b1b1",
+        greyLight: "#A6A6A6",
         backgroundSwitch: 'hsla(0, 0.00%, 82.67%, 1.00)',
         border: "rgba(236, 236, 236, 0.25)",
         textPrimary: '#000000',
@@ -101,7 +101,7 @@ const useThemeColors = (themeMode) => {
 
 
                 backgroundMenu: safeValue(computedStyles.getPropertyValue('--background-menu'), '#F5F4F4'),
-                greyLight: safeValue(computedStyles.getPropertyValue('--grey-light'), '#b3b1b1'),
+                greyLight: safeValue(computedStyles.getPropertyValue('--grey-light'), '#A6A6A6'),
                 //backgroundSwitch: safeValue(computedStyles.getPropertyValue('--toggle-bg-devlink'), '#ffffff'),
                 //border: safeValue(computedStyles.getPropertyValue('--border-color-devlink'), '#ffffff'),
                 textPrimary: safeValue(computedStyles.getPropertyValue('--primary-text'), '#000000'),
@@ -127,12 +127,12 @@ function useSystemTheme() {
 
         const updateTheme = (e) => {
             setTheme(e.matches ? 'dark' : 'light');
-            console.log("SYSTEM theme change", e.matches ? 'dark' : 'light')
+           // console.log("SYSTEM theme change", e.matches ? 'dark' : 'light')
         };
 
         // valeur initiale
         setTheme(mq.matches ? 'dark' : 'light');
-        console.log("SYSTEM theme", mq.matches ? 'dark' : 'light')
+       // console.log("SYSTEM theme", mq.matches ? 'dark' : 'light')
         // écoute les changements
         mq.addEventListener('change', updateTheme);
 
@@ -151,12 +151,12 @@ export const ThemeProvider = ({ children }) => {
         if (typeof window === 'undefined') return;
         var theme = localStorage.getItem(LOCAL_STORAGE_THEME) || DEFAULT_THEME; // Récupère la donnée du localStorage
         setModeApp(theme);
-        console.log("storage theme", theme);
+       // console.log("storage theme", theme);
         if (theme === THEME_SYSTEM) {
             theme = themeSystem || THEME_LIGHT;
         }
-        console.log("system theme", themeSystem)
-        console.log("final theme", theme)
+      //  console.log("system theme", themeSystem)
+      //  console.log("final theme", theme)
         //theme = DEFAULT_THEME;
         //localStorage.setItem(LOCAL_STORAGE_THEME, theme);
         document.documentElement.className = theme; // Applique la classe du thème
@@ -229,19 +229,19 @@ export const ThemeProvider = ({ children }) => {
                 // color: 'black',
             },
             h4: {
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 fontWeight: 600,
                 // color: 'black',
                 '@media (max-width:600px)': {
-                    fontSize: '1.8rem',
+                    //fontSize: '1.8rem',
                 },
             },
             h5: {
                 fontSize: '1rem',
-                fontWeight: 500,
+                fontWeight: 600,
                 //color: 'black',
                 '@media (max-width:600px)': {
-                    fontSize: '1.5rem',
+                   // fontSize: '1.5rem',
                 },
             },
             h6: {
@@ -353,7 +353,6 @@ export const ThemeProvider = ({ children }) => {
             */
         },
     });
-
     return (
         <ThemeContext.Provider value={{modeApp, mode: themeMode, toggleTheme, changeTheme, theme: muiTheme }}>
             <MuiThemeProvider theme={muiTheme}>{children}</MuiThemeProvider>

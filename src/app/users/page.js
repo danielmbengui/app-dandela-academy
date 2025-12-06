@@ -250,7 +250,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
             <span className="th th-email">{t('email', { ns: ClassUser.NS_COLLECTION })}</span>
             <span className="th th-status">{t('status', { ns: ClassUser.NS_COLLECTION })}</span>
             <span className="th th-group">{t('connexion', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-actions">{t('actions', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-actions" style={{display:'none'}}>{t('actions', { ns: ClassUser.NS_COLLECTION })}</span>
           </div>
 
           <div className="table-body">

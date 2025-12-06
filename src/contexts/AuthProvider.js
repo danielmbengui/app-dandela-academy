@@ -99,7 +99,7 @@ export function AuthProvider({ children }) {
                 if (!prev || prev === null) {
                     return data;
                 }
-                console.log("DATA listne user admin after", data);
+               // console.log("DATA listne user admin after", data);
                 //return _user;
                 // si tu utilises une classe avec .update(), garde-la
                 if (prev?.update) { prev.update(data.toJSON()); return prev; }
