@@ -32,7 +32,7 @@ export function LessonProvider({ children }) {
     useEffect(() => {
         const listener = listenToLessons();
         return () => listener?.();
-    }, []);
+    }, [lang]);
     useEffect(() => {
         refreshList();
     }, [lesson]);
@@ -77,7 +77,7 @@ export function LessonProvider({ children }) {
             setIsLoading(false);
         });
         return snapshotLessons;
-    }, [lang]);
+    }, []);
     async function refreshList() {
         var _lessons = [];
         const constraints = [];

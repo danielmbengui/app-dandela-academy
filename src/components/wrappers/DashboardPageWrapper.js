@@ -274,7 +274,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                                 </Stack>
                                             </Link>)
                                         }
-                                        return (<Typography sx={{ color: 'text.primary', }}>{title.name}</Typography>)
+                                        return (<Typography key={`${title}-${i}`} sx={{ color: 'text.primary', }}>{title.name}</Typography>)
                                     })
                                 }
                             </Breadcrumbs>
