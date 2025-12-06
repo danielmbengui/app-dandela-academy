@@ -265,7 +265,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                 {
                                     titles.length > 1 && titles.map((title, i) => {
                                         if (i < titles.length - 1) {
-                                            return (<Link underline="hover" color="inherit" href={title.url} >
+                                            return (<Link key={`${title}-${i}`} underline="hover" color="inherit" href={title.url} >
                                                 <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                                                     {
                                                         i === 0 && <div style={{ color: primary.main }}>{icon}</div>

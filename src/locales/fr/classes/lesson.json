@@ -1,0 +1,9 @@
+{
+    "office": "Bureautique",
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "competent": "Compétent",
+    "advanced": "Avancé",
+    "expert": "Expert", 
+    "unknown": "Inconnu"
+}
