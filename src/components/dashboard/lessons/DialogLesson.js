@@ -14,12 +14,13 @@ import ButtonConfirm from "../elements/ButtonConfirm";
 import ButtonCancel from "../elements/ButtonCancel";
 import BadgeStatusLesson from "./BadgeStatusLesson";
 import Image from "next/image";
+import LessonComponent from "./LessonComponent";
 
-export default function DialogLesson({ lesson = null, isOpen=false,setIsOpen=null }) {
+export default function DialogLesson({ lesson = null, isOpen = false, setIsOpen = null }) {
     const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES]);
     const { lang } = useLanguage();
     const { theme } = useThemeMode();
-    const { blueDark,primary, cardColor, text, greyLight } = theme.palette;
+    const { blueDark, primary, cardColor, text, greyLight } = theme.palette;
     const [processing, setProcessing] = useState(false);
     const [lessonEdit, setLessonEdit] = useState(null);
     const [scroll, setScroll] = useState('paper');
@@ -39,7 +40,7 @@ export default function DialogLesson({ lesson = null, isOpen=false,setIsOpen=nul
         <Stack sx={{ width: '100%', height: '100%' }}>
             <Dialog
                 //fullWidth
-                maxWidth={'md'}
+                maxWidth={'lg'}
                 open={isOpen}
                 onClose={handleClose}
                 scroll={'paper'}
@@ -49,17 +50,17 @@ export default function DialogLesson({ lesson = null, isOpen=false,setIsOpen=nul
                     color: text.main,
                     '& .MuiDialog-container': {
                         p: 1,
-
+                        //background: 'red'
                         //alignItems: 'stretch', // ⬅️ étire le container sur toute la hauteur
                     },
                     '& .MuiDialog-paper': {
                         borderRadius: '10px',
                         background: cardColor.main,
                         //color: 'white',
-                        minWidth: { xs: '100%', md: '400px' },
-                        width: { xs: '100%', md: '' },
-                        maxWidth: { xs: '100%', md: '50%' },
-                        maxWidth: '100%',
+                       // minWidth: { xs: '100%', md: '600px' },
+                        //width: { xs: '100%', md: '100%' },
+                        //maxWidth: { xs: '100%', md: '80%' },
+                        //maxWidth: '100%',
                         margin: 1,
                         //borderRadius: 0,
                         //height: '100vh',      // ⬅️ plein écran en hauteur
@@ -93,62 +94,8 @@ export default function DialogLesson({ lesson = null, isOpen=false,setIsOpen=nul
                         <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
                     </Stack>
                 </DialogTitle>
-                <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 } }}>
-                    <Stack spacing={2}>
-                        <Stack spacing={1} alignItems={'center'} sx={{ width: '100%' }}>
-                      {
-                                lessonEdit?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
-                                    <Image
-                                        src={lessonEdit?.photo_url || ''}
-                                        alt={`lesson-${lessonEdit?.uid}`}
-                                        quality={100}
-                                        width={300}
-                                        height={150}
-                                        //loading="lazy"
-                                        priority
-                                        style={{
-                                            width: 'auto',
-                                            height: '100%',
-                                            borderRadius: '8px',
-                                            objectFit: 'cover',
-                                        }}
-                                    />
-                                </Box>
-                            }
-                            <BadgeStatusLesson status={lessonEdit?.status} />
-                            <Typography>{lessonEdit?.email_academy}</Typography>
-                            {
-                                /*
-                                <ComputerIconLarge status={device.status} />
-                            <StatusBadge status={device.status} big />
-                            
-                            <TypographyComponent title={t('uid')} value={device.uid} />
-                                */
-                            }
-                        </Stack>
-                        <Divider>
-                            <Chip label="Infos" size="small" />
-                        </Divider>
-                        <Stack spacing={1} sx={{ width: '100%' }}>
-                            <DialogTypographyComponent title="Nom(s)" value={lessonEdit?.last_name || '---'} />
-                            <DialogTypographyComponent title="Prénom(s)" value={lessonEdit?.first_name || '---'} />
-                            <DialogTypographyComponent title="Nom d'utilisateur" value={lessonEdit?.display_name || '---'} />
-                            <DialogTypographyComponent title="Email compte" value={cutString(lessonEdit?.email_academy, 20) || '---'} />
-                            <DialogTypographyComponent title="Role compte" value={t(lessonEdit?.role, { ns: NS_ROLES }) || '---'} />
-                            <DialogTypographyComponent title="Date de naissance" value={getFormattedDate(lessonEdit?.birthday, lang) || '---'} />
-                            <DialogTypographyComponent title="Email personnelle" value={lessonEdit?.email || '---'} />
-                            <DialogTypographyComponent title="Téléphone" value={lessonEdit?.phone_number || '---'} />
-                            <DialogTypographyComponent title="Langue" value={t(lessonEdit?.preferred_language, { ns: NS_LANGS }) || '---'} />
-
-                        </Stack>
-                        <Stack sx={{ width: '100%', pt: 3, pb: 1 }} spacing={1} alignItems={'end'}>
-                            <Stack sx={{ width: '100%' }} spacing={1} alignItems={'start'}>
-                                <Typography variant="caption">{`Dernière connexion : ${getFormattedDateCompleteNumeric(lessonEdit?.last_connexion_time) || '---'}`}</Typography>
-                                <Typography variant="caption">{`Date création : ${getFormattedDateCompleteNumeric(lessonEdit?.created_time) || '---'}`}</Typography>
-                                <Typography variant="caption">{`Date modification : ${getFormattedDateCompleteNumeric(lessonEdit?.last_edit_time) || '---'}`}</Typography>
-                            </Stack>
-                        </Stack>
-                    </Stack>
+                <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 }, background:'var(--background)' }}>
+                    <LessonComponent lesson={lesson} />
                 </DialogContent>
                 <DialogActions sx={{ minHeight: '20px' }}>
                     <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
@@ -158,7 +105,7 @@ export default function DialogLesson({ lesson = null, isOpen=false,setIsOpen=nul
                             }} />
                             <ButtonConfirm label={'edit'} variant='contained' onClick={async () => {
 
-                        }} />
+                            }} />
                         </Stack>
                         <IconButton size={'small'}>
                             <IconEdit width={20} height={20} color={primary.main} />

@@ -52,12 +52,12 @@ export function SessionProvider({ children }) {
                 return;
             }
             //console.log("is not empty", snap.docs.map(doc => doc.data()));
-            var _lessons = [];
+            var _sessions = [];
             for (const snapshot of snap.docs) {
                 const lesson = snapshot.data();
-                const teacher = await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher);
+                const teacher = lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher) : null;
                 const room = lesson.uid_room ? await ClassRoom.fetchFromFirestore(lesson.uid_room) : null;
-                console.log("IS teacher", teacher)
+                //console.log("IS teacher", teacher)
                 //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
                 const lesson_new = new ClassLessonSession({
                     ...lesson.toJSON(),
@@ -65,17 +65,17 @@ export function SessionProvider({ children }) {
                 });
                 lesson_new.teacher = teacher;
                 lesson_new.room = room;
-                _lessons.push(lesson_new);
+                _sessions.push(lesson_new);
             }
-            _lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
-            console.log("OBJECT list LESSON", _lessons)
-            setSessions(_lessons);
+            _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
+            console.log("OBJECT list SESSION", _sessions)
+            setSessions(_sessions);
             setIsLoading(false);
         });
         return snapshotLessons;
     }, []);
     async function refreshList() {
-        var _lessons = [];
+        var _sessions = [];
         const constraints = [];
         /*
         if (filterStatus !== 'all') {
@@ -85,18 +85,18 @@ export function SessionProvider({ children }) {
             constraints.push(where("type", '==', filterType));
         }
         */
-        _lessons = await ClassLessonSession.fetchListFromFirestore(constraints);
-        for (const lesson of _lessons) {
+        _sessions = await ClassLessonSession.fetchListFromFirestore(constraints);
+        for (const session of _sessions) {
             //const lesson = snapshot.data();
-            const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
-            _lessons.push(new ClassLessonSession({
-                ...lesson.toJSON(),
-                translate: translate,
+            //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
+            _sessions.push(new ClassLessonSession({
+                ...session.toJSON(),
+               // translate: translate,
             }));
         }
 
-        _lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
-        setSessions(_lessons);
+        _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
+        setSessions(_sessions);
     }
     async function create(_lesson = null) {
         if (!_lesson || _lesson === null || !(_lesson instanceof ClassLessonSession)) return;
@@ -167,7 +167,7 @@ export function SessionProvider({ children }) {
         return _removed;
     }
 
-    function getOneLesson(uid = '') {
+    function getOneSession(uid = '') {
         if (!uid || uid === '' || uid === null) {
             return null;
         }
@@ -176,7 +176,7 @@ export function SessionProvider({ children }) {
     }
 
     // session
-    function changeLesson(uid = '', mode = '') {
+    function changeSession(uid = '', mode = '') {
         var _lesson = sessions.find(item => item.uid === uid) || null;
         if (mode === 'create') {
             _lesson = new ClassLessonSession();
@@ -194,9 +194,9 @@ export function SessionProvider({ children }) {
         sessions,
         session,
         setSession,
-        changeLesson,
+        changeSession,
         refreshList,
-        getOneLesson,
+        getOneSession,
         //,
         filterType,
         setFilterType,
