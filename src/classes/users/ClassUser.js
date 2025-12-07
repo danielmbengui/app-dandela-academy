@@ -46,6 +46,7 @@ export class ClassUser {
         SUPER_ADMIN: 'super-admin',
         ADMIN: 'admin',
         TEAM: 'team',
+        TEACHER: 'teacher',
         STUDENT: 'student',
         PROFESSIONAL: 'professional',
         TUTOR: 'tutor',
@@ -87,7 +88,8 @@ export class ClassUser {
         ClassUser.ROLE.SUPER_ADMIN,
         ClassUser.ROLE.ADMIN,
         ClassUser.ROLE.TEAM,
-        ClassUser.ROLE.TUTOR,
+        ClassUser.ROLE.TEACHER,
+        //ClassUser.ROLE.TUTOR,
         ClassUser.ROLE.STUDENT,
         //ClassUser.ROLE.PROFESSIONAL,
     ];
@@ -425,7 +427,7 @@ export class ClassUser {
                 icon: <IconLessons width={18} height={18} />,
             }*/]
         },
-        
+
         {
             name: "users",
             path: PAGE_DASHBOARD_USERS,
@@ -435,7 +437,7 @@ export class ClassUser {
                 path: PAGE_DASHBOARD_HOME,
                 icon: <IconLessons width={18} height={18} />,
             }*/]
-        },     
+        },
         {
             name: "lessons",
             path: PAGE_LESSONS,
@@ -498,23 +500,18 @@ export class ClassUser {
     }
     static makeUserInstance(uid, data = {}) {
         const { type, role } = data || {};
+        if (role === ClassUserIntern.ROLE.SUPER_ADMIN) return new ClassUserSuperAdmin({ uid, ...data });
+        if (role === ClassUserIntern.ROLE.ADMIN) return new ClassUserAdmin({ uid, ...data });
         //console.log("MAKING USER INSTANCE", uid, type, role);
+        if (role === ClassUser.ROLE.TEACHER) return new ClassUserTeacher({ uid, ...data });
+        if (role === ClassUser.ROLE.STUDENT) return new ClassUserStudent({ uid, ...data });
         if (type === ClassUser.TYPE.EXTERN) {
-            if (role === ClassUser.ROLE.STUDENT) return new ClassUserStudent({ uid, ...data });
-            //if (role === ClassUserExtern.ROLE.PROFESSIONAL) return new ClassUserProfessional({ uid, ...data });
             return new ClassUserExtern({ uid, ...data });
         }
-
         if (type === ClassUser.TYPE.INTERN) {
-            if (role === ClassUserIntern.ROLE.SUPER_ADMIN) return new ClassUserSuperAdmin({ uid, ...data });
-            if (role === ClassUserIntern.ROLE.ADMIN) return new ClassUserAdmin({ uid, ...data });
-            //if (role === ClassUserIntern.ROLE.TUTOR) return new ClassUserTutor({ uid, ...data });
             return new ClassUserIntern({ uid, ...data });
         }
-
         if (type === ClassUser.TYPE.WAITING_LIST) {
-            //if (role === ClassUserIntern.ROLE.ADMIN) return new ClassUserAdmin({ uid, ...data });
-            //if (role === ClassUserIntern.ROLE.TUTOR) return new ClassUserTutor({ uid, ...data });
             return new ClassUserWaitingList({ uid, ...data });
         }
         return new ClassUser({ uid, ...data });
@@ -888,6 +885,24 @@ export class ClassUserExtern extends ClassUser {
     isOtherHowKnow() {
         if (this._how_know === ClassUserExtern.HOW_KNOW.OTHER) return (true);
         return (false);
+    }
+}
+{/* STUDENT */ }
+export class ClassUserTeacher extends ClassUserExtern {
+    static ALL_ROLES = [
+        ClassUser.ROLE.STUDENT,
+    ];
+    constructor(props = { role: ClassUser.ROLE.STUDENT }) {
+        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+        this._role_title=props.role_title;
+        this._bio = props.bio;
+    }
+    get role_title() { return this._role_title; }
+    set role_title(val) { this._role_title = val; }
+    get bio() { return this._bio; }
+    set bio(val) { this._bio = val; }
+    clone() {
+        return new ClassUserStudent(this.toJSON());
     }
 }
 {/* STUDENT */ }

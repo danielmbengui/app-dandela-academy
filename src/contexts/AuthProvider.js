@@ -43,6 +43,7 @@ import { PAGE_HOME } from '@/contexts/constants/constants_pages';
 import { ClassUserIntern } from '@/classes/users/intern/ClassUserIntern';
 import { ClassUserAdmin } from '@/classes/users/intern/ClassUserAdmin';
 import { ClassUserTutor } from '@/classes/users/intern/ClassUserTutor';
+import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
 
@@ -69,7 +70,43 @@ export function AuthProvider({ children }) {
         if (auth) {
             auth.languageCode = lang;
         }
-    }, [lang])
+    }, [lang]);
+    usePageActivity({
+        onVisible: async () => {
+            // la page redevient visible → on repart un chrono
+            //startTimeRef.current = Date.now();
+            setUser(prev => {
+                if (!prev || prev === null) return null;
+                prev.update({
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.ONLINE,
+                });
+                return prev.clone();
+            })
+
+            console.log("[Chrono] start (visible)", new Date());
+        },
+        onHidden: async () => {
+            // la page n'est plus visible → on arrête le chrono
+            if (auth.currentUser && user) {
+                await ClassUser.update(user.uid, {
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.AWAY,
+                });
+            }
+            console.log("[Chrono] hidden → temps passé sur cette session:",new Date(), "s");
+        },
+        onBeforeUnload: async () => {
+            // l'utilisateur ferme/reload/navigue ailleurs
+            if (auth.currentUser && user) {
+                await ClassUser.update(user.uid, {
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.AWAY,
+                });
+            }
+            console.log("[Chrono] beforeunload → dernière session:",new Date(), "s");
+        },
+    });
 
     // écoute du doc utilisateur
     const listenToUser = useCallback((fbUser) => {
@@ -89,22 +126,14 @@ export function AuthProvider({ children }) {
                 await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             //const myUser = ClassUser.makeUserInstance(uid, data.toJSON());
-            
+
             //const ref = doc(firestore, ClassUser.COLLECTION, fbUser.uid);
             // Si tu as une classe métier :
             // const model = new ClassUser(data);
             /*
             */
-            setUser((prev) => {
-                if (!prev || prev === null) {
-                    return data;
-                }
-               // console.log("DATA listne user admin after", data);
-                //return _user;
-                // si tu utilises une classe avec .update(), garde-la
-                if (prev?.update) { prev.update(data.toJSON()); return prev; }
-                return prev.clone();
-            });
+            const _user = data.clone();
+            setUser(_user);
             setIsConnected(true);
             setIsLoading(false);
             //setUser(fbUser);

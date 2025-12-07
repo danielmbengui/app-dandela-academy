@@ -251,6 +251,9 @@ export const IconSchool = ({ width = 24, height = 24, color = '' }) => {
 export const IconRoom = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="ic:round-meeting-room" width={width} height={height} color={color} />)
 }
+export const IconSession = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="carbon:prompt-session" width={width} height={height} color={color} />)
+}
 
 export const IconEmail = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="mdi-light:email" width={width} height={height} color={color} />)

@@ -16,11 +16,12 @@ import {
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { ClassUserTeacher } from "./users/ClassUser";
+import { ClassRoom } from "./ClassRoom";
 
-export class ClassLesson {
-    static COLLECTION = "LESSONS";
+export class ClassLessonSession {
+    static COLLECTION = "SESSIONS";
     static COLLECTION_TRANSLATE = "i18n";
-    static NS_COLLECTION = `classes/lesson`;
+    static NS_COLLECTION = `classes/session`;
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
         UNKNOWN: 'unknown',
@@ -63,6 +64,7 @@ export class ClassLesson {
     static STATUS = Object.freeze({
         OPEN: 'open', // bureautique
         FULL: 'full',
+        SUBSCRIPTION_EXPIRED: 'expired',
         FINISHED: 'finished',
         DRAFT: 'draft',
         UNKNOWN: 'unknown',
@@ -72,6 +74,11 @@ export class ClassLesson {
             label: "open", // "Inscriptions ouvertes",
             color: "#22c55e",
             glow: "#022c22",
+        },
+         expired: {
+            label: "expired", // "Inscriptions ouvertes",
+            color: "#e70d0dff",
+            glow: "#e70d0d54",
         },
         full: {
             label: "full", // "Complet",
@@ -99,416 +106,140 @@ export class ClassLesson {
     constructor({
         uid = "",
         uid_intern = "",
+        uid_lesson = "",
         uid_teacher = "",
         uid_room = "",
         code = "", // Excel-101
         title = "",
         title_normalized = "",
-        subtitle = "",
-        subtitle_normalized = "",
-        description = "",
-        category = "",
-        level = "",
-        lang = "",
         format = "",
-        certified = false,
         price = 0,
         currency = "",
         start_date = null,
         end_date = null,
         seats_availables = 0,
         seats_taken = 0,
-        duration = 0,
-        sessions_count = 0,
-        sessions_type = "",      // ex: "hebdomadaire", "weekend", "intensif"
-        sessions_schedule = this._defaultSchedule(),
-        goals = [],
-        programs = [],
-        prerequisites = [],
-        target_audiences = [],
-        notes = [],
         photo_url = "",
-        status = ClassLesson.STATUS.DRAFT,
-        location = "",           // NOUVEAU
-        url = "",                // NOUVEAU
+        status = ClassLessonSession.STATUS.DRAFT,
+        location = "",
+        url = "",
         translate = {},
+        last_subscribe_time = new Date(),
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
         this._uid = uid;
         this._uid_intern = uid_intern;
+        this._uid_lesson = uid_lesson;
         this._uid_teacher = uid_teacher;
         this._teacher = null;
         this._uid_room = uid_room;
+        this._room = null;
         this._code = code;
         this._title = title;
         this._title_normalized = title_normalized;
-        this._subtitle = subtitle;
-        this._subtitle_normalized = subtitle_normalized;
-        this._description = description;
-        this._category = this._normalizeCategory(category);
-        this._level = level;
-        this._lang = lang;
         this._format = format;
-        this._certified = certified;
         this._price = price;
         this._currency = currency;
         this._start_date = start_date;
         this._end_date = end_date;
+        this._duration = 0;
         this._seats_availables = seats_availables;
         this._seats_taken = seats_taken;
-        this._duration = duration;
-        this._sessions_count = sessions_count;
-        this._sessions_type = sessions_type;
-        this._sessions_schedule = this._normalizeSchedule(sessions_schedule);
-        this._goals = goals;
-        this._programs = programs;
-        this._prerequisites = prerequisites;
-        this._target_audiences = target_audiences;
-        this._notes = notes;
         this._photo_url = photo_url;
         this._status = status;
         this._location = location;
         this._url = url;
         this._translate = translate;
+        this._last_subscribe_time = last_subscribe_time;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
     }
-    _normalizeCategory(category) {
-        return Object.values(ClassLesson.CATEGORY).includes(category)
-            ? category
-            : ClassLesson.CATEGORY.UNKNOWN;
-    }
-    _normalizeSchedule(schedule) {
-        if (!(schedule instanceof Object) || Object.keys(schedule).length === 0) {
-            return this._defaultSchedule();
-        }
-        var base = this._defaultSchedule();
 
-        // on prend au max 7 jours, on complète si moins
-        Object.keys(base).map((key, index) => {
-            const source = schedule[key] || {};
-            base[key] = {
-                is_open: typeof source.is_open === "boolean" ? source.is_open : base[key].is_open,
-                open_hour: Number.isFinite(source.open_hour) ? source.open_hour : base[key].open_hour,
-                close_hour: Number.isFinite(source.close_hour) ? source.close_hour : base[key].close_hour,
-            };
-        });
+    get uid() { return this._uid; }
+    set uid(value) { this._uid = value; }
 
-        return base;
-    }
-    _defaultSchedule() {
-        return {
-            monday: { is_open: false, open_hour: 0, close_hour: 0 }, // lundi
-            thuesday: { is_open: false, open_hour: 0, close_hour: 0 },
-            wednesday: { is_open: false, open_hour: 0, close_hour: 0 },
-            thursday: { is_open: false, open_hour: 0, close_hour: 0 },
-            friday: { is_open: false, open_hour: 0, close_hour: 0 },
-            saturday: { is_open: false, open_hour: 0, close_hour: 0 },
-            sunday: { is_open: false, open_hour: 0, close_hour: 0 }, // dimanche
-        };
-    }
-    // uid
-    get uid() {
-        return this._uid;
-    }
-    set uid(value) {
-        this._uid = value;
-    }
+    get uid_intern() { return this._uid_intern; }
+    set uid_intern(value) { this._uid_intern = value; }
 
-    // uid_intern
-    get uid_intern() {
-        return this._uid_intern;
-    }
-    set uid_intern(value) {
-        this._uid_intern = value;
-    }
+    get uid_lesson() { return this._uid_lesson; }
+    set uid_lesson(value) { this._uid_lesson = value; }
 
-    // uid_teacher
-    get uid_teacher() {
-        return this._uid_teacher;
-    }
-    set uid_teacher(value) {
-        this._uid_teacher = value;
-    }
-    // teacher
-    get teacher() {
-        return this._teacher;
-    }
+    get uid_teacher() { return this._uid_teacher; }
+    set uid_teacher(value) { this._uid_teacher = value; }
+    get teacher() { return this._teacher; }
     set teacher(value) {
-        if (!(value instanceof ClassUserTeacher)) return;
+        if (!value || value === null || !(value instanceof ClassUserTeacher)) return;
         this._teacher = value;
+        this._touchLastEdit();
     }
 
-    // uid_room
-    get uid_room() {
-        return this._uid_room;
-    }
-    set uid_room(value) {
-        this._uid_room = value;
-    }
-
-    // code
-    get code() {
-        return this._code;
-    }
-    set code(value) {
-        this._code = value;
+    get uid_room() { return this._uid_room; }
+    set uid_room(value) { this._uid_room = value; }
+    get room() { return this._room; }
+    set room(value) {
+        if (!value || value === null || !(value instanceof ClassRoom)) return;
+        this._room = value;
+        this._touchLastEdit();
     }
 
-    // title
-    get title() {
-        return this._title;
-    }
-    set title(value) {
-        this._title = value;
-    }
+    get code() { return this._code; }
+    set code(value) { this._code = value; }
 
-    // title_normalized
-    get title_normalized() {
-        return this._title_normalized;
-    }
-    set title_normalized(value) {
-        this._title_normalized = value;
-    }
+    get title() { return this._title; }
+    set title(value) { this._title = value; }
 
-    // subtitle
-    get subtitle() {
-        return this._subtitle;
-    }
-    set subtitle(value) {
-        this._subtitle = value;
-    }
+    get title_normalized() { return this._title_normalized; }
+    set title_normalized(value) { this._title_normalized = value; }
 
-    // subtitle_normalized
-    get subtitle_normalized() {
-        return this._subtitle_normalized;
-    }
-    set subtitle_normalized(value) {
-        this._subtitle_normalized = value;
-    }
+    get format() { return this._format; }
+    set format(value) { this._format = value; }
 
-    // description
-    get description() {
-        return this._description;
-    }
-    set description(value) {
-        this._description = value;
-    }
+    get price() { return this._price; }
+    set price(value) { this._price = value; }
 
-    // category
-    get category() {
-        return this._category;
-    }
-    set category(value) {
-        this._category = value;
-    }
+    get currency() { return this._currency; }
+    set currency(value) { this._currency = value; }
 
-    // level
-    get level() {
-        return this._level;
-    }
-    set level(value) {
-        this._level = value;
-    }
+    get start_date() { return this._start_date; }
+    set start_date(value) { this._start_date = value; }
 
-    // lang
-    get lang() {
-        return this._lang;
-    }
-    set lang(value) {
-        this._lang = value;
-    }
+    get end_date() { return this._end_date; }
+    set end_date(value) { this._end_date = value; }
 
-    // format
-    get format() {
-        return this._format;
-    }
-    set format(value) {
-        this._format = value;
-    }
+    get duration() { return this._duration; }
+    set duration(value) { this._duration = value; }
 
-    // certified
-    get certified() {
-        return this._certified;
-    }
-    set certified(value) {
-        this._certified = value;
-    }
+    get seats_availables() { return this._seats_availables; }
+    set seats_availables(value) { this._seats_availables = value; }
 
-    // price
-    get price() {
-        return this._price;
-    }
-    set price(value) {
-        this._price = value;
-    }
+    get seats_taken() { return this._seats_taken; }
+    set seats_taken(value) { this._seats_taken = value; }
 
-    // currency
-    get currency() {
-        return this._currency;
-    }
-    set currency(value) {
-        this._currency = value;
-    }
+    get photo_url() { return this._photo_url; }
+    set photo_url(value) { this._photo_url = value; }
 
-    // start_date
-    get start_date() {
-        return this._start_date;
-    }
-    set start_date(value) {
-        this._start_date = value;
-    }
+    get status() { return this._status; }
+    set status(value) { this._status = value; }
 
-    // end_date
-    get end_date() {
-        return this._end_date;
-    }
-    set end_date(value) {
-        this._end_date = value;
-    }
+    get location() { return this._location; }
+    set location(value) { this._location = value; }
 
-    // seats_availables
-    get seats_availables() {
-        return this._seats_availables;
-    }
-    set seats_availables(value) {
-        this._seats_availables = value;
-    }
+    get url() { return this._url; }
+    set url(value) { this._url = value; }
 
-    // seats_taken
-    get seats_taken() {
-        return this._seats_taken;
-    }
-    set seats_taken(value) {
-        this._seats_taken = value;
-    }
+    get translate() { return this._translate; }
+    set translate(value) { this._translate = value; }
 
-    // duration
-    get duration() {
-        return this._duration;
-    }
-    set duration(value) {
-        this._duration = value;
-    }
+    get last_subscribe_time() { return this._last_subscribe_time; }
+    set last_subscribe_time(value) { this._last_subscribe_time = value; }
 
-    // sessions_count
-    get sessions_count() {
-        return this._sessions_count;
-    }
-    set sessions_count(value) {
-        this._sessions_count = value;
-    }
+    get created_time() { return this._created_time; }
+    set created_time(value) { this._created_time = value; }
 
-    // sessions_type
-    get sessions_type() {
-        return this._sessions_type;
-    }
-    set sessions_type(value) {
-        this._sessions_type = value;
-    }
+    get last_edit_time() { return this._last_edit_time; }
+    set last_edit_time(value) { this._last_edit_time = value; }
 
-    // sessions_schedule
-    get sessions_schedule() {
-        return this._sessions_schedule;
-    }
-    set sessions_schedule(value) {
-        this._sessions_schedule = value;
-    }
-
-    // goals
-    get goals() {
-        return this._goals;
-    }
-    set goals(value) {
-        this._goals = value;
-    }
-
-    // programs
-    get programs() {
-        return this._programs;
-    }
-    set programs(value) {
-        this._programs = value;
-    }
-
-    // prerequisites
-    get prerequisites() {
-        return this._prerequisites;
-    }
-    set prerequisites(value) {
-        this._prerequisites = value;
-    }
-
-    // target_audiences
-    get target_audiences() {
-        return this._target_audiences;
-    }
-    set target_audiences(value) {
-        this._target_audiences = value;
-    }
-
-    // notes
-    get notes() {
-        return this._notes;
-    }
-    set notes(value) {
-        this._notes = value;
-    }
-
-    // status
-    get status() {
-        return this._status;
-    }
-    set status(value) {
-        this._status = value;
-    }
-    // photo_url
-    get photo_url() {
-        return this._photo_url;
-    }
-    set photo_url(value) {
-        this._photo_url = value;
-    }
-    // location
-    get location() {
-        return this._location;
-    }
-    set location(value) {
-        this._location = value;
-    }
-
-    // url
-    get url() {
-        return this._url;
-    }
-    set url(value) {
-        this._url = value;
-    }
-
-    // translates
-    get translate() {
-        return this._translate;
-    }
-    set translate(value) {
-        this._translate = value;
-    }
-
-    // created_time
-    get created_time() {
-        return this._created_time;
-    }
-    set created_time(value) {
-        this._created_time = value;
-    }
-
-    // last_edit_time
-    get last_edit_time() {
-        return this._last_edit_time;
-    }
-    set last_edit_time(value) {
-        this._last_edit_time = value;
-    }
 
     // 🔁 Getters & Setters
     // --- normalisation interne ---
@@ -537,7 +268,7 @@ export class ClassLesson {
         }
     }
     clone() {
-        return ClassLesson.makeLessonInstance(this._uid, this.toJSON());
+        return ClassLessonSession.makeLessonSessionInstance(this._uid, this.toJSON());
         //return new ClassUser(this.toJSON());
     }
 
@@ -566,8 +297,8 @@ export class ClassLesson {
         if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
         return null;
     }
-    static makeLessonInstance(uid, data = {}) {
-        return new ClassLesson({ uid, ...data });
+    static makeLessonSessionInstance(uid, data = {}) {
+        return new ClassLessonSession({ uid, ...data });
     }
     static get converter() {
         return {
@@ -578,18 +309,20 @@ export class ClassLesson {
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
-                var start_date = ClassLesson._toJsDate(data.start_date);
-                var end_date = ClassLesson._toJsDate(data.end_date);
-                var created_time = ClassLesson._toJsDate(data.created_time);
-                var last_edit_time = ClassLesson._toJsDate(data.last_edit_time);
-                return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time });
+                var start_date = ClassLessonSession._toJsDate(data.start_date);
+                var end_date = ClassLessonSession._toJsDate(data.end_date);
+                
+                const last_subscribe_time = ClassLessonSession._toJsDate(data.last_subscribe_time);
+                const created_time = ClassLessonSession._toJsDate(data.created_time);
+                const last_edit_time = ClassLessonSession._toJsDate(data.last_edit_time);
+                return ClassLessonSession.makeLessonSessionInstance(uid, { ...data, start_date, end_date, last_subscribe_time,created_time, last_edit_time });
             },
         };
     }
     // ---------- Helpers Firestore ----------
     static async alreadyExist(_uid) {
         const q = query(
-            collection(firestore, ClassLesson.COLLECTION),
+            collection(firestore, ClassLessonSession.COLLECTION),
             where("uid", "==", _uid)
         );
         const countSnap = await getCountFromServer(q);
@@ -597,7 +330,7 @@ export class ClassLesson {
     }
     static async alreadyExistByName(_name) {
         const q = query(
-            collection(firestore, ClassLesson.COLLECTION),
+            collection(firestore, ClassLessonSession.COLLECTION),
             where("name_normalized", "==", this._name.toLowerCase().trim())
         );
         const countSnap = await getCountFromServer(q);
@@ -617,10 +350,10 @@ export class ClassLesson {
     }
     // Récupérer un module par id
     static indexOf(array = [], uid) {
-        if (array.length === 0 || !(array[0] instanceof ClassLesson)) {
+        if (array.length === 0 || !(array[0] instanceof ClassLessonSession)) {
             return -1;
         }
-        if (!(array[0] instanceof ClassLesson)) {
+        if (!(array[0] instanceof ClassLessonSession)) {
             console.log("ERRROR is not class School")
             return -1;
         }
@@ -639,7 +372,7 @@ export class ClassLesson {
     static async getByName(_name) {
         //const usersCol = collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter);
         const q = query(
-            collection(firestore, ClassLesson.COLLECTION).withConverter(ClassLesson.converter),
+            collection(firestore, ClassLessonSession.COLLECTION).withConverter(ClassLessonSession.converter),
             where("name_normalized", "==", _name.toLowerCase().trim()),
             limit(1),
         );
@@ -672,7 +405,7 @@ export class ClassLesson {
     async createFirestore() {
         const newRef = doc(this.constructor.colRef()); // id auto
         //data.uid = newRef.id;
-        //const model = data instanceof ClassLesson ? data : new ClassLesson({ ...data });
+        //const model = data instanceof ClassLessonSession ? data : new ClassLessonSession({ ...data });
         //model.uid = newRef.id;()
 
         const countLesson = await this.constructor.count() || 0;
@@ -680,7 +413,7 @@ export class ClassLesson {
         this._uid = newRef.id;
         this._uid_intern = idLesson;
         this._title_normalized = this.createTitleNormalized(this._title);
-        this._subtitle_normalized = this.createTitleNormalized(this.subtitle);
+        //this._subtitle_normalized = this.createTitleNormalized(this.subtitle);
         //this._name_normalized = createNameNormalized(this._name);
         // const uid = newRef.id;
         //const uid_intern = idSchool;
@@ -689,11 +422,11 @@ export class ClassLesson {
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
         await setDoc(newRef, this.toJSON());
-        return this.constructor.makeLessonInstance(this._uid, this.toJSON());// -> ClassModule
+        return this.constructor.makeLessonSessionInstance(this._uid, this.toJSON());// -> ClassModule
     }
     async updateFirestore() {
         try {
-            // const ref = ClassLesson.docRef(id);
+            // const ref = ClassLessonSession.docRef(id);
             //const data = { ...patch, last_edit_time: new Date() };
             //await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")
@@ -704,7 +437,7 @@ export class ClassLesson {
             await updateDoc(ref, this.toJSON(), { merge: true });
             //console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
-            return this.constructor.makeLessonInstance(this._uid, this.toJSON()); // -> ClassModule
+            return this.constructor.makeLessonSessionInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
             return null;
         }
@@ -712,7 +445,7 @@ export class ClassLesson {
     // Mettre à jour un module
     static async update(id, patch = {}) {
         try {
-            const ref = ClassLesson.docRef(id);
+            const ref = ClassLessonSession.docRef(id);
             const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")
@@ -737,7 +470,7 @@ export class ClassLesson {
     static async fetchFromFirestore(uid) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
-            return await ClassLesson.get(uid);
+            return await ClassLessonSession.get(uid);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;
@@ -746,7 +479,7 @@ export class ClassLesson {
     static async fetchFromFirestoreNeme(_name) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
-            return await ClassLesson.getByName(_name);
+            return await ClassLessonSession.getByName(_name);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;
@@ -762,7 +495,7 @@ export class ClassLesson {
         }
     }
 }
-export class ClassLessonTranslate {
+export class ClassLessonSessionTranslate {
     static COLLECTION = "i18n";
     static NS_COLLECTION = `classes/lesson`;
     static ERROR = Object.freeze({
@@ -992,7 +725,7 @@ export class ClassLessonTranslate {
         }
     }
     clone() {
-        return ClassLessonTranslate.makeLessonTranslateInstance(this._uid, this.toJSON());
+        return ClassLessonSessionTranslate.makeLessonTranslateInstance(this._uid, this.toJSON());
         //return new ClassUser(this.toJSON());
     }
 
@@ -1006,7 +739,7 @@ export class ClassLessonTranslate {
         return null;
     }
     static makeLessonTranslateInstance(uid, data = {}) {
-        return new ClassLessonTranslate({ uid, ...data });
+        return new ClassLessonSessionTranslate({ uid, ...data });
     }
     static get converter() {
         return {
@@ -1017,16 +750,16 @@ export class ClassLessonTranslate {
             fromFirestore(snapshot, options) {
                 const lang = snapshot.id;
                 const data = snapshot.data(options) || {};
-                var created_time = ClassLessonTranslate._toJsDate(data.created_time);
-                var last_edit_time = ClassLessonTranslate._toJsDate(data.last_edit_time);
-                return ClassLessonTranslate.makeLessonTranslateInstance(lang, { ...data, created_time, last_edit_time, lang });
+                var created_time = ClassLessonSessionTranslate._toJsDate(data.created_time);
+                var last_edit_time = ClassLessonSessionTranslate._toJsDate(data.last_edit_time);
+                return ClassLessonSessionTranslate.makeLessonTranslateInstance(lang, { ...data, created_time, last_edit_time, lang });
             },
         };
     }
     // ---------- Helpers Firestore ----------
     static async alreadyExist(_uid) {
         const q = query(
-            collection(firestore, ClassLesson.COLLECTION),
+            collection(firestore, ClassLessonSession.COLLECTION),
             where("uid", "==", _uid)
         );
         const countSnap = await getCountFromServer(q);
@@ -1034,17 +767,17 @@ export class ClassLessonTranslate {
     }
     static async alreadyExistByName(_name) {
         const q = query(
-            collection(firestore, ClassLesson.COLLECTION),
+            collection(firestore, ClassLessonSession.COLLECTION),
             where("name_normalized", "==", this._name.toLowerCase().trim())
         );
         const countSnap = await getCountFromServer(q);
         return countSnap.data().count > 0;
     }
     static colRef(uidLesson = "") {
-        return collection(firestore, ClassLesson.COLLECTION, uidLesson, ClassLessonTranslate.COLLECTION).withConverter(this.converter);
+        return collection(firestore, ClassLessonSession.COLLECTION, uidLesson, ClassLessonSessionTranslate.COLLECTION).withConverter(this.converter);
     }
     static docRef(uidLesson = "", lang) {
-        return doc(firestore, ClassLesson.COLLECTION, uidLesson, ClassLessonTranslate.COLLECTION, lang).withConverter(this.converter);
+        return doc(firestore, ClassLessonSession.COLLECTION, uidLesson, ClassLessonSessionTranslate.COLLECTION, lang).withConverter(this.converter);
     }
     static async count() {
         //const coll = collection(firestore, ClassUser.COLLECTION);
@@ -1054,10 +787,10 @@ export class ClassLessonTranslate {
     }
     // Récupérer un module par id
     static indexOf(array = [], uid) {
-        if (array.length === 0 || !(array[0] instanceof ClassLesson)) {
+        if (array.length === 0 || !(array[0] instanceof ClassLessonSession)) {
             return -1;
         }
-        if (!(array[0] instanceof ClassLesson)) {
+        if (!(array[0] instanceof ClassLessonSession)) {
             console.log("ERRROR is not class School")
             return -1;
         }
@@ -1076,7 +809,7 @@ export class ClassLessonTranslate {
     static async getByName(_name) {
         //const usersCol = collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter);
         const q = query(
-            collection(firestore, ClassLesson.COLLECTION).withConverter(ClassLesson.converter),
+            collection(firestore, ClassLessonSession.COLLECTION).withConverter(ClassLessonSession.converter),
             where("name_normalized", "==", _name.toLowerCase().trim()),
             limit(1),
         );
@@ -1110,7 +843,7 @@ export class ClassLessonTranslate {
     async createFirestore() {
         const newRef = doc(this.constructor.colRef()); // id auto
         //data.uid = newRef.id;
-        //const model = data instanceof ClassLesson ? data : new ClassLesson({ ...data });
+        //const model = data instanceof ClassLessonSession ? data : new ClassLessonSession({ ...data });
         //model.uid = newRef.id;()
 
         const countLesson = await this.constructor.count() || 0;
@@ -1131,7 +864,7 @@ export class ClassLessonTranslate {
     }
     async updateFirestore() {
         try {
-            // const ref = ClassLesson.docRef(id);
+            // const ref = ClassLessonSession.docRef(id);
             //const data = { ...patch, last_edit_time: new Date() };
             //await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")
@@ -1150,7 +883,7 @@ export class ClassLessonTranslate {
     // Mettre à jour un module
     static async update(id, patch = {}) {
         try {
-            const ref = ClassLesson.docRef(id);
+            const ref = ClassLessonSession.docRef(id);
             const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, data, { merge: true });
             //console.log("UPDATE COMPLETED")
@@ -1184,7 +917,7 @@ export class ClassLessonTranslate {
     static async fetchFromFirestoreNeme(_name) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
-            return await ClassLesson.getByName(_name);
+            return await ClassLessonSession.getByName(_name);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;

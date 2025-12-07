@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 
 export default function BadgeStatusLesson({ status="", big = false }) {
-    const {t} = useTranslation([ClassUser.NS_COLLECTION]);
+    const {t} = useTranslation([ClassLesson.NS_COLLECTION]);
     const STATUS_CONFIG = ClassLesson.STATUS_CONFIG;
     const cfg = STATUS_CONFIG[status];
 
@@ -15,7 +15,7 @@ export default function BadgeStatusLesson({ status="", big = false }) {
         <>
             <span className={`badge ${big ? "badge-big" : ""}`}>
               <span className="dot" />
-                {cfg?.label}
+                {t(cfg?.label)}
             </span>
 
             <style jsx>{`

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 
 export default function BadgeFormatLesson({ format="", big = false }) {
-    const {t} = useTranslation([ClassUser.NS_COLLECTION]);
+    const {t} = useTranslation([ClassLesson.NS_COLLECTION]);
     const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
     const cfg = FORMAT_CONFIG[format];
 
@@ -15,7 +15,7 @@ export default function BadgeFormatLesson({ format="", big = false }) {
         <>
             <span className={`badge ${big ? "badge-big" : ""}`}>
                 <span className="dot" style={{display:'none'}} />
-                {cfg?.label}
+                {t(cfg?.label)}
             </span>
 
             <style jsx>{`

@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { IconLessons } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { formatDuration, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric } from "@/contexts/functions";
+import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, translateWithVars } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
 import { RoomProvider, useRoom } from "@/contexts/RoomProvider";
 import { useSchool } from "@/contexts/SchoolProvider";
@@ -18,6 +18,13 @@ import { useLanguage } from "@/contexts/LangProvider";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import Image from "next/image";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import BadgeStatusLesson from "@/components/dashboard/lessons/BadgeStatusLesson";
+import { useAuth } from "@/contexts/AuthProvider";
+import { ClassUserIntern } from "@/classes/users/ClassUser";
+import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
+import DialogLesson from "@/components/dashboard/lessons/DialogLesson";
+import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
+import { ClassLessonSession } from "@/classes/ClassLessonSession";
 
 const initialCourse = {
     id: "course_excel_101",
@@ -181,12 +188,12 @@ function InfoRow({ label, value }) {
         }
 
         .info-label {
-          color: var(--grey-ligth);
+         color: var(--font-color);
         }
 
         .info-value {
           text-align: right;
-           color: var(--font-color);
+           color: var(--grey-dark);
             font-weigth: 100;
         }
       `}</style>
@@ -197,8 +204,9 @@ export default function DashboardOneLesson() {
     const params = useParams();
     const { isLoading: isLoadingLessons, getOneLesson } = useLesson();
     const { uid } = params; // <- ici tu récupères l'uid
+    const { user } = useAuth();
     //const lesson = getOneLesson(uid);
-    const { t } = useTranslation([NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+    const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
     const { lang } = useLanguage();
     // const { room, getOneRoomName } = useRoom();
     const [lesson, setLesson] = useState(null);
@@ -207,6 +215,7 @@ export default function DashboardOneLesson() {
     const [course, setCourse] = useState(initialCourse);
     const [isEnrolled, setIsEnrolled] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [editing, setEditing] = useState(false);
 
     const seatsLeft = Math.max(lesson?.seats_availables || 0 - lesson?.seats_taken || 0, 0);
     const isFull = seatsLeft <= 0 && !isEnrolled;
@@ -252,29 +261,75 @@ export default function DashboardOneLesson() {
     };
 
     return (
-        <DashboardPageWrapper 
-        titles={[
-            {name:t('lessons', {ns:NS_DASHBOARD_MENU}), url:PAGE_LESSONS}, 
-            {name:lesson?.translate?.title,url:''}
-        ]} 
-        title={`Cours / ${lesson?.code}`} 
-        subtitle={lesson?.translate?.subtitle} 
-        icon={<IconLessons />}>
+        <DashboardPageWrapper
+            titles={[
+                { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_LESSONS },
+                { name: lesson?.translate?.title, url: '' }
+            ]}
+            title={`Cours / ${lesson?.code}`}
+            subtitle={lesson?.translate?.subtitle}
+            icon={<IconLessons />}>
+            {
+                user instanceof ClassUserIntern && <div style={{ marginTop: '10px' }}>
+                    <ButtonConfirm
+                        label="Modifier"
+                        loading={isLoading}
+                        onClick={async () => {
+                            setIsLoading(true);
+                            const session = await new ClassLessonSession({
+                                //uid = "",
+                                //uid_intern = "",
+                                uid_lesson : "zlUoi3t14wzC5cNhfS3J",
+                                uid_teacher : "HRY7JbnFftWZocKtrIB1N1YuEJw1",
+                                //uid_room = "",
+                                code : "Session14", // Excel-101
+                                title : "Open session",
+                                //title_normalized : "",
+                                format : ClassLessonSession.FORMAT.HYBRID,
+                                price : 2500,
+                                currency : "AOA",
+                                start_date : new Date(2025,11,13,8),
+                                end_date : new Date(2025,11,13,12,30),
+                                seats_availables : 31,
+                                seats_taken : 14,
+                                //photo_url : "",
+                                status : ClassLessonSession.STATUS.DRAFT,
+                                //location : "",
+                                //url : "",
+                                //translate = {},
+                                last_subscribe_time : new Date(2025,11,12,23,59,59),
+                                //created_time = new Date(),
+                                //last_edit_time = new Date(),
+                            }).createFirestore();
+                            //await session;
+                            setIsLoading(false);
+                        }}
+                    />
+                    <DialogLesson lesson={lesson} isOpen={editing} setIsOpen={setEditing} />
+                </div>
+            }
             <div className="page">
                 <main className="container">
                     <section className="hero-card">
                         <div className="hero-left">
-                            <p className="breadcrumb">{lesson?.category.toUpperCase()} {"/"} {lesson?.code}</p>
+                            {
+                                user instanceof ClassUserIntern && <div style={{ marginBottom: '10px' }}>
+                                    <BadgeStatusLesson status={lesson?.status} />
+                                </div>
+                            }
+                            <p className="breadcrumb">{t(lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()} {"/"} {lesson?.code}</p>
                             <h1>{lesson?.translate?.title}</h1>
                             <p className="muted">
-                                Niveau : {lesson?.level} • Langue : {t(lesson?.lang, { ns: NS_LANGS })}
+                                {t('level')} : {t(lesson?.level, { ns: ClassLesson.NS_COLLECTION })} • {t('lang', { ns: NS_LANGS })} : {t(lesson?.lang, { ns: NS_LANGS })}
                             </p>
 
                             <div className="badges">
+
                                 <BadgeFormatLesson format={lesson?.format} />
+
                                 {lesson?.certified && (
                                     <span className="badge-cert">
-                                        🎓 Certifié {course.certificateProvider}
+                                        🎓 {t('certified')}
                                     </span>
                                 )}
                             </div>
@@ -283,104 +338,146 @@ export default function DashboardOneLesson() {
                             </p>
                             <div className="hero-meta">
                                 <MetaChip
-                                    label="Type"
-                                    value={`${lesson?.category}`}
+                                    label={t('category')}
+                                    value={`${t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })}`}
                                 />
                                 <MetaChip
-                                    label="Durée"
+                                    label={t('duration')}
                                     value={`${formatDuration(lesson?.duration || 0)}`}
                                 />
                                 <MetaChip
-                                    label="Rythme"
+                                    label={t('sessions_type')}
                                     value={`${lesson?.sessions_count}x/${t(lesson?.sessions_type, { ns: NS_DAYS })}`}
                                 />
                                 <MetaChip
-                                    label="Dates"
+                                    label={t('dates')}
                                     value={`${getFormattedDateNumeric(lesson?.start_date, lang)} → ${getFormattedDateNumeric(lesson?.end_date, lang)}`}
                                 />
                             </div>
                             {
-                                lesson?.photo_url && <Box sx={{mt:1.5,background:'',width:{xs:'100%', sm:'70%'}}}>
-                                <Image
-                                src={lesson?.photo_url || ''}
-                                alt={`lesson-${lesson?.uid}`}
-                                quality={100}
-                                width={300}
-                                height={150}
-                                //loading="lazy"
-                                priority
-                                style={{
-                                    width: 'auto',
-                                    height: '100%',
-                                    borderRadius: '8px',
-                                    objectFit: 'cover',
-                                }}
-                            />
-                            </Box>
+                                lesson?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
+                                    <Image
+                                        src={lesson?.photo_url || ''}
+                                        alt={`lesson-${lesson?.uid}`}
+                                        quality={100}
+                                        width={300}
+                                        height={150}
+                                        //loading="lazy"
+                                        priority
+                                        style={{
+                                            width: 'auto',
+                                            height: '100%',
+                                            borderRadius: '8px',
+                                            objectFit: 'cover',
+                                        }}
+                                    />
+                                </Box>
                             }
                         </div>
 
                         {/* Bloc inscription intégré dans le hero */}
                         <aside className="hero-right">
-                            <p className="price">
-                                {lesson?.price}{" "}
-                                <span className="currency">{lesson?.currency}</span>
-                            </p>
-                            <p className="price-caption">
-                                {formatDuration(lesson?.duration || 0)} de formation encadrée
-                            </p>
-
-                            {course.hasInstallments && (
-                                <p className="price-installments">
-                                    Paiement échelonné possible :{" "}
-                                    <strong>{course.installmentExample}</strong>
-                                </p>
-                            )}
-                            
-                            <div className="hero-seats">
-                                <p className="seats-main">
-                                    {lesson?.seats_taken}/{course.seats_availables} inscrits
-                                </p>
-                                <p className="seats-sub">
-                                    {isFull
-                                        ? "Cours complet actuellement"
-                                        : `${lesson?.seats_availables - lesson?.seats_taken} place(s) restante(s)`}
+                            <div className="hero-right-top">
+                                {
+                                    lesson?.price && lesson?.currency && <p className="price">
+                                        {formatPrice(lesson?.price || 0, lesson?.currency || "")}
+                                    </p>
+                                }
+                                <p className="price-caption">
+                                    {translateWithVars(t("duration_lesson"), { duration: formatDuration(lesson?.duration || 0) })}
                                 </p>
 
-                                <div className="seats-bar">
-                                    <div
-                                        className="seats-fill"
-                                        style={{
-                                            width: `${(lesson?.seats_taken / lesson?.seats_availables) * 100}%`,
+                                {course.hasInstallments && (
+                                    <p className="price-installments">
+                                        {t('multiple_payments')}{" : "}
+                                        <strong>{course.installmentExample}</strong>
+                                    </p>
+                                )}
+                                <div className="hero-seats">
+                                    <p className="seats-main">
+                                        {lesson?.seats_taken}/{course.seats_availables} {t('seats_taken')}
+                                    </p>
+                                    <p className="seats-sub">
+                                        {isFull
+                                            ? "Cours complet actuellement"
+                                            : `${lesson?.seats_availables - lesson?.seats_taken} ${t('seats_availables')}`}
+                                    </p>
+
+                                    <div className="seats-bar">
+                                        <div
+                                            className="seats-fill"
+                                            style={{
+                                                width: `${(lesson?.seats_taken / lesson?.seats_availables) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <Stack sx={{ width: '100%', mt: 3 }}>
+                                    <ButtonConfirm
+                                        size="large"
+                                        label={t('btn-subscribe')}
+                                        loading={isLoading}
+                                        onClick={async () => {
+                                            setIsLoading(true);
+                                            const res = await fetch(`/api/test?lang=${lang}&translations=${JSON.stringify({
+                                                title: lesson?.title,
+                                                description: lesson?.description,
+                                                goals: lesson?.goals,
+                                                subtitle: lesson?.subtitle,
+                                            })}`);
+                                            const data = await res.json();
+                                            console.log("FETCH", data)
+                                            setIsLoading(false);
                                         }}
                                     />
-                                </div>
+                                </Stack>
+                                <button
+                                    className={`btn primary btn-enroll ${isFull && !isEnrolled ? "btn-disabled" : ""}`}
+                                    style={{ display: 'none' }}
+                                    onClick={async () => {
+
+                                    }}
+                                    disabled={isLoading || (isFull && !isEnrolled)}
+                                >
+                                    {isLoading
+                                        ? "Traitement..."
+                                        : isEnrolled
+                                            ? "Me désinscrire du cours"
+                                            : isFull
+                                                ? "Cours complet"
+                                                : "M'inscrire à ce cours"}
+                                </button>
+                                <p className="secure-note">
+                                    ✅ {t('security')}
+                                </p>
                             </div>
-                            <Stack sx={{ width: '100%', mt: 3 }}>
-                                <ButtonConfirm
-                                    size="large"
-                                    label="M'inscrire à ce cours"
-                                />
-                            </Stack>
-                            <button
-                                className={`btn primary btn-enroll ${isFull && !isEnrolled ? "btn-disabled" : ""
-                                    }`}
-                                    style={{display:'none'}}
-                                onClick={handleToggleEnroll}
-                                disabled={isLoading || (isFull && !isEnrolled)}
-                            >
-                                {isLoading
-                                    ? "Traitement..."
-                                    : isEnrolled
-                                        ? "Me désinscrire du cours"
-                                        : isFull
-                                            ? "Cours complet"
-                                            : "M'inscrire à ce cours"}
-                            </button>
-                            <p className="secure-note">
-                                ✅ Inscription sécurisée • Tu recevras un email de confirmation
-                                avec toutes les informations pratiques.
-                            </p>
+                            {/* PROFESSEUR */}
+                            <div className="teacher-card">
+                                <p className="teacher-label">Professeur du cours</p>
+                                <div className="teacher-main">
+
+                                    {
+                                        lesson?.teacher?.showAvatar({})
+                                    }
+                                    <div className="teacher-text">
+                                        <p className="teacher-name">
+                                            {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
+                                        </p>
+                                        <p className="teacher-role">{lesson?.teacher?._role_title}</p>
+                                    </div>
+                                </div>
+                                <p className="teacher-bio">{lesson?.teacher?.bio}</p>
+                                <p className="teacher-email">
+                                    📧 <span>{lesson?.teacher?.email_academy}</span>
+                                </p>
+                                <Stack sx={{ width: '100%' }}>
+                                    <ButtonCancel
+                                        size="medium"
+                                        label="Contacter le professeur"
+
+                                    />
+                                </Stack>
+                            </div>
                         </aside>
                     </section>
 
@@ -390,11 +487,11 @@ export default function DashboardOneLesson() {
                         {/* COL GAUCHE : contenu du cours */}
                         <div className="main-col">
                             <div className="card">
-                                <h2>À propos de ce cours</h2>
+                                <h2>{t('description')}</h2>
                                 <p className="description">{lesson?.translate?.description}</p>
                             </div>
                             <div className="card">
-                                <h2>Objectifs pédagogiques</h2>
+                                <h2>{t('goals')}</h2>
                                 <ul className="list">
                                     {lesson?.translate?.goals.map((item, idx) => (
                                         <li key={idx}>{item}</li>
@@ -402,7 +499,7 @@ export default function DashboardOneLesson() {
                                 </ul>
                             </div>
                             <div className="card">
-                                <h2>Programme</h2>
+                                <h2>{t('programs')}</h2>
                                 <ol className="list ordered">
                                     {lesson?.translate?.programs.map((item, idx) => (
                                         <li key={idx}>{item}</li>
@@ -410,7 +507,7 @@ export default function DashboardOneLesson() {
                                 </ol>
                             </div>
                             <div className="card">
-                                <h2>Pré-requis</h2>
+                                <h2>{t('prerequisites')}</h2>
                                 <ul className="list">
                                     {lesson?.translate?.prerequisites.map((item, idx) => (
                                         <li key={idx}>{item}</li>
@@ -418,7 +515,7 @@ export default function DashboardOneLesson() {
                                 </ul>
                             </div>
                             <div className="card">
-                                <h2>Pour qui ?</h2>
+                                <h2>{t('target_audiences')}</h2>
                                 <ul className="list">
                                     {lesson?.translate?.target_audiences.map((item, idx) => (
                                         <li key={idx}>{item}</li>
@@ -430,19 +527,19 @@ export default function DashboardOneLesson() {
                         {/* COL DROITE : infos pratiques & certification */}
                         <div className="side-col">
                             <div className="card">
-                                <h2>Modalités pratiques</h2>
-                                <InfoRow label="Format" value={formatCfg?.label} />
+                                <h2>{t('modalities')}</h2>
+                                <InfoRow label={t('format')} value={formatCfg?.label} />
                                 <InfoRow
-                                    label="Durée totale"
+                                    label={t('duration_total')}
                                     value={`${formatDuration(lesson?.duration)} heures`}
                                 />
                                 <InfoRow
-                                    label="Rythme"
+                                    label={t('sessions_type')}
                                     value={`${lesson?.sessions_count} session(s) / ${t(lesson?.sessions_type, { ns: NS_DAYS })}`}
                                 />
-                                <InfoRow label="Horaires" value={`${t(Object.keys(lesson?.sessions_schedule || {})?.[5], { ns: NS_DAYS })} • ${formatDuration(lesson?.sessions_schedule.saturday.open_hour)} - ${formatDuration(lesson?.sessions_schedule.saturday.close_hour)}`} />
+                                <InfoRow label={t('schedule')} value={`${t(Object.keys(lesson?.sessions_schedule || {})?.[5], { ns: NS_DAYS })} • ${formatDuration(lesson?.sessions_schedule.saturday.open_hour)} - ${formatDuration(lesson?.sessions_schedule.saturday.close_hour)}`} />
                                 {lesson?.format !== "online" && (
-                                    <InfoRow label="Lieu" value={`${lesson?.location}`} />
+                                    <InfoRow label={t('location')} value={`${lesson?.location}`} />
                                 )}
                                 {lesson?.format !== "onsite" && (
                                     <InfoRow
@@ -453,28 +550,23 @@ export default function DashboardOneLesson() {
                             </div>
 
                             <div className="card">
-                                <h2>Certification</h2>
+                                <h2>{t('certification')}</h2>
                                 {lesson?.certified ? (
                                     <>
                                         <p className="cert-main">
-                                            🎓 Ce cours donne droit à un certificat délivré par{" "}
-                                            <strong>{course.certificateProvider}</strong>.
+                                            {t('certification_block.title')}{" "}
+                                            <strong>{SCHOOL_NAME}</strong>.
                                         </p>
                                         <ul className="list small">
-                                            <li>
-                                                Attestation de suivi détaillant les compétences acquises.
-                                            </li>
-                                            <li>
-                                                Certificat remis en format PDF (et éventuellement papier).
-                                            </li>
-                                            <li>
-                                                Idéal pour compléter un CV ou un dossier de candidature.
-                                            </li>
+                                            {
+                                                t('certification_block.items', { returnObjects: true })?.map((text, i) => {
+                                                    return (<li key={`${text}-${i}`}>{text}</li>)
+                                                })
+                                            }
                                         </ul>
                                         {course.isOfficialCertificate && (
                                             <p className="cert-badge">
-                                                ✅ Certification reconnue dans le cadre des parcours
-                                                Dandela Academy.
+                                                {t('certification_official')}
                                             </p>
                                         )}
                                     </>
@@ -487,7 +579,7 @@ export default function DashboardOneLesson() {
                             </div>
 
                             <div className="card">
-                                <h2>Infos importantes</h2>
+                                <h2>{t('notes')}</h2>
                                 <ul className="list small">
                                     {
                                         lesson?.translate?.notes.map((note, index) => {
@@ -503,7 +595,7 @@ export default function DashboardOneLesson() {
                 </main>
                 <style jsx>{`
         .page {
-          min-height: 100vh;
+         
           background: transparent;
           padding: 20px 0px;
           color: var(--font-color);
@@ -558,13 +650,78 @@ export default function DashboardOneLesson() {
         .hero-right {
           border-radius: 14px;
           border: 1px solid #1f2937;
-          border: 0.1px solid var(--card-border);
+          border: none;
           background: #020617;
           background: transparent;
           padding: 14px 14px 16px;
+           padding: 0px;
           display: flex;
           flex-direction: column;
           gap: 8px;
+        }
+        .hero-right-top {
+          border-radius: 14px;
+          border: 0.1px solid var(--card-border);
+          padding: 10px 10px 12px;
+          padding: 15px;
+        }
+        .teacher-card {
+          margin-top: 8px;
+          border-radius: 10px;
+          border: 1px solid #111827;
+          border: 0.1px solid var(--card-border);
+          padding: 10px 10px 12px;
+          padding: 15px;
+          background: radial-gradient(circle at top left, #111827, #020617);
+          background: transparent;
+          font-size: 0.85rem;
+           
+        }
+
+        .teacher-label {
+          margin: 0 0 6px;
+          font-size: 0.75rem;
+          font-size: 1.05rem;
+          color: #9ca3af;
+        }
+
+        .teacher-main {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+        }
+
+        .teacher-text {
+          font-size: 0.83rem;
+        }
+
+        .teacher-name {
+          margin: 0;
+          font-weight: 500;
+          line-height: 1rem;
+        }
+
+        .teacher-role {
+          margin: 0;
+          color: var(--grey-light);
+          font-size: 0.78rem;
+        }
+
+        .teacher-bio {
+          margin: 4px 0 4px;
+          font-size: 0.8rem;
+          color: var(--font-color);
+        }
+
+        .teacher-email {
+          margin: 0 0 6px;
+          font-size: 0.78rem;
+          color: var(--grey-light);
+        }
+
+        .teacher-email span {
+          color: var(--grey-light);
         }
         .hero-seats {
           margin-top: 6px;

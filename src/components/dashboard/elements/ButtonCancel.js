@@ -20,40 +20,42 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({label='Annuler', loading=false, disabled=false, onClick=null}) {
-    const {theme} = useThemeMode();
-    const {primary,background,greyLight} = theme.palette;
-    return (<Button
-        variant="contained"
-        disableElevation
-        loading={loading}
-        disabled={disabled}
-        onClick={()=>{
-            if(onClick) {
-                onClick();
-            }
-        }}
-        sx={{
-            border:`1px solid ${greyLight.main}`,
-            textTransform: 'none',
-            borderRadius: '999px',
-            padding: '8px 14px',
-            //border: '1px solid #374151',
-            background: ClassColor.TRANSPARENT,
-            color: greyLight.main,
-            fontSize: '0.9rem',
-            maxHeight:'35px',
-            //cursor: 'pointer',
-             '&:hover': {
-            //bgcolor: 'primary.dark',
-            borderColor: primary.main,
-            color: primary.main,
-          },
-            '&.Mui-disabled': {
-            bgcolor: greyLight.main,
-            color: background.main,
-          },
-        }}>
-        {label}
-    </Button>)
+export default function ButtonCancel({ label = 'Annuler', loading = false, disabled = false, onClick = null, size = 'small' }) {
+  const { theme } = useThemeMode();
+  const { primary, background, greyLight } = theme.palette;
+  return (<Button
+    variant="contained"
+    disableElevation
+    loading={loading}
+    disabled={disabled}
+    size={size}
+    onClick={() => {
+      if (onClick) {
+        onClick();
+      }
+    }}
+    sx={{
+      border: `1px solid ${greyLight.main}`,
+      textTransform: 'none',
+      borderRadius: '999px',
+      padding: '8px 14px',
+      //border: '1px solid #374151',
+      background: ClassColor.TRANSPARENT,
+      color: greyLight.main,
+      fontSize: '0.9rem',
+      height: size === 'small' ? '35px' : size === 'medium' ? '38px' : '40px',
+      maxHeight: size === 'small' ? '35px' : size === 'medium' ? '45px' : '55px',
+      //cursor: 'pointer',
+      '&:hover': {
+        //bgcolor: 'primary.dark',
+        borderColor: primary.main,
+        color: primary.main,
+      },
+      '&.Mui-disabled': {
+        bgcolor: greyLight.main,
+        color: background.main,
+      },
+    }}>
+    {label}
+  </Button>)
 }

@@ -5,6 +5,20 @@ import allExamples from 'libphonenumber-js/mobile/examples';
 import { getExampleNumber } from 'libphonenumber-js'
 import { ClassCountry } from '@/classes/ClassCountry';
 
+export const formatPrice = (amount, currency="CHF") => {
+  const localeByCurrency = {
+    CHF: "fr-CH",
+    USD: "en-US",
+    AOA: "pt-AO",
+  };
+
+  const locale = localeByCurrency[currency] || "fr-CH";
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+  }).format(amount);
+}
 export function formatDuration(duration=0) {
     const hour = parseInt(duration);
     const minutes = (duration - hour) * 60;
