@@ -55,15 +55,17 @@ export function LessonProvider({ children }) {
             var _lessons = [];
             
             for (const snapshot of snap.docs) {
-                const lesson = snapshot.data();
-                const teacher = await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher);
-                console.log("IS teacher", teacher)
+                const lesson = await snapshot.data();
+                console.log("IS teacher", lesson)
+                //const teacher = await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher);
+               // console.log("IS teacher", teacher)
                 const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
                 const lesson_new = new ClassLesson({
                     ...lesson.toJSON(),
-                    translate: translate,
+                    //translate: translate,
                 });
-                lesson_new.teacher = teacher;
+                lesson_new.translate = translate;
+                //lesson_new.teacher = teacher;
                 _lessons.push(lesson_new);
             }
             /*
@@ -95,16 +97,7 @@ export function LessonProvider({ children }) {
             constraints.push(where("type", '==', filterType));
         }
         */
-       _lessons = await ClassLesson.fetchListFromFirestore(constraints);
-        for (const lesson of _lessons) {
-            //const lesson = snapshot.data();
-            const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
-            _lessons.push(new ClassLesson({
-                ...lesson.toJSON(),
-                translate: translate,
-            }));
-        }
-        
+       _lessons = await ClassLesson.fetchListFromFirestore(lang, constraints);        
         _lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
         setLessons(_lessons);
     }

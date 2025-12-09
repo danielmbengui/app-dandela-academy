@@ -15,7 +15,6 @@ import { getPreferredLocale } from "@/contexts/i18n/detect-locale";
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_HOME } from "@/contexts/constants/constants_pages";
 import { defaultLanguage, languages, NS_HOME } from "@/contexts/i18n/settings";
-import Preloader from "@/components/shared/Preloader";
 
 export const inter = Inter({
   subsets: ["latin"],
@@ -56,7 +55,6 @@ export default async function RootLayout({ children }) {
        <Providers>
 
         {
-        //       <Preloader />
         children}
        </Providers>
       </body>

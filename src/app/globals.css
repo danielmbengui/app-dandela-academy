@@ -55,6 +55,8 @@
   --primary: #1160e5;
   --primary-shadow: #1160e580;
 
+  --warning: #ffa600;
+  --calendar-free: #3ce0a2;
 
 
   --background-menu: #FFFFFF;
@@ -66,6 +68,8 @@
   --grey-hyper-dark: #1c1c1c;
 
   --card-border: var(--grey-hyper-light);
+
+  --test:#3b82f654;
   /*
     static TRANSPARENT = "transparent";
     static CORAL = "#F88379";

@@ -37,34 +37,34 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const { user, login, logout } = useAuth();
   return (<LoginPageWrapper>
-<Stack sx={{width:'100%'}} spacing={2}>
-      <Stack alignItems={'center'} sx={{textAlign:'center'}}>
-      <Typography variant="h4">
-        {t('title')}
-      </Typography>
-      <Typography sx={{ color: ClassColor.GREY_HYPER_LIGHT, fontStyle:'italic' }} variant="h5">
-        {t('subtitle')}
-      </Typography>
+    <Stack sx={{ width: '100%' }} spacing={2}>
+      <Stack alignItems={'center'} sx={{ textAlign: 'center' }}>
+        <Typography variant="h4">
+          {t('title')}
+        </Typography>
+        <Typography sx={{ color: ClassColor.GREY_HYPER_LIGHT, fontStyle: 'italic' }} variant="h5">
+          {t('subtitle')}
+        </Typography>
+      </Stack>
+      <Stack spacing={2} alignItems={'center'} justifyContent={'center'} direction={{ xs: 'column', sm: 'row' }} sx={{ width: '100%', background: '' }}>
+        <ButtonNextComponent
+          //loading={isLoading}
+          label={t('btn-login')}
+          onClick={async () => {
+            router.push(PAGE_LOGIN);
+          }}
+          fullWidth
+        />
+        <ButtonNextComponent
+          //loading={isLoading}
+          label={t('btn-activate')}
+          onClick={async () => {
+            router.push(PAGE_ACTIVE_ACCOUNT);
+          }}
+          fullWidth
+        />
+      </Stack>
     </Stack>
-    <Stack spacing={2} alignItems={'center'} justifyContent={'center'} direction={{ xs: 'column', sm: 'row' }} sx={{ width: '100%', background: '' }}>
-      <ButtonNextComponent
-        //loading={isLoading}
-        label={t('btn-login')}
-        onClick={async () => {
-          router.push(PAGE_LOGIN);
-        }}
-        fullWidth
-      />
-      <ButtonNextComponent
-        //loading={isLoading}
-        label={t('btn-activate')}
-        onClick={async () => {
-          router.push(PAGE_ACTIVE_ACCOUNT);
-        }}
-        fullWidth
-      />
-    </Stack>
-</Stack>
   </LoginPageWrapper>);
   /*
   return (

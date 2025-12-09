@@ -27,8 +27,6 @@ export function formatDuration(duration=0) {
     }
     return `${hour}h${minutes>0 ? minutes : ''}`;
 }
-
-
 export const cutString = (text = "", maxLength = 50) => {
   if (!text) return '';
   return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
@@ -88,7 +86,6 @@ export function isValidURL(url) {
     return false;
   }
 }
-
 // Valide, normalise et formate
 export function isValidPhoneNumber(phone_number, code = ClassCountry.DEFAULT_CODE) {
   const phone = parsePhoneNumberFromString(phone_number, code); // ex: 'CH', 'AO', 'FR'
@@ -125,7 +122,6 @@ export function getExampleFor(country = 'FR', type = 'mobile') {
   // On reparse pour bénéficier des méthodes (formatNational, etc.)
   return parsePhoneNumberFromString(entry, country);
 }
-
 export const getFirstLetters = (str = "", max=5) => {
   return str
     .normalize("NFD")                  // sépare les accents
@@ -136,7 +132,6 @@ export const getFirstLetters = (str = "", max=5) => {
     .replace(/[^A-Za-z]/g, "")         // garde seulement A-Z (optionnel)
     .slice(0, max);                       // x premières lettres
 };
-
 /**
  * Génère un mot de passe aléatoire qui respecte les règles Firebase
  * (min 6 caractères) + bonnes pratiques (majuscules, minuscules, chiffres, symboles).
@@ -191,7 +186,6 @@ export function getLastDayInMonth(month, year) {
   // month = 1 pour janvier, 2 pour février...
   return new Date(year, month, 0).getDate();
 }
-
 export function getFormattedDateComplete(date = new Date(), lang = defaultLanguage) {
   if (date instanceof Date) {
     return date.toLocaleDateString(lang, {
@@ -263,18 +257,38 @@ export function getFormattedMonth(date = new Date(), lang = defaultLanguage, typ
   }
 }
 export function getFormattedHourComplete(date = new Date(), lang = defaultLanguage) {
+  return date.toLocaleTimeString(lang, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    // hour12: false, // si tu veux forcer le format 24h
+  });
+  /*
   if (date instanceof Date) {
     return(`${date.getHours()}h ${date.getMinutes() > 0 ? `${date.getMinutes()}min` : ''} ${date.getSeconds() > 0 ? `${date.getSeconds()}sec` : ''}`);
   } else {
     return date;
   }
+    */
 }
 export function getFormattedHour(date = new Date(), lang = defaultLanguage) {
+  if (date instanceof Date) {
+    return date.toLocaleTimeString(lang, {
+      hour: '2-digit',
+      minute: '2-digit',
+      //second: '2-digit',
+      // hour12: false, // si tu veux forcer le format 24h
+    });
+  } else {
+    return date;
+  }
+  /*
   if (date instanceof Date) {
     return(`${date.getHours()}h ${date.getMinutes() > 0 ? `${date.getMinutes()}min` : ''}`);
   } else {
     return date;
   }
+  */
 }
 export function addDaysToDate(date, nDays = 0) {
   const resultat = new Date(date);

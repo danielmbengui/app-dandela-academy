@@ -20,9 +20,9 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({ label = 'Annuler', loading = false, disabled = false, onClick = null, size = 'small' }) {
+export default function ButtonCancel({ label = 'Annuler', loading = false, disabled = false, onClick = null, size = 'small', ...props }) {
   const { theme } = useThemeMode();
-  const { primary, background, greyLight } = theme.palette;
+  const { primary, background, greyLight, text } = theme.palette;
   return (<Button
     variant="contained"
     disableElevation
@@ -41,7 +41,7 @@ export default function ButtonCancel({ label = 'Annuler', loading = false, disab
       padding: '8px 14px',
       //border: '1px solid #374151',
       background: ClassColor.TRANSPARENT,
-      color: greyLight.main,
+      color: text.main,
       fontSize: '0.9rem',
       height: size === 'small' ? '35px' : size === 'medium' ? '38px' : '40px',
       maxHeight: size === 'small' ? '35px' : size === 'medium' ? '45px' : '55px',
@@ -55,7 +55,8 @@ export default function ButtonCancel({ label = 'Annuler', loading = false, disab
         bgcolor: greyLight.main,
         color: background.main,
       },
-    }}>
+    }}
+    {...props}>
     {label}
   </Button>)
 }

@@ -582,6 +582,8 @@ export class ClassLesson {
                 var end_date = ClassLesson._toJsDate(data.end_date);
                 var created_time = ClassLesson._toJsDate(data.created_time);
                 var last_edit_time = ClassLesson._toJsDate(data.last_edit_time);
+                //console.log("uid lesson",uid, )
+                //console.log("translate", translate)
                 return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time });
             },
         };
@@ -627,11 +629,16 @@ export class ClassLesson {
         const indexof = array.findIndex(item => item.uid === uid);
         return indexof;
     }
-    static async get(id) {
-        const snap = await getDoc(this.docRef(id));
+    static async get(uid, lang=defaultLanguage) {
+        const snap = await getDoc(this.docRef(uid));
         if (snap.exists()) {
-            const data = snap.data();
-            return (data);
+            //const data = await snap.data();
+            const lesson = snap.data();
+            const translate = await ClassLessonTranslate.fetchFromFirestore(uid, lang);
+            //console.log("leson class translate firestore", translate);
+            lesson.translate = translate;
+            //console.log("leson class get firestore", lesson);
+            return (lesson);
         }
 
         return null; // -> ClassModule | null
@@ -651,10 +658,15 @@ export class ClassLesson {
         return null; // -> ClassModule | null
     }
     // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
-    static async list(constraints = []) {
+    static async list(lang='fr',constraints = []) {
         const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
-        return qSnap.docs.map(item => item.data());
+        return qSnap.docs.map(async (item) => {
+            const lesson = item.data();
+            const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
+            lesson.translate = translate;
+            return (lesson);
+        });
     }
     createTitleNormalized(title = '') {
         var result = "";
@@ -734,10 +746,14 @@ export class ClassLesson {
         }
     }
     // (Legacy) méthode de fetch directe
-    static async fetchFromFirestore(uid) {
+    static async fetchFromFirestore(uid="", lang=defaultLanguage) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
-            return await ClassLesson.get(uid);
+            const _lesson = await ClassLesson.get(uid, lang);
+           // console.log("leson class fetch firestore", _lesson);
+            //const _translate = await ClassLessonTranslate.fetchFromFirestore(uid, lang);
+            //_lesson.translate = _translate;
+            return _lesson;
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;
@@ -752,10 +768,10 @@ export class ClassLesson {
             return null;
         }
     }
-    static async fetchListFromFirestore(constraints = []) {
+    static async fetchListFromFirestore(lang='fr',constraints = []) {
         try {
             //if (!uid) throw new Error("UID is required to get module.");
-            return await this.list(constraints);
+            return await this.list(lang, constraints);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;
@@ -1174,6 +1190,7 @@ export class ClassLessonTranslate {
     // (Legacy) méthode de fetch directe
     static async fetchFromFirestore(uidLesson, lang = defaultLanguage) {
         try {
+            //console.log("geeet", uidLesson, lang)
             if (!lang) throw new Error("LANG is required to get school.");
             return await this.get(uidLesson, lang);
         } catch (error) {

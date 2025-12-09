@@ -1,6 +1,7 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_PROFILE,} from "@/contexts/constants/constants_pages";
 import { NS_DASHBOARD_CALENDAR, NS_DASHBOARD_PROFILE,} from "@/contexts/i18n/settings";
+import { SessionProvider } from "@/contexts/SessionProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -12,5 +13,7 @@ export const generateMetadata = generatePageMetadata({
 });
 
 export default async function DashboardCalendarLayout({ children }) {
-  return (children);
+  return (<SessionProvider>
+    {children}
+  </SessionProvider>);
 }

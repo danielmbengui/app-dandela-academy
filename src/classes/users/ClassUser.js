@@ -591,12 +591,11 @@ export class ClassUser {
     // Récupérer un module par id
     static async get(id) {
         const snap = await getDoc(this.docRef(id));
-        console.log("GGGGET", id)
+        //console.log("GGGGET", id)
         if (snap.exists()) {
             const data = snap.data();
             return (data);
         }
-
         return null; // -> ClassModule | null
     }
     static async getByEmail(email) {

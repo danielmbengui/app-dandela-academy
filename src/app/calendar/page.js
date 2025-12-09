@@ -1,12 +1,12 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconCalendar, IconDashboard, IconEmail, IconLogo, IconTiktok } from "@/assets/icons/IconsComponent";
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
-import { translateWithVars } from "@/contexts/functions";
+import { getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { NS_DASHBOARD_CALENDAR } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Grid, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import FullCalendar from '@fullcalendar/react'
@@ -16,11 +16,19 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import { useLanguage } from '@/contexts/LangProvider';
+import { useSession } from '@/contexts/SessionProvider';
+import DialogSession from '@/components/dashboard/sessions/DialogSession';
+import DialogLesson from '@/components/dashboard/lessons/DialogLesson';
+import { ClassLesson } from '@/classes/ClassLesson';
 
 export default function DashboardCalendar() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
-  const { t } = useTranslation([NS_DASHBOARD_CALENDAR]);
+  const { t } = useTranslation([NS_DASHBOARD_CALENDAR, ClassLesson.NS_COLLECTION]);
+  const { session, sessions, getOneSession, changeSession, isLoading, setUidSession } = useSession();
+  //const [session, setSession] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const {
     today: title_today,
     month: title_month,
@@ -29,35 +37,145 @@ export default function DashboardCalendar() {
     list: title_list
   } = t('calendar', { returnObjects: true });
   const { lang } = useLanguage();
-  const handleDateClick = (arg) => {
-    alert(arg.dateStr)
+  const handleDateClick = (info) => {
+    console.log('Click sur le jour :', info.dateStr, info)
+    //changeSession("pyLG1VRKbJo22kqlnS3Z")
+    //alert(info.dateStr)
+  }
+  useEffect(() => {
+    console.log("xessions change", session);
+    //setIsOpen(session !== null);
+  }, [session]);
+  const handleEventClick = (info) => {
+    //info.event.preventDefault();
+    const uid = info.event.id;
+    const _session = getOneSession(uid);
+    //console.log('Click sur le evenement :', info.event.id, _session);
+    setUidSession(uid);
+    //setSession(_session);
+    //changeSession(info.event.id);
+    // alert("OK")
+    //console.log('Click sur event :', info.event.source, info.event.id)
+    //alert(info.dateStr)
   }
 
-  function renderEventContent(arg) {
+  const renderEventContent = (arg) => {
     const { event } = arg;
+    //const lesson = event
+    const lesson = event.extendedProps.lesson ?? 0;
     const capacity = event.extendedProps.capacity ?? 0;
+    //const available = event.extendedProps.available ?? 0;
     const registered = event.extendedProps.registered ?? 0;
-    const remaining = Math.max(capacity - registered, 0);
 
+    const available = Math.max(capacity - registered, 0);
+    console.log("EVENT", event)
     return (
-      <Stack alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', fontSize: '0.75rem', lineHeight: 1, p: 1 }}>
-        {/* Nom de l’événement */}
-        <div style={{ fontWeight: 600, textAlign: 'center' }}>{event.title}</div>
+      <>
+        <Stack sx={{ height: '100%', width: '100%', fontSize: '0.75rem' }}>
 
-        {/* Nombre de places dispo / inscrits */}
-        <div>
-          {remaining} places dispo
-        </div>
-        <div>
-          {registered} inscrits
-        </div>
-      </Stack>
+          {/* Nom de l’événement */}
+          <Typography fontWeight={600} noWrap sx={{ fontSize: '0.8rem' }}>{event.title}</Typography>
+          <div style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            //color:'var(--grey-light)'
+          }}>
+            {t(lesson.category, { ns: ClassLesson.NS_COLLECTION })?.toUpperCase()}
+          </div>
+          <div style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {getFormattedHour(new Date(event.start), lang)}-{getFormattedHour(new Date(event.end), lang)}
+          </div>
+          <div style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            marginTop:'5px'
+          }}>
+            <span className={`badge`}>
+              <span className="dot" />
+              {available} disponibles
+            </span>
+          </div>
+        </Stack>
+        <style jsx>{`
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 0.1px solid var(--primary);
+            background-color: var(--primary-shadow);
+            color: var(--primary);
+            font-size: 0.72rem;
+            white-space: nowrap;
+          }
+  
+          .badge-big {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            padding: 3px 10px;
+          }
+  
+          .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--primary);
+            
+          }
+        `}</style>
+      </>
     );
   }
+
   return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconCalendar width={22} height={22} />}>
     En construction...
-    <Stack sx={{ width: '100%', flex: 1 }}>
-      <Box sx={{ width: '100%', height: '100%' }}>
+    {
+      isLoading && <CircularProgress />
+    }
+    {
+      session && <DialogSession session={session} isOpen={isOpen} />
+    }
+    <Stack sx={{
+      width: '100%',
+      flex: 1,
+      maxWidth: '100%',         // ne jamais dépasser la largeur écran
+      overflowX: 'hidden',       // évite le scroll horizontal global
+      //background: 'red'
+    }}>
+      <Box sx={{
+        width: '100%',
+        '& .fc': {
+          width: '100% !important',   // FullCalendar ne dépasse pas
+          maxWidth: '100vw',
+          //background: 'cyan',
+          width: '100%',
+          maxWidth: '100vw',
+          '& .fc-header-toolbar': {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.25rem',
+            //background:'yellow',
+            //margin:0,
+            padding: 0,
+            width: "100%"
+          },
+          '@media (max-width:600px)': {
+            '& .fc-header-toolbar': {
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          },
+        },
+      }}>
+
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
           initialView="dayGridMonth"
@@ -66,13 +184,12 @@ export default function DashboardCalendar() {
           weekends={true}             // mettre false si tu veux cacher sam/dim
           height="auto"
           expandRows={true}
-
+          aspectRatio={0.5}
+          handleWindowResize={true}
           //hiddenDays={[0]}  // masque juste dimanche (0), par ex.
-
           //slotMinTime="08:00:00"  // pour les vues timeGrid
           //slotMaxTime="20:00:00"
           nowIndicator={true}     // petite ligne rouge “maintenant”
-
           /** 🔹 Barre du haut : boutons & titre */
           headerToolbar={{
             left: 'prev,next today',
@@ -93,16 +210,43 @@ export default function DashboardCalendar() {
           eventColor="#1d4ed8"       // fond
           eventTextColor="#ffffff"   // texte
           events={[
+            ...sessions.map(session => {
+              const onsiteCapacity = session.seats_availables_onsite || 0;
+              const onlineCapacity = session.seats_availables_online || 0;
+              const onsiteSubscribers = session.subscribers_onsite?.length || 0;
+              const onlineSubscribers = session.subscribers_online?.length || 0;
+              const total = onsiteCapacity + onlineCapacity;
+              const registered = onsiteSubscribers + onlineSubscribers;
+              return ({
+                id: session.uid,
+                title: session.lesson?.translate?.title || session.lesson?.title || "",
+                start: session.start_date,
+                end: session.end_date,
+
+                backgroundColor: '#1d4ed8',   // occupé
+                //height: '200%',
+                borderColor: '#1d4ed8',
+                textColor: '#fff',
+                //display: 'background',
+                backgroundColor: '#fecaca',    // “zone occupée”
+                extendedProps: {
+                  capacity: total,        // nombre total de places
+                  available: total - registered,        // nombre total de places
+                  registered: registered,       // nombre d’inscrits
+                  lesson: session.lesson,
+                }
+              })
+            }),
             {
               id: '1',
               title: 'Cours Excel',
-              start: '2025-11-25',
-              //end: '2025-11-25T12:00:00',
+              start: '2025-11-25T08:30:00',
+              end: '2025-11-25T12:00:00',
               backgroundColor: '#1d4ed8',   // occupé
-              height: '200%',
+              //height: '200%',
               borderColor: '#1d4ed8',
               textColor: '#fff',
-              display: 'background',
+              //display: 'background',
               backgroundColor: '#fecaca',    // “zone occupée”
               extendedProps: {
                 capacity: 20,        // nombre total de places
@@ -112,8 +256,9 @@ export default function DashboardCalendar() {
             {
               id: '2',
               title: 'Maintenance serveur',
-              start: '2025-11-26',
-              display: 'background',        // couleur de fond sur le jour
+              start: '2025-11-26T18:30:00',
+              end: '2025-11-26T22:00:00',
+              //display: 'background',        // couleur de fond sur le jour
               backgroundColor: '#fecaca',    // “zone occupée”
               extendedProps: {
                 capacity: 18,        // nombre total de places
@@ -133,13 +278,10 @@ export default function DashboardCalendar() {
           }}
 
           /** 🔹 Callback quand on clique sur un jour / un event */
-          dateClick={(info) => {
-            console.log('Click sur le jour :', info.dateStr, info)
-          }}
-          eventClick={(info) => {
-            console.log('Click sur event :', info.event, info)
-          }}
+          dateClick={handleDateClick}
+          eventClick={handleEventClick}
           eventContent={renderEventContent}
+
         />
       </Box>
     </Stack>

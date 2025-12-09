@@ -71,6 +71,9 @@ export function AuthProvider({ children }) {
             auth.languageCode = lang;
         }
     }, [lang]);
+    useEffect(() => {
+        console.log("Is loading user", isLoading)
+    }, [isLoading]);
     usePageActivity({
         onVisible: async () => {
             // la page redevient visible → on repart un chrono
@@ -133,7 +136,13 @@ export function AuthProvider({ children }) {
             /*
             */
             const _user = data.clone();
-            setUser(_user);
+            //setUser(_user);
+            setUser(prev=>{
+                if(!prev || prev === null) return _user;
+                prev.update(_user.toJSON());
+                console.log('set prev user', _user);
+                return prev;
+            });
             setIsConnected(true);
             setIsLoading(false);
             //setUser(fbUser);

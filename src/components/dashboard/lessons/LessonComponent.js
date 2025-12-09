@@ -23,7 +23,7 @@ import { ClassUserIntern } from "@/classes/users/ClassUser";
 import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
 import DialogLesson from "@/components/dashboard/lessons/DialogLesson";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
-import { ClassLessonSession } from "@/classes/ClassLessonSession";
+import { ClassSession } from "@/classes/ClassSession";
 
 const initialCourse = {
     id: "course_excel_101",
@@ -221,7 +221,7 @@ export default function LessonComponent({lesson=null}) {
                     loading={isLoading}
                     onClick={async () => {
                         setIsLoading(true);
-                        const session = await new ClassLessonSession({
+                        const session = await new ClassSession({
                             //uid = "",
                             //uid_intern = "",
                             uid_lesson: "zlUoi3t14wzC5cNhfS3J",
@@ -230,7 +230,7 @@ export default function LessonComponent({lesson=null}) {
                             code: "Session14", // Excel-101
                             title: "Open session",
                             //title_normalized : "",
-                            format: ClassLessonSession.FORMAT.HYBRID,
+                            format: ClassSession.FORMAT.HYBRID,
                             price: 2500,
                             currency: "AOA",
                             start_date: new Date(2025, 11, 13, 8),
@@ -238,7 +238,7 @@ export default function LessonComponent({lesson=null}) {
                             seats_availables: 31,
                             seats_taken: 14,
                             //photo_url : "",
-                            status: ClassLessonSession.STATUS.DRAFT,
+                            status: ClassSession.STATUS.DRAFT,
                             //location : "",
                             //url : "",
                             //translate = {},
@@ -363,7 +363,8 @@ export default function LessonComponent({lesson=null}) {
                                     label={t('btn-subscribe')}
                                     loading={isLoading}
                                     onClick={async () => {
-                                        setIsLoading(true);
+                                        //setIsLoading(true);
+                                        /*
                                         const res = await fetch(`/api/test?lang=${lang}&translations=${JSON.stringify({
                                             title: lesson?.title,
                                             description: lesson?.description,
@@ -373,6 +374,7 @@ export default function LessonComponent({lesson=null}) {
                                         const data = await res.json();
                                         console.log("FETCH", data)
                                         setIsLoading(false);
+                                        */
                                     }}
                                 />
                             </Stack>
@@ -438,7 +440,7 @@ export default function LessonComponent({lesson=null}) {
                         <div className="card">
                             <h2>{t('goals')}</h2>
                             <ul className="list">
-                                {lesson?.translate?.goals.map((item, idx) => (
+                                {lesson?.translate?.goals?.map((item, idx) => (
                                     <li key={idx}>{item}</li>
                                 ))}
                             </ul>
@@ -446,7 +448,7 @@ export default function LessonComponent({lesson=null}) {
                         <div className="card">
                             <h2>{t('programs')}</h2>
                             <ol className="list ordered">
-                                {lesson?.translate?.programs.map((item, idx) => (
+                                {lesson?.translate?.programs?.map((item, idx) => (
                                     <li key={idx}>{item}</li>
                                 ))}
                             </ol>
@@ -454,7 +456,7 @@ export default function LessonComponent({lesson=null}) {
                         <div className="card">
                             <h2>{t('prerequisites')}</h2>
                             <ul className="list">
-                                {lesson?.translate?.prerequisites.map((item, idx) => (
+                                {lesson?.translate?.prerequisites?.map((item, idx) => (
                                     <li key={idx}>{item}</li>
                                 ))}
                             </ul>
@@ -462,7 +464,7 @@ export default function LessonComponent({lesson=null}) {
                         <div className="card">
                             <h2>{t('target_audiences')}</h2>
                             <ul className="list">
-                                {lesson?.translate?.target_audiences.map((item, idx) => (
+                                {lesson?.translate?.target_audiences?.map((item, idx) => (
                                     <li key={idx}>{item}</li>
                                 ))}
                             </ul>
@@ -527,7 +529,7 @@ export default function LessonComponent({lesson=null}) {
                             <h2>{t('notes')}</h2>
                             <ul className="list small">
                                 {
-                                    lesson?.translate?.notes.map((note, index) => {
+                                    lesson?.translate?.notes?.map((note, index) => {
                                         return (<li key={`${note}-${index}`}>
                                             {note}
                                         </li>)

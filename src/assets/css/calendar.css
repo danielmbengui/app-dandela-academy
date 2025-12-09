@@ -1,6 +1,10 @@
+.fc {
+  width:100%;
+}
+
 .fc-daygrid-day {
   background-color: transparent;
-  cursor: pointer;
+  
 }
 
 /* case du jour courant */
@@ -18,8 +22,18 @@
 
 .fc-daygrid-event {
   border-radius: 6px;
-  padding: 4px 4px;
+  padding: 5px;
+  padding-bottom: 7px;
   font-size: 0.75rem;
+  line-height: 1;
+  background: var(--calendar-free);
+  border-left: 2px solid var(--primary);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.fc-daygrid-event:hover {
+  background: var(--calendar-free);
+  border-left: 2px solid var(--primary);
 }
 
 .fc-scrollgrid {

@@ -8,10 +8,12 @@ import {
 //import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
 import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
-import { ClassLessonSession, ClassLessonSessionTranslate } from '@/classes/ClassLessonSession';
+import { ClassSession, ClassLessonSessionTranslate } from '@/classes/ClassSession';
 import { useLanguage } from './LangProvider';
 import { ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
+import { ClassLesson } from '@/classes/ClassLesson';
+import Preloader from '@/components/shared/Preloader';
 
 
 const SessionContext = createContext(null);
@@ -19,8 +21,9 @@ export const useSession = () => useContext(SessionContext);
 
 export function SessionProvider({ children }) {
     const { lang } = useLanguage();
-    const { t } = useTranslation([ClassLessonSession.NS_COLLECTION]);
+    const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
+    const [uidSession, setUidSession] = useState(null);           // ton user métier (ou snapshot)
     const [session, setSession] = useState(null);           // ton user métier (ou snapshot)
     const [sessions, setSessions] = useState([]);           // ton user métier (ou snapshot)
     const [filterType, setFilterType] = useState('all');
@@ -34,13 +37,21 @@ export function SessionProvider({ children }) {
     useEffect(() => {
         const listener = listenToLessons();
         return () => listener?.();
-    }, [lang]);
+    }, []);
     useEffect(() => {
-        refreshList();
-    }, [session]);
+        if (uidSession) {
+            const _session = getOneSession(uidSession);
+            setSession(_session);
+            const listener = listenToOneSession(uidSession);
+            return () => listener?.();
+        } else {
+            setSession(null);
+        }
+    }, [uidSession]);
+    
     // écoute du doc utilisateur
     const listenToLessons = useCallback(() => {
-        const colRef = ClassLessonSession.colRef(); // par ex.
+        const colRef = ClassSession.colRef(); // par ex.
         // console.log("Col ref provider", colRef);
         const snapshotLessons = onSnapshot(colRef, async (snap) => {
             // snap est un QuerySnapshot
@@ -54,18 +65,20 @@ export function SessionProvider({ children }) {
             //console.log("is not empty", snap.docs.map(doc => doc.data()));
             var _sessions = [];
             for (const snapshot of snap.docs) {
-                const lesson = snapshot.data();
-                const teacher = lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher) : null;
-                const room = lesson.uid_room ? await ClassRoom.fetchFromFirestore(lesson.uid_room) : null;
+                const session = snapshot.data();
+                const lesson = session.uid_lesson ? await ClassLesson.fetchFromFirestore(session.uid_lesson, lang) : null;
+                const teacher = session.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(session.uid_teacher) : null;
+                const room = session.uid_room ? await ClassRoom.fetchFromFirestore(session.uid_room) : null;
                 //console.log("IS teacher", teacher)
                 //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
-                const lesson_new = new ClassLessonSession({
-                    ...lesson.toJSON(),
+                const session_new = new ClassSession({
+                    ...session.toJSON(),
                     // translate: translate,
                 });
-                lesson_new.teacher = teacher;
-                lesson_new.room = room;
-                _sessions.push(lesson_new);
+                session_new.lesson = lesson;
+                session_new.teacher = teacher;
+                session_new.room = room;
+                _sessions.push(session_new);
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             console.log("OBJECT list SESSION", _sessions)
@@ -74,6 +87,51 @@ export function SessionProvider({ children }) {
         });
         return snapshotLessons;
     }, []);
+    const listenToOneSession = useCallback((uidSession) => {
+        if(!uidSession) {
+            setSession(null);
+            //setIsConnected(false);
+            setIsLoading(false);
+            return;
+        }
+        const uid = uidSession;
+        const ref = ClassSession.docRef(uid);
+        const unsubscribe = onSnapshot(ref, async (snap) => {
+            if (!snap.exists()) {
+                setSession(null);
+                //setIsConnected(false);
+                setIsLoading(false);
+                return;
+            }
+            const _session = snap.data();
+            const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
+            const teacher = _session.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_session.uid_teacher) : null;
+            const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
+            //console.log("IS teacher", teacher)
+            //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
+            const session_new = new ClassSession({
+                ..._session.toJSON(),
+                // translate: translate,
+            });
+            session_new.lesson = lesson;
+            session_new.teacher = teacher;
+            session_new.room = room;
+            
+            setSession(prev=>{
+                if(!prev || prev === null) return session_new;
+                prev.update(session_new.toJSON());
+                console.log('set prev session', session_new);
+                return prev;
+            });
+            //setIsConnected(true);
+            setIsLoading(false);
+            //setUser(fbUser);
+            //setIsConnected(true);
+            //setIsLoading(false);
+        });
+        return unsubscribe;
+    }, [uidSession]);
+
     async function refreshList() {
         var _sessions = [];
         const constraints = [];
@@ -85,13 +143,13 @@ export function SessionProvider({ children }) {
             constraints.push(where("type", '==', filterType));
         }
         */
-        _sessions = await ClassLessonSession.fetchListFromFirestore(constraints);
+        _sessions = await ClassSession.fetchListFromFirestore(constraints);
         for (const session of _sessions) {
             //const lesson = snapshot.data();
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
-            _sessions.push(new ClassLessonSession({
+            _sessions.push(new ClassSession({
                 ...session.toJSON(),
-               // translate: translate,
+                // translate: translate,
             }));
         }
 
@@ -99,7 +157,7 @@ export function SessionProvider({ children }) {
         setSessions(_sessions);
     }
     async function create(_lesson = null) {
-        if (!_lesson || _lesson === null || !(_lesson instanceof ClassLessonSession)) return;
+        if (!_lesson || _lesson === null || !(_lesson instanceof ClassSession)) return;
         setIsLoading(true);
         var newLesson = await _lesson.createFirestore();
         try {
@@ -122,7 +180,7 @@ export function SessionProvider({ children }) {
         return newLesson;
     }
     async function update(_lesson = null) {
-        if (!_lesson || _lesson === null || !(_lesson instanceof ClassLessonSession)) return;
+        if (!_lesson || _lesson === null || !(_lesson instanceof ClassSession)) return;
         setIsLoading(true);
         //var newDevice = await _device.createFirestore();
         var updatedLesson = await _lesson.updateFirestore();
@@ -145,7 +203,7 @@ export function SessionProvider({ children }) {
         return updatedLesson;
     }
     async function remove() {
-        if (!session || session === null || !(session instanceof ClassLessonSession)) return;
+        if (!session || session === null || !(session instanceof ClassSession)) return;
         setIsLoading(true);
         //var newDevice = await _device.createFirestore();
         const _removed = await session.removeFirestore();
@@ -171,17 +229,30 @@ export function SessionProvider({ children }) {
         if (!uid || uid === '' || uid === null) {
             return null;
         }
+        console.log("OBJECT list SESSION get one item", sessions)
         const _lesson = sessions.find(item => item.uid === uid);
         return _lesson;
     }
 
     // session
     function changeSession(uid = '', mode = '') {
-        var _lesson = sessions.find(item => item.uid === uid) || null;
         if (mode === 'create') {
-            _lesson = new ClassLessonSession();
+            return new ClassSession();
         }
-        setSession(_lesson);
+        var _lesson = sessions.find(item => item.uid === uid) || null;
+        if (_lesson) {
+            setSession(prev => {
+                if (!prev) return _lesson.clone();
+                prev.update(_lesson.toJSON());
+                return prev.clone();
+                //return(new Classse)
+            });
+        } else {
+            setSession(null);
+        }
+
+        console.log("change session", _lesson)
+
     }
 
     const value = {
@@ -203,8 +274,9 @@ export function SessionProvider({ children }) {
         filterStatus,
         setFilterStatus,
         isLoading,
+        setUidSession,
     };
-    //if (isLoading) return <LoadingComponent />;
+    if (isLoading) return <Preloader />;
     //if (!user) return (<LoginComponent />);
     return <SessionContext.Provider value={value}>
         {children}

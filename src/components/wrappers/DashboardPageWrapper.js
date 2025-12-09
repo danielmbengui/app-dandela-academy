@@ -6,33 +6,23 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Breadcrumbs, Button, Chip, Container, Grid, Stack } from '@mui/material';
-import { IconDashboard, IconDropDown, IconEmail, IconLessons, IconLogo } from '@/assets/icons/IconsComponent';
+import { Breadcrumbs, Button, Container, Grid, Stack } from '@mui/material';
+import { IconDropDown, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
-import LoginPageWrapper from './LoginPageWrapper';
-import TextFieldPasswordComponent from '../elements/TextFieldPasswordComponent';
-import TextFieldComponent from '../elements/TextFieldComponent';
-import ButtonNextComponent from '../elements/ButtonNextComponent';
 import LoginComponent from '../login/LoginComponent';
 import { useTranslation } from 'react-i18next';
 import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
-import RegisterComponent from '../login/RegisterComponent';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Preloader from '../shared/Preloader';
-import CustomizedBreadcrumbs from '../elements/CustomizedBreadcrumbs';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const drawerWidth = 240;
@@ -44,7 +34,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     const [isClosing, setIsClosing] = useState(false);
     const { theme } = useThemeMode();
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
-    const { user, isLoading, login, logout } = useAuth();
+    const { user, isLoading } = useAuth();
     const [accordionMenu, setAccordionMenu] = useState('');
     const path = usePathname();
     const handleDrawerClose = () => {
@@ -166,7 +156,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     );
 
     // Remove this const when copying and pasting into your project.
-    const container = window !== undefined ? () => window().document.body : undefined;
+    // const container = window !== undefined ? () => window().document.body : undefined;
     if (isLoading) {
         return (<Preloader />);
     }
@@ -219,7 +209,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             >
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <Drawer
-                    container={container}
+                    //container={container}
                     variant="temporary"
                     open={mobileOpen}
                     onTransitionEnd={handleDrawerTransitionEnd}
@@ -255,7 +245,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 <Container maxWidth={'xl'} sx={{ py: 1, background: '', }}>
                     <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
                         <Stack sx={{ width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
-                            <Breadcrumbs maxItems={2} sx={{ color:'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
+                            <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                                         <div style={{ color: primary.main }}>{icon}</div>
