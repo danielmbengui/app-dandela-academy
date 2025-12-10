@@ -171,13 +171,14 @@ function InfoRow({ label, value }) {
           text-align: right;
            color: var(--grey-dark);
             font-weigth: 100;
+            white-space:nowrap;
         }
       `}</style>
     </>
   );
 }
 
-export default function SessionComponent({ session = null }) {
+export default function SessionComponent({ session = null, selectedSlot = null }) {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
@@ -207,26 +208,21 @@ export default function SessionComponent({ session = null }) {
       <main className="container">
         <section className="hero-card">
           <div className="hero-left">
-            <BadgeFormatLesson format={session?.format} />
+            <BadgeFormatLesson format={selectedSlot?.format} />
             <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()} {"/"} {session?.lesson?.code?.toUpperCase()}</p>
             <h1>{session?.lesson?.translate?.title}</h1>
             <p className="muted">
-              {session?.title} • {session?.code}
+              {session?.title} • {'Session'} {selectedSlot?.uid_intern || session?.code}
             </p>
 
             <div className="badges">
-
-
-
               {session?.certified && (
                 <span className="badge-cert">
                   🎓 {t('certified')}
                 </span>
               )}
             </div>
-            <p className="hero-description">
-              {session?.translate?.description}
-            </p>
+     
             <div className="hero-meta">
               <MetaChip
                 label={t('dates')}
@@ -242,7 +238,7 @@ export default function SessionComponent({ session = null }) {
               />
 
             </div>
-            <div className="hero-meta" style={{ marginTop: '5px',marginBottom:'10px' }}>
+            <div className="hero-meta" style={{ marginTop: '5px', marginBottom: '10px' }}>
               <MetaChip
                 label={t('level')}
                 value={`${t(session?.lesson?.level, { ns: ClassLesson.NS_COLLECTION })}`}
@@ -252,29 +248,40 @@ export default function SessionComponent({ session = null }) {
                 value={t(session?.lesson?.lang, { ns: NS_LANGS })}
               />
             </div>
-            <div className="card" style={{borderColor:'var(--card-border)'}}>
-              <h2>{'Résumé du cours'}</h2>
-              <p className="description">{session?.lesson?.translate?.description}</p>
-              <ul className="list small">
-                <li><b>{`Cours : `}</b>{session?.lesson?.title}</li>
-                <li><b>{`Catégorie : `}</b>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}</li>
-                <li><b>{`Certification : `}</b>{session?.lesson?.certified ? '✅ Oui' : '❌ Non'}</li>
-              </ul>
-              <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target={"_blank"}>
-                <ButtonCancel
-                  label={`Voir la page du cours`}
-                  style={{ marginTop: 10 }}
+            <div className="hero-right-top">
+              <div>
+                <h2 className="teacher-label">{t('modalities')}</h2>
+                <InfoRow label={t('session_uid')} value={t(selectedSlot?.uid_intern)} />
+                <InfoRow label={t('format')} value={t(selectedSlot?.format)} />
+                                <InfoRow label={t('level')} value={t(session?.lesson?.level)} />
+                <InfoRow label={t('lang', {ns:NS_LANGS})} value={t(session?.lesson?.lang, {ns:NS_LANGS})} />
+                <InfoRow label={t('start_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.start_date)} />
+                <InfoRow label={t('end_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.end_date)} />
+
+                
+                <InfoRow
+                  label={t('duration_total')}
+                  value={`${formatDuration(session?.duration)} heures`}
                 />
-              </Link>
-              {
-                /*
-                Cours : Excel – Compétences essentielles pour le travail (EXCEL-101)
-Catégorie : Bureautique
-Certification : Oui (Dandela Academy)
-                */
-              }
+                <InfoRow
+                  label={t('sessions_type')}
+                  value={`${session?.sessions_count} session(s) / ${t(session?.sessions_type, { ns: NS_DAYS })}`}
+                />
+                {selectedSlot?.format === "onsite" && (
+                  <InfoRow label={t('location')} value={`${selectedSlot?.location}`} />
+                )}
+                {selectedSlot?.format === "online" && (
+                  <InfoRow
+                    label="Lien du cours"
+                    value={<Stack justifyContent={'center'}>
+                      <Link href={selectedSlot?.url} target="_blank" style={{color:'var(--primary)'}}>{selectedSlot?.url}</Link>
+                    </Stack>}
+                  />
+                )}
+              </div>
             </div>
-            <Grid container spacing={1} sx={{py:1}}>
+
+            <Grid container spacing={1} sx={{ py: 1 }}>
               {
                 [ONSITE, ONLINE].map((format, i) => {
                   return (<Grid key={`${format}-${i}`} size={{ xs: 12, sm: 'grow' }} sx={{
@@ -282,7 +289,7 @@ Certification : Oui (Dandela Academy)
                     borderRadius: '10px',
                     p: 1,
                     //background: `${FORMAT_CONFIG['online']?.glow}`,
-                    display: session?.format === ClassSession.FORMAT.HYBRID || session?.format === format ? 'block' : 'none'
+                    display: selectedSlot?.format === ClassSession.FORMAT.HYBRID || selectedSlot?.format === format ? 'block' : 'none'
                   }}>
                     <Stack direction={'row'} spacing={1}>
                       <BadgeFormatLesson format={format} />
@@ -322,61 +329,11 @@ Certification : Oui (Dandela Academy)
                 })
               }
             </Grid>
-
-            <div className="card" style={{borderColor:'var(--card-border)',}}>
-              <p className="teacher-label">Professeur du cours</p>
-              <div className="teacher-main">
-
-                {
-                  session?.teacher?.showAvatar({})
-                }
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {session?.teacher?.first_name} {session?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{session?.teacher?._role_title}</p>
-                </div>
-              </div>
-              <p className="teacher-bio">{session?.teacher?.bio}</p>
-              <p className="teacher-email">
-                📧 <span>{session?.teacher?.email_academy}</span>
-              </p>
-              <ButtonCancel
-                size="medium"
-                label="Contacter le professeur"
-
-              />
-            </div>
           </div>
 
           {/* Bloc inscription intégré dans le hero */}
           <aside className="hero-right">
 
-            <div className="hero-right-top">
-              <div>
-                <h2 className="teacher-label">{t('modalities')}</h2>
-                <InfoRow label={t('format')} value={formatCfg?.label} />
-                <InfoRow
-                  label={t('duration_total')}
-                  value={`${formatDuration(session?.duration)} heures`}
-                />
-                <InfoRow
-                  label={t('sessions_type')}
-                  value={`${session?.sessions_count} session(s) / ${t(session?.sessions_type, { ns: NS_DAYS })}`}
-                />
-                <InfoRow label={t('schedule')} value={`Les dates de début/fin`} />
-                {session?.format !== "online" && (
-                  <InfoRow label={t('location')} value={`${session?.location}`} />
-                )}
-                {session?.format !== "onsite" && (
-                  <InfoRow
-                    label="Plateforme en ligne"
-                    value={course.onlinePlatform}
-                  />
-                )}
-              </div>
-            </div>
-            {/* PROFESSEUR */}
             <div className="teacher-card">
               <h2 className="teacher-label">{t('certification')}</h2>
               {session?.lesson?.certified ? (
@@ -404,6 +361,42 @@ Certification : Oui (Dandela Academy)
                   attestation de participation peut être fournie sur demande.
                 </p>
               )}
+            </div>
+            {/* PROFESSEUR */}
+                        <div className="card" style={{ borderColor: 'var(--card-border)' }}>
+              <h2>Professeur du cours</h2>
+              <div className="teacher-main">
+
+                {
+                  session?.teacher?.showAvatar({})
+                }
+                <div className="teacher-text">
+                  <p className="teacher-name">
+                    {session?.teacher?.first_name} {session?.teacher?.last_name}
+                  </p>
+                  <p className="teacher-role">{session?.teacher?._role_title}</p>
+                </div>
+              </div>
+              <p className="description">{session?.lesson?.translate?.description}</p>
+              <ul className="list small">
+                <li><b>{`Cours : `}</b>{session?.lesson?.title}</li>
+                <li><b>{`Catégorie : `}</b>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}</li>
+                <li><b>{`Certification : `}</b>{session?.lesson?.certified ? '✅ Oui' : '❌ Non'}</li>
+              </ul>
+
+              <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target={"_blank"}>
+                <ButtonCancel
+                  label={`Voir la page du cours`}
+                  style={{ marginTop: 10 }}
+                />
+              </Link>
+              {
+                /*
+                Cours : Excel – Compétences essentielles pour le travail (EXCEL-101)
+Catégorie : Bureautique
+Certification : Oui (Dandela Academy)
+                */
+              }
             </div>
           </aside>
         </section>
@@ -798,6 +791,32 @@ Certification : Oui (Dandela Academy)
                   color: #bbf7d0;
                   border: 1px solid #16a34a;
                 }
+              .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 0.1px solid var(--primary);
+            background-color: var(--primary-shadow);
+            color: var(--primary);
+            font-size: 0.72rem;
+            white-space: nowrap;
+          }
+  
+          .badge-big {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            padding: 3px 10px;
+          }
+  
+          .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--primary);
+            
+          }
               `}</style>
     </div>
   </Stack>);

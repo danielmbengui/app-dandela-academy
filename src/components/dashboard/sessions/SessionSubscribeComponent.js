@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
-import { Box, Button, Grid, Stack } from "@mui/material";
+import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
@@ -16,6 +16,7 @@ import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import { ClassSession } from "@/classes/ClassSession";
 import Link from "next/link";
+import { useSession } from "@/contexts/SessionProvider";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -171,16 +172,19 @@ function InfoRow({ label, value }) {
           text-align: right;
            color: var(--grey-dark);
             font-weigth: 100;
+            white-space:nowrap;
         }
       `}</style>
     </>
   );
 }
 
-export default function SessionComponent({ session = null }) {
+export default function SessionSubscribeComponent({selectedSlot = null }) {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
+  const {session} = useSession();
+  const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -190,410 +194,81 @@ export default function SessionComponent({ session = null }) {
   //const isFull = seatsLeft <= 0 && !isEnrolled;
   const FORMAT_CONFIG = ClassSession.FORMAT_CONFIG;
   const formatCfg = FORMAT_CONFIG[session?.format];
+  const [dialogOptions, setDialogOptions] = useState({
+    title: "Souhaites-tu ajouter cet élément ?",
+    updateList: null,
+    actionConfirm: null,
+    actionCancel: null,
+    labelConfirm: "Oui",
+    labelCancel: "Non",
+    open: false,
+    setOpen: null
+  })
 
   return (<Stack>
     <div className="page">
-      <main className="container" style={{display:'none'}}>
-        <section className="hero-card">
-          <div className="hero-left">
+      <main className="container">
+        <Grid container spacing={1} justifyContent={'center'} sx={{ py: 1 }}>
+          <Grid size={12}>
+            <Grid container spacing={1} justifyContent={'center'}>
+              {
+                [ONSITE, ONLINE].map((format, i) => {
+                  return (<Grid key={`${format}-${i}`} size={{ xs: 12, sm: 6 }} sx={{
+                    border: `0.1px solid var(--card-border)`,
+                    borderRadius: '10px',
+                    p: 1,
+                    //background: `${FORMAT_CONFIG['online']?.glow}`,
+                    display: selectedSlot?.format === ClassSession.FORMAT.HYBRID || selectedSlot?.format === format ? 'block' : 'none'
+                  }}>
+                    <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                      <BadgeFormatLesson format={format} />
+                      <p className="seats-main">
+                        {selectedSlot?.countSubscribers?.(format)}/{selectedSlot?.[`seats_availables_${format}`]} {t('seats_taken')}
+                      </p>
+                    </Stack>
+                    <div className="hero-seats">
 
-            <p className="breadcrumb">{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()} {"/"} {session?.lesson?.code?.toUpperCase()}</p>
-            <h1>{session?.lesson?.translate?.title}</h1>
-            <p className="muted">
-              {session?.title} • {session?.code}
-            </p>
+                      <p className="seats-sub">
+                        {selectedSlot?.isFull?.(format)
+                          ? "Cours complet actuellement"
+                          : `${selectedSlot?.[`seats_availables_${format}`] - selectedSlot?.countSubscribers(format)} ${t('seats_availables')}`}
+                      </p>
 
-            <div className="badges">
-
-              <BadgeFormatLesson format={session?.format} />
-
-              {session?.certified && (
-                <span className="badge-cert">
-                  🎓 {t('certified')}
-                </span>
-              )}
-            </div>
-            <p className="hero-description">
-              {session?.translate?.description}
-            </p>
-            <div className="hero-meta">
-              <MetaChip
-                label={t('dates')}
-                value={`${getFormattedDateNumeric(session?.start_date, lang)}`}
-              />
-              <MetaChip
-                label={t('start hour')}
-                value={`${getFormattedHour(session?.start_date, lang)}`}
-              />
-              <MetaChip
-                label={t('end hour')}
-                value={`${getFormattedHour(session?.end_date, lang)}`}
-              />
-
-            </div>
-            <div className="hero-meta" style={{ marginTop: '5px' }}>
-              <MetaChip
-                label={t('level')}
-                value={`${t(session?.lesson?.level, { ns: ClassLesson.NS_COLLECTION })}`}
-              />
-              <MetaChip
-                label={t('lang', { ns: NS_LANGS })}
-                value={t(session?.lesson?.lang, { ns: NS_LANGS })}
-              />
-            </div>
-
-            <Grid container sx={{ py: 1 }}>
-              <Grid size={{ xs: 12, sm: 6 }} sx={{
-                border: `0.1px solid ${FORMAT_CONFIG['online'].color}`,
-                borderRadius: '10px',
-                p: 1,
-                //background: `${FORMAT_CONFIG['online']?.glow}`,
-                display: session?.format === ClassSession.FORMAT.HYBRID || session?.format === ClassSession.FORMAT.ONLINE ? 'block' : 'none'
-              }}>
-                <BadgeFormatLesson format={'online'} />
-                <div className="hero-seats">
-                  <p className="seats-main">
-                    {session?.countSubscribers?.('online')}/{session?.seats_availables_online} {t('seats_taken')}
-                  </p>
-                  <p className="seats-sub">
-                    {session?.isFull?.('online')
-                      ? "Cours complet actuellement"
-                      : `${session?.seats_availables_online - session?.countSubscribers('online')} ${t('seats_availables')}`}
-                  </p>
-
-                  <div className="seats-bar">
-                    <div
-                      className="seats-fill"
-                      style={{
-                        width: `${(session?.countSubscribers('online') / session?.seats_availables_online) * 100}%`,
+                      <div className="seats-bar">
+                        <div
+                          className="seats-fill"
+                          style={{
+                            width: `${(selectedSlot?.countSubscribers(format) / selectedSlot?.[`seats_availables_${format}`]) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <ButtonConfirm
+                      disabled={selectedSlot?.isFull?.(format)}
+                      onClick={() => {
+                        selectedSlot?.subscribeStudent?.(user.uid, format);
                       }}
+                      label={"M'inscrire"}
+                      style={{ marginTop: '10px',width:'100%' }}
                     />
-                  </div>
-                </div>
-                <ButtonConfirm
-                  onClick={() => {
-                    session?.subscribeStudent?.(user.uid, 'online')
-                  }}
-                  label="Subscribe"
-                  style={{ marginTop: '10px' }}
-                />
-              </Grid>
 
+                  </Grid>)
+                })
+              }
             </Grid>
-            {
-              session?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
-                <Image
-                  src={session?.photo_url || ''}
-                  alt={`lesson-${session?.uid}`}
-                  quality={100}
-                  width={300}
-                  height={150}
-                  //loading="lazy"
-                  priority
-                  style={{
-                    width: 'auto',
-                    height: '100%',
-                    borderRadius: '8px',
-                    objectFit: 'cover',
-                  }}
-                />
-              </Box>
-            }
-          </div>
-
-          {/* Bloc inscription intégré dans le hero */}
-          <aside className="hero-right">
-            <div className="hero-right-top">
-              {
-                session?.price && session?.currency && <p className="price">
-                  {formatPrice(session?.price || 0, session?.currency || "")}
-                </p>
-              }
-              <p className="price-caption">
-                {translateWithVars(t("duration_lesson"), { duration: formatDuration(session?.duration || 0) })}
-              </p>
-
-              {course.hasInstallments && (
-                <p className="price-installments">
-                  {t('multiple_payments')}{" : "}
-                  <strong>{course.installmentExample}</strong>
-                </p>
-              )}
-              <div className="hero-seats">
-                <p className="seats-main">
-                  {session?.seats_taken}/{course.seats_availables} {t('seats_taken')}
-                </p>
-                <p className="seats-sub">
-                  {session?.isFull?.()
-                    ? "Cours complet actuellement"
-                    : `${session?.seats_availables - session?.seats_taken} ${t('seats_availables')}`}
-                </p>
-
-                <div className="seats-bar">
-                  <div
-                    className="seats-fill"
-                    style={{
-                      width: `${(session?.seats_taken / session?.seats_availables) * 100}%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <Stack sx={{ width: '100%', mt: 3 }}>
-                <ButtonConfirm
-                  size="large"
-                  label={t('btn-subscribe')}
-                  loading={isLoading}
-                  onClick={async () => {
-                    //setIsLoading(true);
-                    /*
-                    const res = await fetch(`/api/test?lang=${lang}&translations=${JSON.stringify({
-                        title: lesson?.title,
-                        description: lesson?.description,
-                        goals: lesson?.goals,
-                        subtitle: lesson?.subtitle,
-                    })}`);
-                    const data = await res.json();
-                    console.log("FETCH", data)
-                    setIsLoading(false);
-                    */
-                  }}
-                />
-              </Stack>
-              <button
-                className={`btn primary btn-enroll ${session?.isFull?.() && !isEnrolled ? "btn-disabled" : ""}`}
-                style={{ display: 'none' }}
-                onClick={async () => {
-
-                }}
-                disabled={isLoading || (session?.isFull?.() && !isEnrolled)}
-              >
-                {isLoading
-                  ? "Traitement..."
-                  : isEnrolled
-                    ? "Me désinscrire du cours"
-                    : session?.isFull?.()
-                      ? "Cours complet"
-                      : "M'inscrire à ce cours"}
-              </button>
-              <p className="secure-note">
-                ✅ {t('security')}
-              </p>
-            </div>
-            {/* PROFESSEUR */}
-            <div className="teacher-card">
-              <p className="teacher-label">Professeur du cours</p>
-              <div className="teacher-main">
-
-                {
-                  session?.teacher?.showAvatar({})
-                }
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {session?.teacher?.first_name} {session?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{session?.teacher?._role_title}</p>
-                </div>
-              </div>
-              <p className="teacher-bio">{session?.teacher?.bio}</p>
-              <p className="teacher-email">
-                📧 <span>{session?.teacher?.email_academy}</span>
-              </p>
-              <Stack sx={{ width: '100%' }}>
-                <ButtonCancel
-                  size="medium"
-                  label="Contacter le professeur"
-
-                />
-              </Stack>
-            </div>
-          </aside>
-        </section>
-        {/* GRID PRINCIPALE */}
-        <section className="grid">
-          {/* COL GAUCHE : contenu du cours */}
-          <div className="main-col">
-            <div className="card">
-              <h2>{'Résumé du cours'}</h2>
-              <p className="description">{session?.lesson?.translate?.description}</p>
-              <ul className="list small">
-                <li><b>{`Cours : `}</b>{session?.lesson?.title}</li>
-                <li><b>{`Catégorie : `}</b>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}</li>
-                <li><b>{`Certification : `}</b>{session?.lesson?.certified ? '✅ Oui' : '❌ Non'}</li>
-              </ul>
-              <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target={"_blank"}>
-                <ButtonCancel
-                  label={`Voir la page du cours`}
-                  style={{ marginTop: 10 }}
-                />
-              </Link>
-              {
-                /*
-                Cours : Excel – Compétences essentielles pour le travail (EXCEL-101)
-Catégorie : Bureautique
-Certification : Oui (Dandela Academy)
-                */
-              }
-            </div>
-            {/* PROFESSEUR */}
-            <div className="teacher-card">
-              <p className="teacher-label">Professeur du cours</p>
-              <div className="teacher-main">
-
-                {
-                  session?.teacher?.showAvatar({})
-                }
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {session?.teacher?.first_name} {session?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{session?.teacher?._role_title}</p>
-                </div>
-              </div>
-              <p className="teacher-bio">{session?.teacher?.bio}</p>
-              <p className="teacher-email">
-                📧 <span>{session?.teacher?.email_academy}</span>
-              </p>
-              <ButtonCancel
-                size="medium"
-                label="Contacter le professeur"
-
-              />
-            </div>
-            <div className="card">
-              <h2>{t('certification')}</h2>
-              {session?.lesson?.certified ? (
-                <>
-                  <p className="cert-main">
-                    {t('certification_block.title')}{" "}
-                    <strong>{SCHOOL_NAME}</strong>.
-                  </p>
-                  <ul className="list small">
-                    {
-                      t('certification_block.items', { returnObjects: true })?.map((text, i) => {
-                        return (<li key={`${text}-${i}`}>{text}</li>)
-                      })
-                    }
-                  </ul>
-                  {course.isOfficialCertificate && (
-                    <p className="cert-badge">
-                      {t('certification_official')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="cert-main">
-                  Ce cours ne délivre pas de certificat officiel mais une
-                  attestation de participation peut être fournie sur demande.
-                </p>
-              )}
-            </div>
-            <div className="card">
-              <h2>{t('goals')}</h2>
-              <ul className="list">
-                {session?.translate?.goals?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="card">
-              <h2>{t('programs')}</h2>
-              <ol className="list ordered">
-                {session?.translate?.programs?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ol>
-            </div>
-            <div className="card">
-              <h2>{t('prerequisites')}</h2>
-              <ul className="list">
-                {session?.translate?.prerequisites?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="card">
-              <h2>{t('target_audiences')}</h2>
-              <ul className="list">
-                {session?.translate?.target_audiences?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* COL DROITE : infos pratiques & certification */}
-          <div className="side-col">
-            <div className="card">
-              <h2>{t('modalities')}</h2>
-              <InfoRow label={t('format')} value={formatCfg?.label} />
-              <InfoRow
-                label={t('duration_total')}
-                value={`${formatDuration(session?.duration)} heures`}
-              />
-              <InfoRow
-                label={t('sessions_type')}
-                value={`${session?.sessions_count} session(s) / ${t(session?.sessions_type, { ns: NS_DAYS })}`}
-              />
-              <InfoRow label={t('schedule')} value={`Les dates de début/fin`} />
-              {session?.format !== "online" && (
-                <InfoRow label={t('location')} value={`${session?.location}`} />
-              )}
-              {session?.format !== "onsite" && (
-                <InfoRow
-                  label="Plateforme en ligne"
-                  value={course.onlinePlatform}
-                />
-              )}
-            </div>
-            <div className="card">
-              <h2>{t('certification')}</h2>
-              {session?.lesson?.certified ? (
-                <>
-                  <p className="cert-main">
-                    {t('certification_block.title')}{" "}
-                    <strong>{SCHOOL_NAME}</strong>.
-                  </p>
-                  <ul className="list small">
-                    {
-                      t('certification_block.items', { returnObjects: true })?.map((text, i) => {
-                        return (<li key={`${text}-${i}`}>{text}</li>)
-                      })
-                    }
-                  </ul>
-                  {course.isOfficialCertificate && (
-                    <p className="cert-badge">
-                      {t('certification_official')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="cert-main">
-                  Ce cours ne délivre pas de certificat officiel mais une
-                  attestation de participation peut être fournie sur demande.
-                </p>
-              )}
-            </div>
-
-            <div className="card">
-              <h2>{t('notes')}</h2>
-              <ul className="list small">
-                {
-                  session?.translate?.notes?.map((note, index) => {
-                    return (<li key={`${note}-${index}`}>
-                      {note}
-                    </li>)
-                  })
-                }
-              </ul>
-            </div>
-          </div>
-        </section>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 9 }}>
+            <p className="secure-note" style={{ textAlign: 'center' }}>
+              ✅ {t('security')}
+            </p>
+          </Grid>
+        </Grid>
       </main>
       <style jsx>{`
                 .page {
                  
                   background: transparent;
-                  padding: 20px 0px;
+                  padding: 10px 0px;
                   color: var(--font-color);
                   display: flex;
                   justify-content: center;
@@ -927,6 +602,7 @@ Certification : Oui (Dandela Academy)
                   color: var(--font-color);
                     color: var(--grey-light);
                   border-radius: 16px;
+                  border: 0.1px solid transparent;
                   padding: 14px 14px 16px;
                 }
         
@@ -978,6 +654,32 @@ Certification : Oui (Dandela Academy)
                   color: #bbf7d0;
                   border: 1px solid #16a34a;
                 }
+              .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 0.1px solid var(--primary);
+            background-color: var(--primary-shadow);
+            color: var(--primary);
+            font-size: 0.72rem;
+            white-space: nowrap;
+          }
+  
+          .badge-big {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            padding: 3px 10px;
+          }
+  
+          .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--primary);
+            
+          }
               `}</style>
     </div>
   </Stack>);

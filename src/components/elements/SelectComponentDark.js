@@ -24,7 +24,7 @@ const {blueDark, text, cardColor} = theme.palette;
             <div className="relative rounded-sm" style={{
                 background:cardColor.main, 
                 borderRadius:'20px',
-                border:`0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                border:`0.1px solid var(--card-border)`,
                 //boxShadow: '0.5px 0.5px rgba(0, 0, 0, 0.3)',
                 }}>
                 <select

@@ -26,8 +26,10 @@ export default function DashboardCalendar() {
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_CALENDAR, ClassLesson.NS_COLLECTION]);
   const { session, sessions, getOneSession, changeSession, isLoading, setUidSession } = useSession();
-  //const [session, setSession] = useState(null);
+  
   const [isOpen, setIsOpen] = useState(false);
+  const [slots, setSlots] = useState([]);
+  const [slot, setSlot] = useState(null);
 
   const {
     today: title_today,
@@ -43,15 +45,75 @@ export default function DashboardCalendar() {
     //alert(info.dateStr)
   }
   useEffect(() => {
-    console.log("xessions change", session);
+    //console.log("xessions change", session);
     //setIsOpen(session !== null);
-  }, [session]);
+    if (sessions.length > 0) {
+      const _slots = [];
+      for (const session of sessions) {
+        const sessionOnsiteCapacity = session.seats_availables_onsite || 0;
+        const sessionOnlineCapacity = session.seats_availables_online || 0;
+        const sessionOnsiteSubscribers = session.subscribers_onsite?.length || 0;
+        const sessionOnlineSubscribers = session.subscribers_online?.length || 0;
+
+        const sessionTotal = sessionOnsiteCapacity + sessionOnlineCapacity;
+        const sessionRegistered = sessionOnsiteSubscribers + sessionOnlineSubscribers;
+        const slots = session.slots || [];
+        for (const slot of slots) {
+          const onsiteCapacity = slot.seats_availables_onsite || 0;
+          const onlineCapacity = slot.seats_availables_online || 0;
+          const onsiteSubscribers = slot.subscribers_onsite?.length || 0;
+          const onlineSubscribers = slot.subscribers_online?.length || 0;
+
+          const total = onsiteCapacity + onlineCapacity;
+          const registered = onsiteSubscribers + onlineSubscribers;
+          const today = new Date();
+          const status = today.getTime() > slot.end_date ? 'finished' : today.getTime() > slot.last_subscribe_time?.getTime?.() ? 'expired' : slot.status;
+          _slots.push({
+                  id: session.uid + "-" + slot.uid_intern,
+                  title: session.lesson?.translate?.title || session.lesson?.title || "",
+                  start: slot.start_date,
+                  end: slot.end_date,
+
+                  backgroundColor: '#fecaca',   // “zone occupée”
+                  borderColor: '#1d4ed8',
+                  textColor: '#fff',
+
+                  // 👇 ici
+                  classNames: [
+                    'fc-daygrid-event',
+                    `${status}`
+                  ],
+
+                  extendedProps: {
+                    capacity: total,
+                    available: total - registered,
+                    registered,
+                    session: session,
+                    lesson: session.lesson,
+                    slot,           // pratique si tu veux récupérer le slot exact
+                    sessionUid: session.uid,
+                  },
+                });
+        }
+      }
+      console.log("SLOTS", _slots)
+      setSlots(_slots);
+    } else {
+      setSlots([]);
+    }
+  }, [sessions]);
   const handleEventClick = (info) => {
     //info.event.preventDefault();
+    const { event } = info;
     const uid = info.event.id;
+    const { extendedProps } = event;
+    const { capacity, session, slot } = extendedProps;
+    //console.log(uid, "CAPACACITY,", capacity)
+
     const _session = getOneSession(uid);
     //console.log('Click sur le evenement :', info.event.id, _session);
-    setUidSession(uid);
+    setSlot(slot);
+    setUidSession(session.uid);
     //setSession(_session);
     //changeSession(info.event.id);
     // alert("OK")
@@ -68,7 +130,7 @@ export default function DashboardCalendar() {
     const registered = event.extendedProps.registered ?? 0;
 
     const available = Math.max(capacity - registered, 0);
-    console.log("EVENT", event)
+    // console.log("EVENT", event)
     return (
       <>
         <Stack sx={{ height: '100%', width: '100%', fontSize: '0.75rem' }}>
@@ -94,7 +156,7 @@ export default function DashboardCalendar() {
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            marginTop:'5px'
+            marginTop: '5px'
           }}>
             <span className={`badge`}>
               <span className="dot" />
@@ -140,7 +202,7 @@ export default function DashboardCalendar() {
       isLoading && <CircularProgress />
     }
     {
-      session && <DialogSession session={session} isOpen={isOpen} />
+      session && slot && <DialogSession session={session} selectedSlot={slot} isOpen={isOpen} />
     }
     <Stack sx={{
       width: '100%',
@@ -210,33 +272,7 @@ export default function DashboardCalendar() {
           eventColor="#1d4ed8"       // fond
           eventTextColor="#ffffff"   // texte
           events={[
-            ...sessions.map(session => {
-              const onsiteCapacity = session.seats_availables_onsite || 0;
-              const onlineCapacity = session.seats_availables_online || 0;
-              const onsiteSubscribers = session.subscribers_onsite?.length || 0;
-              const onlineSubscribers = session.subscribers_online?.length || 0;
-              const total = onsiteCapacity + onlineCapacity;
-              const registered = onsiteSubscribers + onlineSubscribers;
-              return ({
-                id: session.uid,
-                title: session.lesson?.translate?.title || session.lesson?.title || "",
-                start: session.start_date,
-                end: session.end_date,
-
-                backgroundColor: '#1d4ed8',   // occupé
-                //height: '200%',
-                borderColor: '#1d4ed8',
-                textColor: '#fff',
-                //display: 'background',
-                backgroundColor: '#fecaca',    // “zone occupée”
-                extendedProps: {
-                  capacity: total,        // nombre total de places
-                  available: total - registered,        // nombre total de places
-                  registered: registered,       // nombre d’inscrits
-                  lesson: session.lesson,
-                }
-              })
-            }),
+            ...slots,
             {
               id: '1',
               title: 'Cours Excel',
@@ -269,9 +305,10 @@ export default function DashboardCalendar() {
 
           /** 🔹 Style des cases “libres” / “occupées” via classes */
           dayCellClassNames={(args) => {
+            // console.log("args...", args.id)
             // args.date est un objet Date
             const iso = args.date.toISOString().slice(0, 10)
-            if (iso === '2025-11-28') {
+            if (iso === '2025-11-29') {
               return ['fc-day-free']       // classe custom pour ce jour
             }
             return []

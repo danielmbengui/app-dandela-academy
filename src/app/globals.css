@@ -69,8 +69,22 @@
 
   --card-border: var(--grey-hyper-light);
 
-  --test:#3b82f654;
+  --session-status-open: #3ce0a2;
+  --session-status-open-glow: #3ce0a254;
+  --session-status-full: rgb(249, 115, 22);
+  --session-status-full-glow: rgba(249, 115, 22, 0.33);
+    --session-status-finished: #e70d0dff;
+  --session-status-finished-glow: #e70d0d54;
+
+  --session-status-expired: #eab308;
+  --session-status-expired-glow: #eab30854;
+
+  --session-status-draft: #3E3E3E;
+  --session-status-draft-glow: rgba(62, 62, 62, 0.33);
+
+  --test: #3b82f654;
   /*
+  --session-status-open:#22c55e;
     static TRANSPARENT = "transparent";
     static CORAL = "#F88379";
     static BLUE_ROYAL = "#1670F6";
@@ -114,13 +128,17 @@
 }
 
 .dark {
+    --blackColor: #1c1c1c;
   --background: #0f0f0f;
   --card-color: #000000;
   --font-color: #FFFFFF;
   --font-reverse-color: #000000;
+    --grey-light: #3E3E3E;
+      --grey-hyper-light: #1c1c1c;
+  --grey-hyper-dark: #e4e4e4;
+  --grey-dark: #A6A6A6;
 
 
-  --card-border: var(--grey-hyper-dark);
   /*
     --background: #1d1d1d;
   --background: #000000;

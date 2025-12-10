@@ -72,7 +72,7 @@ export default function TextFieldComponentDark({
                     //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
                     color: blueDark.contrastText, // couleur par défaut
                     //border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
-                    border: `0.1px solid ${greyLight.main}`,
+                    border: `0.1px solid var(--card-border)`,
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol

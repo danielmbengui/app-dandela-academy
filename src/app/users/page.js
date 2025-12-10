@@ -354,7 +354,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
         .search-block input {
           width: 100%;
           border-radius: 999px;
-          border: 1px solid #1f2937;
+          border: 0.1px solid var(--card-border);
           padding: 5px 12px;
           background: #020617;
           color: #e5e7eb;
@@ -375,7 +375,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
 
         .filters select {
           border-radius: 999px;
-          border: 1px solid #1f2937;
+          border: 0.1px solid var(--card-border);
           background: #020617;
           color: #e5e7eb;
           padding: 6px 10px;
@@ -409,8 +409,8 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
           letter-spacing: 0.06em;
           color: ${'white'};
           font-weight: 500;
-          border-bottom: 1px solid ${'black'};
-          background: ${'black'};
+          border-bottom: 1px solid var(--blackColor);
+          background: var(--blackColor);
         }
 
         @media (max-width: 900px) {
@@ -539,7 +539,7 @@ function UserRow({ user, lastChild = false,setUserDialog=null }) {
           gap: 8px;
           padding: 10px 16px;
           font-size: 0.85rem;
-          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          border-bottom: 0.1px solid var(--card-border);
           align-items: center;
         }
 

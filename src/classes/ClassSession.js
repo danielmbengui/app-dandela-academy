@@ -121,6 +121,7 @@ export class ClassSession {
         seats_availables_onsite = 0,
         seats_availables_online = 0,
         seats_taken = 0,
+        slots = [],
         photo_url = "",
         status = ClassSession.STATUS.DRAFT,
         location = "",
@@ -158,6 +159,7 @@ export class ClassSession {
         this._translate = translate;
         this._subscribers_online = subscribers_online;
         this._subscribers_onsite = subscribers_onsite;
+        this._slots = slots;
         this._last_subscribe_time = last_subscribe_time;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
@@ -251,6 +253,9 @@ export class ClassSession {
     get subscribers_onsite() { return this._subscribers_onsite; }
     set subscribers_onsite(value) { this._subscribers_onsite = value; }
 
+    get slots() { return this._slots; }
+    set slots(value) { this._slots = value; }
+
     get last_subscribe_time() { return this._last_subscribe_time; }
     set last_subscribe_time(value) { this._last_subscribe_time = value; }
 
@@ -267,22 +272,22 @@ export class ClassSession {
     }
 
     // --- GETTERS ---
-    subscribeStudent(uid="",format="") {
-        if(!uid || !format) return;
-        if(format === ClassSession.FORMAT.ONLINE) {
+    subscribeStudent(uid = "", format = "") {
+        if (!uid || !format) return;
+        if (format === ClassSession.FORMAT.ONLINE) {
             this._subscribers_online.push(uid);
         }
-        if(format === ClassSession.FORMAT.ONSITE) {
+        if (format === ClassSession.FORMAT.ONSITE) {
             this._subscribers_onsite.push(uid);
         }
     }
-    unsubscribeStudent(uid="",format="") {
-        if(!uid || !format) return;
-        if(format === ClassSession.FORMAT.ONLINE) {
-            this._subscribers_online = this._subscribers_online.filter(subscriber=>subscriber.uid !== uid);
+    unsubscribeStudent(uid = "", format = "") {
+        if (!uid || !format) return;
+        if (format === ClassSession.FORMAT.ONLINE) {
+            this._subscribers_online = this._subscribers_online.filter(subscriber => subscriber.uid !== uid);
         }
-        if(format === ClassSession.FORMAT.ONSITE) {
-            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber=>subscriber.uid !== uid);
+        if (format === ClassSession.FORMAT.ONSITE) {
+            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber.uid !== uid);
         }
     }
 
@@ -308,23 +313,47 @@ export class ClassSession {
         return ClassSession.makeLessonSessionInstance(this._uid, this.toJSON());
         //return new ClassUser(this.toJSON());
     }
-    countSubscribers(format="") {
-        if(format===ClassSession.FORMAT.ONLINE) {
+    addSlot(slot = null) {
+        if (!slot || !(slot instanceof ClassSessionSlot)) return;
+        const size = this._slots.length || 0;
+        const item = new ClassSessionSlot({...slot.toJSON(), uid_intern: size + 1});
+        this._slots.push(item);
+        this._slots.sort((a, b) => a.uid_intern - b.uid_intern);
+    }
+    updateSlot(slot = null) {
+        if (!slot || !(slot instanceof ClassSessionSlot)) return;
+        const uid_intern = slot.uid_intern;
+        this._slots = this._slots.map(item=>{
+            if(item.uid_intern===uid_intern) {
+                return slot;
+            }
+            return item;
+        });
+        this._slots.sort((a, b) => a.uid_intern - b.uid_intern);
+    }
+    removeSlot(slot = null) {
+        if (!slot || !(slot instanceof ClassSessionSlot)) return;
+        const uid_intern = slot.uid_intern;
+        this._slots = this._slots.filter(item=>item.uid_intern !== uid_intern);
+        this._slots.sort((a, b) => a.uid_intern - b.uid_intern);
+    }
+    countSubscribers(format = "") {
+        if (format === ClassSession.FORMAT.ONLINE) {
             return this._subscribers_online.length;
         }
-        if(format===ClassSession.FORMAT.ONSITE) {
+        if (format === ClassSession.FORMAT.ONSITE) {
             return this._subscribers_onsite.length;
         }
         return 0;
     }
-    isFull(format="") {
-        if(format===ClassSession.FORMAT.ONLINE) {
-            if(this._seats_availables_online > this.countSubscribers(ClassSession.FORMAT.ONLINE)) {
+    isFull(format = "") {
+        if (format === ClassSession.FORMAT.ONLINE) {
+            if (this._seats_availables_online > this.countSubscribers(ClassSession.FORMAT.ONLINE)) {
                 return false;
             }
         }
-        if(format===ClassSession.FORMAT.ONSITE) {
-            if(this._seats_availables_onsite > this.countSubscribers(ClassSession.FORMAT.ONSITE)) {
+        if (format === ClassSession.FORMAT.ONSITE) {
+            if (this._seats_availables_onsite > this.countSubscribers(ClassSession.FORMAT.ONSITE)) {
                 return false;
             }
         }
@@ -379,7 +408,18 @@ export class ClassSession {
                 const last_subscribe_time = ClassSession._toJsDate(data.last_subscribe_time);
                 const created_time = ClassSession._toJsDate(data.created_time);
                 const last_edit_time = ClassSession._toJsDate(data.last_edit_time);
-                return ClassSession.makeLessonSessionInstance(uid, { ...data, start_date, end_date, last_subscribe_time, created_time, last_edit_time });
+                const session = ClassSession.makeLessonSessionInstance(uid, { ...data, start_date, end_date, last_subscribe_time, created_time, last_edit_time });
+                const slots = data.slots?.map(slot => {
+                    const item = new ClassSessionSlot(slot);
+                    //const item_session = new ClassSession(session.toJSON());
+                    //delete item_session.slots;
+                    //delete item_session.slots;
+                    //item.session = item_session;
+                    return item;
+                });
+                slots.sort((a,b)=>a.uid_intern-b.uid_intern);
+                session.slots = slots;
+                return session;
             },
         };
     }
@@ -559,9 +599,10 @@ export class ClassSession {
         }
     }
 }
-export class ClassLessonSessionTranslate {
-    static COLLECTION = "i18n";
-    static NS_COLLECTION = `classes/lesson`;
+export class ClassSessionSlot {
+    static COLLECTION = "SESSIONS_SLOTS";
+    static COLLECTION_TRANSLATE = "i18n";
+    static NS_COLLECTION = `classes/session/slot`;
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
         UNKNOWN: 'unknown',
@@ -604,6 +645,7 @@ export class ClassLessonSessionTranslate {
     static STATUS = Object.freeze({
         OPEN: 'open', // bureautique
         FULL: 'full',
+        SUBSCRIPTION_EXPIRED: 'expired',
         FINISHED: 'finished',
         DRAFT: 'draft',
         UNKNOWN: 'unknown',
@@ -613,6 +655,11 @@ export class ClassLessonSessionTranslate {
             label: "open", // "Inscriptions ouvertes",
             color: "#22c55e",
             glow: "#022c22",
+        },
+        expired: {
+            label: "expired", // "Inscriptions ouvertes",
+            color: "#e70d0dff",
+            glow: "#e70d0d54",
         },
         full: {
             label: "full", // "Complet",
@@ -630,7 +677,6 @@ export class ClassLessonSessionTranslate {
             glow: "#422006",
         },
     });
-
     static SESSION_TYPE = Object.freeze({
         DAILY: 'daily', // bureautique
         WEEKLY: 'weekly',
@@ -639,137 +685,115 @@ export class ClassLessonSessionTranslate {
         UNKNOWN: 'unknown',
     });
     constructor({
-        uid_lesson = "",
-        lang = "",
-        description = "",
-        goals = [],
-        notes = [],
-        prerequisites = [],
-        programs = [],
-        target_audiences = [],
-        subtitle = "",
-        title = "",
+        uid_intern = "",
+        uid_session = "",
+
+        format = "",
+
+        start_date = null,
+        end_date = null,
+        seats_availables_onsite = 0,
+        seats_availables_online = 0,
+
+        status = ClassSession.STATUS.DRAFT,
+        location = "",
+        url = "",
+
+        subscribers_online = [],
+        subscribers_onsite = [],
+        last_subscribe_time = new Date(),
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
-        this._uid_lesson = uid_lesson;
-        this._lang = lang;
-        this._description = description;
-
-        this._goals = Array.isArray(goals) ? goals : [];
-        this._notes = Array.isArray(notes) ? notes : [];
-        this._prerequisites = Array.isArray(prerequisites) ? prerequisites : [];
-        this._programs = Array.isArray(programs) ? programs : [];
-        this._target_audiences = Array.isArray(target_audiences) ? target_audiences : [];
-
-        this._subtitle = subtitle;
-        this._title = title;
-
-        this._created_time = created_time instanceof Date ? created_time : new Date(created_time);
-        this._last_edit_time = last_edit_time instanceof Date ? last_edit_time : new Date(last_edit_time);
+        this._uid_intern = uid_intern;
+        this._uid_session = uid_session;
+        //this._session = null;
+        this._format = format;
+        this._start_date = ClassSession._toJsDate(start_date);
+        this._end_date = ClassSession._toJsDate(end_date);
+        this._seats_availables_onsite = seats_availables_onsite;
+        this._seats_availables_online = seats_availables_online;
+        this._status = status;
+        this._location = location;
+        this._url = url;
+        this._subscribers_online = subscribers_online;
+        this._subscribers_onsite = subscribers_onsite;
+        this._last_subscribe_time = last_subscribe_time;
+        this._created_time = ClassSession._toJsDate(created_time);
+        this._last_edit_time = ClassSession._toJsDate(last_edit_time);
     }
 
-    // uid_lesson
-    get uid_lesson() {
-        return this._uid_lesson;
-    }
-    set uid_lesson(value) {
-        this._uid_lesson = value || "";
-    }
+    get uid_intern() { return this._uid_intern; }
+    set uid_intern(value) { this._uid_intern = value; }
 
-    // lang
-    get lang() {
-        return this._lang;
-    }
-    set lang(value) {
-        this._lang = value || "";
-    }
+    get uid_session() { return this._uid_session; }
+    set uid_session(value) { this._uid_session = value; }
 
-    // description
-    get description() {
-        return this._description;
-    }
-    set description(value) {
-        this._description = value || "";
-    }
+    get format() { return this._format; }
+    set format(value) { this._format = value; }
 
-    // goals
-    get goals() {
-        return this._goals;
-    }
-    set goals(value) {
-        this._goals = Array.isArray(value) ? value : [];
-    }
+    get start_date() { return this._start_date; }
+    set start_date(value) { this._start_date = value; }
 
-    // notes
-    get notes() {
-        return this._notes;
-    }
-    set notes(value) {
-        this._notes = Array.isArray(value) ? value : [];
-    }
+    get end_date() { return this._end_date; }
+    set end_date(value) { this._end_date = value; }
 
-    // prerequisites
-    get prerequisites() {
-        return this._prerequisites;
-    }
-    set prerequisites(value) {
-        this._prerequisites = Array.isArray(value) ? value : [];
-    }
+    get seats_availables_onsite() { return this._seats_availables_onsite; }
+    set seats_availables_onsite(value) { this._seats_availables_onsite = value; }
 
-    // programs
-    get programs() {
-        return this._programs;
-    }
-    set programs(value) {
-        this._programs = Array.isArray(value) ? value : [];
-    }
+    get seats_availables_online() { return this._seats_availables_online; }
+    set seats_availables_online(value) { this._seats_availables_online = value; }
 
-    // target_audiences
-    get target_audiences() {
-        return this._target_audiences;
-    }
-    set target_audiences(value) {
-        this._target_audiences = Array.isArray(value) ? value : [];
-    }
+    get status() { return this._status; }
+    set status(value) { this._status = value; }
 
-    // subtitle
-    get subtitle() {
-        return this._subtitle;
-    }
-    set subtitle(value) {
-        this._subtitle = value || "";
-    }
+    get location() { return this._location; }
+    set location(value) { this._location = value; }
 
-    // title
-    get title() {
-        return this._title;
-    }
-    set title(value) {
-        this._title = value || "";
-    }
+    get url() { return this._url; }
+    set url(value) { this._url = value; }
 
-    // created_time
-    get created_time() {
-        return this._created_time;
-    }
-    set created_time(value) {
-        this._created_time = value instanceof Date ? value : new Date(value);
-    }
+    get subscribers_online() { return this._subscribers_online; }
+    set subscribers_online(value) { this._subscribers_online = value; }
 
-    // last_edit_time
-    get last_edit_time() {
-        return this._last_edit_time;
-    }
-    set last_edit_time(value) {
-        this._last_edit_time = value instanceof Date ? value : new Date(value);
-    }
+    get subscribers_onsite() { return this._subscribers_onsite; }
+    set subscribers_onsite(value) { this._subscribers_onsite = value; }
+
+    get last_subscribe_time() { return this._last_subscribe_time; }
+    set last_subscribe_time(value) { this._last_subscribe_time = value; }
+
+    get created_time() { return this._created_time; }
+    set created_time(value) { this._created_time = value; }
+
+    get last_edit_time() { return this._last_edit_time; }
+    set last_edit_time(value) { this._last_edit_time = value; }
 
     // 🔁 Getters & Setters
     // --- normalisation interne ---
     _touchLastEdit() {
         this._last_edit_time = new Date();
     }
+
+    // --- GETTERS ---
+    subscribeStudent(uid = "", format = "") {
+        if (!uid || !format) return;
+        if (format === ClassSession.FORMAT.ONLINE) {
+            this._subscribers_online.push(uid);
+        }
+        if (format === ClassSession.FORMAT.ONSITE) {
+            this._subscribers_onsite.push(uid);
+        }
+    }
+    unsubscribeStudent(uid = "", format = "") {
+        if (!uid || !format) return;
+        if (format === ClassSession.FORMAT.ONLINE) {
+            this._subscribers_online = this._subscribers_online.filter(subscriber => subscriber.uid !== uid);
+        }
+        if (format === ClassSession.FORMAT.ONSITE) {
+            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber.uid !== uid);
+        }
+    }
+
 
     // --- Serialization ---
     toJSON() {
@@ -789,211 +813,30 @@ export class ClassLessonSessionTranslate {
         }
     }
     clone() {
-        return ClassLessonSessionTranslate.makeLessonTranslateInstance(this._uid, this.toJSON());
+        return ClassSession.makeLessonSessionInstance(this._uid, this.toJSON());
         //return new ClassUser(this.toJSON());
     }
-
-    // ---------- Converter intégré ----------
-    static _toJsDate(v) {
-        if (!v) return null;
-        if (v instanceof Date) return v;
-        if (v instanceof Timestamp) return v.toDate();
-        if (typeof v?.toDate === "function") return v.toDate();
-        if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
-        return null;
-    }
-    static makeLessonTranslateInstance(uid, data = {}) {
-        return new ClassLessonSessionTranslate({ uid, ...data });
-    }
-    static get converter() {
-        return {
-            toFirestore(lessonInstance) {
-                // chaque classe a un .toJSON() propre
-                return lessonInstance?.toJSON ? lessonInstance.toJSON() : lessonInstance;
-            },
-            fromFirestore(snapshot, options) {
-                const lang = snapshot.id;
-                const data = snapshot.data(options) || {};
-                var created_time = ClassLessonSessionTranslate._toJsDate(data.created_time);
-                var last_edit_time = ClassLessonSessionTranslate._toJsDate(data.last_edit_time);
-                return ClassLessonSessionTranslate.makeLessonTranslateInstance(lang, { ...data, created_time, last_edit_time, lang });
-            },
-        };
-    }
-    // ---------- Helpers Firestore ----------
-    static async alreadyExist(_uid) {
-        const q = query(
-            collection(firestore, ClassSession.COLLECTION),
-            where("uid", "==", _uid)
-        );
-        const countSnap = await getCountFromServer(q);
-        return countSnap.data().count > 0;
-    }
-    static async alreadyExistByName(_name) {
-        const q = query(
-            collection(firestore, ClassSession.COLLECTION),
-            where("name_normalized", "==", this._name.toLowerCase().trim())
-        );
-        const countSnap = await getCountFromServer(q);
-        return countSnap.data().count > 0;
-    }
-    static colRef(uidLesson = "") {
-        return collection(firestore, ClassSession.COLLECTION, uidLesson, ClassLessonSessionTranslate.COLLECTION).withConverter(this.converter);
-    }
-    static docRef(uidLesson = "", lang) {
-        return doc(firestore, ClassSession.COLLECTION, uidLesson, ClassLessonSessionTranslate.COLLECTION, lang).withConverter(this.converter);
-    }
-    static async count() {
-        //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const snap = await getCountFromServer(coll);
-        return snap.data().count; // -> nombre total
-    }
-    // Récupérer un module par id
-    static indexOf(array = [], uid) {
-        if (array.length === 0 || !(array[0] instanceof ClassSession)) {
-            return -1;
+    countSubscribers(format = "") {
+        if (format === ClassSession.FORMAT.ONLINE) {
+            return this._subscribers_online.length;
         }
-        if (!(array[0] instanceof ClassSession)) {
-            console.log("ERRROR is not class School")
-            return -1;
+        if (format === ClassSession.FORMAT.ONSITE) {
+            return this._subscribers_onsite.length;
         }
-        const indexof = array.findIndex(item => item.uid === uid);
-        return indexof;
+        return 0;
     }
-
-    static async get(uidLesson, lang) {
-        const snap = await getDoc(this.docRef(uidLesson, lang));
-        if (snap.exists()) {
-            const data = snap.data();
-            return (data);
-        }
-        return null; // -> ClassModule | null
-    }
-    static async getByName(_name) {
-        //const usersCol = collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter);
-        const q = query(
-            collection(firestore, ClassSession.COLLECTION).withConverter(ClassSession.converter),
-            where("name_normalized", "==", _name.toLowerCase().trim()),
-            limit(1),
-        );
-        const snap = await getDocs(q);
-        const myDoc = snap.docs[0];
-        if (!snap.empty) {
-            return myDoc.data();
-        }
-        return null; // -> ClassModule | null
-    }
-    // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
-    static async list(uidLesson = "", constraints = []) {
-        const q = constraints.length ? query(this.colRef(uidLesson), ...constraints) : query(this.colRef(uidLesson));
-        //console.log("list q", q)
-        const qSnap = await getDocs(q);
-        return qSnap.docs.map(item => item.data());
-    }
-    createTitleNormalized(title = '') {
-        var result = "";
-        for (let i = 0; i < title.length; i++) {
-            const element = title[i];
-            if (element === " ") {
-                result += "_";
-            } else {
-                result += element;
+    isFull(format = "") {
+        if (format === ClassSession.FORMAT.ONLINE) {
+            if (this._seats_availables_online > this.countSubscribers(ClassSession.FORMAT.ONLINE)) {
+                return false;
             }
         }
-        return (result.toLowerCase());
-    }
-    // Créer un user (avec option timestamps serveur)
-    async createFirestore() {
-        const newRef = doc(this.constructor.colRef()); // id auto
-        //data.uid = newRef.id;
-        //const model = data instanceof ClassLessonSession ? data : new ClassLessonSession({ ...data });
-        //model.uid = newRef.id;()
-
-        const countLesson = await this.constructor.count() || 0;
-        const idLesson = countLesson + 1;
-        this._uid = newRef.id;
-        this._uid_intern = idLesson;
-        this._title_normalized = this.createTitleNormalized(this._title);
-        this._subtitle_normalized = this.createTitleNormalized(this.subtitle);
-        //this._name_normalized = createNameNormalized(this._name);
-        // const uid = newRef.id;
-        //const uid_intern = idSchool;
-        //this._enabled = false;
-        this._created_time = new Date();
-        this._last_edit_time = new Date();
-        //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
-        await setDoc(newRef, this.toJSON());
-        return this.constructor.makeLessonTranslateInstance(this._uid, this.toJSON());// -> ClassModule
-    }
-    async updateFirestore() {
-        try {
-            // const ref = ClassLessonSession.docRef(id);
-            //const data = { ...patch, last_edit_time: new Date() };
-            //await updateDoc(ref, data, { merge: true });
-            //console.log("UPDATE COMPLETED")
-            //return (await getDoc(ref)).data(); // -> ClassModule
-            const ref = this.constructor.docRef(this._uid);
-            this._last_edit_time = new Date();
-            //const data = { ...patch, last_edit_time: new Date() };
-            await updateDoc(ref, this.toJSON(), { merge: true });
-            //console.log("UPDATE COMPLETED", { ...this })
-            //return (await getDoc(ref)).data(); // -> ClassDevice
-            return this.constructor.makeLessonTranslateInstance(this._uid, this.toJSON()); // -> ClassModule
-        } catch (e) {
-            return null;
+        if (format === ClassSession.FORMAT.ONSITE) {
+            if (this._seats_availables_onsite > this.countSubscribers(ClassSession.FORMAT.ONSITE)) {
+                return false;
+            }
         }
+        return true;
     }
-    // Mettre à jour un module
-    static async update(id, patch = {}) {
-        try {
-            const ref = ClassSession.docRef(id);
-            const data = { ...patch, last_edit_time: new Date() };
-            await updateDoc(ref, data, { merge: true });
-            //console.log("UPDATE COMPLETED")
-            return (await getDoc(ref)).data(); // -> ClassModule
-        } catch (e) {
-            return null;
-        }
-    }
-    // Supprimer un module
-    async removeFirestore() {
-        try {
-            const ref = this.constructor.docRef(this._uid);
-            await deleteDoc(ref);
-            //console.log("REMOVED", ref);
-            return true;
-        } catch (error) {
-            console.log("ERRRROR", error);
-            return false;
-        }
-    }
-    // (Legacy) méthode de fetch directe
-    static async fetchFromFirestore(uidLesson, lang = defaultLanguage) {
-        try {
-            if (!lang) throw new Error("LANG is required to get school.");
-            return await this.get(uidLesson, lang);
-        } catch (error) {
-            console.log("ERROR", error?.message || error);
-            return null;
-        }
-    }
-    static async fetchFromFirestoreNeme(_name) {
-        try {
-            if (!uid) throw new Error("UID is required to get school.");
-            return await ClassSession.getByName(_name);
-        } catch (error) {
-            console.log("ERROR", error?.message || error);
-            return null;
-        }
-    }
-    static async fetchListFromFirestore(uidLesson = "", constraints = []) {
-        try {
-            //if (!uid) throw new Error("UID is required to get module.");
-            return await this.list(uidLesson, constraints);
-        } catch (error) {
-            console.log("ERROR", error?.message || error);
-            return null;
-        }
-    }
+    // ---------- Converter intégré ----------
 }

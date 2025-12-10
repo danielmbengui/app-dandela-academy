@@ -12,11 +12,12 @@ import { ClassSession } from "@/classes/ClassSession";
 import { useSession } from "@/contexts/SessionProvider";
 import SessionComponent from "./SessionComponent";
 import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import DialogSubscribeSession from "./DialogSubscribeSession";
 
-export default function DialogSession({session=null,setSession=null}) {
+export default function DialogSession({ selectedSlot = null}) {
     const { t } = useTranslation([NS_ROLES]);
     const { lang } = useLanguage();
-    const {setUidSession} = useSession();
+    const {session, setUidSession } = useSession();
     const { theme } = useThemeMode();
     const { blueDark, primary, cardColor, text, greyLight } = theme.palette;
     const [processing, setProcessing] = useState(false);
@@ -37,9 +38,9 @@ export default function DialogSession({session=null,setSession=null}) {
         <Stack sx={{ width: '100%', height: '100%' }}>
             <Dialog
                 //fullWidth
-                
+
                 maxWidth={'md'}
-                open={session!==null}
+                open={session !== null}
                 onClose={handleClose}
                 scroll={'paper'}
                 aria-labelledby="scroll-dialog-title"
@@ -49,16 +50,16 @@ export default function DialogSession({session=null,setSession=null}) {
                     //cursor:'pointer',
                     '& .MuiDialog-container': {
                         p: 1,
-                        cursor:'pointer',
+                        cursor: 'pointer',
                         //background: 'red'
                         //alignItems: 'stretch', // ⬅️ étire le container sur toute la hauteur
                     },
                     '& .MuiDialog-paper': {
                         borderRadius: '10px',
                         background: cardColor.main,
-                        cursor:"auto",
+                        cursor: "auto",
                         //color: 'white',
-                       // minWidth: { xs: '100%', md: '600px' },
+                        // minWidth: { xs: '100%', md: '600px' },
                         //width: { xs: '100%', md: '100%' },
                         //maxWidth: { xs: '100%', md: '80%' },
                         //maxWidth: '100%',
@@ -83,56 +84,61 @@ export default function DialogSession({session=null,setSession=null}) {
                     },
                 }}
                 slotProps={{
-                    backdrop:{
+                    backdrop: {
                         sx: {
                             cursor: 'pointer !important', // pour passer devant un style global
-                          },
+                        },
                     },
-                    paper:{
-                        sx:{
-                            cursor:'normal'
+                    paper: {
+                        sx: {
+                            cursor: 'normal'
                         }
                     }
                 }}
             >
                 {
                     <>
-                    <DialogTitle id="scroll-dialog-title">
-                    <Stack direction={'row'} justifyContent={'space-between'}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
-                            <IconCalendar />
-                            <Stack>
-                                <Typography variant='h4' sx={{lineHeight:'1.5rem'}}>{session?.lesson?.title || '---'}</Typography>
-                                <Typography variant='h5' color='greyLight'>{getFormattedDateNumeric(session?.start_date, lang)} | {getFormattedHour(session?.start_date)}-{getFormattedHour(session?.end_date)}</Typography>
+                        <DialogTitle id="scroll-dialog-title">
+                            <Stack direction={'row'} justifyContent={'space-between'}>
+                                <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
+                                    <IconCalendar />
+                                    <Stack>
+                                        <Typography variant='h4' sx={{ lineHeight: '1.5rem' }}>{session?.lesson?.translate?.title || session?.lesson?.title || '---'}</Typography>
+                                        <Typography variant='h5' color='greyLight'>{`Session ${selectedSlot?.uid_intern}`} | {getFormattedDateNumeric(session?.start_date, lang)} | {getFormattedHour(session?.start_date)}-{getFormattedHour(session?.end_date)}</Typography>
+                                    </Stack>
+                                </Stack>
+                                <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
                             </Stack>
-                        </Stack>
-                        <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
-                    </Stack>
-                </DialogTitle>
-                <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 }, background:'var(--background)' }}>
+                        </DialogTitle>
+                        <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 }, background: 'var(--background)' }}>
 
-                   <SessionComponent session={session} />
-                </DialogContent>
-                <DialogActions sx={{ minHeight: '20px' }}>
-                    <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
-                        <Stack direction={'row'} spacing={1} alignItems={'center'}>
-                            <ButtonCancel label={'cancel'} variant='contained' onClick={async () => {
+                            <SessionComponent session={session} selectedSlot={selectedSlot} />
+                        </DialogContent>
+                        <DialogActions sx={{ minHeight: '20px' }}>
+                            <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
+                                <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                                    <ButtonCancel label={'cancel'} variant='contained' onClick={async () => {
 
-                            }} />
-                            <ButtonConfirm label={'edit'} variant='contained' onClick={async () => {
+                                    }} />
+                                    <ButtonConfirm label={'edit'} variant='contained' onClick={async () => {
 
-                            }} />
-                        </Stack>
-                        <IconButton size={'small'}>
-                            <IconEdit width={20} height={20} color={primary.main} />
-                        </IconButton>
-                    </Stack>
+                                    }} />
+                                </Stack>
+                                <IconButton size={'small'}>
+                                    <IconEdit width={20} height={20} color={primary.main} />
+                                </IconButton>
+                            </Stack>
 
 
-                </DialogActions>
+                        </DialogActions>
                     </>
                 }
             </Dialog>
+            <DialogSubscribeSession
+                session={session}
+                selectedSlot={selectedSlot}
+                open={true}
+            />
         </Stack>
     );
 }
