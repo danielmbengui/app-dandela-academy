@@ -179,11 +179,11 @@ function InfoRow({ label, value }) {
   );
 }
 
-export default function SessionSubscribeComponent({selectedSlot = null }) {
+export default function SessionSubscribeComponent({}) {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
-  const {session} = useSession();
+  const {session,slot} = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
@@ -218,35 +218,35 @@ export default function SessionSubscribeComponent({selectedSlot = null }) {
                     borderRadius: '10px',
                     p: 1,
                     //background: `${FORMAT_CONFIG['online']?.glow}`,
-                    display: selectedSlot?.format === ClassSession.FORMAT.HYBRID || selectedSlot?.format === format ? 'block' : 'none'
+                    display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
                   }}>
                     <Stack direction={'row'} spacing={1} alignItems={'center'}>
                       <BadgeFormatLesson format={format} />
                       <p className="seats-main">
-                        {selectedSlot?.countSubscribers?.(format)}/{selectedSlot?.[`seats_availables_${format}`]} {t('seats_taken')}
+                        {slot?.countSubscribers?.(format)}/{slot?.[`seats_availables_${format}`]} {t('seats_taken')}
                       </p>
                     </Stack>
                     <div className="hero-seats">
 
                       <p className="seats-sub">
-                        {selectedSlot?.isFull?.(format)
+                        {slot?.isFull?.(format)
                           ? "Cours complet actuellement"
-                          : `${selectedSlot?.[`seats_availables_${format}`] - selectedSlot?.countSubscribers(format)} ${t('seats_availables')}`}
+                          : `${slot?.[`seats_availables_${format}`] - slot?.countSubscribers(format)} ${t('seats_availables')}`}
                       </p>
 
                       <div className="seats-bar">
                         <div
                           className="seats-fill"
                           style={{
-                            width: `${(selectedSlot?.countSubscribers(format) / selectedSlot?.[`seats_availables_${format}`]) * 100}%`,
+                            width: `${(slot?.countSubscribers(format) / slot?.[`seats_availables_${format}`]) * 100}%`,
                           }}
                         />
                       </div>
                     </div>
                     <ButtonConfirm
-                      disabled={selectedSlot?.isFull?.(format)}
+                      disabled={slot?.isFull?.(format)}
                       onClick={() => {
-                        selectedSlot?.subscribeStudent?.(user.uid, format);
+                        slot?.subscribeStudent?.(user.uid, format);
                       }}
                       label={"M'inscrire"}
                       style={{ marginTop: '10px',width:'100%' }}
