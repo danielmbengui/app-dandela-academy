@@ -29,12 +29,12 @@ export default function DialogSubscribeSession({
   open = false,
   setOpen = null,
   //session=null,
-  selectedSlot=null,
+  //selectedSlot: slot=null,
 }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
-    const { session, sessions,} = useSession();
+    const { session, sessions,slot} = useSession();
   const { user } = useAuth();
   const { lang } = useLanguage();
   const [mode, setMode] = useState('create');
@@ -128,7 +128,7 @@ export default function DialogSubscribeSession({
               />
             </Stack>
           </Stack>
-          <SessionSubscribeComponent session={session} selectedSlot={selectedSlot} />
+          <SessionSubscribeComponent session={session} selectedSlot={slot} />
         
 
         </DialogContent>

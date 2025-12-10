@@ -25,11 +25,11 @@ export default function DashboardCalendar() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_CALENDAR, ClassLesson.NS_COLLECTION]);
-  const { session, sessions, getOneSession, changeSession, isLoading, setUidSession } = useSession();
+  const { session, sessions, getOneSession, changeSession, isLoading, setUidSession, setUidSlot,slot, slots } = useSession();
   
   const [isOpen, setIsOpen] = useState(false);
-  const [slots, setSlots] = useState([]);
-  const [slot, setSlot] = useState(null);
+  //const [slots, setSlots] = useState([]);
+  //const [slot, setSlot] = useState(null);
 
   const {
     today: title_today,
@@ -47,6 +47,7 @@ export default function DashboardCalendar() {
   useEffect(() => {
     //console.log("xessions change", session);
     //setIsOpen(session !== null);
+    /*
     if (sessions.length > 0) {
       const _slots = [];
       for (const session of sessions) {
@@ -101,6 +102,7 @@ export default function DashboardCalendar() {
     } else {
       setSlots([]);
     }
+    */
   }, [sessions]);
   const handleEventClick = (info) => {
     //info.event.preventDefault();
@@ -112,8 +114,9 @@ export default function DashboardCalendar() {
 
     const _session = getOneSession(uid);
     //console.log('Click sur le evenement :', info.event.id, _session);
-    setSlot(slot);
+    //setSlot(slot);
     setUidSession(session.uid);
+    setUidSlot(slot.uid_intern);
     //setSession(_session);
     //changeSession(info.event.id);
     // alert("OK")
@@ -272,7 +275,44 @@ export default function DashboardCalendar() {
           eventColor="#1d4ed8"       // fond
           eventTextColor="#ffffff"   // texte
           events={[
-            ...slots,
+            ...slots.map(slot=>{
+              const onsiteCapacity = slot.seats_availables_onsite || 0;
+              const onlineCapacity = slot.seats_availables_online || 0;
+              const onsiteSubscribers = slot.subscribers_onsite?.length || 0;
+              const onlineSubscribers = slot.subscribers_online?.length || 0;
+    
+              const total = onsiteCapacity + onlineCapacity;
+              const registered = onsiteSubscribers + onlineSubscribers;
+              const today = new Date();
+              const status = today.getTime() > slot.end_date ? 'finished' : today.getTime() > slot.last_subscribe_time?.getTime?.() ? 'expired' : slot.status;
+              const session = getOneSession(slot.uid_session);
+              return({
+                id: session?.uid + "-" + slot.uid_intern,
+                title: session?.lesson?.translate?.title || session.lesson?.title || "",
+                start: slot.start_date,
+                end: slot.end_date,
+
+                backgroundColor: '#fecaca',   // “zone occupée”
+                borderColor: '#1d4ed8',
+                textColor: '#fff',
+
+                // 👇 ici
+                classNames: [
+                  'fc-daygrid-event',
+                  `${status}`
+                ],
+
+                extendedProps: {
+                  capacity: total,
+                  available: total - registered,
+                  registered,
+                  session: session,
+                  lesson: session.lesson,
+                  slot,           // pratique si tu veux récupérer le slot exact
+                  sessionUid: session.uid,
+                },
+              })
+            }),
             {
               id: '1',
               title: 'Cours Excel',

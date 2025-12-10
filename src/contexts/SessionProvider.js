@@ -26,6 +26,10 @@ export function SessionProvider({ children }) {
     const [uidSession, setUidSession] = useState(null);           // ton user métier (ou snapshot)
     const [session, setSession] = useState(null);           // ton user métier (ou snapshot)
     const [sessions, setSessions] = useState([]);           // ton user métier (ou snapshot)
+    const [uidSlot, setUidSlot] = useState(null);           // ton user métier (ou snapshot)
+    const [slots, setSlots] = useState([]);
+    const [slot, setSlot] = useState(null);
+
     const [filterType, setFilterType] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
 
@@ -35,7 +39,7 @@ export function SessionProvider({ children }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-        const listener = listenToLessons();
+        const listener = listenToSessions();
         return () => listener?.();
     }, []);
     useEffect(() => {
@@ -48,12 +52,22 @@ export function SessionProvider({ children }) {
             setSession(null);
         }
     }, [uidSession]);
+    useEffect(() => {
+        if (uidSlot && session) {
+            //const _session = getOneSession(uidSession);
+            const _slot = session.slots?.find?.(a=>a.uid_intern === uidSlot);
+            console.log("get one slot", _slot)
+            setSlot(_slot);
+        } else {
+            setSlot(null);
+        }
+    }, [uidSlot, session]);
     
     // écoute du doc utilisateur
-    const listenToLessons = useCallback(() => {
+    const listenToSessions = useCallback(() => {
         const colRef = ClassSession.colRef(); // par ex.
         // console.log("Col ref provider", colRef);
-        const snapshotLessons = onSnapshot(colRef, async (snap) => {
+        const snapshotSessions = onSnapshot(colRef, async (snap) => {
             // snap est un QuerySnapshot
             //console.log("snap", snap.size);
             if (snap.empty) {
@@ -64,6 +78,7 @@ export function SessionProvider({ children }) {
             }
             //console.log("is not empty", snap.docs.map(doc => doc.data()));
             var _sessions = [];
+            var _slots = [];
             for (const snapshot of snap.docs) {
                 const session = snapshot.data();
                 const lesson = session.uid_lesson ? await ClassLesson.fetchFromFirestore(session.uid_lesson, lang) : null;
@@ -79,13 +94,16 @@ export function SessionProvider({ children }) {
                 session_new.teacher = teacher;
                 session_new.room = room;
                 _sessions.push(session_new);
+                _slots.push(...session_new.slots);
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
-            console.log("OBJECT list SESSION", _sessions)
+            _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
+            console.log("OBJECT list SLOTS", _slots)
             setSessions(_sessions);
+            setSlots(_slots);
             setIsLoading(false);
         });
-        return snapshotLessons;
+        return snapshotSessions;
     }, []);
     const listenToOneSession = useCallback((uidSession) => {
         if(!uidSession) {
@@ -182,11 +200,13 @@ export function SessionProvider({ children }) {
     async function update(_lesson = null) {
         if (!_lesson || _lesson === null || !(_lesson instanceof ClassSession)) return;
         setIsLoading(true);
+        console.log("start update")
         //var newDevice = await _device.createFirestore();
         var updatedLesson = await _lesson.updateFirestore();
+        console.log("start update firestore", updatedLesson)
         try {
             if (updatedLesson) {
-                setSession(updatedLesson);
+                //setSession(updatedLesson.clone());
                 setSuccess(true);
                 // setTextSuccess(successTranslate.edit);
             } else {
@@ -229,7 +249,7 @@ export function SessionProvider({ children }) {
         if (!uid || uid === '' || uid === null) {
             return null;
         }
-        console.log("OBJECT list SESSION get one item", sessions)
+        //console.log("OBJECT list SESSION get one item", sessions)
         const _lesson = sessions.find(item => item.uid === uid);
         return _lesson;
     }
@@ -275,8 +295,11 @@ export function SessionProvider({ children }) {
         setFilterStatus,
         isLoading,
         setUidSession,
+        setUidSlot,
+        slot,
+        slots,
     };
-    if (isLoading) return <Preloader />;
+    //if (isLoading) return <Preloader />;
     //if (!user) return (<LoginComponent />);
     return <SessionContext.Provider value={value}>
         {children}

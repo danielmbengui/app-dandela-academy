@@ -20,13 +20,14 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonConfirm({ label = 'Confirmer', loading = false, disabled = false, onClick = null, size = 'small', ...props }) {
+export default function ButtonConfirm({ label = 'Confirmer',color='primary', loading = false, disabled = false, onClick = null, size = 'small', ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight } = theme.palette;
   return (<Button
   {...props}
     variant="contained"
     loading={loading}
+    color={color}
     disabled={disabled}
     size={size}
     onClick={() => {
@@ -35,20 +36,20 @@ export default function ButtonConfirm({ label = 'Confirmer', loading = false, di
       }
     }}
     sx={{
-      border: `1px solid ${primary.main}`,
+      //border: `1px solid ${primary.main}`,
       textTransform: 'none',
       borderRadius: '999px',
       padding: '8px 14px',
       //border: '1px solid #374151',
-      background: primary.main,
-      color: background.main,
+      //background: primary.main,
+      //color: background.main,
       fontSize: '0.9rem',
       height: size==='small' ? '35px' : size==='medium' ? '38px' : '40px',
       maxHeight: size==='small' ? '35px' : size==='medium' ? '45px' : '55px',
       //cursor: 'pointer',
       '&:hover': {
         //bgcolor: 'primary.dark',
-        background: '#1d4ed8',
+        //background: '#1d4ed8',
         //color: primary.main,
       },
       '&.Mui-disabled': {
