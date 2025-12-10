@@ -179,16 +179,16 @@ function InfoRow({ label, value }) {
   );
 }
 
-export default function SessionSubscribeComponent({selectedSlot = null }) {
+export default function SessionSubscribeComponent({ }) {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
-  const {session} = useSession();
+  const { session, update, slot, isLoading:processing } = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
   //const [editing, setEditing] = useState(false);
   //const seatsLeft = Math.max(session?.seats_availables || 0 - session?.seats_taken || 0, 0);
   //const isFull = seatsLeft <= 0 && !isEnrolled;
@@ -204,6 +204,11 @@ export default function SessionSubscribeComponent({selectedSlot = null }) {
     open: false,
     setOpen: null
   })
+  useEffect(() => {
+    if (slot) {
+      console.log("get one slot DIALOG", slot)
+    }
+  }, [slot]);
 
   return (<Stack>
     <div className="page">
@@ -217,39 +222,61 @@ export default function SessionSubscribeComponent({selectedSlot = null }) {
                     border: `0.1px solid var(--card-border)`,
                     borderRadius: '10px',
                     p: 1,
-                    //background: `${FORMAT_CONFIG['online']?.glow}`,
-                    display: selectedSlot?.format === ClassSession.FORMAT.HYBRID || selectedSlot?.format === format ? 'block' : 'none'
+                    display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
                   }}>
                     <Stack direction={'row'} spacing={1} alignItems={'center'}>
                       <BadgeFormatLesson format={format} />
                       <p className="seats-main">
-                        {selectedSlot?.countSubscribers?.(format)}/{selectedSlot?.[`seats_availables_${format}`]} {t('seats_taken')}
+                        {slot?.countSubscribers?.(format)}/{slot?.[`seats_availables_${format}`]} {t('seats_taken')}
                       </p>
                     </Stack>
                     <div className="hero-seats">
 
                       <p className="seats-sub">
-                        {selectedSlot?.isFull?.(format)
+                        {slot?.isFull?.(format)
                           ? "Cours complet actuellement"
-                          : `${selectedSlot?.[`seats_availables_${format}`] - selectedSlot?.countSubscribers(format)} ${t('seats_availables')}`}
+                          : `${slot?.[`seats_availables_${format}`] - slot?.countSubscribers?.(format)} ${t('seats_availables')}`}
                       </p>
 
                       <div className="seats-bar">
                         <div
                           className="seats-fill"
                           style={{
-                            width: `${(selectedSlot?.countSubscribers(format) / selectedSlot?.[`seats_availables_${format}`]) * 100}%`,
+                            width: `${(slot?.countSubscribers?.(format) / slot?.[`seats_availables_${format}`]) * 100}%`,
                           }}
                         />
                       </div>
                     </div>
                     <ButtonConfirm
-                      disabled={selectedSlot?.isFull?.(format)}
-                      onClick={() => {
-                        selectedSlot?.subscribeStudent?.(user.uid, format);
+                      disabled={slot?.isFull?.(format) || processing || slot?.isSubscribe?.(user.uid)}
+                      loading={processing}
+                      onClick={async () => {
+                        //update
+                        slot?.subscribeStudent?.(user.uid, format);
+                        session.updateSlot(slot);
+                        await update(session);
+                        console.log("new slot ?", session.slots);
+                        //alert('ok');
+                        console.log("new slot ?", session.slots)
                       }}
                       label={"M'inscrire"}
-                      style={{ marginTop: '10px',width:'100%' }}
+                      style={{ marginTop: '10px', width: '100%' }}
+                    />
+                     <ButtonConfirm
+                      disabled={!slot?.isSubscribe?.(user.uid) || processing}
+                      loading={processing}
+                      color="error"
+                      onClick={async () => {
+                        //update
+                        slot?.unsubscribeStudent?.(user.uid, format);
+                        session.updateSlot(slot);
+                        await update(session);
+                        console.log("new slot ?", slot);
+                        //alert('ok');
+                        //console.log("new slot ?", session.slots)
+                      }}
+                      label={"Me désinscrire"}
+                      style={{ marginTop: '10px', width: '100%' }}
                     />
 
                   </Grid>)

@@ -284,10 +284,10 @@ export class ClassSession {
     unsubscribeStudent(uid = "", format = "") {
         if (!uid || !format) return;
         if (format === ClassSession.FORMAT.ONLINE) {
-            this._subscribers_online = this._subscribers_online.filter(subscriber => subscriber.uid !== uid);
+            this._subscribers_online = this._subscribers_online.filter(subscriber => subscriber !== uid);
         }
         if (format === ClassSession.FORMAT.ONSITE) {
-            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber.uid !== uid);
+            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber !== uid);
         }
     }
 
@@ -300,6 +300,14 @@ export class ClassSession {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
+        cleaned.lesson = null;
+        cleaned.teacher = null;
+        cleaned.room = null;
+        delete cleaned.lesson;
+        delete cleaned.teacher;
+        delete cleaned.room;
+        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
+        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
         return cleaned;
     }
     update(props = {}) {
@@ -316,15 +324,15 @@ export class ClassSession {
     addSlot(slot = null) {
         if (!slot || !(slot instanceof ClassSessionSlot)) return;
         const size = this._slots.length || 0;
-        const item = new ClassSessionSlot({...slot.toJSON(), uid_intern: size + 1});
+        const item = new ClassSessionSlot({ ...slot.toJSON(), uid_intern: size + 1 });
         this._slots.push(item);
         this._slots.sort((a, b) => a.uid_intern - b.uid_intern);
     }
     updateSlot(slot = null) {
         if (!slot || !(slot instanceof ClassSessionSlot)) return;
         const uid_intern = slot.uid_intern;
-        this._slots = this._slots.map(item=>{
-            if(item.uid_intern===uid_intern) {
+        this._slots = this._slots.map(item => {
+            if (item.uid_intern === uid_intern) {
                 return slot;
             }
             return item;
@@ -334,7 +342,7 @@ export class ClassSession {
     removeSlot(slot = null) {
         if (!slot || !(slot instanceof ClassSessionSlot)) return;
         const uid_intern = slot.uid_intern;
-        this._slots = this._slots.filter(item=>item.uid_intern !== uid_intern);
+        this._slots = this._slots.filter(item => item.uid_intern !== uid_intern);
         this._slots.sort((a, b) => a.uid_intern - b.uid_intern);
     }
     countSubscribers(format = "") {
@@ -394,9 +402,10 @@ export class ClassSession {
                 // chaque classe a un .toJSON() propre
                 //console.log("INSTANCE", sessionInstance)
                 //const lesson = lessonInstance;
-                delete sessionInstance.lesson;
-                delete sessionInstance.teacher;
-                delete sessionInstance.room;
+                //delete sessionInstance.lesson;
+                //delete sessionInstance.teacher;
+                //delete sessionInstance.room;
+                sessionInstance.slots = sessionInstance.slots.map(slot => slot.toJSON());
                 //return lesson.toJSON();
                 return sessionInstance?.toJSON ? sessionInstance.toJSON() : sessionInstance;
             },
@@ -417,7 +426,7 @@ export class ClassSession {
                     //item.session = item_session;
                     return item;
                 });
-                slots.sort((a,b)=>a.uid_intern-b.uid_intern);
+                slots.sort((a, b) => a.uid_intern - b.uid_intern);
                 session.slots = slots;
                 return session;
             },
@@ -537,12 +546,17 @@ export class ClassSession {
             //return (await getDoc(ref)).data(); // -> ClassModule
             const ref = this.constructor.docRef(this._uid);
             this._last_edit_time = new Date();
-            //const data = { ...patch, last_edit_time: new Date() };
-            await updateDoc(ref, this.toJSON(), { merge: true });
-            //console.log("UPDATE COMPLETED", { ...this })
+            //this._slots = this._slots.map(slot => slot.toJSON());
+            //this._lesson = null;
+            //this._teacher = null;
+            //this._room = null;
+            const data = { ...this.toJSON(), slots: this._slots.map(slot => slot.toJSON()) };
+            await updateDoc(ref, data, { merge: true });
+            console.log("UPDATE COMPLETED", this._slots);
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeLessonSessionInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
+            console.log("ERROR", e.message);
             return null;
         }
     }
@@ -599,6 +613,8 @@ export class ClassSession {
         }
     }
 }
+
+
 export class ClassSessionSlot {
     static COLLECTION = "SESSIONS_SLOTS";
     static COLLECTION_TRANSLATE = "i18n";
@@ -777,21 +793,35 @@ export class ClassSessionSlot {
     // --- GETTERS ---
     subscribeStudent(uid = "", format = "") {
         if (!uid || !format) return;
-        if (format === ClassSession.FORMAT.ONLINE) {
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
             this._subscribers_online.push(uid);
         }
-        if (format === ClassSession.FORMAT.ONSITE) {
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
             this._subscribers_onsite.push(uid);
         }
+        this._subscribers_online = Array.from(new Set(this._subscribers_online));
+        this._subscribers_onsite = Array.from(new Set(this._subscribers_onsite));
     }
     unsubscribeStudent(uid = "", format = "") {
         if (!uid || !format) return;
-        if (format === ClassSession.FORMAT.ONLINE) {
-            this._subscribers_online = this._subscribers_online.filter(subscriber => subscriber.uid !== uid);
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
+            this._subscribers_online = this._subscribers_online.filter(subscriber => subscriber !== uid);
         }
-        if (format === ClassSession.FORMAT.ONSITE) {
-            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber.uid !== uid);
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
+            this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber !== uid);
         }
+        this._subscribers_online = Array.from(new Set(this._subscribers_online));
+        this._subscribers_onsite = Array.from(new Set(this._subscribers_onsite));
+    }
+    isSubscribe(uid = "") {
+        if (!uid) return;
+        if (this._subscribers_online.includes(uid)) {
+            return true;
+        }
+        if (this._subscribers_onsite.includes(uid)) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -813,14 +843,14 @@ export class ClassSessionSlot {
         }
     }
     clone() {
-        return ClassSession.makeLessonSessionInstance(this._uid, this.toJSON());
+        return new ClassSessionSlot(this.toJSON());
         //return new ClassUser(this.toJSON());
     }
     countSubscribers(format = "") {
-        if (format === ClassSession.FORMAT.ONLINE) {
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
             return this._subscribers_online.length;
         }
-        if (format === ClassSession.FORMAT.ONSITE) {
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
             return this._subscribers_onsite.length;
         }
         return 0;

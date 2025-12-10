@@ -56,7 +56,7 @@
 .fc-day-today {
   background: var(--primary-shadow) !important;
   color: var(--primary);
-  font-weight: bold;
+  font-weight: 500;
   border-color: var(--primary) !important;
 }
 .fc-day-past {

@@ -14,10 +14,10 @@ import SessionComponent from "./SessionComponent";
 import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import DialogSubscribeSession from "./DialogSubscribeSession";
 
-export default function DialogSession({ selectedSlot = null}) {
+export default function DialogSession({}) {
     const { t } = useTranslation([NS_ROLES]);
     const { lang } = useLanguage();
-    const {session, setUidSession } = useSession();
+    const {session, setUidSession,slot } = useSession();
     const { theme } = useThemeMode();
     const { blueDark, primary, cardColor, text, greyLight } = theme.palette;
     const [processing, setProcessing] = useState(false);
@@ -104,7 +104,7 @@ export default function DialogSession({ selectedSlot = null}) {
                                     <IconCalendar />
                                     <Stack>
                                         <Typography variant='h4' sx={{ lineHeight: '1.5rem' }}>{session?.lesson?.translate?.title || session?.lesson?.title || '---'}</Typography>
-                                        <Typography variant='h5' color='greyLight'>{`Session ${selectedSlot?.uid_intern}`} | {getFormattedDateNumeric(session?.start_date, lang)} | {getFormattedHour(session?.start_date)}-{getFormattedHour(session?.end_date)}</Typography>
+                                        <Typography variant='h5' color='greyLight'>{`Session ${slot?.uid_intern}`} | {getFormattedDateNumeric(session?.start_date, lang)} | {getFormattedHour(session?.start_date)}-{getFormattedHour(session?.end_date)}</Typography>
                                     </Stack>
                                 </Stack>
                                 <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
@@ -112,7 +112,7 @@ export default function DialogSession({ selectedSlot = null}) {
                         </DialogTitle>
                         <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 }, background: 'var(--background)' }}>
 
-                            <SessionComponent session={session} selectedSlot={selectedSlot} />
+                            <SessionComponent session={session} selectedSlot={slot} />
                         </DialogContent>
                         <DialogActions sx={{ minHeight: '20px' }}>
                             <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
@@ -136,7 +136,7 @@ export default function DialogSession({ selectedSlot = null}) {
             </Dialog>
             <DialogSubscribeSession
                 session={session}
-                selectedSlot={selectedSlot}
+                selectedSlot={slot}
                 open={true}
             />
         </Stack>

@@ -78,7 +78,7 @@ const LoginPageWrapper = ({ children }) => {
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const { user, isLoading } = useAuth();
   if (isLoading) {
-    return (<Preloader />);
+    //return (<Preloader />);
   }
   return (<div style={{
     height: '100vh',
