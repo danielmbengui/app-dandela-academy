@@ -148,13 +148,17 @@ export function AuthProvider({ children }) {
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, []);
+    }, [auth]);
 
     // session
     useEffect(() => {
+        
         console.log("AUTH", auth)
+        setIsLoading(false);
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
+            
             if (fbUser) {
+                console.time("auth");
                 console.log("FB", fbUser.uid)
                 await ClassUser.update(fbUser.uid, {
                     last_connexion_time: new Date(),
@@ -164,6 +168,7 @@ export function AuthProvider({ children }) {
                 setUser(_user);
                 setIsConnected(true);
             setIsLoading(false);
+            console.timeEnd("auth");
                 const unsubUser = listenToUser(fbUser);
                 //console.log("FFFF init user", fbUser);
                 return () => unsubUser?.();
@@ -173,9 +178,11 @@ export function AuthProvider({ children }) {
                 setIsConnected(false);
                 setIsLoading(false);
             }
+            
         });
         return () => unsubAuth();
-    }, [auth]);
+        
+    }, [auth.currentUser]);
 
     async function update(_user = null) {
         if (!_user || _user === null || !(_user instanceof ClassUser)) return;

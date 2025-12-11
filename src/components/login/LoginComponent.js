@@ -1,10 +1,6 @@
 import React, { useState } from "react";
-import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, Stack, Typography } from "@mui/material";
-import TextFieldComponent from "../elements/TextFieldComponent";
 import { IconEmail } from "@/assets/icons/IconsComponent";
-import TextFieldPasswordComponent from "../elements/TextFieldPasswordComponent";
-import ButtonNextComponent from "../elements/ButtonNextComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { set } from "zod";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -161,7 +157,7 @@ export default function LoginComponent() {
                             setError(<AlertComponent title={error.message} severity="error" />);
                             return;
                         }
-                        router.replace(PAGE_DASHBOARD_HOME);
+                        router.push(PAGE_DASHBOARD_HOME);
                     } catch (_) {
                         setError(<AlertComponent title={main} severity="error" />);
                     } finally {
