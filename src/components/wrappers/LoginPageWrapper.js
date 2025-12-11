@@ -3,26 +3,24 @@ import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, W
 import { translateWithVars } from "@/contexts/functions";
 import { languages, NS_HOME, NS_HOME_FOOTER, NS_LANGS, NS_NOT_FOUND } from "@/contexts/i18n/settings";
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import TextFieldComponent from "../elements/TextFieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import Preloader from "../shared/Preloader";
 import { ClassColor } from "@/classes/ClassColor";
-import ButtonNextComponent from "../elements/ButtonNextComponent";
 import { useRouter } from "next/navigation";
-import { PAGE_DASHBOARD_HOME } from "@/contexts/constants/constants_pages";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import SelectComponentDark from "../elements/SelectComponentDark";
 import { useLanguage } from "@/contexts/LangProvider";
 import { ClassLang } from "@/classes/ClassLang";
+import AlreadyConnectedComponent from "./AlreadyConnectedComponent";
 
 const FooterComponent = () => {
   const { t } = useTranslation([NS_HOME_FOOTER]);
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
 
-  return (<Grid container spacing={1.5} sx={{ px: 2, py: 1, background: '' }} justifyContent={'center'} alignItems={'center'}>
+  return (<Grid container spacing={1.5} sx={{background: '', width:'100%' }} justifyContent={'center'} alignItems={'center'}>
     <Grid size={{ xs: 12, sm: 3 }}>
       <Stack sx={{ background: '' }} alignItems={{ xs: 'center', sm: 'start' }}>
         <div>
@@ -120,43 +118,61 @@ const LoginPageWrapper = ({ children }) => {
   const { mode } = useThemeMode();
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const LANGS = ClassLang.ALL_LANGUAGES;
-  if (isLoading) {
+  useEffect(()=>{
+    async function init() {
+      //await logout();
+    }
+    //init()
+  })
+  if (user) {
+    
     return (<Preloader />);
   }
-  return (<div style={{
-    height: '100vh',
+  return (<Stack 
+    alignItems={'center'} justifyContent={'center'}
+    //spacing={3}
+    direction={'column'}
+    sx={{
+    //height: '',
+    //position:'absolute',
+    //top:0,left:0,bottom:0,right:0,
+    minHeight: '100vh',
     width: '100vw',
     backgroundImage: `url("/images/login/back-${mode}.png")`,
     backgroundSize: 'cover',        // l'image couvre tout l'écran
     backgroundPosition: 'center',   // centrée
     backgroundRepeat: 'no-repeat',  // pas de répétition
+    px:2,
+    //py:3,
+    //py:3,
     //background:'red'
   }}>
-    <Stack sx={{ background: '', height: '100%', p: 0 }} spacing={1}>
-      <Stack direction={'column'} alignItems={'center'} justifyContent={'center'} sx={{ height: '100%', width: '100%', background: '' }}>
-        <Container maxWidth="sm" sx={{ width: '100%', bgcolor: '' }} >
-          <Stack alignItems={'center'} spacing={2.5} sx={{ color: ClassColor.WHITE }}>
-            <Box sx={{ width: 'auto', height: '50px', background: '' }}>
-              <IconLogo width={'100%'} height={'100%'} color={"var(--card-color)"} />
-            </Box>
-            
-            <SelectComponentDark
-              value={lang}
-              values={LANGS.map(lang => ({ id: lang.id, value: `${lang.flag_str} ${t(lang.id, { ns: NS_LANGS })}` }))}
-              hasNull={false}
-              onChange={(e) => {
-                const { value } = e.target;
-                changeLang(value);
-              }}
-            />
-            {children}
-          </Stack>
-        </Container>
-      </Stack>
-      <FooterComponent />
-    </Stack>
-  </div>);
+         <Stack alignItems={'center'} justifyContent={'center'} sx={{minHeight:'90vh'}}>
+           <Container maxWidth={'sm'} sx={{ width: '100%', bgcolor: '', pt:3 }} >
+        <Stack alignItems={'center'} spacing={2.5} sx={{width:'100%', color: ClassColor.WHITE }}>
+          <Box sx={{ width: 'auto', height: '50px', background: '' }}>
+            <IconLogo width={'100%'} height={'100%'} color={"var(--card-color)"} />
+          </Box>
+
+          <SelectComponentDark
+            value={lang}
+            values={LANGS.map(lang => ({ id: lang.id, value: `${lang.flag_str} ${t(lang.id, { ns: NS_LANGS })}` }))}
+            hasNull={false}
+            onChange={(e) => {
+              const { value } = e.target;
+              changeLang(value);
+            }}
+          />
+          {
+            user ? <AlreadyConnectedComponent /> : children
+          }
+
+        </Stack>
+      </Container>
+         </Stack>
+    <FooterComponent />
+  </Stack>);
 };
 export default LoginPageWrapper;

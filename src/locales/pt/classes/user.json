@@ -11,9 +11,27 @@
   "display_name": "Conta",
   "role": "Função",
   "email": "Email",
-  "status": "Estado",
+  "email_placeholder": "Insere um endereço de e-mail",
+  "status": "Status",
   "connexion": "Conexão",
   "actions": "Ações",
   "lang": "Idioma",
-  "not-found": "Nenhum utilizador corresponde aos critérios."
+  "not-found": "Nenhum utilizador corresponde a estes critérios.",
+
+  "password": "Palavra-passe",
+  "password_repeat": "Repetir a palavra-passe",
+  "password_placeholder": "Insere uma palavra-passe",
+  "password_repeat_placeholder": "Repete a palavra-passe",
+
+  "errors": {
+    "email-not-valid": "Por favor insere um e-mail válido",
+    "email-not-dandela-academy": "Por favor insere um e-mail terminado em: @dandela-academy.com",
+    "email-not-found": "Nenhuma conta está associada a este endereço de e-mail",
+    "email-already-exists": "Já existe uma conta com este e-mail, inicia sessão",
+    "email-not-activated": "A tua conta ainda não está ativa",
+    "password-not-valid": "A palavra-passe não cumpre os requisitos",
+    "password-repeat": "As palavras-passe não correspondem",
+    "before-continue": "Corrige os erros antes de continuar",
+    "main": "Ocorreu um erro. Por favor tenta novamente mais tarde."
+  }
 }

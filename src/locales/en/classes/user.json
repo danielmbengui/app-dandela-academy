@@ -11,9 +11,27 @@
   "display_name": "Account",
   "role": "Role",
   "email": "Email",
+  "email_placeholder": "Enter an email address",
   "status": "Status",
   "connexion": "Connection",
   "actions": "Actions",
   "lang": "Language",
-  "not-found": "No user matches these criteria."
+  "not-found": "No user matches these criteria.",
+
+  "password": "Password",
+  "password_repeat": "Repeat password",
+  "password_placeholder": "Enter a password",
+  "password_repeat_placeholder": "Repeat the password",
+
+  "errors": {
+    "email-not-valid": "Please enter a valid email",
+    "email-not-dandela-academy": "Please enter an email ending with: @dandela-academy.com",
+    "email-not-found": "No account is associated with this email address",
+    "email-already-exists": "An account is already associated with this email, please log in",
+    "email-not-activated": "Your account is not yet active",
+    "password-not-valid": "The password does not meet the requirements",
+    "password-repeat": "Passwords do not match",
+    "before-continue": "Please fix the errors before continuing",
+    "main": "An error occurred. Please try again later."
+  }
 }

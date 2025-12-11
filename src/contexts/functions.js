@@ -4,8 +4,10 @@ import { defaultLanguage } from "./i18n/settings";
 import allExamples from 'libphonenumber-js/mobile/examples';
 import { getExampleNumber } from 'libphonenumber-js'
 import { ClassCountry } from '@/classes/ClassCountry';
+import { validatePassword } from 'firebase/auth';
+import { auth } from './firebase/config';
 
-export const formatPrice = (amount, currency="CHF") => {
+export const formatPrice = (amount, currency = "CHF") => {
   const localeByCurrency = {
     CHF: "fr-CH",
     USD: "en-US",
@@ -19,13 +21,13 @@ export const formatPrice = (amount, currency="CHF") => {
     currency,
   }).format(amount);
 }
-export function formatDuration(duration=0) {
-    const hour = parseInt(duration);
-    const minutes = (duration - hour) * 60;
-    if(hour<1 && minutes > 0) {
-      return `${minutes}min`
-    }
-    return `${hour}h${minutes>0 ? minutes : ''}`;
+export function formatDuration(duration = 0) {
+  const hour = parseInt(duration);
+  const minutes = (duration - hour) * 60;
+  if (hour < 1 && minutes > 0) {
+    return `${minutes}min`
+  }
+  return `${hour}h${minutes > 0 ? minutes : ''}`;
 }
 export const cutString = (text = "", maxLength = 50) => {
   if (!text) return '';
@@ -61,6 +63,18 @@ export function encodeFileUrl(url) {
 export function capitalizeFirstLetter(str = "") {
   if (!str) return "";
   return (str[0].toUpperCase() + str.slice(1).toLowerCase());
+}
+export async function isValidPassword(password = "") {
+  const status = await validatePassword(auth, password);
+  return ({
+    isValid: status.isValid,
+    containsLowercaseLetter: status.containsLowercaseLetter,
+    containsUppercaseLetter: status.containsUppercaseLetter,
+    containsNumericCharacter: status.containsNumericCharacter,
+    containsNonAlphanumericCharacter: status.containsNonAlphanumericCharacter,
+    meetsMinPasswordLength: status.meetsMinPasswordLength,
+    meetsMaxPasswordLength: status.meetsMaxPasswordLength,
+  });
 }
 export function isValidEmail(email) {
   // Expression régulière pour la validation de l'email
@@ -118,11 +132,11 @@ export function getExampleFor(country = 'FR', type = 'mobile') {
   if (!entry) return null;
   //const raw = entry[type] || entry.mobile || entry.fixed_line; // fallback
   //if (!raw) return null;
-//  console.log("Exemples possibles", entry)
+  //  console.log("Exemples possibles", entry)
   // On reparse pour bénéficier des méthodes (formatNational, etc.)
   return parsePhoneNumberFromString(entry, country);
 }
-export const getFirstLetters = (str = "", max=5) => {
+export const getFirstLetters = (str = "", max = 5) => {
   return str
     .normalize("NFD")                  // sépare les accents
     .replace(/[\u0300-\u036f]/g, "")   // retire les accents
@@ -201,7 +215,7 @@ export function getFormattedDateComplete(date = new Date(), lang = defaultLangua
   }
 }
 export function getFormattedDateCompleteNumeric(date = null, lang = defaultLanguage) {
-  if(!date) {
+  if (!date) {
     return null;
   }
   if (date instanceof Date) {
@@ -218,7 +232,7 @@ export function getFormattedDateCompleteNumeric(date = null, lang = defaultLangu
   }
 }
 export function getFormattedDate(date = new Date(), lang = defaultLanguage) {
-  if(!date) {
+  if (!date) {
     return null;
   }
   if (date instanceof Date) {
@@ -232,7 +246,7 @@ export function getFormattedDate(date = new Date(), lang = defaultLanguage) {
   }
 }
 export function getFormattedDateNumeric(date = new Date(), lang = defaultLanguage) {
-  if(!date) {
+  if (!date) {
     return null;
   }
   if (date instanceof Date) {
@@ -245,7 +259,7 @@ export function getFormattedDateNumeric(date = new Date(), lang = defaultLanguag
     return date;
   }
 }
-export function getFormattedMonth(date = new Date(), lang = defaultLanguage, type='long') {
+export function getFormattedMonth(date = new Date(), lang = defaultLanguage, type = 'long') {
   if (date instanceof Date) {
     return date.toLocaleDateString(lang, {
       //year: 'numeric',
@@ -296,24 +310,24 @@ export function addDaysToDate(date, nDays = 0) {
   return resultat;
 }
 export function getStartOfDay(date) {
-  if(!(date instanceof Date)) {
+  if (!(date instanceof Date)) {
     return null;
   }
   const year = date.getFullYear();
   const month = date.getMonth();
   const day = date.getDate();
-  return new Date(year,month,day,0,0,0);
+  return new Date(year, month, day, 0, 0, 0);
 }
 export function translateWithVars(template = "", variables = {}) {
   return template.replace(/{{(.*?)}}/g, (_, key) => {
     return variables[key.trim()] ?? '';
   });
 }
-export function convertDoubleToHour(hour=0) {
-  if(hour>0) {
+export function convertDoubleToHour(hour = 0) {
+  if (hour > 0) {
     const entier = parseInt(hour);
     const reste = hour - entier;
-    return `${entier}h${reste > 0 ? reste*60 : ''}`;
+    return `${entier}h${reste > 0 ? reste * 60 : ''}`;
   }
   return 0;
 }

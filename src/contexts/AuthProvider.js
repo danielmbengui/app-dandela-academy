@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClassUser } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserStudent } from '@/classes/users/ClassUser';
 import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
@@ -36,13 +36,7 @@ import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
 import { auth, firestore } from '@/contexts/firebase/config';
-import { ClassUserExtern } from '@/classes/users/extern/ClassUserExtern';
-import { ClassUserStudent } from '@/classes/users/extern/ClassUserStudent';
-import { ClassUserProfessional } from '@/classes/users/extern/ClassUserProfessional';
 import { PAGE_HOME } from '@/contexts/constants/constants_pages';
-import { ClassUserIntern } from '@/classes/users/intern/ClassUserIntern';
-import { ClassUserAdmin } from '@/classes/users/intern/ClassUserAdmin';
-import { ClassUserTutor } from '@/classes/users/intern/ClassUserTutor';
 import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
@@ -71,12 +65,12 @@ export function AuthProvider({ children }) {
             auth.languageCode = lang;
         }
     }, [lang]);
-    
+/*
     usePageActivity({
         onVisible: async () => {
             // la page redevient visible → on repart un chrono
             //startTimeRef.current = Date.now();
-            if(user) {
+            if (user) {
                 setUser(prev => {
                     if (!prev || prev === null) return null;
                     prev.update({
@@ -85,36 +79,36 @@ export function AuthProvider({ children }) {
                     });
                     return prev.clone();
                 })
-    
+
                 console.log("[Chrono] start (visible)", new Date());
             }
         },
         onHidden: async () => {
             // la page n'est plus visible → on arrête le chrono
-            if(user) {
+            if (user) {
                 if (auth.currentUser) {
                     await ClassUser.update(user.uid, {
                         last_connexion_time: new Date(),
                         status: ClassUser.STATUS.AWAY,
                     });
                 }
-                console.log("[Chrono] hidden → temps passé sur cette session:",new Date(), "s");
+                console.log("[Chrono] hidden → temps passé sur cette session:", new Date(), "s");
             }
         },
         onBeforeUnload: async () => {
             // l'utilisateur ferme/reload/navigue ailleurs
-            if(user) {
+            if (user) {
                 if (auth.currentUser) {
                     await ClassUser.update(user.uid, {
                         last_connexion_time: new Date(),
                         status: ClassUser.STATUS.AWAY,
                     });
                 }
-                console.log("[Chrono] beforeunload → dernière session:",new Date(), "s");
+                console.log("[Chrono] beforeunload → dernière session:", new Date(), "s");
             }
         },
     });
-
+*/
     // écoute du doc utilisateur
     const listenToUser = useCallback((fbUser) => {
         const { uid } = fbUser;
@@ -130,7 +124,7 @@ export function AuthProvider({ children }) {
             //console.log("DATA listne user", data);
             const { email_verified } = data;
             if (email_verified !== fbUser.emailVerified) {
-                await updateDoc(ref, { email_verified: fbUser.emailVerified });
+                //await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             //const myUser = ClassUser.makeUserInstance(uid, data.toJSON());
 
@@ -141,8 +135,8 @@ export function AuthProvider({ children }) {
             */
             const _user = data;
             //setUser(_user);
-            setUser(prev=>{
-                if(!prev || prev === null) return _user.clone();
+            setUser(prev => {
+                if (!prev || prev === null) return _user.clone();
                 prev.update(_user.toJSON());
                 //console.log('set prev user', _user);
                 return prev.clone();
@@ -158,16 +152,23 @@ export function AuthProvider({ children }) {
 
     // session
     useEffect(() => {
+        console.log("AUTH", auth)
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
             if (fbUser) {
+                console.log("FB", fbUser.uid)
                 await ClassUser.update(fbUser.uid, {
                     last_connexion_time: new Date(),
                     status: ClassUser.STATUS.ONLINE,
                 });
+                const _user = await ClassUser.fetchFromFirestore(fbUser.uid);
+                setUser(_user);
+                setIsConnected(true);
+            setIsLoading(false);
                 const unsubUser = listenToUser(fbUser);
                 //console.log("FFFF init user", fbUser);
                 return () => unsubUser?.();
             } else {
+                console.log("no user FB")
                 setUser(null);
                 setIsConnected(false);
                 setIsLoading(false);
@@ -205,8 +206,34 @@ export function AuthProvider({ children }) {
     // actions
     const createAccount = async (e, email, password) => {
         e?.preventDefault?.();
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async (userCredential) => {
+                // Signed up 
+                const user = userCredential.user;
+                const { uid } = user;
+                console.log("UUUID", uid);
+                
+                const student = new ClassUserStudent({uid,email});
+                //const displayName = student.createDisplayName();
+                setIsLoading(true);
+                await student.createFirestore();
+                if (auth.currentUser) {
+                    //await sendEmailVerification(auth.currentUser);
+                }
+                // ...
+            })
+            .catch(async (err) => {
+                const code = err.code;
+                const errorMessage = err.message;
+                if (code === ClassUser.ERROR.ALREADY_IN_USE) {
+                    // fallback: login
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    console.error(err);
+                    throw err;
+                }
+                // ..
+            });
             /*
             email: 'modifiedUser@example.com',
     phoneNumber: '+11234567890',
@@ -216,18 +243,6 @@ export function AuthProvider({ children }) {
     photoURL: 'http://www.example.com/12345678/photo.png',
     disabled: true,
             */
-            if (auth.currentUser) {
-                await sendEmailVerification(auth.currentUser);
-            }
-        } catch (err) {
-            if (err.code === ClassUser.ERROR.ALREADY_IN_USE) {
-                // fallback: login
-                await signInWithEmailAndPassword(auth, email, password);
-            } else {
-                console.error(err);
-                throw err;
-            }
-        }
     };
 
     const signIn = async (providerName = '') => {

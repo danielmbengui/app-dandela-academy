@@ -155,7 +155,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                     await logout();
                 }}
                 >
-                    {'disconect'}
+                    {'disconnect'}
                 </Button>
             </Stack>
         </Stack>
@@ -180,7 +180,6 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                     background: cardColor.main,
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
-
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', p: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>

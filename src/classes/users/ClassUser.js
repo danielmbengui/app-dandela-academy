@@ -644,16 +644,21 @@ export class ClassUser {
         return model; // -> ClassModule
     }
     async createFirestore() {
-        const newRef = doc(this.constructor.colRef()); // id auto
-        //data.uid = newRef.id;
-        //const model = data instanceof ClassUser ? data : new ClassUser({ ...data });
-        //model.uid = newRef.id;()
-        //console.log("REEEF ID", newRef, model.toJSON());
-        this._uid = newRef.id;
+        // si un uid est fourni → on l'utilise comme ID du document
+        // sinon on en génère un automatiquement
+        const finalUid = this._uid || doc(this.constructor.colRef()).id;
+
+        // on crée la ref avec l'ID voulu
+        const newRef = doc(this.constructor.colRef(), finalUid);
+
+        this._uid = finalUid;
         this._created_time = new Date();
         this._last_edit_time = new Date();
-        await setDoc(newRef, this.toJSON());
-        return this.constructor.makeUserInstance(this._uid, this.toJSON());// -> ClassModule
+
+        const data = this.toJSON();
+        await setDoc(newRef, data);
+
+        return this.constructor.makeUserInstance(this._uid, data);
     }
 
     // Mettre à jour un module
@@ -822,7 +827,10 @@ export class ClassUserExtern extends ClassUser {
         ClassUserExtern.HOW_KNOW.OTHER,
     ];
     constructor(props = { type: ClassUser.TYPE.EXTERN }) {
-        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+        super({
+            ...props,
+            type: props.type || ClassUser.TYPE.EXTERN,
+        }); // le parent lit seulement ses clés (uid, email, type, role, ...)
         const { goals = "", level = "", okay_whatsapp = false, okay_newsletter = true, okay_other_news = false, how_know = "", how_know_text = "" } = props;
         this._goals = goals;
         this._level = level;
@@ -884,7 +892,7 @@ export class ClassUserExtern extends ClassUser {
         if (this._how_know === ClassUserExtern.HOW_KNOW.OTHER) return (true);
         return (false);
     }
-        menuDashboard() {
+    menuDashboard() {
         return [{
             name: "dashboard",
             path: PAGE_DASHBOARD_HOME,
@@ -954,8 +962,11 @@ export class ClassUserStudent extends ClassUserExtern {
     static ALL_ROLES = [
         ClassUser.ROLE.STUDENT,
     ];
-    constructor(props = { role: ClassUser.ROLE.STUDENT }) {
-        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+    constructor(props) {
+        super({
+            ...props,
+            role: props.role || ClassUser.ROLE.STUDENT,
+        }); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {
         return new ClassUserStudent(this.toJSON());

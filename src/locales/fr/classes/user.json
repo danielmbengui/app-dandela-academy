@@ -11,9 +11,29 @@
     "display_name": "Compte",
     "role": "Rôle",
     "email": "Email",
+    "email_placeholder": "Saisis une adresse e-mail",
     "status": "Statut",
     "connexion": "Connexion",
     "actions": "Actions",
     "lang": "Langue",
-    "not-found": "Aucun utilisateur ne correspond à ces critères."
+    "not-found": "Aucun utilisateur ne correspond à ces critères.",
+
+    
+    "password": "Mot de passe",
+    "password_repeat": "Répéter le mot de passe",
+    "password_placeholder": "Saisis un mot de passe",
+    "password_repeat_placeholder": "Répète le mot de passe",
+
+
+    "errors":{
+        "email-not-valid":"Veuiller entrer un email valide",
+        "email-not-dandela-academy":"Veuiller entrer un email terminant par : @dandela-academy.com",
+        "email-not-found":"Aucun compte n'est associé à cette adresse e-mail",
+        "email-already-exists":"Un compte est déjà associé à cette adresse e-mail, connecte-toi",
+        "email-not-activated":"Ton compte n'est pas encore actif",
+        "password-not-valid":"Le mot de passe ne respecte pas les règles",
+        "password-repeat":"Les mots de passe ne correspondent pas",
+        "before-continue":"Veuiller corriger les erreurs avant de continuer",
+        "main":"Une erreur est survenue. Veuillez réessayer plus tard."
+    }
 }

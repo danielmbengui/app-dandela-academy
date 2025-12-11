@@ -4,23 +4,6 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { useRouter } from 'next/navigation';
 import { ClassUser } from '@/classes/users/ClassUser';
 import {
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signOut,
-    updateProfile,
-    sendPasswordResetEmail,
-    createUserWithEmailAndPassword,
-    sendEmailVerification,
-    OAuthProvider,
-    GoogleAuthProvider,
-    TwitterAuthProvider,
-    signInWithPopup,
-    fetchSignInMethodsForEmail,
-    sendSignInLinkToEmail,
-    updatePassword,
-} from 'firebase/auth';
-
-import {
     doc,
     onSnapshot,
     collection,
@@ -34,18 +17,8 @@ import { useLanguage } from './LangProvider';
 //import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
 import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
-import { translateWithVars } from '@/contexts/functions';
-import { auth, firestore } from '@/contexts/firebase/config';
-import { ClassUserExtern } from '@/classes/users/extern/ClassUserExtern';
-import { ClassUserStudent } from '@/classes/users/extern/ClassUserStudent';
-import { ClassUserProfessional } from '@/classes/users/extern/ClassUserProfessional';
-import { PAGE_HOME } from '@/contexts/constants/constants_pages';
-import { ClassUserIntern } from '@/classes/users/intern/ClassUserIntern';
-import { ClassUserAdmin } from '@/classes/users/intern/ClassUserAdmin';
-import { ClassUserTutor } from '@/classes/users/intern/ClassUserTutor';
-import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassDevice, ClassHardware } from '@/classes/ClassDevice';
+import { ClassHardware } from '@/classes/ClassDevice';
 
 // import { ClassUser } from '@/classes/ClassUser';
 

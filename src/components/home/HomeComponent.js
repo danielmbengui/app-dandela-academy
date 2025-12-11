@@ -20,6 +20,7 @@ import AlertComponent from "../elements/AlertComponent";
 import { ClassUser } from "@/classes/users/ClassUser";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
 import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
+import AlreadyConnectedComponent from "../wrappers/AlreadyConnectedComponent";
 const NotConnectedComponent = ({ title = "", subtitle = "" }) => {
     const { t } = useTranslation([NS_HOME]);
     const {message, ['btn-login']: btnLogin, ['btn-create']: btnCreate } = t('not-connected', { returnObjects: true });
@@ -52,6 +53,7 @@ const NotConnectedComponent = ({ title = "", subtitle = "" }) => {
         </Stack>
     </Stack>)
 }
+/*
 const AlreadyConnectedComponent = ({ title = "", subtitle = "" }) => {
     const { t } = useTranslation([NS_HOME]);
     const { ['btn-dashboard']: btnDashboard } = t('already-connected', { returnObjects: true });
@@ -87,6 +89,7 @@ const AlreadyConnectedComponent = ({ title = "", subtitle = "" }) => {
         </Stack>
     </Stack>)
 }
+*/
 export default function HomeComponent() {
     const router = useRouter();
 
@@ -108,8 +111,5 @@ export default function HomeComponent() {
         notFound = errors['email-not-found'] || '',
         notActivatedText = errors['email-not-activated'] || '',
         resetError = errors['reset-failed'] } = errors;
-    if (user) {
-        return (<AlreadyConnectedComponent title={t('title')} subtitle={t('subtitle')} />)
-    }
     return (<NotConnectedComponent title={t('title')} subtitle={t('subtitle')} />);
 }
