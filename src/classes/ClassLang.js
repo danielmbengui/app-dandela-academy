@@ -11,10 +11,12 @@ export class ClassLang {
         id = "",
         name = "",
         flag = "",
+        flag_str="",
     } = {}) {
         this._id = id;
         this._name = name;
         this._flag = flag;
+        this._flag_str=flag_str;
     }
 
     // ✅ Getters & Setters
@@ -25,9 +27,9 @@ export class ClassLang {
     static LANGUAGE_PORTUGUESE = language_pt;
     //static ALL_LANGUAGES = ARRAY_CLASS_LANGUAGES;
     static ALL_LANGUAGES = [
-        new ClassLang({ id: ClassLang.LANGUAGE_FRENCH, name: 'Français', flag: IMAGE_FRENCH_FLAG }),
-        new ClassLang({ id: ClassLang.LANGUAGE_ENGLISH, name: 'Anglais', flag: IMAGE_BRITISH_FLAG }),
-        new ClassLang({ id: ClassLang.LANGUAGE_PORTUGUESE, name: 'Portugais', flag: IMAGE_PORTUGUESE_FLAG }),
+        new ClassLang({ id: ClassLang.LANGUAGE_FRENCH, name: 'Français', flag: IMAGE_FRENCH_FLAG, flag_str: "🇫🇷"}),
+        new ClassLang({ id: ClassLang.LANGUAGE_ENGLISH, name: 'Anglais', flag: IMAGE_BRITISH_FLAG, flag_str:"🇬🇧" }),
+        new ClassLang({ id: ClassLang.LANGUAGE_PORTUGUESE, name: 'Portugais', flag: IMAGE_PORTUGUESE_FLAG, flag_str:"🇵🇹" }),
         //new ClassLang({ id: 'de', name: 'Allemand', flag: IMAGE_GERMAN_FLAG }),
     ]
 
@@ -40,12 +42,16 @@ export class ClassLang {
     get flag() { return this._flag; }
     set flag(val) { this._flag = val; }
 
+    get flag_str() { return this._flag_str; }
+    set flag_str(val) { this._flag_str = val; }
+    
     // ✅ toJSON
     toJSON() {
         return {
             id: this._id,
             name: this._name,
             flag: this._flag,
+            flag_str: this._flag_str,
         };
     }
     update(props = {}) {

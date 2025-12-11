@@ -1,10 +1,10 @@
 "use client";
 import React from 'react';
-import LoginComponent from '@/components/login/LoginComponent';
 import LoginPageWrapper from '@/components/wrappers/LoginPageWrapper';
+import RegisterComponent from '@/components/login/RegisterComponent';
 
 export default function Login() {
   return (<LoginPageWrapper>
-    <LoginComponent />
+    <RegisterComponent />
   </LoginPageWrapper>);
 }

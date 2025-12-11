@@ -20,6 +20,7 @@ import { NS_FORGOT_PASSWORD } from "@/contexts/i18n/settings";
 import { getValueAsType } from "framer-motion";
 import { getTranslations } from "@/contexts/i18n/init";
 import AlertComponent from "../elements/AlertComponent";
+import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 export default function ForgotPasswordComponent({ setIsLogin = null }) {
     const { t } = useTranslation([NS_FORGOT_PASSWORD]);
 
@@ -31,7 +32,7 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
         notDandela = errors['email-not-dandela-academy'],
         notFound = errors['email-not-found'] || '',
         resetError = errors['reset-failed'] } = errors;
-    console.log("ERROORS", errors);
+    //console.log("ERROORS", errors);
     const { theme } = useThemeMode();
     const { text, primary } = theme.palette;
     const { user, login, logout, sendResetPassword } = useAuth();
@@ -51,12 +52,12 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
         </Stack>)
     }
     return (<LoginPageWrapper>
-        <Stack spacing={3} sx={{ color: text.main, width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'white', borderRadius: '5px' }}>
-            <Stack direction={'column'} justifyContent={'space-between'} alignItems={'start'}>
+        <Stack spacing={3} sx={{ color: "var(--font-color)", width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
+            <Stack spacing={0.5} direction={'column'} justifyContent={'space-between'} alignItems={'start'}>
                 <Typography variant="h4">
                     {t('title')}
                 </Typography>
-                <Typography sx={{ color: ClassColor.GREY_LIGHT }}>
+                <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
                     {t('subtitle')}
                 </Typography>
             </Stack>
@@ -95,7 +96,7 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
             }
 
             {
-                !isSuccess && <ButtonNextComponent
+                !isSuccess && <ButtonConfirm
                     loading={isLoading}
                     label={t('btn-reset-password')}
                     disabled={email === '' || isError || errorMail !== ''}
@@ -107,7 +108,7 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
                         if (!isValidEmail(email)) {
                             setErrorMail(notValid);
                             setIsError(true);
-                            setError(<AlertComponent title={resetError} severity="error" />);
+                            setError(resetError);
                             setIsLoading(false);
                             return;
                         }
@@ -147,8 +148,10 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
                 />
             }
             {
-                !isSuccess && <Typography sx={{ color: ClassColor.GREY_LIGHT }}>
-                    {t('want-connect')} <Link href={PAGE_LOGIN} style={{ color: primary.main }}>{textLogin}</Link>
+                !isSuccess && <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
+                    {t('want-connect')} <Link href={PAGE_LOGIN} style={{ color: primary.main }}>
+                    <p className="link">{textLogin}</p>
+                    </Link>
                 </Typography>
             }
             {

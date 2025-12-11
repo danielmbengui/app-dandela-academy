@@ -1,10 +1,18 @@
 {
   "title-page": "Início - Dandela Academy",
-  "description-page": "Uma escola online inovadora que forma estudantes e profissionais para as áreas digitais e de inteligência artificial.",
-  "title": "Bem-vindo",
-  "subtitle": "Aprenda as competências do futuro",
-  "already-connected": "Você já está conectado à sua conta",
+  "description-page": "Uma escola online inovadora que forma estudantes e profissionais nas áreas digitais e de inteligência artificial.",
+  "title": "Dandela Academy",
+  "subtitle": "Acede ao teu espaço de aprendizagem ou inicia sessão para começar.",
   "btn-login": "Iniciar sessão",
-  "btn-activate": "Ativar minha conta",
-  "btn-dashboard": "Ir para o painel"
+  "btn-create": "Criar conta",
+  "btn-dashboard": "Aceder ao meu espaço",
+  "not-connected": {
+    "message": "Não estás ligado(a). Escolhe uma opção para continuar.",
+    "btn-login": "Iniciar sessão",
+    "btn-create": "Criar conta"
+  },
+  "already-connected": {
+    "message": "<div>Olá <b>{{email}}</b>, já estás ligado(a) à tua conta.</div>",
+    "btn-dashboard": "Aceder ao meu espaço"
+  }
 }

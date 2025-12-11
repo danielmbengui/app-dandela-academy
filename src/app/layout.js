@@ -46,17 +46,15 @@ export default async function RootLayout({ children }) {
   return (
     <html lang={lng} dir={getDir(lng)} className={`${hind.variable}`} >
       <head>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
       </head>
       <body
         className={`relativez-0  ${inter.className}`}
-        style={{background:'var(--background)'}}
+        style={{ background: 'var(--background)' }}
       >
-       <Providers>
-
-        {
-        children}
-       </Providers>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

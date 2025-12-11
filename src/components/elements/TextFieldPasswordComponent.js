@@ -32,7 +32,7 @@ export default function TextFieldPasswordComponent({
 }) {
     const {lang} = useLanguage();
     const { theme } = useThemeMode();
-    const { blue, greyLight, text, primary,blueDark } = theme.palette;
+    const { blue, greyLight, text, primary,blueDark, cardColor } = theme.palette;
     const [visible,setVisible] = useState(false);
 
     return (<TextField
@@ -44,7 +44,7 @@ export default function TextFieldPasswordComponent({
         id={name}
         name={name}
         variant="outlined"
-        //size={'medium'}
+        size={'small'}
         multiline={maxRows>minRows}
         minRows={minRows}
         maxRows={maxRows}
@@ -57,6 +57,7 @@ export default function TextFieldPasswordComponent({
         onChange={onChange}
         onKeyDown={onSubmit}
         sx={{
+            pointerEvents: 'auto',
             //color:'black',
             //borderWidth:'1px',
             borderRadius: '7px',
@@ -65,24 +66,33 @@ export default function TextFieldPasswordComponent({
                 '& fieldset': {
                     //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
                     color: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
-                    border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    border: `0.1px solid var(card-border)`,
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
-                    color: 'red', // couleur par défaut
-                    border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    //color: 'red', // couleur par défaut
+                    border: `1px solid ${primary.main}`,
                 },
                 '&.Mui-focused fieldset': {
-                    borderColor: primary.main, // quand focus
-                    border: `1px solid ${primary.main}`,
+                    //borderColor: ClassColor.TRANSPARENT, // quand focus
+                    border: `2px solid ${primary.main}`,
                 },
                 '&.Mui-error fieldset': {
                     // borderColor: 'error.main', // en cas d'erreur
-                    border: `1px solid ${'red'}`,
+                    border: `0.1px solid ${'red'}`,
+                },
+                // 👉 style quand le TextField est disabled
+                '&.Mui-disabled': {
+                    cursor: 'not-allowed',      // curseur
+                    pointerEvents: 'auto',      // réactive les events pour voir le curseur
                 },
                 '&.Mui-disabled fieldset': {
                     // borderColor: greyLight.main, // désactivé
-                    border: `1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    border: `0.1px solid var(card-border)`,
+                    color: ClassColor.GREY_LIGHT,
+                },
+                '&.Mui-disabled .MuiOutlinedInput-input': {
+                    cursor: 'not-allowed',      // curseur sur le texte aussi
                 },
                 '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
                     color: 'red',
@@ -106,7 +116,13 @@ export default function TextFieldPasswordComponent({
                 }
             },
             input: {
-                sx: { background: ClassColor.TRANSPARENT, maxHeight: maxHeight },
+                sx: {
+                    color: cardColor.contrastText, // couleur par défaut
+                    background: cardColor.main,
+                    //borderRadius:'20px',
+                    fontSize: '14px',
+                    //maxHeight: maxHeight 
+                },
                 startAdornment:(
                     <InputAdornment position="start" sx={{ color: ClassColor.GREY_LIGHT }}>
                         <div onClick={()=>setVisible(prev=>!prev)} style={{cursor:'pointer'}}>
@@ -135,8 +151,6 @@ export default function TextFieldPasswordComponent({
             }
 
         }}
-
-        //
         {...props}
     />)
 }

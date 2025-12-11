@@ -1,26 +1,27 @@
 {
-  "title-page": "Iniciar Sessão - App Dandela Academy",
-  "description-page": "Acessar a plataforma da Dandela Academy",
+  "title-page": "Iniciar sessão - App Dandela Academy",
+  "description-page": "Iniciar sessão na plataforma da Dandela Academy",
   "title": "Iniciar sessão",
-  "subtitle": "Ativar a sua conta",
+  "subtitle": "Criar a minha conta",
   "label-email": "Endereço de e-mail",
-  "placeholder-email": "Insira o seu endereço de e-mail",
+  "placeholder-email": "Insere o teu endereço de e-mail",
   "label-password": "Palavra-passe",
-  "placeholder-password": "Insira a sua palavra-passe",
-  "btn-forgot-password": "Esqueceu a senha?",
+  "placeholder-password": "Insere a tua palavra-passe",
+  "btn-forgot-password": "Esqueceste a palavra-passe?",
   "btn-connect": "Entrar",
-  "want-active": "Ainda não ativou a sua conta?",
+  "want-active": "Ainda não ativaste a tua conta?",
   "active-account": "Ativar",
-
-  "btn-home": "Ir para a página de descrição de login",
-  "success-message": "Um e-mail para redefinir a senha foi enviado para o seu endereço de e-mail.",
-  "error-message": "Ocorreu um erro ao redefinir a senha. Por favor, tente novamente.",
+  "want-create": "Ainda não tens conta?",
+  "create-account": "Criar conta",
+  "btn-home": "Ir para a página de descrição da ligação",
+  "success-message": "Um e-mail de reposição de palavra-passe foi enviado para o teu endereço.",
+  "error-message": "Ocorreu um erro durante a reposição da palavra-passe. Tenta novamente.",
   "errors": {
-    "email-not-valid": "Por favor, insira um e-mail válido",
-    "email-not-dandela-academy": "Por favor, insira um e-mail que termine com: @dandela-academy.com",
+    "email-not-valid": "Por favor, insere um e-mail válido",
+    "email-not-dandela-academy": "Por favor, insere um e-mail que termine com: @dandela-academy.com",
     "email-not-found": "Nenhuma conta está associada a este endereço de e-mail",
-    "email-not-activated": "A sua conta ainda não está ativa",
-    "reset-failed": "Por favor, corrija os erros antes de continuar",
-    "main": "Ocorreu um erro. Por favor, tente novamente mais tarde."
+    "email-not-activated": "A tua conta ainda não está ativa",
+    "reset-failed": "Corrige os erros antes de continuar",
+    "main": "Ocorreu um erro. Tenta novamente mais tarde."
   }
 }

@@ -643,6 +643,18 @@ export class ClassUser {
         */
         return model; // -> ClassModule
     }
+    async createFirestore() {
+        const newRef = doc(this.constructor.colRef()); // id auto
+        //data.uid = newRef.id;
+        //const model = data instanceof ClassUser ? data : new ClassUser({ ...data });
+        //model.uid = newRef.id;()
+        //console.log("REEEF ID", newRef, model.toJSON());
+        this._uid = newRef.id;
+        this._created_time = new Date();
+        this._last_edit_time = new Date();
+        await setDoc(newRef, this.toJSON());
+        return this.constructor.makeUserInstance(this._uid, this.toJSON());// -> ClassModule
+    }
 
     // Mettre à jour un module
     static async update(id, patch = {}) {

@@ -231,7 +231,6 @@ export const ThemeProvider = ({ children }) => {
             h4: {
                 fontSize: '1.1rem',
                 fontWeight: 600,
-                // color: 'black',
                 '@media (max-width:600px)': {
                     //fontSize: '1.8rem',
                 },

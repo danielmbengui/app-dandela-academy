@@ -1,10 +1,18 @@
 {
   "title-page": "Home - Dandela Academy",
-  "description-page": "An innovative online school that trains students and professionals in digital careers and artificial intelligence.",
-  "title": "Welcome",
-  "subtitle": "Learn the skills of tomorrow",
-  "already-connected": "You are already logged into your account",
+  "description-page": "An innovative online school that trains students and professionals in digital skills and artificial intelligence.",
+  "title": "Dandela Academy",
+  "subtitle": "Access your learning space or log in to get started.",
   "btn-login": "Log in",
-  "btn-activate": "Activate my account",
-  "btn-dashboard": "Go to dashboard"
+  "btn-create": "Create an account",
+  "btn-dashboard": "Go to my dashboard",
+  "not-connected": {
+    "message": "You are not logged in. Choose an option to continue.",
+    "btn-login": "Log in",
+    "btn-create": "Create an account"
+  },
+  "already-connected": {
+    "message": "<div>Hello <b>{{email}}</b>, you are already logged into your account.</div>",
+    "btn-dashboard": "Go to my dashboard"
+  }
 }

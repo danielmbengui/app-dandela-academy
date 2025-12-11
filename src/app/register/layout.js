@@ -1,12 +1,12 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
-import { PAGE_LOGIN } from "@/contexts/constants/constants_pages";
-import { NS_LOGIN } from "@/contexts/i18n/settings";
+import { PAGE_LOGIN, PAGE_REGISTER } from "@/contexts/constants/constants_pages";
+import { NS_LOGIN, NS_REGISTER } from "@/contexts/i18n/settings";
 
 export const dynamic = "force-dynamic";
 
 export const generateMetadata = generatePageMetadata({
-  ns: NS_LOGIN,
-  path: PAGE_LOGIN,
+  ns: NS_REGISTER,
+  path: PAGE_REGISTER,
   // images: ["https://.../og-inscription.jpg"],
   // overrides: { openGraph: { type: "article" } },
 });

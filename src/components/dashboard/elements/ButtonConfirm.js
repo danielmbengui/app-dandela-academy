@@ -43,6 +43,7 @@ export default function ButtonConfirm({ label = 'Confirmer',color='primary', loa
       //border: '1px solid #374151',
       //background: primary.main,
       //color: background.main,
+      color: "var(--card-color)",
       fontSize: '0.9rem',
       height: size==='small' ? '35px' : size==='medium' ? '38px' : '40px',
       maxHeight: size==='small' ? '35px' : size==='medium' ? '45px' : '55px',

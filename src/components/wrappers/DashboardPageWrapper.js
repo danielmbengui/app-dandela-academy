@@ -34,7 +34,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     const [isClosing, setIsClosing] = useState(false);
     const { theme } = useThemeMode();
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
-    const { user, isLoading } = useAuth();
+    const { user, isLoading,logout } = useAuth();
     const [accordionMenu, setAccordionMenu] = useState('');
     const path = usePathname();
     const handleDrawerClose = () => {
@@ -148,7 +148,13 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         }
                     </List>
                 </Stack>
-                <Button variant='contained' sx={{ background: 'red', color: backgroundMenu.main }}>
+                <Button 
+                variant='contained' 
+                sx={{ background: 'red', color: backgroundMenu.main }}
+                onClick={async ()=>{
+                    await logout();
+                }}
+                >
                     {'disconect'}
                 </Button>
             </Stack>

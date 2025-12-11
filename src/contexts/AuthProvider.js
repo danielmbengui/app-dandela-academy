@@ -71,43 +71,47 @@ export function AuthProvider({ children }) {
             auth.languageCode = lang;
         }
     }, [lang]);
-    useEffect(() => {
-        console.log("Is loading user", isLoading)
-    }, [isLoading]);
+    
     usePageActivity({
         onVisible: async () => {
             // la page redevient visible → on repart un chrono
             //startTimeRef.current = Date.now();
-            setUser(prev => {
-                if (!prev || prev === null) return null;
-                prev.update({
-                    last_connexion_time: new Date(),
-                    status: ClassUser.STATUS.ONLINE,
-                });
-                return prev.clone();
-            })
-
-            console.log("[Chrono] start (visible)", new Date());
+            if(user) {
+                setUser(prev => {
+                    if (!prev || prev === null) return null;
+                    prev.update({
+                        last_connexion_time: new Date(),
+                        status: ClassUser.STATUS.ONLINE,
+                    });
+                    return prev.clone();
+                })
+    
+                console.log("[Chrono] start (visible)", new Date());
+            }
         },
         onHidden: async () => {
             // la page n'est plus visible → on arrête le chrono
-            if (auth.currentUser && user) {
-                await ClassUser.update(user.uid, {
-                    last_connexion_time: new Date(),
-                    status: ClassUser.STATUS.AWAY,
-                });
+            if(user) {
+                if (auth.currentUser) {
+                    await ClassUser.update(user.uid, {
+                        last_connexion_time: new Date(),
+                        status: ClassUser.STATUS.AWAY,
+                    });
+                }
+                console.log("[Chrono] hidden → temps passé sur cette session:",new Date(), "s");
             }
-            console.log("[Chrono] hidden → temps passé sur cette session:",new Date(), "s");
         },
         onBeforeUnload: async () => {
             // l'utilisateur ferme/reload/navigue ailleurs
-            if (auth.currentUser && user) {
-                await ClassUser.update(user.uid, {
-                    last_connexion_time: new Date(),
-                    status: ClassUser.STATUS.AWAY,
-                });
+            if(user) {
+                if (auth.currentUser) {
+                    await ClassUser.update(user.uid, {
+                        last_connexion_time: new Date(),
+                        status: ClassUser.STATUS.AWAY,
+                    });
+                }
+                console.log("[Chrono] beforeunload → dernière session:",new Date(), "s");
             }
-            console.log("[Chrono] beforeunload → dernière session:",new Date(), "s");
         },
     });
 
@@ -203,6 +207,15 @@ export function AuthProvider({ children }) {
         e?.preventDefault?.();
         try {
             await createUserWithEmailAndPassword(auth, email, password);
+            /*
+            email: 'modifiedUser@example.com',
+    phoneNumber: '+11234567890',
+    emailVerified: true,
+    password: 'newPassword',
+    displayName: 'Jane Doe',
+    photoURL: 'http://www.example.com/12345678/photo.png',
+    disabled: true,
+            */
             if (auth.currentUser) {
                 await sendEmailVerification(auth.currentUser);
             }
@@ -327,8 +340,8 @@ export function AuthProvider({ children }) {
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
         await signOut(auth);
-        // router.replace("/");
-        console.log("DISC OK");
+        router.replace(PAGE_HOME);
+        //console.log("DISC OK");
     };
     const editPassword = async (e, newPassword) => {
         e?.preventDefault?.();

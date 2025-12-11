@@ -8,7 +8,8 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import LoginComponent from '@/components/login/LoginComponent';
 import RegisterComponent from '@/components/login/RegisterComponent';
+import ActiveAccountComponent from '@/components/login/ActiveAccountComponent';
 
 export default function Register() {
-  return(<RegisterComponent />);
+  return(<ActiveAccountComponent />);
 }

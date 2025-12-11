@@ -10,6 +10,7 @@ export const NS_HOME = `home/main`;
 export const NS_HOME_MENU = `home/menu`;
 export const NS_HOME_FOOTER = `home/footer`;
 export const NS_LOGIN = `auth/login`;
+export const NS_REGISTER = `auth/register`;
 export const NS_ACTIVE_ACCOUNT = `auth/active-account`;
 export const NS_FORGOT_PASSWORD = `auth/forgot-password`;
 

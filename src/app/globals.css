@@ -162,6 +162,15 @@
 a {
   display: inline-block;
 }
+.link {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color:var(--primary);
+  display: inline-block;
+}
+.link:hover {
+  color:var(--primary);
+}
 
 a,
 button,

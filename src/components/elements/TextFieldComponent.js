@@ -30,7 +30,6 @@ export default function TextFieldComponent({
     const { theme } = useThemeMode();
     const { blue, greyLight, text, primary, cardColor } = theme.palette;
     if (autoComplete.length > 0) {
-
         return (<Autocomplete
             onClick={() => alert('ok')}
             disablePortal
@@ -123,7 +122,6 @@ export default function TextFieldComponent({
             />}
         />
         )
-
     }
     return (<TextField
         className="shadow-sm"
@@ -153,7 +151,7 @@ export default function TextFieldComponent({
                 '& fieldset': {
                     //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
                     color: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
-                    border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    border: `0.1px solid var(card-border)`,
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
@@ -175,7 +173,7 @@ export default function TextFieldComponent({
                 },
                 '&.Mui-disabled fieldset': {
                     // borderColor: greyLight.main, // désactivé
-                    border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
+                    border: `0.1px solid var(card-border)`,
                     color: ClassColor.GREY_LIGHT,
                 },
                 '&.Mui-disabled .MuiOutlinedInput-input': {
