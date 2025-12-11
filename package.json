@@ -41,7 +41,7 @@
     "isotope-layout": "^3.0.6",
     "libphonenumber-js": "^1.12.12",
     "negotiator": "^1.0.0",
-    "next": "15.4.8",
+    "next": "15.4.9",
     "node": "^22.18.0",
     "nodemailer": "^7.0.6",
     "prop-types": "^15.8.1",
