@@ -215,7 +215,7 @@ export default function LessonComponent({lesson=null}) {
     return (<Stack>
         
         {
-            user instanceof ClassUserIntern && <div style={{ marginTop: '10px' }}>
+            user instanceof ClassUserIntern && <div style={{ marginTop: '10px', display:'none' }}>
                 <ButtonConfirm
                     label="Modifier"
                     loading={isLoading}

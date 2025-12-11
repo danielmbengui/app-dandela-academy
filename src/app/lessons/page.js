@@ -839,7 +839,7 @@ function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
           border: 1px solid;
           padding: 2px 8px;
           font-size: 0.75rem;
-          background: ${roleCfg.color};
+          background: ${roleCfg?.color};
         }
 
         .role-dot {

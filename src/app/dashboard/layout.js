@@ -2,6 +2,7 @@ import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_DASHBOARD_HOME, PAGE_HOME, PAGE_LOGIN } from "@/contexts/constants/constants_pages";
 import { defaultLanguage, languages, NS_DASHBOARD_HOME, NS_HOME, NS_LOGIN } from "@/contexts/i18n/settings";
 import Preloader from "@/components/shared/Preloader";
+import { SessionProvider } from "@/contexts/SessionProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -13,5 +14,7 @@ export const generateMetadata = generatePageMetadata({
 });
 
 export default async function DashboardHomeLayout({ children }) {
-  return (children);
+  return (<SessionProvider>
+    {children}
+  </SessionProvider>);
 }

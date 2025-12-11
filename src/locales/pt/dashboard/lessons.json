@@ -1,0 +1,23 @@
+{
+  "title-page": "Cursos - App Dandela Academy",
+  "description-page": "Uma visão do teu perfil na plataforma Dandela Academy",
+  "title": "Perfil",
+  "subtitle": "Todas as informações sobre a tua conta",
+  "active-lessons": "Cursos ativos",
+  "completed-lessons": "Cursos concluídos",
+  "form": {
+    "title_perso": "Informações pessoais",
+    "title_account": "Informações da conta",
+    "title_settings": "Configurações",
+    "uid": "ID do utilizador",
+    "display_name": "Nome de utilizador",
+    "last_name": "Apelido(s)",
+    "first_name": "Nome(s)",
+    "birthday": "Data de nascimento",
+    "email": "Email",
+    "phone_number": "Telefone",
+    "role": "Função",
+    "lang": "Idioma",
+    "theme": "Tema"
+  }
+}

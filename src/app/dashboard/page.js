@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from 'react';
-import { IconDashboard, } from "@/assets/icons/IconsComponent";
+import React, { useEffect, useState } from 'react';
+import { IconDashboard, IconLogoImage, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
 import { NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -1802,10 +1802,16 @@ function TeacherProfilePage() {
     </div>
   );
 }
-import { Button } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
+import { ClassUserStudent, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { useSession } from '@/contexts/SessionProvider';
+import { ClassColor } from '@/classes/ClassColor';
+import Link from 'next/link';
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_USERS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
+import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
 
 
 /** Nav item dans la sidebar */
@@ -1875,29 +1881,29 @@ function StatCard({ label, value, helper, barValue }) {
 
       <style jsx>{`
         .stat-card {
-          background: #020617;
-          border-radius: 14px;
-          border: 1px solid #1f2937;
+          background: var(--card-color);
+          border-radius: 10px;
+          border: 0.1px solid var(--card-border);
           padding: 10px 12px;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
         }
 
         .stat-label {
           margin: 0 0 4px;
           font-size: 0.8rem;
-          color: #9ca3af;
+          color: var(--grey-dark);
         }
 
         .stat-value {
           margin: 0;
           font-size: 1.4rem;
           font-weight: 600;
+          color: var(--font-color);
         }
 
         .stat-helper {
           margin: 4px 0 0;
           font-size: 0.78rem;
-          color: #6b7280;
+          color: var(--grey-dark);
         }
 
         .stat-bar {
@@ -1919,32 +1925,42 @@ function StatCard({ label, value, helper, barValue }) {
 }
 
 /** Carte “accès rapide” */
-function QuickLink({ emoji, label, description }) {
+function QuickLink({ emoji, label, description, link = "" }) {
   return (
     <>
       <button type="button" className="quick-link">
-        <div className="q-emoji">{emoji}</div>
-        <div className="q-text">
-          <p className="q-label">{label}</p>
-          <p className="q-desc">{description}</p>
-        </div>
+        <Link href={link}>
+
+          <Stack spacing={1} type="button">
+            <div className="q-emoji">{emoji}</div>
+          <div className="q-text">
+            <p className="q-label">{label}</p>
+            <p className="q-desc">{description}</p>
+          </div>
+          </Stack>
+          </Link>
       </button>
 
       <style jsx>{`
         .quick-link {
           border-radius: 12px;
-          border: 1px solid #111827;
-          background: #020617;
-          padding: 8px 10px;
+          border: 0.1px solid var(--card-border);
+          background: var(--card-color);
+          padding: 10px 10px;
           display: flex;
           gap: 8px;
           cursor: pointer;
           text-align: left;
+          color: var(--font-color);
         }
 
         .quick-link:hover {
           background: radial-gradient(circle at top left, #1d4ed822, #020617);
           border-color: #1f2937;
+
+          background: var(--card-color);
+          border-color: var(--primary);
+          color:var(-background);
         }
 
         .q-emoji {
@@ -1953,11 +1969,13 @@ function QuickLink({ emoji, label, description }) {
 
         .q-text {
           font-size: 0.85rem;
+          font-color: var(--font-color);
         }
 
         .q-label {
           margin: 0 0 2px;
-          font-weight: 500;
+          font-weight: 300;
+         
         }
 
         .q-desc {
@@ -2036,18 +2054,56 @@ function DashboardMessage({ msg }) {
 
 function DandelaDashboardHome() {
   const [activeMenu, setActiveMenu] = useState("accueil");
+  const { sessions, slots } = useSession();
+  const [countObj, setCountObj] = useState({
+    students: 0,
+    teachers: 0,
+    devices: 0,
+    sessions: 0,
+    slots: 0
+  })
 
   const handleMenuClick = (key) => {
     // Ici tu peux remplacer par un vrai route.push('/app/...') plus tard
     setActiveMenu(key);
   };
+  useEffect(() => {
+    async function init() {
+      const results = await Promise.allSettled([
+        ClassUserStudent.count(),
+        ClassUserTeacher.count(),
+        ClassHardware.count(),
+      ]);
+      const count_sessions = sessions.length || 0;
+      const count_slots = slots.length || 0;
+
+      setCountObj(prev => ({
+        ...prev,
+        sessions: count_sessions,
+        slots: count_slots
+      }))
+
+      results.forEach((res, index) => {
+        if (res.status === 'fulfilled') {
+          //console.log('OK', index, res.value, res);
+          setCountObj(prev => ({
+            ...prev,
+            [Object.keys(prev)[index]]: res.value
+          }))
+        } else {
+          console.error('ERROR', index, res.reason);
+        }
+      });
+    }
+    init();
+  }, [sessions])
 
   return (<div className="page">
     <div className="shell">
       {/* TOPBAR */}
       <header className="topbar">
         <div className="brand">
-          <div className="logo-circle">DA</div>
+          <IconLogoImage height={45} color={ClassColor.WHITE} />
           <div>
             <p className="brand-name">Dandela Academy</p>
             <p className="brand-sub">Tableau de bord</p>
@@ -2092,22 +2148,22 @@ function DandelaDashboardHome() {
           <section className="stats-grid">
             <StatCard
               label="Étudiants actifs"
-              value={mockStats.activeStudents}
+              value={countObj.students}
               helper="Connectés / inscrits récemment"
             />
             <StatCard
               label="Professeurs actifs"
-              value={mockStats.activeTeachers}
+              value={countObj.teachers}
               helper="Sessions à venir"
             />
             <StatCard
-              label="Cours aujourd'hui"
-              value={mockStats.todayLessons}
+              label="Cours à venir"
+              value={countObj.slots}
               helper="Sur l’ensemble du campus"
             />
             <StatCard
               label="Ordinateurs disponibles"
-              value={mockStats.freeComputers}
+              value={countObj.devices}
               helper="Salle informatique principale"
             />
             <StatCard
@@ -2129,58 +2185,77 @@ function DandelaDashboardHome() {
             <div className="main-col">
               <div className="card">
                 <div className="card-header">
-                  <h2>Cours à venir</h2>
-                  <button className="link-btn">Voir le calendrier</button>
-                </div>
-                <div className="lesson-list">
-                  {mockNextLessons.map((lesson) => (
-                    <div key={lesson.id} className="lesson-item">
-                      <div>
-                        <p className="lesson-title">{lesson.title}</p>
-                        <p className="lesson-sub">
-                          {lesson.teacher} • {lesson.room}
-                        </p>
-                        <p className="lesson-time">{lesson.time}</p>
-                      </div>
-                      <div className="lesson-meta">
-                        <p className="lesson-counter">
-                          {lesson.enrolled}/{lesson.capacity}
-                        </p>
-                        <p className="lesson-counter-sub">inscrits</p>
-                        <button className="mini-btn">Ouvrir</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
                   <h2>Accès rapide</h2>
                 </div>
                 <div className="quick-links">
                   <QuickLink
-                    label="Gérer les ordinateurs"
-                    description="Voir l’état des 25 postes de travail."
-                    emoji="💻"
-                  />
-                  <QuickLink
-                    label="Liste des utilisateurs"
-                    description="Étudiants, professeurs, admins."
-                    emoji="👥"
+                    label="Consulter le calendrier"
+                    description="Vue globale des sessions."
+                    emoji="📅"
+                    link={PAGE_DASHBOARD_CALENDAR}
                   />
                   <QuickLink
                     label="Créer un nouveau cours"
                     description="Ajouter un module au catalogue."
                     emoji="📘"
+                    link={PAGE_LESSONS}
                   />
                   <QuickLink
-                    label="Consulter le calendrier"
-                    description="Vue globale des sessions."
-                    emoji="📅"
+                    label="Gérer les ordinateurs"
+                    description="Voir l’état des 25 postes de travail."
+                    emoji="💻"
+                    link={PAGE_DASHBOARD_COMPUTERS}
                   />
+                  <QuickLink
+                    label="Liste des utilisateurs"
+                    description="Étudiants, professeurs, admins."
+                    emoji="👥"
+                    link={PAGE_DASHBOARD_USERS}
+                  />
+                  
+                  
                 </div>
               </div>
+              <div className="card">
+                <div className="card-header">
+                  <h2>Sessions à venir</h2>
+                  <Link style={{
+                    fontSize: '0.8rem',
+                    color: 'var(--primary)'
+                  }} href={PAGE_DASHBOARD_CALENDAR} target='_blank'>{`Voir le calendrier`}</Link>
+                </div>
+                <div className="lesson-list">
+                  {slots.filter(a => a.start_date?.getTime() > new Date().getTime()).sort((a, b) => b.start_date?.getTime() - a.start_date?.getTime()).map((slot, i) => {
+                    const session = sessions.find(item => item.uid === slot.uid_session);
+                    const lesson = session?.lesson;
+                    const teacher = session?.teacher;
+                    const countAll = slot.seats_availables_online + slot.seats_availables_onsite;
+                    const countSubcribers = slot.subscribers_online?.length + slot.subscribers_onsite?.length;
+                    return (
+                      <div key={`${slot?.uid_intern}-${i}`} className="lesson-item">
+                        <div>
+                          <p className="lesson-title">{lesson?.translate?.title || lesson?.title}</p>
+                          <p className="lesson-sub">
+                            {teacher?.getCompleteName?.()} • {`Session ${slot.uid_intern}`}
+                          </p>
+                          <p className="lesson-time">
+                            {getFormattedDateNumeric(slot.start_date)} {"•"} {getFormattedHour(slot.start_date)}{"-"}{getFormattedHour(slot.end_date)}</p>
+                          <p className="lesson-time">{slot.format}</p>
+                        </div>
+                        <div className="lesson-meta">
+                          <p className="lesson-counter">
+                            {countSubcribers}/{countAll}
+                          </p>
+                          <p className="lesson-counter-sub">inscrits</p>
+                          <button className="mini-btn">Ouvrir</button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+
             </div>
 
             {/* COL DROITE : messages + résumé système */}
@@ -2231,8 +2306,8 @@ function DandelaDashboardHome() {
       .page {
         min-height: 100vh;
         background: radial-gradient(circle at top, #111827, #020617 55%);
-        background: red;
-        padding: 10px 0px;
+        background: transparent;
+        padding: 0px 0px;
         color: #e5e7eb;
         display: flex;
         justify-content: center;
@@ -2241,10 +2316,9 @@ function DandelaDashboardHome() {
       .shell {
         width: 100%;
         max-width: 1280px;
-        border-radius: 24px;
-        border: 1px solid #1f2937;
+        border-radius: 10px;
+        border: 0.1px solid var(--card-border);
         background: var(--card-color);
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -2253,11 +2327,11 @@ function DandelaDashboardHome() {
       .topbar {
         height: 60px;
         padding: 0 18px;
-        border-bottom: 1px solid #111827;
+        border-bottom: 0.1px solid var(--card-border);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: linear-gradient(90deg, #020617, #020617 40%, #0b1120);
+        background: var(--blackColor);
       }
 
       .brand {
@@ -2398,12 +2472,13 @@ function DandelaDashboardHome() {
       .welcome-text {
         margin: 0 0 4px;
         font-size: 0.85rem;
-        color: #9ca3af;
+        color: ${ClassColor.GREY_LIGHT};
       }
 
       h1 {
         margin: 0;
         font-size: 1.7rem;
+        color:var(--font-color);
       }
 
       .muted {
@@ -2477,10 +2552,9 @@ function DandelaDashboardHome() {
       }
 
       .card {
-        background: #020617;
-        border-radius: 16px;
-        border: 1px solid #1f2937;
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        background: var(--card-color);
+        border-radius: 10px;
+        border: 0.1px solid var(--card-border);
         padding: 14px 14px 16px;
       }
 
@@ -2490,6 +2564,7 @@ function DandelaDashboardHome() {
         align-items: center;
         gap: 8px;
         margin-bottom: 10px;
+        color:${ClassColor.GREY_LIGHT};
       }
 
       .card-header h2 {
@@ -2505,6 +2580,7 @@ function DandelaDashboardHome() {
         font-size: 0.8rem;
         color: #60a5fa;
         cursor: pointer;
+        color: var(--primary);
       }
 
       .lesson-list {
@@ -2519,8 +2595,10 @@ function DandelaDashboardHome() {
         gap: 10px;
         padding: 8px 10px;
         border-radius: 12px;
-        border: 1px solid #111827;
-        background: #020617;
+        border: 0.1px solid var(--card-border);
+        background: var(--card-color);
+        color: var(--font-color);
+        font-weight: 300;
       }
 
       .lesson-title {
@@ -2538,6 +2616,7 @@ function DandelaDashboardHome() {
         margin: 4px 0 0;
         font-size: 0.78rem;
         color: #60a5fa;
+        color: var(--primary);
       }
 
       .lesson-meta {
@@ -2625,96 +2704,8 @@ export default function DashboardHome() {
   const [processing, setProcessing] = useState(false);
 
 
-  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
-   <DandelaDashboardHome />
-    <Button
-    sx={{display:'none'}}
-      loading={processing}
-      onClick={async () => {
-        setProcessing(true);
-        const school = await ClassSchool.create({
-          //uid: "",
-          //uid_intern: '',
-          name: "Dandela Academy Zango III",
-          name_normalized: "Dandela Academy Zango III",
-          photo_url: "",
-          address: "Zango III, Luanda, Angola",
-          enabled: true
-        });
-        const room = new ClassRoom({
-          // uid : "",
-          //uid_intern : "",
-          uid_school: school.uid,
-          name: "Admin room",
-          name_normalized: "admin_room",
-          //photo_url:"",
-          //os: ClassHardware.OS.MACOS,
-          categories: [ClassRoom.CATEGORY.HARDWARE],
-          floor: 1,
-          enabled: true
-        });
-        const room_1 = new ClassRoom({
-          // uid : "",
-          //uid_intern : "",
-          uid_school: school.uid,
-          //name: "Root room",
-          //name_normalized: "root_room",
-          categories: [ClassRoom.CATEGORY.HARDWARE],
-          //photo_url:"",
-          floor: 1,
-          enabled: true
-        });
-        await room.createFirestore();
-        await room_1.createFirestore();
-        for (let i = 0; i < 2; i++) {
-          //const countComputers = await ClassComputer.count() || 0;
-          const computer = new ClassHardware({
-            //uid: "",
-            //uid_intern: "1",
-            uid_room: room.uid,
-            brand: 'iMac 2017',
-            //name: `PC-${sizeId.toString().padStart(2, '0')}`,
-            //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
-            enabled: true,
-            status: ClassHardware.STATUS.AVAILABLE,
-            type: ClassHardware.TYPE.DESKTOP,
-            os: ClassHardware.OS.MACOS,
-            os_version: "13.7.8",
-            buy_time: new Date(2023, 7, 12),
-            updates: [
-              { status: 'created', description: 'created_description', created_time: new Date() }
-            ],
-          });
-          await computer.createFirestore();
-        }
-        for (let i = 0; i < 25; i++) {
-          //const countComputers = await ClassComputer.count() || 0;
-          const computer = new ClassHardware({
-            //uid: "",
-            //uid_intern: "1",
-            uid_room: room_1.uid,
-            brand: 'HP i7',
-            //name: `PC-${sizeId.toString().padStart(2, '0')}`,
-            //name_normalized: `pc-${sizeId.toString().padStart(2, '0')}`,
-            enabled: true,
-            status: ClassHardware.STATUS.AVAILABLE,
-            type: ClassHardware.TYPE.DESKTOP,
-            os: ClassHardware.OS.WINDOWS,
-            os_version: "10",
-            buy_time: new Date(2023, 10, 12),
-            updates: [
-              { status: 'created', description: 'created_description', created_time: new Date() }
-            ],
-          });
-          await computer.createFirestore();
-        }
-        //await ClassComputer.create(computer);
-        setProcessing(false);
-      }}
-    >
-      {'Create computer'}
-    </Button>
-
+  return (<DashboardPageWrapper>
+    <DandelaDashboardHome />
   </DashboardPageWrapper>)
   /*
   return (

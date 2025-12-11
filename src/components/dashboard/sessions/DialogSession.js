@@ -20,25 +20,18 @@ export default function DialogSession({}) {
     const {session, setUidSession,slot } = useSession();
     const { theme } = useThemeMode();
     const { blueDark, primary, cardColor, text, greyLight } = theme.palette;
+    const [wantSubscribe, setWantSubscribe] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [lessonEdit, setLessonEdit] = useState(null);
     const [scroll, setScroll] = useState('paper');
 
     const handleClose = () => {
-        //setOpen(false);
-        //setIsOpen(false);
-        //setDevice(null);
-        //setUserDialog(null);
-        //setLessonEdit(null);
-        //setIsOpen(false);
-        //changeSession();
         setUidSession(null);
     };
     return (
         <Stack sx={{ width: '100%', height: '100%' }}>
             <Dialog
                 //fullWidth
-
                 maxWidth={'md'}
                 open={session !== null}
                 onClose={handleClose}
@@ -120,8 +113,8 @@ export default function DialogSession({}) {
                                     <ButtonCancel label={'cancel'} variant='contained' onClick={async () => {
 
                                     }} />
-                                    <ButtonConfirm label={'edit'} variant='contained' onClick={async () => {
-
+                                    <ButtonConfirm label={`S'inscrire`} variant='contained' onClick={async () => {
+setWantSubscribe(true);
                                     }} />
                                 </Stack>
                                 <IconButton size={'small'}>
@@ -135,9 +128,10 @@ export default function DialogSession({}) {
                 }
             </Dialog>
             <DialogSubscribeSession
-                session={session}
-                selectedSlot={slot}
-                open={true}
+                //session={session}
+               // selectedSlot={slot}
+                open={wantSubscribe}
+                setOpen={setWantSubscribe}
             />
         </Stack>
     );

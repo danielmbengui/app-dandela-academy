@@ -183,7 +183,7 @@ export default function SessionSubscribeComponent({ }) {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
-  const { session, update, slot, isLoading:processing } = useSession();
+  const { session, update, slot, isLoading: processing } = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
@@ -213,6 +213,9 @@ export default function SessionSubscribeComponent({ }) {
   return (<Stack>
     <div className="page">
       <main className="container">
+        <Stack spacing={2} alignItems={'center'}>
+          <Typography variant='h5'>{`T'inscrire à ce cours ?`}</Typography>
+        </Stack>
         <Grid container spacing={1} justifyContent={'center'} sx={{ py: 1 }}>
           <Grid size={12}>
             <Grid container spacing={1} justifyContent={'center'}>
@@ -247,6 +250,7 @@ export default function SessionSubscribeComponent({ }) {
                         />
                       </div>
                     </div>
+
                     <ButtonConfirm
                       disabled={slot?.isFull?.(format) || processing || slot?.isSubscribe?.(user.uid)}
                       loading={processing}
@@ -260,9 +264,12 @@ export default function SessionSubscribeComponent({ }) {
                         console.log("new slot ?", session.slots)
                       }}
                       label={"M'inscrire"}
-                      style={{ marginTop: '10px', width: '100%' }}
+                      style={{
+                        marginTop: '10px', width: '100%',
+                        //display: slot?.isFull?.(format) || processing || slot?.isSubscribe?.(user.uid) ? 'none' : 'flex'
+                      }}
                     />
-                     <ButtonConfirm
+                    <ButtonConfirm
                       disabled={!slot?.isSubscribe?.(user.uid) || processing}
                       loading={processing}
                       color="error"
@@ -276,7 +283,10 @@ export default function SessionSubscribeComponent({ }) {
                         //console.log("new slot ?", session.slots)
                       }}
                       label={"Me désinscrire"}
-                      style={{ marginTop: '10px', width: '100%' }}
+                      style={{
+                        marginTop: '10px', width: '100%',
+                        //display: !slot?.isSubscribe?.(user.uid) || processing ? 'none' : 'flex'
+                      }}
                     />
 
                   </Grid>)
@@ -284,18 +294,20 @@ export default function SessionSubscribeComponent({ }) {
               }
             </Grid>
           </Grid>
-          <Grid size={{ xs: 12, sm: 9 }}>
-            <p className="secure-note" style={{ textAlign: 'center' }}>
-              ✅ {t('security')}
-            </p>
-          </Grid>
+          {
+            !slot?.isSubscribe?.(user.uid) && <Grid size={{ xs: 12, sm: 9 }}>
+              <p className="secure-note" style={{ textAlign: 'center' }}>
+                ✅ {t('security')}
+              </p>
+            </Grid>
+          }
+
         </Grid>
       </main>
       <style jsx>{`
                 .page {
-                 
                   background: transparent;
-                  padding: 10px 0px;
+                  padding: 0px 0px;
                   color: var(--font-color);
                   display: flex;
                   justify-content: center;

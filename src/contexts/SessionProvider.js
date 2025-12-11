@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
     onSnapshot,
+    query,
     where,
 } from 'firebase/firestore';
 //import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
@@ -10,10 +11,11 @@ import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { ClassSession, ClassLessonSessionTranslate } from '@/classes/ClassSession';
 import { useLanguage } from './LangProvider';
-import { ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassLesson } from '@/classes/ClassLesson';
 import Preloader from '@/components/shared/Preloader';
+import { useAuth } from './AuthProvider';
 
 
 const SessionContext = createContext(null);
@@ -21,6 +23,7 @@ export const useSession = () => useContext(SessionContext);
 
 export function SessionProvider({ children }) {
     const { lang } = useLanguage();
+    const { user } = useAuth();
     const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     const [uidSession, setUidSession] = useState(null);           // ton user métier (ou snapshot)
@@ -55,21 +58,28 @@ export function SessionProvider({ children }) {
     useEffect(() => {
         if (uidSlot && session) {
             //const _session = getOneSession(uidSession);
-            const _slot = session.slots?.find?.(a=>a.uid_intern === uidSlot);
+            const _slot = session.slots?.find?.(a => a.uid_intern === uidSlot);
             console.log("get one slot", _slot)
             setSlot(_slot);
         } else {
             setSlot(null);
         }
     }, [uidSlot, session]);
-    
+
     // écoute du doc utilisateur
     const listenToSessions = useCallback(() => {
         const colRef = ClassSession.colRef(); // par ex.
+        const constraints = [];
+        if (!(user instanceof ClassUserIntern)) {
+            constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
+        }                //const coll = this.colRef();
+        const q = constraints.length
+            ? query(colRef, ...constraints)
+            : colRef;
         // console.log("Col ref provider", colRef);
-        const snapshotSessions = onSnapshot(colRef, async (snap) => {
+        const snapshotSessions = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
-            //console.log("snap", snap.size);
+            console.log("snap", snap.size);
             if (snap.empty) {
                 setSessions([]);
                 setSession(null);
@@ -94,7 +104,12 @@ export function SessionProvider({ children }) {
                 session_new.teacher = teacher;
                 session_new.room = room;
                 _sessions.push(session_new);
-                _slots.push(...session_new.slots);
+                var _slots_session = session_new.slots;
+                if (!(user instanceof ClassUserIntern)) {
+                    //constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
+                    _slots_session = session_new.slots.filter(slot=>slot.status!==ClassSession.STATUS.DRAFT);
+                }
+                _slots.push(..._slots_session);
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
@@ -106,7 +121,7 @@ export function SessionProvider({ children }) {
         return snapshotSessions;
     }, []);
     const listenToOneSession = useCallback((uidSession) => {
-        if(!uidSession) {
+        if (!uidSession) {
             setSession(null);
             //setIsConnected(false);
             setIsLoading(false);
@@ -134,9 +149,9 @@ export function SessionProvider({ children }) {
             session_new.lesson = lesson;
             session_new.teacher = teacher;
             session_new.room = room;
-            
-            setSession(prev=>{
-                if(!prev || prev === null) return session_new;
+
+            setSession(prev => {
+                if (!prev || prev === null) return session_new;
                 prev.update(session_new.toJSON());
                 console.log('set prev session', session_new);
                 return prev;

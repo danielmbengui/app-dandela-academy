@@ -255,12 +255,12 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                 {
                                     titles.length > 1 && titles.map((title, i) => {
                                         if (i < titles.length - 1) {
-                                            return (<Link key={`${title}-${i}`} underline="hover" color="inherit" href={title.url} >
+                                            return (<Link key={`${title}-${i}`} underline="hover" style={{fontStyle:'underline'}} color="inherit" href={title.url} >
                                                 <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                                                     {
                                                         i === 0 && <div style={{ color: primary.main }}>{icon}</div>
                                                     }
-                                                    <Typography variant='h5'>{title.name}</Typography>
+                                                    <Typography variant='h5' sx={{textDecoration:'underline'}}>{title.name}</Typography>
                                                 </Stack>
                                             </Link>)
                                         }

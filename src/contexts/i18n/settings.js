@@ -21,6 +21,7 @@ export const NS_DAYS = `days`;
 export const NS_DASHBOARD_HOME = `dashboard/home`;
 export const NS_DASHBOARD_CALENDAR = `dashboard/calendar`;
 export const NS_DASHBOARD_PROFILE = `dashboard/profile`;
+export const NS_PAGE_LESSONS = `dashboard/lessons`;
 export const NS_LESSONS = `dashboard/lessons`;
 export const NS_DASHBOARD_COMPUTERS = `dashboard/computers`;
 export const NS_DASHBOARD_USERS = `dashboard/users`;

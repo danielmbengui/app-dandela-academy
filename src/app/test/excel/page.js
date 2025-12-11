@@ -31,89 +31,92 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 const quizQuestions = [
   {
     id: 1,
-    question: "Quel est le raccourci clavier pour enregistrer un document ?",
-    options: ["Ctrl + C", "Ctrl + S", "Ctrl + V", "Ctrl + A"],
+    question: "Comment s'appelle le fichier principal dans Excel ?",
+    options: ["Document", "Classeur", "Présentation", "Projet"],
     correctIndex: 1,
   },
   {
     id: 2,
-    question: "Quel est le format natif de Microsoft Word ?",
-    options: [".pdf", ".docx", ".jpg", ".txt"],
+    question: "Que représente une 'cellule' dans Excel ?",
+    options: [
+      "Une page entière",
+      "L'intersection d'une ligne et d'une colonne",
+      "Une colonne complète",
+      "Une feuille entière",
+    ],
     correctIndex: 1,
   },
   {
     id: 3,
-    question: "Quel raccourci permet d'annuler la dernière action ?",
-    options: ["Ctrl + Z", "Ctrl + Y", "Ctrl + B", "Ctrl + N"],
-    correctIndex: 0,
+    question: "Laquelle de ces écritures est une formule valide dans Excel ?",
+    options: ["2 + 3", "=2+3", "=2,3", "+2=3"],
+    correctIndex: 1,
   },
   {
     id: 4,
-    question:
-      "À quoi servent les styles (Titre 1, Titre 2, etc.) dans Word ?",
+    question: "À quoi sert la fonction =SOMME(A1:A5) ?",
     options: [
-      "À ajouter automatiquement des images",
-      "À mettre en forme un texte selon un modèle prédéfini",
-      "À créer de nouvelles pages",
-      "À envoyer des e-mails",
+      "À afficher le texte 'SOMME'",
+      "À additionner les valeurs de A1 à A5",
+      "À compter le nombre de cellules",
+      "À trier les valeurs",
     ],
     correctIndex: 1,
   },
   {
     id: 5,
-    question: "Quel type d’alignement permet de centrer un texte ?",
-    options: ["Alignement gauche", "Alignement centré", "Alignement droite", "Alignement justifié"],
+    question: "Que permet un filtre automatique sur un tableau de données ?",
+    options: [
+      "Modifier la mise en forme",
+      "Masquer/afficher les lignes selon des critères",
+      "Créer des graphiques",
+      "Effacer toutes les données",
+    ],
     correctIndex: 1,
   },
   {
     id: 6,
     question:
-      "Comment insérer une image enregistrée sur ton ordinateur dans un document Word ?",
-    options: [
-      "Fichier → Image",
-      "Insertion → Image → À partir de ce périphérique",
-      "Accueil → Copier l'image",
-      "Mise en page → Image",
-    ],
+      "Quel type de graphique est le plus adapté pour comparer des valeurs entre catégories ?",
+    options: ["Camembert", "Histogramme (colonnes)", "Courbe", "Nuage de points"],
     correctIndex: 1,
   },
   {
     id: 7,
-    question: "Comment insérer un tableau simple (ex: 3 colonnes, 2 lignes) ?",
+    question: "Comment enregistrer un classeur Excel au format PDF ?",
     options: [
-      "Accueil → Tableau",
-      "Insertion → Tableau → Choisir le nombre de colonnes et de lignes",
-      "Affichage → Tableau",
-      "Mise en page → Créer un tableau",
+      "Fichier → Enregistrer sous → Type PDF",
+      "Insertion → PDF",
+      "Accueil → PDF",
+      "Affichage → Exporter",
     ],
-    correctIndex: 1,
+    correctIndex: 0,
   },
   {
     id: 8,
-    question:
-      "Où ajoute-t-on généralement les numéros de page dans un document ?",
+    question: "Que signifie la référence de cellule 'B3' ?",
     options: [
-      "Dans le corps du texte",
-      "Dans l’en-tête ou le pied de page",
-      "Dans la marge gauche",
-      "Dans le titre du document",
+      "Colonne 3, ligne B",
+      "Colonne B, ligne 3",
+      "3e feuille, 2e colonne",
+      "3e classeur",
     ],
     correctIndex: 1,
   },
   {
     id: 9,
-    question: "Comment exporter un document Word en PDF ?",
+    question: "Que fait Excel si tu modifies une valeur utilisée dans une formule ?",
     options: [
-      "Fichier → Enregistrer sous → Choisir le format PDF",
-      "Insertion → Exporter PDF",
-      "Accueil → PDF",
-      "Affichage → PDF",
+      "Il ne se passe rien",
+      "Il met automatiquement à jour le résultat de la formule",
+      "Il supprime la formule",
+      "Il affiche un message d'erreur systématique",
     ],
-    correctIndex: 0,
+    correctIndex: 1,
   },
 ];
 
-export default function WordBeginnerCoursePage() {
+export default function ExcelBeginnerCoursePage() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* HEADER / HERO */}
@@ -129,15 +132,15 @@ export default function WordBeginnerCoursePage() {
               variant="overline"
               sx={{ letterSpacing: 0.12, color: "text.secondary" }}
             >
-              Cours Word – Niveau débutant
+              Cours Excel – Niveau débutant
             </Typography>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 0.5 }}>
-              Initiation à Microsoft Word
+              Initiation à Microsoft Excel
             </Typography>
             <Typography variant="body1" sx={{ mt: 1.5, color: "text.secondary" }}>
-              Apprends à créer, mettre en forme et finaliser des documents
-              professionnels avec Microsoft Word. Ce cours s’adresse aux personnes
-              qui débutent complètement ou qui souhaitent consolider les bases.
+              Découvre les bases d&apos;Excel : cellules, formules simples, tableaux et
+              graphiques. Idéal pour démarrer la bureautique orientée chiffres
+              et tableaux de données.
             </Typography>
           </Box>
 
@@ -145,7 +148,7 @@ export default function WordBeginnerCoursePage() {
             <Stack direction="row" spacing={1} flexWrap="wrap">
               <Chip label="Débutant" color="primary" size="small" />
               <Chip label="Bureautique" size="small" variant="outlined" />
-              <Chip label="Word" size="small" variant="outlined" />
+              <Chip label="Excel" size="small" variant="outlined" />
             </Stack>
             <Typography variant="body2" color="text.secondary">
               Durée estimée : 4 à 6 heures • Langue : Français
@@ -169,37 +172,37 @@ export default function WordBeginnerCoursePage() {
                 <ListItemIcon>
                   <CheckCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Créer, ouvrir et enregistrer des documents Word de manière autonome." />
+                <ListItemText primary="Comprendre la structure d’un classeur, d’une feuille et des cellules." />
               </ListItem>
               <ListItem>
                 <ListItemIcon>
                   <CheckCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Mettre en forme du texte : police, taille, couleur, alignement, listes." />
+                <ListItemText primary="Saisir et mettre en forme des données simples (texte, nombres, dates)." />
               </ListItem>
               <ListItem>
                 <ListItemIcon>
                   <CheckCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Organiser un document avec des paragraphes propres et des styles de titres." />
+                <ListItemText primary="Réaliser des calculs de base avec des formules et la fonction SOMME." />
               </ListItem>
               <ListItem>
                 <ListItemIcon>
                   <CheckCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Insérer des images et des tableaux simples pour structurer l’information." />
+                <ListItemText primary="Créer un petit tableau de données et appliquer un tri ou un filtre." />
               </ListItem>
               <ListItem>
                 <ListItemIcon>
                   <CheckCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Configurer la mise en page, les en-têtes, pieds de page et numéros de page." />
+                <ListItemText primary="Créer un graphique simple à partir d’un tableau de données." />
               </ListItem>
               <ListItem>
                 <ListItemIcon>
                   <CheckCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Exporter un document professionnel en PDF et le préparer à l’impression." />
+                <ListItemText primary="Enregistrer un classeur et l’exporter en PDF." />
               </ListItem>
             </List>
           </Paper>
@@ -217,15 +220,15 @@ export default function WordBeginnerCoursePage() {
             </Typography>
             <List dense>
               {[
-                "Introduction à Microsoft Word",
-                "Créer et enregistrer un document",
-                "Saisir et modifier du texte",
-                "Mettre en forme le texte",
-                "Paragraphes, listes et styles",
-                "Insérer des images",
-                "Insérer un tableau",
-                "Mise en page et numérotation",
-                "Exporter en PDF & projet final",
+                "Introduction à Excel & interface",
+                "Classeur, feuilles, lignes, colonnes et cellules",
+                "Saisie et types de données (texte, nombre, date)",
+                "Mise en forme de base (police, bordures, formats de nombre)",
+                "Formules et fonction SOMME",
+                "Copier les formules & références de cellules",
+                "Tableaux simples, tri & filtres",
+                "Graphiques de base",
+                "Exporter en PDF & mini-projet",
               ].map((title, index) => (
                 <ListItem key={title} sx={{ py: 0.3 }}>
                   <ListItemText
@@ -246,115 +249,33 @@ export default function WordBeginnerCoursePage() {
         Contenu détaillé du cours
       </Typography>
 
-      {/* 0. INTRO + IMAGE INTERFACE */}
+      {/* 0. INTRO + INTERFACE */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1">
-            0. Introduction à Microsoft Word et à l&apos;interface
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Grid container spacing={2}>
-            <Grid size={{xs:12,md:7}}>
-              <Typography variant="body2" sx={{ mb: 1.5 }}>
-                Dans cette leçon, l&apos;apprenant découvre ce qu&apos;est un logiciel de
-                traitement de texte et à quoi sert Microsoft Word dans la vie
-                personnelle et professionnelle.
-              </Typography>
-              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                Points clés :
-              </Typography>
-              <List dense>
-                <ListItem>
-                  <ListItemText primary="Présentation des principaux usages : lettres, rapports, CV, comptes rendus." />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Découverte de l'interface : ruban, onglets, zone de texte, barre d'état." />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Présentation des raccourcis utiles : Ctrl+S, Ctrl+Z, Ctrl+Y, Ctrl+C, Ctrl+V." />
-                </ListItem>
-              </List>
-
-              <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                Exercice pratique :
-              </Typography>
-              <Typography variant="body2">
-                Ouvrir Microsoft Word, créer un document vierge et repérer :
-              </Typography>
-              <List dense>
-                <ListItem>
-                  <ListItemText primary="L'onglet Accueil et le ruban associé." />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="La barre d'état (nombre de pages, langue, zoom)." />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Le bouton d'enregistrement dans la barre d'outils rapide." />
-                </ListItem>
-              </List>
-            </Grid>
-
-            <Grid size={{xs:12,md:5}}>
-              <Box
-                sx={{
-                  position: "relative",
-                  width: "100%",
-                  height: 220,
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  border: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Image
-                  src="/word-interface.png"
-                  alt="Interface Word - Ruban et zone de texte"
-                  //fill
-                  width={200}
-                  height={100}
-                  style={{ 
-                    width:'100%',
-                    height:'auto',
-                    objectFit: "cover" 
-                  }}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </Box>
-            </Grid>
-          </Grid>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* 1. CREER / ENREGISTRER + IMAGE NOUVEAU DOC */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1">
-            1. Créer, ouvrir et enregistrer un document
+            0. Introduction à Excel & interface
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
               <Typography variant="body2" sx={{ mb: 1.5 }}>
-                Cette leçon apprend à créer un nouveau document, à ouvrir un document
-                existant et à enregistrer son travail correctement.
+                Dans cette leçon, l&apos;apprenant découvre à quoi sert Excel et
+                l&apos;organisation générale de l&apos;interface : ruban, onglets, zone
+                de cellules, barre de formule.
               </Typography>
               <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Points clés :
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Créer un document vierge à partir de l'écran d'accueil de Word." />
+                  <ListItemText primary="Excel est un tableur : il sert à manipuler des données sous forme de tableau et à faire des calculs." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Différence entre « Enregistrer » et « Enregistrer sous »." />
+                  <ListItemText primary="Comprendre la grille de cellules : colonnes (A, B, C...) et lignes (1, 2, 3...). " />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Choisir un emplacement logique : Documents, Bureau, Dossier de projet." />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Comprendre les formats : .docx (document modifiable) et .pdf (version finale)." />
+                  <ListItemText primary="Identifier le ruban, les onglets (Accueil, Insertion, Mise en page...) et la barre de formule." />
                 </ListItem>
               </List>
 
@@ -363,13 +284,13 @@ export default function WordBeginnerCoursePage() {
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Créer un nouveau document vide." />
+                  <ListItemText primary="Ouvrir Excel et créer un classeur vierge." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Taper la phrase : « Ceci est mon premier document Word. »" />
+                  <ListItemText primary="Cliquer sur quelques cellules et observer leur référence (ex: A1, B3, C5)." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Enregistrer le document sous le nom « MonPremierDocument.docx » sur le Bureau." />
+                  <ListItemText primary="Repérer la barre de formule et les onglets principaux." />
                 </ListItem>
               </List>
             </Grid>
@@ -387,8 +308,8 @@ export default function WordBeginnerCoursePage() {
                 }}
               >
                 <Image
-                  src="/word-new-document.png"
-                  alt="Création et enregistrement d'un document Word"
+                  src="/excel-interface.png"
+                  alt="Interface Excel - grille et ruban"
                   fill
                   style={{ objectFit: "cover" }}
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -399,180 +320,36 @@ export default function WordBeginnerCoursePage() {
         </AccordionDetails>
       </Accordion>
 
-      {/* 2. SAISIR / MODIFIER */}
+      {/* 1. CLASSEUR / FEUILLES / CELLULES */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1">
-            2. Saisir et modifier du texte
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" sx={{ mb: 1.5 }}>
-            Dans cette leçon, l&apos;apprenant découvre comment saisir du texte, le
-            modifier, le déplacer et corriger les erreurs.
-          </Typography>
-          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-            Points clés :
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Saisie de texte au clavier (lettres, chiffres, caractères spéciaux)." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Utilisation des touches Retour arrière et Suppr pour corriger." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Sélection du texte avec la souris ou le clavier (Maj + flèches)." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Copier, couper, coller du texte (Ctrl+C, Ctrl+X, Ctrl+V)." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Annuler / rétablir une action (Ctrl+Z, Ctrl+Y)." />
-            </ListItem>
-          </List>
-
-          <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-            Exercice pratique :
-          </Typography>
-          <Typography variant="body2">
-            Écrire un paragraphe de 5 à 6 lignes sur un sujet simple (présentation
-            personnelle), puis :
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Corriger une faute volontairement ajoutée." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Déplacer une phrase du début vers la fin du paragraphe." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Annuler puis rétablir une modification avec Ctrl+Z et Ctrl+Y." />
-            </ListItem>
-          </List>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* 3. MISE EN FORME TEXTE */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1">
-            3. Mettre en forme le texte (police, taille, couleur, alignement)
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" sx={{ mb: 1.5 }}>
-            Cette leçon aborde la mise en forme de base du texte pour rendre le
-            document lisible et professionnel.
-          </Typography>
-          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-            Points clés :
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Changer la police et la taille du texte." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Mettre un mot ou une phrase en gras, italique, souligné." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Modifier la couleur du texte et la couleur de surbrillance." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Aligner un paragraphe : gauche, centré, droite, justifié." />
-            </ListItem>
-          </List>
-
-          <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-            Exercice pratique :
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Créer un titre centré en police plus grande (ex: 20pt), en gras." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Mettre en italique une citation dans le texte." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Justifier le paragraphe principal pour un alignement propre." />
-            </ListItem>
-          </List>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* 4. PARAGRAPHES / LISTES / STYLES */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1">
-            4. Paragraphes, listes et styles
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" sx={{ mb: 1.5 }}>
-            Cette leçon apprend à structurer le texte avec des paragraphes, des
-            listes à puces ou numérotées, et des styles prédéfinis.
-          </Typography>
-          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-            Points clés :
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Gérer les sauts de ligne et les sauts de paragraphe." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Utiliser des listes à puces pour lister des éléments." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Créer une liste numérotée simple (1, 2, 3...). " />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Appliquer un style Titre 1, Titre 2 pour structurer le document." />
-            </ListItem>
-          </List>
-
-          <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-            Exercice pratique :
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Créer un titre principal avec le style « Titre 1 »." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Créer une liste à puces de 4 éléments (ex: compétences, qualités)." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Créer une liste numérotée de 3 étapes." />
-            </ListItem>
-          </List>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* 5. INSERER IMAGES + IMAGE D'ILLUSTRATION */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1">
-            5. Insérer des images dans un document
+            1. Classeur, feuilles, lignes, colonnes et cellules
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
               <Typography variant="body2" sx={{ mb: 1.5 }}>
-                Cette leçon montre comment insérer une image dans le document et
-                ajuster sa taille et sa position.
+                Cette leçon explique la structure d&apos;un fichier Excel : un
+                classeur contient une ou plusieurs feuilles, composées de lignes
+                et de colonnes.
               </Typography>
               <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Points clés :
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Utiliser l’onglet Insertion → Image → À partir de ce périphérique." />
+                  <ListItemText primary="Un fichier Excel = un classeur (.xlsx)." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Redimensionner l’image en tirant sur les poignées." />
+                  <ListItemText primary="Un classeur contient des feuilles (Feuil1, Feuil2, etc.)." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Choisir un mode d’habillage du texte (aligné, carré, etc.)." />
+                  <ListItemText primary="Une cellule est l'intersection d'une ligne et d'une colonne (ex: B3)." />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Renommer une feuille (double clic sur l'onglet de la feuille)." />
                 </ListItem>
               </List>
 
@@ -581,13 +358,13 @@ export default function WordBeginnerCoursePage() {
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Insérer une image (logo, photo simple)." />
+                  <ListItemText primary="Renommer la feuille active en « Données »." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Réduire sa taille à environ la moitié." />
+                  <ListItemText primary="Ajouter une nouvelle feuille et la nommer « Calculs »." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Positionner l’image à droite avec un habillage « Carré »." />
+                  <ListItemText primary="Sélectionner la cellule C3 et vérifier que la barre de nom indique bien C3." />
                 </ListItem>
               </List>
             </Grid>
@@ -605,8 +382,8 @@ export default function WordBeginnerCoursePage() {
                 }}
               >
                 <Image
-                  src="/word-insert-image.png"
-                  alt="Exemple d'insertion d'image dans Word"
+                  src="/excel-new-workbook.png"
+                  alt="Nouveau classeur Excel avec feuilles"
                   fill
                   style={{ objectFit: "cover" }}
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -617,35 +394,129 @@ export default function WordBeginnerCoursePage() {
         </AccordionDetails>
       </Accordion>
 
-      {/* 6. TABLEAU + IMAGE TABLEAU */}
+      {/* 2. SAISIE / TYPES DE DONNEES */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1">
-            6. Insérer un tableau simple
+            2. Saisir des données : texte, nombres, dates
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            Dans cette leçon, l&apos;apprenant apprend à saisir correctement différents
+            types de données dans les cellules.
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+            Points clés :
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="Saisir du texte simple (noms, intitulés)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Saisir des nombres (quantités, montants)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Saisir des dates (par ex: 01/01/2025) et voir l'affichage automatique." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Valider une cellule (Entrée) et se déplacer avec les flèches." />
+            </ListItem>
+          </List>
+
+          <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
+            Exercice pratique :
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="En A1, saisir « Produit », en B1 « Quantité », en C1 « Prix »." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Remplir 3 lignes de produits factices (texte + nombres)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="En D1, saisir « Date » et saisir une date en D2." />
+            </ListItem>
+          </List>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* 3. MISE EN FORME DE BASE */}
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="subtitle1">
+            3. Mise en forme de base : police, bordures, formats de nombre
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            Cette leçon se concentre sur la présentation : rendre le tableau plus
+            lisible grâce à la mise en forme.
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+            Points clés :
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="Mettre en gras les en-têtes (ligne 1)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Ajouter des bordures autour du tableau." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Ajuster la largeur des colonnes (double clic sur la séparation)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Appliquer un format monétaire sur une colonne de prix." />
+            </ListItem>
+          </List>
+
+          <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
+            Exercice pratique :
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="Mettre la ligne des en-têtes en gras et centrer le texte." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Appliquer un format monétaire à la colonne des prix." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Ajouter des bordures au tableau de données." />
+            </ListItem>
+          </List>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* 4. FORMULES & SOMME + IMAGE FORMULE */}
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="subtitle1">
+            4. Formules de base & fonction SOMME
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
               <Typography variant="body2" sx={{ mb: 1.5 }}>
-                Ici, on apprend à insérer un tableau pour structurer des données
-                simples (liste de personnes, inventaire, etc.).
+                On aborde ici le cœur d&apos;Excel : les formules. Comment écrire une
+                formule simple et utiliser la fonction SOMME.
               </Typography>
               <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Points clés :
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Insertion → Tableau → glisser pour choisir le nombre de lignes et de colonnes." />
+                  <ListItemText primary="Une formule commence toujours par un signe égal (=)." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Saisir du texte dans les cellules." />
+                  <ListItemText primary="Formule simple : =2+3, ou =A2*B2." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Ajouter ou supprimer des lignes/colonnes." />
+                  <ListItemText primary="Fonction SOMME : =SOMME(C2:C4) pour additionner plusieurs cellules." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Appliquer un style de tableau simple (bandes de couleur, bordures)." />
+                  <ListItemText primary="Utiliser l'assistant Somme automatique (Σ) dans le ruban." />
                 </ListItem>
               </List>
 
@@ -654,10 +525,13 @@ export default function WordBeginnerCoursePage() {
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Créer un tableau 3 colonnes : Nom, Âge, Ville." />
+                  <ListItemText primary="En D2, saisir une formule =B2*C2 pour calculer le total d’un produit." />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Ajouter 3 lignes avec des informations fictives." />
+                  <ListItemText primary="Recopier la formule vers le bas (D3, D4...)." />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="En D5, utiliser =SOMME(D2:D4) pour calculer le total général." />
                 </ListItem>
               </List>
             </Grid>
@@ -675,8 +549,8 @@ export default function WordBeginnerCoursePage() {
                 }}
               >
                 <Image
-                  src="/word-table-example.png"
-                  alt="Exemple de tableau Word"
+                  src="/excel-basic-formula.png"
+                  alt="Exemple de formules de base dans Excel"
                   fill
                   style={{ objectFit: "cover" }}
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -687,30 +561,27 @@ export default function WordBeginnerCoursePage() {
         </AccordionDetails>
       </Accordion>
 
-      {/* 7. MISE EN PAGE & NUMEROTATION */}
+      {/* 5. COPIER FORMULES & REFERENCES */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1">
-            7. Mise en page, en-têtes, pieds de page et numérotation
+            5. Copier les formules & références de cellules
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body2" sx={{ mb: 1.5 }}>
-            Cette leçon permet de préparer un document à l&apos;impression ou à
-            l&apos;envoi : marges, orientation, en-têtes et pieds de page.
+            Cette leçon montre comment Excel recopie les formules en adaptant les
+            références de cellules (relatives).
           </Typography>
           <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
             Points clés :
           </Typography>
           <List dense>
             <ListItem>
-              <ListItemText primary="Onglet Mise en page : marges, orientation (Portrait/Paysage)." />
+              <ListItemText primary="Recopie de formule avec la poignée de recopie (coin inférieur droit de la cellule)." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Insertion → En-tête et pied de page." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Insertion → Numéro de page (en bas, centré par exemple)." />
+              <ListItemText primary="Comprendre que A2 devient A3, A4... lors de la recopie." />
             </ListItem>
           </List>
 
@@ -719,66 +590,172 @@ export default function WordBeginnerCoursePage() {
           </Typography>
           <List dense>
             <ListItem>
-              <ListItemText primary="Passer le document en orientation Portrait." />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Ajouter un numéro de page centré en bas de la page." />
+              <ListItemText primary="Recopier une formule de D2 jusqu'à D4 et vérifier les références (B3*C3, B4*C4...)." />
             </ListItem>
           </List>
         </AccordionDetails>
       </Accordion>
 
-      {/* 8. EXPORT PDF + PROJET FINAL */}
+      {/* 6. TABLEAU / TRI / FILTRES */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1">
-            8. Exporter en PDF & projet final
+            6. Tableaux simples : tri & filtres
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body2" sx={{ mb: 1.5 }}>
-            Dernière étape : transformer le document en fichier PDF prêt à être
-            transmis ou imprimé, puis réaliser un mini-projet qui récapitule tout.
+            Ici, l&apos;apprenant découvre comment traiter un petit tableau de
+            données : tri et filtres automatiques.
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+            Points clés :
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="Sélectionner le tableau de données (en-têtes compris)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Activer le filtre automatique (Onglet Données → Filtrer)." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Trier par ordre croissant/décroissant une colonne numérique." />
+            </ListItem>
+          </List>
+
+          <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
+            Exercice pratique :
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="Activer le filtre sur ton tableau Produit / Quantité / Prix." />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Trier les produits par prix, du moins cher au plus cher." />
+            </ListItem>
+          </List>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* 7. GRAPHIQUES + IMAGE GRAPHIQUE */}
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="subtitle1">
+            7. Créer un graphique simple
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={7}>
+              <Typography variant="body2" sx={{ mb: 1.5 }}>
+                Cette leçon apprend à transformer un petit tableau de données en
+                graphique visuel (histogramme ou camembert).
+              </Typography>
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                Points clés :
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemText primary="Sélectionner les données (ex: A1:A4 et D1:D4 : Produits + Total)." />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Onglet Insertion → Graphiques (colonnes, secteurs, etc.)." />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Modifier le titre du graphique." />
+                </ListItem>
+              </List>
+
+              <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
+                Exercice pratique :
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemText primary="Créer un graphique en colonnes des totaux par produit." />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Renommer le titre du graphique en « Ventes par produit »." />
+                </ListItem>
+              </List>
+            </Grid>
+
+            <Grid item xs={12} md={5}>
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: 220,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Image
+                  src="/excel-chart-example.png"
+                  alt="Graphique simple dans Excel"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* 8. EXPORT PDF & MINI PROJET */}
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="subtitle1">
+            8. Exporter en PDF & mini-projet
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            Dernière étape : sauvegarder correctement le classeur et l&apos;exporter
+            en PDF. Puis réaliser un mini-projet qui récapitule toutes les
+            notions vues.
           </Typography>
           <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
             Exporter en PDF :
           </Typography>
           <List dense>
             <ListItem>
-              <ListItemText primary="Fichier → Enregistrer sous → Choisir le type PDF." />
+              <ListItemText primary="Fichier → Enregistrer sous → choisir le type « PDF »." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Donner un nom clair au fichier (ex: « DocumentFinal.pdf »)." />
+              <ListItemText primary="Vérifier les paramètres de zone d'impression si nécessaire." />
             </ListItem>
           </List>
 
           <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-            Projet final :
+            Mini-projet de fin de module :
           </Typography>
           <Typography variant="body2">
-            Créer un document d&apos;une page qui contient :
+            Créer un tableau de ventes simples :
           </Typography>
           <List dense>
             <ListItem>
-              <ListItemText primary="Un titre centré en haut (style « Titre 1 »)." />
+              <ListItemText primary="En-têtes : Produit, Quantité, Prix unitaire, Total." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Un paragraphe de 5 lignes de texte." />
+              <ListItemText primary="Remplir au moins 4 lignes de produits." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Une liste à puces de 4 éléments." />
+              <ListItemText primary="Créer une formule Total = Quantité × Prix unitaire et la recopier." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Une image insérée et redimensionnée." />
+              <ListItemText primary="Calculer le total général avec =SOMME." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Un tableau avec 3 colonnes et au moins 2 lignes." />
+              <ListItemText primary="Mettre en forme le tableau (gras, bordures, format monétaire)." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Un numéro de page en bas." />
+              <ListItemText primary="Créer un graphique en colonnes des totaux par produit." />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Exporter le document en PDF." />
+              <ListItemText primary="Enregistrer le classeur et l’exporter en PDF." />
             </ListItem>
           </List>
         </AccordionDetails>
@@ -794,7 +771,7 @@ export default function WordBeginnerCoursePage() {
         </Stack>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Ce quiz permet de valider la compréhension des notions de base abordées
-          dans le cours. Idéalement, il est réalisé après le projet final.
+          dans le cours Excel débutant.
         </Typography>
 
         <Grid container spacing={2}>

@@ -207,7 +207,8 @@ export default function DashboardCalendar() {
     {
       session && slot && <DialogSession session={session} selectedSlot={slot} isOpen={isOpen} />
     }
-    <Stack sx={{
+  {
+    !isLoading &&   <Stack sx={{
       width: '100%',
       flex: 1,
       maxWidth: '100%',         // ne jamais dépasser la largeur écran
@@ -362,5 +363,6 @@ export default function DashboardCalendar() {
         />
       </Box>
     </Stack>
+  }
   </DashboardPageWrapper>);
 }

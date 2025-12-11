@@ -427,11 +427,10 @@ export class ClassUser {
                 icon: <IconLessons width={18} height={18} />,
             }*/]
         },
-
         {
-            name: "users",
-            path: PAGE_DASHBOARD_USERS,
-            icon: <IconUsers width={20} height={20} />,
+            name: "calendar",
+            path: PAGE_DASHBOARD_CALENDAR,
+            icon: <IconCalendar width={20} height={20} />,
             subs: [/*{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
@@ -454,39 +453,20 @@ export class ClassUser {
             }*/]
         },
         {
-            name: "calendar",
-            path: PAGE_DASHBOARD_CALENDAR,
-            icon: <IconCalendar width={20} height={20} />,
+            name: "users",
+            path: PAGE_DASHBOARD_USERS,
+            icon: <IconUsers width={20} height={20} />,
             subs: [/*{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
                 icon: <IconLessons width={18} height={18} />,
             }*/]
         },
-        /*
-        {
-            name: "tutors",
-            path: PAGE_DASHBOARD_TUTORS,
-            icon: <IconTutors width={18} height={18} />,
-        },
-        {
-            name: "students",
-            path: PAGE_DASHBOARD_STUDENTS,
-            icon: <IconStudents width={18} height={18} />,
-        },
-        */
         {
             name: "profile",
             path: PAGE_DASHBOARD_PROFILE,
             icon: <IconProfile width={20} height={20} />,
         },
-            /*
-            {
-                name: "settings",
-                path: PAGE_DASHBOARD_SETTINGS,
-                icon: <IconSettings width={22} height={22} />,
-            },
-            */
         ]
     }
     // ---------- Converter intégré ----------
@@ -545,6 +525,7 @@ export class ClassUser {
     }
 
     static colRef() {
+        console.log("CLASSS", this.COLLECTION)
         return collection(firestore, this.COLLECTION).withConverter(this.converter);
     }
 
@@ -552,10 +533,16 @@ export class ClassUser {
         return doc(firestore, this.COLLECTION, id).withConverter(this.converter);
     }
 
-    static async count() {
+    static async count(constraints = []) {
         //const coll = collection(firestore, ClassUser.COLLECTION);
         const coll = this.colRef();
-        const snap = await getCountFromServer(coll);
+        const q = constraints.length
+            ? query(coll, ...constraints)
+            : coll;
+
+        const snap = await getCountFromServer(q);
+        //const snap = await getCountFromServer(coll);
+        console.log("YAAA", "")
         return snap.data().count; // -> nombre total
     }
     static async countByDates(start_date = null, end_date = null) {
@@ -885,6 +872,39 @@ export class ClassUserExtern extends ClassUser {
         if (this._how_know === ClassUserExtern.HOW_KNOW.OTHER) return (true);
         return (false);
     }
+        menuDashboard() {
+        return [{
+            name: "dashboard",
+            path: PAGE_DASHBOARD_HOME,
+            icon: <IconDashboard width={20} height={20} />,
+            subs: [/*{
+                name: "lessons",
+                path: PAGE_DASHBOARD_HOME,
+                icon: <IconLessons width={18} height={18} />,
+            }*/]
+        },
+        {
+            name: "calendar",
+            path: PAGE_DASHBOARD_CALENDAR,
+            icon: <IconCalendar width={20} height={20} />,
+            subs: [/*{
+                name: "lessons",
+                path: PAGE_DASHBOARD_HOME,
+                icon: <IconLessons width={18} height={18} />,
+            }*/]
+        },
+        {
+            name: "lessons",
+            path: PAGE_LESSONS,
+            icon: <IconLessons width={18} height={18} />,
+        },
+        {
+            name: "profile",
+            path: PAGE_DASHBOARD_PROFILE,
+            icon: <IconProfile width={20} height={20} />,
+        },
+        ]
+    }
 }
 {/* STUDENT */ }
 export class ClassUserTeacher extends ClassUserExtern {
@@ -893,7 +913,7 @@ export class ClassUserTeacher extends ClassUserExtern {
     ];
     constructor(props = { role: ClassUser.ROLE.STUDENT }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
-        this._role_title=props.role_title;
+        this._role_title = props.role_title;
         this._bio = props.bio;
     }
     get role_title() { return this._role_title; }
@@ -901,7 +921,20 @@ export class ClassUserTeacher extends ClassUserExtern {
     get bio() { return this._bio; }
     set bio(val) { this._bio = val; }
     clone() {
-        return new ClassUserStudent(this.toJSON());
+        return new ClassUserTeacher(this.toJSON());
+    }
+    static async count(constraints = []) {
+        constraints.push(where('role', '==', this.ROLE.TEACHER));
+        //const coll = collection(firestore, ClassUser.COLLECTION);
+        const coll = this.colRef();
+        const q = constraints.length
+            ? query(coll, ...constraints)
+            : coll;
+
+        const snap = await getCountFromServer(q);
+        //const snap = await getCountFromServer(coll);
+        console.log("YAAA", "")
+        return snap.data().count; // -> nombre total
     }
 }
 {/* STUDENT */ }
@@ -914,6 +947,19 @@ export class ClassUserStudent extends ClassUserExtern {
     }
     clone() {
         return new ClassUserStudent(this.toJSON());
+    }
+    static async count(constraints = []) {
+        constraints.push(where('role', '==', this.ROLE.STUDENT));
+        //const coll = collection(firestore, ClassUser.COLLECTION);
+        const coll = this.colRef();
+        const q = constraints.length
+            ? query(coll, ...constraints)
+            : coll;
+
+        const snap = await getCountFromServer(q);
+        //const snap = await getCountFromServer(coll);
+        console.log("YAAA", "")
+        return snap.data().count; // -> nombre total
     }
 }
 {/* PROFESSIONAL */ }

@@ -222,7 +222,7 @@ export default function SessionComponent({ session = null, selectedSlot = null }
                 </span>
               )}
             </div>
-     
+
             <div className="hero-meta">
               <MetaChip
                 label={t('dates')}
@@ -253,12 +253,12 @@ export default function SessionComponent({ session = null, selectedSlot = null }
                 <h2 className="teacher-label">{t('modalities')}</h2>
                 <InfoRow label={t('session_uid')} value={t(selectedSlot?.uid_intern)} />
                 <InfoRow label={t('format')} value={t(selectedSlot?.format)} />
-                                <InfoRow label={t('level')} value={t(session?.lesson?.level)} />
-                <InfoRow label={t('lang', {ns:NS_LANGS})} value={t(session?.lesson?.lang, {ns:NS_LANGS})} />
+                <InfoRow label={t('level')} value={t(session?.lesson?.level)} />
+                <InfoRow label={t('lang', { ns: NS_LANGS })} value={t(session?.lesson?.lang, { ns: NS_LANGS })} />
                 <InfoRow label={t('start_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.start_date)} />
                 <InfoRow label={t('end_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.end_date)} />
 
-                
+
                 <InfoRow
                   label={t('duration_total')}
                   value={`${formatDuration(session?.duration)} heures`}
@@ -274,61 +274,12 @@ export default function SessionComponent({ session = null, selectedSlot = null }
                   <InfoRow
                     label="Lien du cours"
                     value={<Stack justifyContent={'center'}>
-                      <Link href={selectedSlot?.url} target="_blank" style={{color:'var(--primary)'}}>{selectedSlot?.url}</Link>
+                      <Link href={selectedSlot?.url} target="_blank" style={{ color: 'var(--primary)' }}>{selectedSlot?.url}</Link>
                     </Stack>}
                   />
                 )}
               </div>
             </div>
-
-            <Grid container spacing={1} sx={{ py: 1 }}>
-              {
-                [ONSITE, ONLINE].map((format, i) => {
-                  return (<Grid key={`${format}-${i}`} size={{ xs: 12, sm: 'grow' }} sx={{
-                    border: `0.1px solid var(--card-border)`,
-                    borderRadius: '10px',
-                    p: 1,
-                    //background: `${FORMAT_CONFIG['online']?.glow}`,
-                    display: selectedSlot?.format === ClassSession.FORMAT.HYBRID || selectedSlot?.format === format ? 'block' : 'none'
-                  }}>
-                    <Stack direction={'row'} spacing={1}>
-                      <BadgeFormatLesson format={format} />
-                      <p className="seats-main">
-                        {session?.countSubscribers?.(format)}/{session?.[`seats_availables_${format}`]} {t('seats_taken')}
-                      </p>
-                    </Stack>
-                    <div className="hero-seats">
-
-                      <p className="seats-sub">
-                        {session?.isFull?.(format)
-                          ? "Cours complet actuellement"
-                          : `${session?.[`seats_availables_${format}`] - session?.countSubscribers(format)} ${t('seats_availables')}`}
-                      </p>
-
-                      <div className="seats-bar">
-                        <div
-                          className="seats-fill"
-                          style={{
-                            width: `${(session?.countSubscribers(format) / session?.[`seats_availables_${format}`]) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <ButtonConfirm
-                      disabled={session?.isFull?.(format)}
-                      onClick={() => {
-                        session?.subscribeStudent?.(user.uid, format);
-                      }}
-                      label={t('btn-subscribe')}
-                      style={{ marginTop: '10px' }}
-                    />
-                    <p className="secure-note">
-                      ✅ {t('security')}
-                    </p>
-                  </Grid>)
-                })
-              }
-            </Grid>
           </div>
 
           {/* Bloc inscription intégré dans le hero */}
@@ -363,7 +314,7 @@ export default function SessionComponent({ session = null, selectedSlot = null }
               )}
             </div>
             {/* PROFESSEUR */}
-                        <div className="card" style={{ borderColor: 'var(--card-border)' }}>
+            <div className="card" style={{ borderColor: 'var(--card-border)' }}>
               <h2>Professeur du cours</h2>
               <div className="teacher-main">
 
@@ -432,7 +383,7 @@ Certification : Oui (Dandela Academy)
         
                 .hero-card {
                   display: grid;
-                  grid-template-columns: minmax(0, 2fr) minmax(260px, 1.2fr);
+                  grid-template-columns: minmax(0, 2fr) minmax(260px, 1.5fr);
                   gap: 18px;
                   border-radius: 18px;
                   border: 1px solid #1f2937;

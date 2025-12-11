@@ -73,7 +73,7 @@
   --session-status-open-glow: #3ce0a254;
   --session-status-full: rgb(249, 115, 22);
   --session-status-full-glow: rgba(249, 115, 22, 0.33);
-    --session-status-finished: #e70d0dff;
+  --session-status-finished: #e70d0dff;
   --session-status-finished-glow: #e70d0d54;
 
   --session-status-expired: #eab308;
@@ -128,13 +128,14 @@
 }
 
 .dark {
-    --blackColor: #1c1c1c;
+  --blackColor: #1c1c1c;
+  --primary: #2676ff;
   --background: #0f0f0f;
   --card-color: #000000;
   --font-color: #FFFFFF;
   --font-reverse-color: #000000;
-    --grey-light: #3E3E3E;
-      --grey-hyper-light: #1c1c1c;
+  --grey-light: #3E3E3E;
+  --grey-hyper-light: #1c1c1c;
   --grey-hyper-dark: #e4e4e4;
   --grey-dark: #A6A6A6;
 

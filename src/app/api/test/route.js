@@ -21,6 +21,7 @@ Texte source (${sourceLang}) :
 ${JSON.stringify(text, null, 2)}
 
 Traduis ce texte dans les langues suivantes : ${_languages.join(", ")}.
+Et corrige les fautes d'orthographes de la langue entrée : ${sourceLang}
 
 Tu dois renvoyer STRICTEMENT un JSON de la forme :
 

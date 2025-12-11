@@ -34,7 +34,7 @@ export default function DialogSubscribeSession({
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
   const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
-    const { session, sessions,slot} = useSession();
+    const { session, sessions,slot, setUidSession, setUidSlot} = useSession();
   const { user } = useAuth();
   const { lang } = useLanguage();
   const [mode, setMode] = useState('create');
@@ -60,6 +60,8 @@ export default function DialogSubscribeSession({
     //setDevice(null);
     //setDeviceEdit(null);
     //setMode('read');
+    //setUidSession(null);
+    //setUidSlot(null);
     setOpen(false);
   };
 
@@ -70,7 +72,7 @@ export default function DialogSubscribeSession({
         inert={processing}
         //maxWidth={'lg'}
         open={open}
-        //onClose={handleClose}
+        onClose={handleClose}
         scroll={'paper'}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
@@ -109,28 +111,11 @@ export default function DialogSubscribeSession({
         <DialogTitle id="scroll-dialog-title">
           <Stack direction={'row'} justifyContent={'end'}>
 
-            <CloseIcon sx={{ cursor: 'pointer' }} onClick={actionCancel} />
+            <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
           </Stack>
         </DialogTitle>
         <DialogContent dividers={true} sx={{ p: { xs: 1, md: 3 }, pt: { xs: 0, md: 0 } }}>
-            <Stack spacing={2} alignItems={'center'}>
-            <Typography variant='h5'>{title}</Typography>
-            <Stack direction={'row'} spacing={1} alignItems={'center'}>
-              <ButtonCancel disabled={processing} label={labelCancel} variant='contained'
-                onClick={actionCancel} />
-              <ButtonConfirm loading={processing} disabled={processing} label={labelConfirm} variant='contained' 
-              onClick={()=>{
-                setProcessing(true);
-                actionConfirm();
-                setProcessing(false);
-                actionCancel();
-              }} 
-              />
-            </Stack>
-          </Stack>
           <SessionSubscribeComponent session={session} selectedSlot={slot} />
-        
-
         </DialogContent>
 
       </Dialog>

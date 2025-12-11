@@ -135,13 +135,13 @@ export function AuthProvider({ children }) {
             // const model = new ClassUser(data);
             /*
             */
-            const _user = data.clone();
+            const _user = data;
             //setUser(_user);
             setUser(prev=>{
-                if(!prev || prev === null) return _user;
+                if(!prev || prev === null) return _user.clone();
                 prev.update(_user.toJSON());
-                console.log('set prev user', _user);
-                return prev;
+                //console.log('set prev user', _user);
+                return prev.clone();
             });
             setIsConnected(true);
             setIsLoading(false);
