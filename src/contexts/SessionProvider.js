@@ -59,7 +59,7 @@ export function SessionProvider({ children }) {
         if (uidSlot && session) {
             //const _session = getOneSession(uidSession);
             const _slot = session.slots?.find?.(a => a.uid_intern === uidSlot);
-            console.log("get one slot", _slot)
+            //console.log("get one slot", _slot)
             setSlot(_slot);
         } else {
             setSlot(null);
@@ -79,7 +79,7 @@ export function SessionProvider({ children }) {
         // console.log("Col ref provider", colRef);
         const snapshotSessions = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
-            console.log("snap", snap.size);
+            //console.log("snap", snap.size);
             if (snap.empty) {
                 setSessions([]);
                 setSession(null);
@@ -113,7 +113,7 @@ export function SessionProvider({ children }) {
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
-            console.log("OBJECT list SLOTS", _slots)
+           // console.log("OBJECT list SLOTS", _slots)
             setSessions(_sessions);
             setSlots(_slots);
             setIsLoading(false);
@@ -153,7 +153,7 @@ export function SessionProvider({ children }) {
             setSession(prev => {
                 if (!prev || prev === null) return session_new;
                 prev.update(session_new.toJSON());
-                console.log('set prev session', session_new);
+               // console.log('set prev session', session_new);
                 return prev;
             });
             //setIsConnected(true);
@@ -215,10 +215,10 @@ export function SessionProvider({ children }) {
     async function update(_lesson = null) {
         if (!_lesson || _lesson === null || !(_lesson instanceof ClassSession)) return;
         setIsLoading(true);
-        console.log("start update")
+       // console.log("start update")
         //var newDevice = await _device.createFirestore();
         var updatedLesson = await _lesson.updateFirestore();
-        console.log("start update firestore", updatedLesson)
+        //console.log("start update firestore", updatedLesson)
         try {
             if (updatedLesson) {
                 //setSession(updatedLesson.clone());
@@ -286,7 +286,7 @@ export function SessionProvider({ children }) {
             setSession(null);
         }
 
-        console.log("change session", _lesson)
+     //   console.log("change session", _lesson)
 
     }
 
