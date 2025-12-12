@@ -18,11 +18,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-//const analytics = getAnalytics(app);
 // Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
-import {  } from 'firebase/firestore';
-//const firestore = initializeFirestore(app);
 const firestore = getFirestore(app);
 const storage = getStorage(app);
-export {auth, app,firestore,storage}
+export {app, auth, firestore,storage}

@@ -126,8 +126,7 @@ const LoginPageWrapper = ({ children }) => {
     }
     //init()
   })
-  if (user) {
-    
+  if (isLoading) {
     return (<Preloader />);
   }
   return (<Stack 

@@ -101,9 +101,8 @@ export default function LoginComponent() {
                     fullWidth
                 />
             </Stack>
-
             {
-                !isErrorActivate && !isLoading && <Link href={PAGE_FORGOT_PASSWORD} style={{ color: ClassColor.GREY_LIGHT }}>
+                !isLoading && <Link href={PAGE_FORGOT_PASSWORD} style={{ color: ClassColor.GREY_LIGHT }}>
                     <p className="link">{t('btn-forgot-password')}</p>
                 </Link>
             }

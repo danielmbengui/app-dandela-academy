@@ -33,7 +33,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     return (
         <div>
             {
-                label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block" style={{ fontSize: '0.9rem' }}>
+                label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ fontSize: '0.9rem', marginBottom:'7px' }}>
                     {label}{required && <b style={{ color: 'red' }}>*</b>}
                 </label>
             }

@@ -24,6 +24,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Preloader from '../shared/Preloader';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import LoginPageWrapper from './LoginPageWrapper';
 
 const drawerWidth = 240;
 
@@ -167,7 +168,9 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
         return (<Preloader />);
     }
     if (!user) {
-        return (<LoginComponent />);
+        return (<LoginPageWrapper>
+            <LoginComponent />
+        </LoginPageWrapper>);
     }
 
     return (

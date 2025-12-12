@@ -36,8 +36,8 @@ import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
 import { auth, firestore } from '@/contexts/firebase/config';
-import { PAGE_HOME } from '@/contexts/constants/constants_pages';
-import { usePageActivity } from './hooks/usePageActivity';
+import { PAGE_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
+//import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
 
@@ -64,7 +64,21 @@ export function AuthProvider({ children }) {
         if (auth) {
             auth.languageCode = lang;
         }
+        console.log("LANG", lang, "AUTH", auth)
     }, [lang]);
+        useEffect(() => {
+        if (user && auth?.currentUser) {
+            if(auth.currentUser.emailVerified !== user.email_verified) {
+                async function init() {
+                    const ref = ClassUser.docRef(user.uid);
+                    await updateDoc(ref, { email_verified: auth.currentUser.emailVerified });
+                }
+                init();
+            }
+            
+        }
+        console.log("LANG", lang, "AUTH", auth)
+    }, [auth?.currentUser?.emailVerified, user]);
 /*
     usePageActivity({
         onVisible: async () => {
@@ -154,12 +168,11 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         
         console.log("AUTH", auth)
-        setIsLoading(false);
+        //setIsLoading(false);
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
-            
             if (fbUser) {
-                console.time("auth");
-                console.log("FB", fbUser.uid)
+               // console.time("auth");
+             //   console.log("FB", fbUser.uid)
                 await ClassUser.update(fbUser.uid, {
                     last_connexion_time: new Date(),
                     status: ClassUser.STATUS.ONLINE,
@@ -168,19 +181,19 @@ export function AuthProvider({ children }) {
                 setUser(_user);
                 setIsConnected(true);
             setIsLoading(false);
-            console.timeEnd("auth");
+          //  console.timeEnd("auth");
                 const unsubUser = listenToUser(fbUser);
                 //console.log("FFFF init user", fbUser);
                 return () => unsubUser?.();
             } else {
-                console.log("no user FB")
+               // console.log("no user FB")
                 setUser(null);
                 setIsConnected(false);
                 setIsLoading(false);
             }
             
         });
-        return () => unsubAuth();
+        return () => unsubAuth?.();
         
     }, [auth.currentUser]);
 
@@ -220,7 +233,7 @@ export function AuthProvider({ children }) {
                 const { uid } = user;
                 console.log("UUUID", uid);
                 
-                const student = new ClassUserStudent({uid,email});
+                const student = new ClassUserStudent({uid,email, preferred_language:lang});
                 //const displayName = student.createDisplayName();
                 setIsLoading(true);
                 await student.createFirestore();
@@ -243,15 +256,14 @@ export function AuthProvider({ children }) {
             });
             /*
             email: 'modifiedUser@example.com',
-    phoneNumber: '+11234567890',
-    emailVerified: true,
-    password: 'newPassword',
-    displayName: 'Jane Doe',
-    photoURL: 'http://www.example.com/12345678/photo.png',
-    disabled: true,
+            phoneNumber: '+11234567890',
+            emailVerified: true,
+            password: 'newPassword',
+            displayName: 'Jane Doe',
+            photoURL: 'http://www.example.com/12345678/photo.png',
+            disabled: true,
             */
     };
-
     const signIn = async (providerName = '') => {
         if (!providerName) return;
         let prov = null;
@@ -286,7 +298,6 @@ export function AuthProvider({ children }) {
             }
         }
     };
-
     const login = async (email, password) => {
         //e?.preventDefault?.();
         try {
@@ -316,6 +327,7 @@ export function AuthProvider({ children }) {
                 last_connexion_time: new Date(),
                 status: ClassUser.STATUS.ONLINE,
             });
+            setIsLoading(true);
             //setIsErrorSignIn(false);
             //setTextErrorSignIn(``);
             return ({
@@ -350,7 +362,6 @@ export function AuthProvider({ children }) {
             })
         }
     };
-
     const logout = async () => {
         const uid = auth.currentUser.uid || '';
         await ClassUser.update(uid, {
@@ -362,7 +373,7 @@ export function AuthProvider({ children }) {
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
         await signOut(auth);
-        router.replace(PAGE_HOME);
+        router.replace(PAGE_LOGIN);
         //console.log("DISC OK");
     };
     const editPassword = async (e, newPassword) => {

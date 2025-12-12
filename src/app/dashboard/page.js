@@ -1812,6 +1812,7 @@ import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_USERS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
 import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
+import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
 
 
 /** Nav item dans la sidebar */
@@ -1933,12 +1934,12 @@ function QuickLink({ emoji, label, description, link = "" }) {
 
           <Stack spacing={1} type="button">
             <div className="q-emoji">{emoji}</div>
-          <div className="q-text">
-            <p className="q-label">{label}</p>
-            <p className="q-desc">{description}</p>
-          </div>
+            <div className="q-text">
+              <p className="q-label">{label}</p>
+              <p className="q-desc">{description}</p>
+            </div>
           </Stack>
-          </Link>
+        </Link>
       </button>
 
       <style jsx>{`
@@ -2050,7 +2051,6 @@ function DashboardMessage({ msg }) {
     </>
   );
 }
-
 
 function DandelaDashboardHome() {
   const [activeMenu, setActiveMenu] = useState("accueil");
@@ -2212,8 +2212,8 @@ function DandelaDashboardHome() {
                     emoji="👥"
                     link={PAGE_DASHBOARD_USERS}
                   />
-                  
-                  
+
+
                 </div>
               </div>
               <div className="card">
@@ -2705,6 +2705,9 @@ export default function DashboardHome() {
 
 
   return (<DashboardPageWrapper>
+    <DialogCompleteProfile
+      isOpen={true}
+    />
     <DandelaDashboardHome />
   </DashboardPageWrapper>)
   /*
