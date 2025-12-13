@@ -286,7 +286,7 @@ export function AuthProvider({ children }) {
            
             await ClassUser.update(uid, {
                 last_connexion_time: new Date(),
-                status: ClassUser.STATUS.ONLINE,
+                //status: ClassUser.STATUS.ONLINE,
             });
             const _user = await ClassUser.fetchFromFirestore(uid);
             setUser(_user);
@@ -361,9 +361,10 @@ export function AuthProvider({ children }) {
         //const auth = getAuth();
         const _user = auth.currentUser;
         if (!_user) throw new Error("No authenticated user");
+        console.log("location redirect", `${window.location.origin}${window.location.pathname}`)
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
-            url: `${window.location.origin}${window.location.pathname}/auth/verified`, // ex: https://tonsite.com/auth/verified
+            url: `${window.location.origin}${window.location.pathname}`, // ex: https://tonsite.com/auth/verified
             // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
             handleCodeInApp: false,
         };
