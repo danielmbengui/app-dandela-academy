@@ -99,7 +99,7 @@ const CardComponent = ({ children, title = "", subtitle = "" }) => {
         }
     </Stack>)
 }
-export default function VerifyEmailComponent({ actionConfirm = null }) {
+export default function VerifyEmailComponent() {
     const { t } = useTranslation([NS_FORGOT_PASSWORD]);
     const { user, isLoading } = useAuth();
     const router = useRouter();

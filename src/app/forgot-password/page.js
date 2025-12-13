@@ -1,39 +1,9 @@
 "use client";
-import React, { useState } from 'react';
-import { IconEmail, IconLogo, IconTiktok } from "@/assets/icons/IconsComponent";
-import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
-import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
-import { translateWithVars } from "@/contexts/functions";
-import { NS_HOME_FOOTER } from "@/contexts/i18n/settings";
-import { useThemeMode } from "@/contexts/ThemeProvider";
-import { Box, Grid, Stack, Typography } from "@mui/material";
-import { useTranslation } from "react-i18next";
-
-import TextFieldComponent from '@/components/elements/TextFieldComponent';
-import TextFieldPasswordComponent from '@/components/elements/TextFieldPasswordComponent';
-import ButtonNextComponent from '@/components/elements/ButtonNextComponent';
-import { useAuth } from '@/contexts/AuthProvider';
-import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
-import ForgotPasswordComponent from '@/components/login/ForgotPasswordComponent';
-
-const LoginComponent = () => {
-  return (<Stack>
-
-  </Stack>)
-}
+import React from 'react';
+import ForgotPasswordComponent from '@/components/auth/login/ForgotPasswordComponent';
 
 
-
-export default function Login() {
-  const { theme } = useThemeMode();
-  const { text } = theme.palette;
-  const { t } = useTranslation([NS_HOME_FOOTER]);
-  const now = new Date();
-  const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const {user, login, logout} = useAuth();
-
+export default function ForgotPAsswordPage() {
   return(<ForgotPasswordComponent />)
   /*
   return (

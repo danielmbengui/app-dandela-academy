@@ -1,15 +1,7 @@
 "use client";
-import React, { useState } from 'react';
-import { WEBSITE_START_YEAR} from "@/contexts/constants/constants";
+import ActiveAccountComponent from '@/components/auth/login/ActiveAccountComponent';
+import React from 'react';
 
-import { NS_HOME_FOOTER } from "@/contexts/i18n/settings";
-import { useThemeMode } from "@/contexts/ThemeProvider";
-import { useTranslation } from "react-i18next";
-import { useAuth } from '@/contexts/AuthProvider';
-import LoginComponent from '@/components/login/LoginComponent';
-import RegisterComponent from '@/components/login/RegisterComponent';
-import ActiveAccountComponent from '@/components/login/ActiveAccountComponent';
-
-export default function Register() {
+export default function ActiveAccountPage() {
   return(<ActiveAccountComponent />);
 }
