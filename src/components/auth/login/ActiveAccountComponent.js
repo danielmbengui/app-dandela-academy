@@ -13,11 +13,11 @@ import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_LO
 import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import { NS_ACTIVE_ACCOUNT, NS_LOGIN } from "@/contexts/i18n/settings";
-import FieldComponent from "../elements/FieldComponent";
 import { useRouter } from "next/navigation";
 import { isValidDandelaAcademyEmail, isValidEmail } from "@/contexts/functions";
 import AlertComponent from "../elements/AlertComponent";
 import { ClassUser } from "@/classes/users/ClassUser";
+import FieldComponent from "@/components/elements/FieldComponent";
 export default function ActiveAccountComponent({ setIsLogin = null }) {
     const router = useRouter();
     const { theme } = useThemeMode();
