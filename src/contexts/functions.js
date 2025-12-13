@@ -76,6 +76,9 @@ export async function isValidPassword(password = "") {
     meetsMaxPasswordLength: status.meetsMaxPasswordLength,
   });
 }
+export function isValidDate(date) {
+  return date instanceof Date && !isNaN(date.getTime());
+}
 export function isValidEmail(email) {
   // Expression régulière pour la validation de l'email
   const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -330,7 +333,4 @@ export function convertDoubleToHour(hour = 0) {
     return `${entier}h${reste > 0 ? reste * 60 : ''}`;
   }
   return 0;
-}
-export function isValidDate(d) {
-  return d instanceof Date && !Number.isNaN(d.getTime());
 }

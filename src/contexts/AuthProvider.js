@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ClassUser, ClassUserStudent } from '@/classes/users/ClassUser';
 import {
     onAuthStateChanged,
@@ -48,8 +48,10 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
     const router = useRouter();
     const { lang } = useLanguage();
-    const { t } = useTranslation([NS_ERRORS])
-
+    const { t } = useTranslation([NS_ERRORS]);
+    const {pathname} = usePathname();
+//console.log("PATTTH", window.location.origin, window.location.pathname)
+    const [userAuth, setUserAuth] = useState(null);           // ton user métier (ou snapshot)
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
@@ -64,65 +66,51 @@ export function AuthProvider({ children }) {
         if (auth) {
             auth.languageCode = lang;
         }
-        console.log("LANG", lang, "AUTH", auth)
     }, [lang]);
-        useEffect(() => {
-        if (user && auth?.currentUser) {
-            if(auth.currentUser.emailVerified !== user.email_verified) {
-                async function init() {
-                    const ref = ClassUser.docRef(user.uid);
-                    await updateDoc(ref, { email_verified: auth.currentUser.emailVerified });
+    /*
+        usePageActivity({
+            onVisible: async () => {
+                // la page redevient visible → on repart un chrono
+                //startTimeRef.current = Date.now();
+                if (user) {
+                    setUser(prev => {
+                        if (!prev || prev === null) return null;
+                        prev.update({
+                            last_connexion_time: new Date(),
+                            status: ClassUser.STATUS.ONLINE,
+                        });
+                        return prev.clone();
+                    })
+    
+                    console.log("[Chrono] start (visible)", new Date());
                 }
-                init();
-            }
-            
-        }
-        console.log("LANG", lang, "AUTH", auth)
-    }, [auth?.currentUser?.emailVerified, user]);
-/*
-    usePageActivity({
-        onVisible: async () => {
-            // la page redevient visible → on repart un chrono
-            //startTimeRef.current = Date.now();
-            if (user) {
-                setUser(prev => {
-                    if (!prev || prev === null) return null;
-                    prev.update({
-                        last_connexion_time: new Date(),
-                        status: ClassUser.STATUS.ONLINE,
-                    });
-                    return prev.clone();
-                })
-
-                console.log("[Chrono] start (visible)", new Date());
-            }
-        },
-        onHidden: async () => {
-            // la page n'est plus visible → on arrête le chrono
-            if (user) {
-                if (auth.currentUser) {
-                    await ClassUser.update(user.uid, {
-                        last_connexion_time: new Date(),
-                        status: ClassUser.STATUS.AWAY,
-                    });
+            },
+            onHidden: async () => {
+                // la page n'est plus visible → on arrête le chrono
+                if (user) {
+                    if (auth.currentUser) {
+                        await ClassUser.update(user.uid, {
+                            last_connexion_time: new Date(),
+                            status: ClassUser.STATUS.AWAY,
+                        });
+                    }
+                    console.log("[Chrono] hidden → temps passé sur cette session:", new Date(), "s");
                 }
-                console.log("[Chrono] hidden → temps passé sur cette session:", new Date(), "s");
-            }
-        },
-        onBeforeUnload: async () => {
-            // l'utilisateur ferme/reload/navigue ailleurs
-            if (user) {
-                if (auth.currentUser) {
-                    await ClassUser.update(user.uid, {
-                        last_connexion_time: new Date(),
-                        status: ClassUser.STATUS.AWAY,
-                    });
+            },
+            onBeforeUnload: async () => {
+                // l'utilisateur ferme/reload/navigue ailleurs
+                if (user) {
+                    if (auth.currentUser) {
+                        await ClassUser.update(user.uid, {
+                            last_connexion_time: new Date(),
+                            status: ClassUser.STATUS.AWAY,
+                        });
+                    }
+                    console.log("[Chrono] beforeunload → dernière session:", new Date(), "s");
                 }
-                console.log("[Chrono] beforeunload → dernière session:", new Date(), "s");
-            }
-        },
-    });
-*/
+            },
+        });
+    */
     // écoute du doc utilisateur
     const listenToUser = useCallback((fbUser) => {
         const { uid } = fbUser;
@@ -136,16 +124,17 @@ export function AuthProvider({ children }) {
             }
             const data = snap.data();
             //console.log("DATA listne user", data);
-            const { email_verified } = data;
+            const { email_verified, status } = data;
             if (email_verified !== fbUser.emailVerified) {
                 //await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
-            //const myUser = ClassUser.makeUserInstance(uid, data.toJSON());
-
-            //const ref = doc(firestore, ClassUser.COLLECTION, fbUser.uid);
-            // Si tu as une classe métier :
-            // const model = new ClassUser(data);
             /*
+            if (status !== ClassUser.STATUS.FIRST_CONNEXION) {
+                await ClassUser.update(fbUser.uid, {
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.ONLINE,
+                });
+            }
             */
             const _user = data;
             //setUser(_user);
@@ -166,35 +155,28 @@ export function AuthProvider({ children }) {
 
     // session
     useEffect(() => {
-        
-        console.log("AUTH", auth)
-        //setIsLoading(false);
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
             if (fbUser) {
-               // console.time("auth");
-             //   console.log("FB", fbUser.uid)
-                await ClassUser.update(fbUser.uid, {
-                    last_connexion_time: new Date(),
-                    status: ClassUser.STATUS.ONLINE,
-                });
                 const _user = await ClassUser.fetchFromFirestore(fbUser.uid);
                 setUser(_user);
+                setUserAuth(fbUser);
                 setIsConnected(true);
-            setIsLoading(false);
-          //  console.timeEnd("auth");
+                setIsLoading(false);
+                //  console.timeEnd("auth");
                 const unsubUser = listenToUser(fbUser);
                 //console.log("FFFF init user", fbUser);
                 return () => unsubUser?.();
             } else {
-               // console.log("no user FB")
+                // console.log("no user FB")
                 setUser(null);
+                setUserAuth(null);
                 setIsConnected(false);
                 setIsLoading(false);
             }
-            
+
         });
         return () => unsubAuth?.();
-        
+
     }, [auth.currentUser]);
 
     async function update(_user = null) {
@@ -231,9 +213,7 @@ export function AuthProvider({ children }) {
                 // Signed up 
                 const user = userCredential.user;
                 const { uid } = user;
-                console.log("UUUID", uid);
-                
-                const student = new ClassUserStudent({uid,email, preferred_language:lang});
+                const student = new ClassUserStudent({ uid, email,status:ClassUser.STATUS.FIRST_CONNEXION, preferred_language: lang });
                 //const displayName = student.createDisplayName();
                 setIsLoading(true);
                 await student.createFirestore();
@@ -254,15 +234,15 @@ export function AuthProvider({ children }) {
                 }
                 // ..
             });
-            /*
-            email: 'modifiedUser@example.com',
-            phoneNumber: '+11234567890',
-            emailVerified: true,
-            password: 'newPassword',
-            displayName: 'Jane Doe',
-            photoURL: 'http://www.example.com/12345678/photo.png',
-            disabled: true,
-            */
+        /*
+        email: 'modifiedUser@example.com',
+        phoneNumber: '+11234567890',
+        emailVerified: true,
+        password: 'newPassword',
+        displayName: 'Jane Doe',
+        photoURL: 'http://www.example.com/12345678/photo.png',
+        disabled: true,
+        */
     };
     const signIn = async (providerName = '') => {
         if (!providerName) return;
@@ -303,31 +283,14 @@ export function AuthProvider({ children }) {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             const uid = auth.currentUser.uid;
-            const _user = await ClassUser.get(uid);
-            /*
-            var _user = await ClassUser.fetchFromFirestore(uid);
-            const { type, email_verified, role } = _user.toJSON();
-            if (type === ClassUser.TYPE.EXTERN) {
-                _user = await ClassUserExtern.fetchFromFirestore(uid);
-                if (role === ClassUser.ROLE.STUDENT) {
-                    _user = await ClassUserStudent.fetchFromFirestore(uid);
-                } else if (role === ClassUser.ROLE.PROFESSIONAL) {
-                    _user = await ClassUserProfessional.fetchFromFirestore(uid);
-                }
-            } else if (type === ClassUser.TYPE.INTERN) {
-                _user = await ClassUserIntern.fetchFromFirestore(uid);
-                if (role === ClassUserIntern.ROLE.ADMIN) {
-                    _user = await ClassUserAdmin.fetchFromFirestore(uid);
-                } else if (role === ClassUserIntern.ROLE.TUTOR) {
-                    _user = await ClassUserTutor.fetchFromFirestore(uid);
-                }
-            }
-            */
+           
             await ClassUser.update(uid, {
                 last_connexion_time: new Date(),
                 status: ClassUser.STATUS.ONLINE,
             });
-            setIsLoading(true);
+            const _user = await ClassUser.fetchFromFirestore(uid);
+            setUser(_user);
+            setIsLoading(false);
             //setIsErrorSignIn(false);
             //setTextErrorSignIn(``);
             return ({
@@ -363,12 +326,14 @@ export function AuthProvider({ children }) {
         }
     };
     const logout = async () => {
+        console.log("logout", auth.currentUser)
         const uid = auth.currentUser.uid || '';
         await ClassUser.update(uid, {
             last_connexion_time: new Date(),
             status: ClassUser.STATUS.OFFLINE,
         });
         setUser(null);
+        setUserAuth(null);
         setIsConnected(false);
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
@@ -392,7 +357,17 @@ export function AuthProvider({ children }) {
     }
     const sendVerification = async () => {
         if (auth.currentUser) await sendEmailVerification(auth.currentUser);
-        console.log("SUCCESS", auth.currentUser.email)
+        console.log("SUCCESS", auth.currentUser.email);
+        //const auth = getAuth();
+        const _user = auth.currentUser;
+        if (!_user) throw new Error("No authenticated user");
+        const actionCodeSettings = {
+            // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
+            url: `${window.location.origin}${window.location.pathname}/auth/verified`, // ex: https://tonsite.com/auth/verified
+            // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
+            handleCodeInApp: false,
+        };
+        await sendEmailVerification(_user, actionCodeSettings);
     };
     const sendResetPassword = async (e, email) => {
         e?.preventDefault?.();
@@ -410,6 +385,31 @@ export function AuthProvider({ children }) {
         });
         setUser((u) => ({ ...(u || {}), ...newProfile }));
     };
+    const updateOneUser = async (newUserProfile) => {
+        if (!auth.currentUser || !(newUserProfile instanceof ClassUser)) return;
+        const newUser = await newUserProfile.updateFirestore();
+        if (newUser && newUser instanceof ClassUser) {
+            await updateProfile(auth.currentUser, {
+                email: newUser.email,
+                phoneNumber: newUser.phone_number,
+                displayName: newUser.display_name,
+                photoURL: newUser.photo_url,
+            });
+            setUser(newUser.clone());
+            await auth.currentUser.reload();
+            setUserAuth(auth.currentUser);
+        }
+
+        /*
+email: 'modifiedUser@example.com',
+phoneNumber: '+11234567890',
+emailVerified: true,
+password: 'newPassword',
+displayName: 'Jane Doe',
+photoURL: 'http://www.example.com/12345678/photo.png',
+disabled: true,
+*/
+    };
     const removeErrorSigIn = () => {
         setIsErrorSignIn(false);
         setTextErrorSignIn('');
@@ -417,8 +417,10 @@ export function AuthProvider({ children }) {
     };
 
     const value = {
+        userAuth,
         user,
         setUser,
+        updateOneUser,
         isLoading,
         isConnected,
         isErrorSignIn,

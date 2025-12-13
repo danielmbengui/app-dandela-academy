@@ -1806,7 +1806,7 @@ import { Box, Button, Stack } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
-import { ClassUserStudent, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserStudent, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { useSession } from '@/contexts/SessionProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
@@ -2706,7 +2706,7 @@ export default function DashboardHome() {
 
   return (<DashboardPageWrapper>
     <DialogCompleteProfile
-      isOpen={true}
+      isOpen={user?.status === ClassUser.STATUS.FIRST_CONNEXION}
     />
     <DandelaDashboardHome />
   </DashboardPageWrapper>)

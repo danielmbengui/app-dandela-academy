@@ -25,6 +25,15 @@ import { ClassColor } from "../ClassColor";
 export class ClassUser {
     static COLLECTION = "USERS";
     static NS_COLLECTION = "classes/user";
+
+    static MIN_YEARS_OLD = 10;
+    static MAX_YEARS_OLD = 100;
+    static MIN_LENGTH_LAST_NAME = 3;
+    static MAX_LENGTH_LAST_NAME = 100;
+    static MIN_LENGTH_FIRST_NAME = 3;
+    static MAX_LENGTH_FIRST_NAME = 100;
+    static MAX_LENGTH_DISPLAY_NAME = 30;
+    static MAX_LENGTH_DISPLAY_NAME_FN = 5;
     static ERROR = Object.freeze({
         NOT_FOUND: 'auth/user-not-found',
         INVALID_CREDENTIAL: 'auth/invalid-credential',
@@ -52,6 +61,7 @@ export class ClassUser {
         TUTOR: 'tutor',
     });
     static STATUS = Object.freeze({
+        FIRST_CONNEXION: 'first-connexion',
         ONLINE: 'online',
         OFFLINE: 'offline',
         AWAY: 'away',
@@ -61,7 +71,7 @@ export class ClassUser {
         CREATED: 'CREATED',
         VALIDATED_BY_TEAM: 'VALIDATED_BY_TEAM',
 
-        FIRST_CONNEXION: 'FIRST_CONNEXION',
+
         MUST_VERIFY_MAIL: 'MUST_VERIFY_MAIL',
         MUST_ACCEPT_PRIVACY: 'MUST_ACCEPT_PRIVACY',
         UPDATED: 'UPDATED',
@@ -71,14 +81,6 @@ export class ClassUser {
         DISCONNECTED: 'disconnected',
     });
 
-    static MIN_YEARS_OLD = 10;
-    static MAX_YEARS_OLD = 100;
-    static MIN_LENGTH_LAST_NAME = 3;
-    static MAX_LENGTH_LAST_NAME = 100;
-    static MIN_LENGTH_FIRST_NAME = 3;
-    static MAX_LENGTH_FIRST_NAME = 100;
-    static MAX_LENGTH_DISPLAY_NAME = 30;
-    static MAX_LENGTH_DISPLAY_NAME_FN = 5;
     static ALL_TYPES = [
         ClassUser.TYPE.INTERN,
         ClassUser.TYPE.EXTERN,
@@ -371,7 +373,6 @@ export class ClassUser {
         //console.log("YEEEES",this._last_name)
         //const now = new Date();
         const minDate = ClassUser.getMinDate();
-        console.log("MINBB", minDate);
         if (this._birthday && this._birthday > minDate) return (true);
         return (false)
     }
@@ -525,7 +526,6 @@ export class ClassUser {
     }
 
     static colRef() {
-        console.log("CLASSS", this.COLLECTION)
         return collection(firestore, this.COLLECTION).withConverter(this.converter);
     }
 
@@ -952,8 +952,6 @@ export class ClassUserTeacher extends ClassUserExtern {
             : coll;
 
         const snap = await getCountFromServer(q);
-        //const snap = await getCountFromServer(coll);
-        console.log("YAAA", "")
         return snap.data().count; // -> nombre total
     }
 }
@@ -981,7 +979,6 @@ export class ClassUserStudent extends ClassUserExtern {
 
         const snap = await getCountFromServer(q);
         //const snap = await getCountFromServer(coll);
-        console.log("YAAA", "")
         return snap.data().count; // -> nombre total
     }
 }

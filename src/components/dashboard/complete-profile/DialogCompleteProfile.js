@@ -34,8 +34,7 @@ export default function DialogCompleteProfile({ isOpen = false }) {
         <Stack sx={{ width: '100%', height: '100%' }}>
             <Dialog
                 //fullWidth
-                
-                maxWidth={'md'}
+                maxWidth={'sm'}
                 open={isOpen}
                 onClose={handleClose}
                 scroll={'paper'}
@@ -108,14 +107,6 @@ export default function DialogCompleteProfile({ isOpen = false }) {
                         </DialogTitle>
                         <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 }, background: 'var(--background)' }}>
                             <CompleteProfileComponent session={session} selectedSlot={slot} />
-                            <Stack direction={'row'} spacing={1} justifyContent={'center'}>
-                                <ButtonCancel
-                                    label="Précédent"
-                                />
-                                <ButtonConfirm
-                                    label="Valider"
-                                />
-                            </Stack>
                         </DialogContent>
                         <DialogActions sx={{ minHeight: '20px' }}>
                             <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
