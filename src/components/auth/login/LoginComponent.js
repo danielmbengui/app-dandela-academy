@@ -9,12 +9,12 @@ import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_RE
 import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import { NS_LOGIN } from "@/contexts/i18n/settings";
-import FieldComponent from "../elements/FieldComponent";
 import { useRouter } from "next/navigation";
 import { isValidEmail } from "@/contexts/functions";
-import AlertComponent from "../elements/AlertComponent";
 import { ClassUser } from "@/classes/users/ClassUser";
-import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
+import FieldComponent from "@/components/elements/FieldComponent";
+import AlertComponent from "@/components/elements/AlertComponent";
+import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 export default function LoginComponent() {
     const router = useRouter();
     const { t } = useTranslation([NS_LOGIN, ClassUser.NS_COLLECTION]);

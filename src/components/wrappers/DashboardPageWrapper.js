@@ -17,7 +17,6 @@ import { IconDropDown, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
-import LoginComponent from '../login/LoginComponent';
 import { useTranslation } from 'react-i18next';
 import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
 import { usePathname } from 'next/navigation';
@@ -25,6 +24,7 @@ import Link from 'next/link';
 import Preloader from '../shared/Preloader';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import LoginPageWrapper from './LoginPageWrapper';
+import LoginComponent from '../auth/login/LoginComponent';
 
 const drawerWidth = 240;
 

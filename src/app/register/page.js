@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
+import RegisterComponent from '@/components/auth/login/RegisterComponent';
 import LoginPageWrapper from '@/components/wrappers/LoginPageWrapper';
-import RegisterComponent from '@/components/login/RegisterComponent';
 
 export default function Login() {
   return (<LoginPageWrapper>

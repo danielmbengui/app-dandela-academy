@@ -1,27 +1,19 @@
 import React, { useState } from "react";
-import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, CircularProgress, Stack, Typography } from "@mui/material";
-import TextFieldComponent from "../elements/TextFieldComponent";
 import { IconEmail } from "@/assets/icons/IconsComponent";
-import TextFieldPasswordComponent from "../elements/TextFieldPasswordComponent";
-import ButtonNextComponent from "../elements/ButtonNextComponent";
 import { useAuth } from "@/contexts/AuthProvider";
-import { set } from "zod";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
-import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_LOGIN, PAGE_REGISTER } from "@/contexts/constants/constants_pages";
+import { PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_REGISTER } from "@/contexts/constants/constants_pages";
 import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import { NS_LOGIN, NS_REGISTER } from "@/contexts/i18n/settings";
-import FieldComponent from "../elements/FieldComponent";
 import { useRouter } from "next/navigation";
 import { isValidEmail, isValidPassword } from "@/contexts/functions";
-import AlertComponent from "../elements/AlertComponent";
-import { ClassUser, ClassUserStudent } from "@/classes/users/ClassUser";
-import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
-import { validatePassword } from "firebase/auth";
-import { auth } from "@/contexts/firebase/config";
+import { ClassUser } from "@/classes/users/ClassUser";
 import { where } from "firebase/firestore";
+import FieldComponent from "@/components/elements/FieldComponent";
+import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 
 const ShowValidPassword = ({ isValid = false, text = "" }) => {
     const color = isValid ? 'green' : 'red';

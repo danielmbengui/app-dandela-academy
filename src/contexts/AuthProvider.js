@@ -164,7 +164,7 @@ export function AuthProvider({ children }) {
                 setIsLoading(false);
                 //  console.timeEnd("auth");
                 const unsubUser = listenToUser(fbUser);
-                //console.log("FFFF init user", fbUser);
+                console.log("FFFF init user", fbUser.emailVerified);
                 return () => unsubUser?.();
             } else {
                 // console.log("no user FB")
@@ -358,19 +358,24 @@ export function AuthProvider({ children }) {
         });
     }
     const sendVerification = async () => {
-        if (auth.currentUser) await sendEmailVerification(auth.currentUser);
+        if (!auth.currentUser) return;
         console.log("SUCCESS", auth.currentUser.email);
         //const auth = getAuth();
         const _user = auth.currentUser;
         if (!_user) throw new Error("No authenticated user");
-        console.log("location redirect", `${window.location.origin}${window.location.pathname}`)
+        var now = new Date();
+        //now = now.setDate(now.getMinutes),
+        now.setMinutes(now.getMinutes() + (20*60));        // +20 min
+        console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
+        
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
-            url: `${process.env.NEXT_PUBLIC_WEBSITE_LINK}${window.location.pathname}`, // ex: https://tonsite.com/auth/verified
+            url: `${window.location.origin}/auth/verify-email?returnTo=${encodeURIComponent(`${window.location.origin}${window.location.pathname}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified
             // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
             handleCodeInApp: false,
         };
         await sendEmailVerification(_user, actionCodeSettings);
+        
     };
     const sendResetPassword = async (e, email) => {
         e?.preventDefault?.();

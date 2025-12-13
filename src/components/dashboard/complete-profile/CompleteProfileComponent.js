@@ -259,7 +259,7 @@ const Step1 = ({ setStep = null }) => {
       }
       const new_user = await updateOneUser(userComplete);
       //setUserComplete(new_user.clone());
-      setStep(prev => prev + 1);
+      setStep(2);
       console.log("new user ", new_user)
     } catch (error) {
       console.log("ERRRROR", error)
@@ -750,10 +750,12 @@ const Step2 = ({ step = 0, setStep = null }) => {
   const [userComplete, setUserComplete] = useState(null);
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   useEffect(() => {
     //console.log("UUUUSER", user)
     if (user && userAuth) {
       setUserComplete(user.clone());
+      /*
       if (step === 2) {
         const interval = setInterval(async () => {
           await userAuth.reload(); // 🔥 récupère l’état à jour depuis Firebase
@@ -769,6 +771,7 @@ const Step2 = ({ step = 0, setStep = null }) => {
         // cleanup si logout
         return () => clearInterval(interval);
       }
+      */
     } else {
       setUserComplete(null);
     }
@@ -854,21 +857,24 @@ const Step2 = ({ step = 0, setStep = null }) => {
           <div className="teacher-card">
             <h2 className="teacher-label">{`Vérifier l'adresse email`}</h2>
             <Stack spacing={2} sx={{ py: 1 }}>
-              <Alert>
-                {`Avant de pouvoir utiliser la plateforme Dandela Academy, vous devez confirmer votre adresse mail : ${userComplete?.email}`}
+              <Typography>{`Avant de pouvoir utiliser la plateforme Dandela Academy, vous devez confirmer votre adresse mail : ${userComplete?.email}`}</Typography>
+              {
+                emailSent && <Alert>
+                {`Un email a été envoyé à ton adresse : ${user?.email}`}
               </Alert>
-              <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'center'}>
-                <ButtonCancel
+              }
+              {
+                !emailSent && <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'center'}>
+                <ButtonConfirm
+                loading={emailSent}
                   onClick={async () => {
                     await sendVerification();
+                    setEmailSent(true);
                   }}
-                  label="Renvoyer l'email"
-                />
-                <ButtonConfirm
-
                   label="Vérifier"
                 />
               </Stack>
+              }
             </Stack>
           </div>
         </div>

@@ -109,27 +109,6 @@ export default function DialogCompleteProfile({ isOpen = false }) {
                             <CompleteProfileComponent session={session} selectedSlot={slot} />
                         </DialogContent>
                         <DialogActions sx={{ minHeight: '20px' }}>
-                            <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
-                                <Stack direction={'row'} spacing={1} alignItems={'center'}>
-                                    <ButtonCancel label={'cancel'} variant='contained' onClick={async () => {
-                                        await updateProfile(auth.currentUser, {
-                                            emailVerified: false,
-                                            //photoURL: newProfile.photo_url,
-                                        });
-                                    }} />
-                                    <ButtonConfirm label={`S'inscrire`} variant='contained' onClick={async () => {
-                                        //setWantSubscribe(true);
-                                        await sendVerification();
-                                    }} />
-                                </Stack>
-                                <IconButton size={'small'}>
-                                    <IconEdit width={20} height={20} color={primary.main}
-
-                                    />
-                                </IconButton>
-                            </Stack>
-
-
                         </DialogActions>
                     </>
                 }

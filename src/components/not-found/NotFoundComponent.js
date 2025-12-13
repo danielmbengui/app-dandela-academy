@@ -12,6 +12,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 import LoginPageWrapper from "../wrappers/LoginPageWrapper";
+import OtherPageWrapper from "../wrappers/OtherPageWrapper";
 const FooterComponent = () => {
     //const { t } = useTranslation([NS_HOME_FOOTER]);
     //const locale = await getPreferredLocale();
@@ -84,7 +85,7 @@ export default function NotFoundComponent() {
     const error404 = t('404');
     const notFound = t('not-found');
     const backHome = t('back-home');
-    return (<LoginPageWrapper>
+    return (<OtherPageWrapper>
         <Stack spacing={3} sx={{ color: 'var(--font-color)', width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
             <Stack spacing={1} alignItems={'center'} sx={{ textAlign: 'center' }}>
                 <Typography variant="h4">
@@ -110,5 +111,5 @@ export default function NotFoundComponent() {
                 </Link>
             </Stack>
         </Stack>
-    </LoginPageWrapper>);
+    </OtherPageWrapper>);
 }

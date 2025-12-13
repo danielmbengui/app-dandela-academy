@@ -8,6 +8,18 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
+import { Box, Button, Stack } from '@mui/material';
+import { ClassSchool } from '@/classes/ClassSchool';
+import { ClassRoom } from '@/classes/ClassRoom';
+import { ClassHardware } from '@/classes/ClassDevice';
+import { ClassUser, ClassUserStudent, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { useSession } from '@/contexts/SessionProvider';
+import { ClassColor } from '@/classes/ClassColor';
+import Link from 'next/link';
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_USERS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
+import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
+import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
+
 
 // Mapping des statuts → label + couleurs
 const STATUS_CONFIG = {
@@ -1802,18 +1814,6 @@ function TeacherProfilePage() {
     </div>
   );
 }
-import { Box, Button, Stack } from '@mui/material';
-import { ClassSchool } from '@/classes/ClassSchool';
-import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassHardware } from '@/classes/ClassDevice';
-import { ClassUser, ClassUserStudent, ClassUserTeacher } from '@/classes/users/ClassUser';
-import { useSession } from '@/contexts/SessionProvider';
-import { ClassColor } from '@/classes/ClassColor';
-import Link from 'next/link';
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_USERS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
-import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
-import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
-
 
 /** Nav item dans la sidebar */
 function NavItem({ label, icon, active, onClick }) {
