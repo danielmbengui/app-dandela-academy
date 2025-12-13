@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, Stack, Typography } from "@mui/material";
 import { IconEmail } from "@/assets/icons/IconsComponent";
-import ButtonNextComponent from "../elements/ButtonNextComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
@@ -14,6 +13,7 @@ import { isValidDandelaAcademyEmail, isValidEmail } from "@/contexts/functions";
 import { ClassUser } from "@/classes/users/ClassUser";
 import FieldComponent from "@/components/elements/FieldComponent";
 import AlertComponent from "@/components/elements/AlertComponent";
+import ButtonNextComponent from "@/components/elements/ButtonNextComponent";
 export default function ActiveAccountComponent({ setIsLogin = null }) {
     const router = useRouter();
     const { theme } = useThemeMode();
