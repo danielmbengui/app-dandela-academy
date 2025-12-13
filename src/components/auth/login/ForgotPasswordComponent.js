@@ -1,26 +1,19 @@
 import React, { useState } from "react";
 import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, Button, Stack, Typography } from "@mui/material";
-import TextFieldComponent from "../elements/TextFieldComponent";
 import { IconEmail } from "@/assets/icons/IconsComponent";
-import TextFieldPasswordComponent from "../elements/TextFieldPasswordComponent";
-import ButtonNextComponent from "../elements/ButtonNextComponent";
 import { useAuth } from "@/contexts/AuthProvider";
-import { set } from "zod";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { ClassColor } from "@/classes/ClassColor";
 import Link from "next/link";
 import { PAGE_LOGIN } from "@/contexts/constants/constants_pages";
-import FieldComponent from "../elements/FieldComponent";
-import { isValidDandelaAcademyEmail, isValidEmail } from "@/contexts/functions";
+import { isValidEmail } from "@/contexts/functions";
 import { ClassUser } from "@/classes/users/ClassUser";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { NS_FORGOT_PASSWORD } from "@/contexts/i18n/settings";
-import { getValueAsType } from "framer-motion";
-import { getTranslations } from "@/contexts/i18n/init";
-import AlertComponent from "../elements/AlertComponent";
-import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
+import FieldComponent from "@/components/elements/FieldComponent";
+import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 export default function ForgotPasswordComponent({ setIsLogin = null }) {
     const { t } = useTranslation([NS_FORGOT_PASSWORD]);
 

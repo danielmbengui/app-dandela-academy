@@ -346,6 +346,16 @@ export function AuthProvider({ children }) {
     };
     const editEmail = async (e, newEmail) => {
         e?.preventDefault?.();
+        //const credential = promptForCredentials();
+         console.log("Email updated", newEmail);
+/*
+        reauthenticateWithCredential(user, credential).then(() => {
+            // User re-authenticated.
+        }).catch((error) => {
+            // An error ocurred
+            // ...
+        });
+        */
         updateEmail(auth.currentUser, newEmail).then(() => {
             // Email updated!
             // ...
@@ -353,6 +363,7 @@ export function AuthProvider({ children }) {
         }).catch((error) => {
             // An error occurred
             // ...
+            console.log("ERRROR", error)
         });
     }
     const editPassword = async (e, newPassword) => {
