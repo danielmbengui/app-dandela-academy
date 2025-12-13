@@ -328,6 +328,8 @@ export function AuthProvider({ children }) {
     const logout = async () => {
         console.log("logout", auth.currentUser)
         const uid = auth.currentUser.uid || '';
+        setIsLoading(true);
+        await signOut(auth);
         await ClassUser.update(uid, {
             last_connexion_time: new Date(),
             status: ClassUser.STATUS.OFFLINE,
@@ -337,7 +339,7 @@ export function AuthProvider({ children }) {
         setIsConnected(false);
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
-        await signOut(auth);
+        setIsLoading(false);
         router.replace(PAGE_LOGIN);
         //console.log("DISC OK");
     };
@@ -364,7 +366,7 @@ export function AuthProvider({ children }) {
         console.log("location redirect", `${window.location.origin}${window.location.pathname}`)
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
-            url: `${window.location.origin}${window.location.pathname}`, // ex: https://tonsite.com/auth/verified
+            url: `${process.env.NEXT_PUBLIC_WEBSITE_LINK}${window.location.pathname}`, // ex: https://tonsite.com/auth/verified
             // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
             handleCodeInApp: false,
         };
