@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, Button, Stack, Typography } from "@mui/material";
 import { IconEmail } from "@/assets/icons/IconsComponent";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -14,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { NS_FORGOT_PASSWORD } from "@/contexts/i18n/settings";
 import FieldComponent from "@/components/elements/FieldComponent";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
+import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 export default function ForgotPasswordComponent({ setIsLogin = null }) {
     const { t } = useTranslation([NS_FORGOT_PASSWORD]);
 
