@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, Stack, Typography } from "@mui/material";
 import { IconEmail } from "@/assets/icons/IconsComponent";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -14,6 +13,7 @@ import { ClassUser } from "@/classes/users/ClassUser";
 import FieldComponent from "@/components/elements/FieldComponent";
 import AlertComponent from "@/components/elements/AlertComponent";
 import ButtonNextComponent from "@/components/elements/ButtonNextComponent";
+import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 export default function ActiveAccountComponent({ setIsLogin = null }) {
     const router = useRouter();
     const { theme } = useThemeMode();
