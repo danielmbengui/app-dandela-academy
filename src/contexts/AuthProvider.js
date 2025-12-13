@@ -18,6 +18,7 @@ import {
     fetchSignInMethodsForEmail,
     sendSignInLinkToEmail,
     updatePassword,
+    updateEmail,
 } from 'firebase/auth';
 
 import {
@@ -49,8 +50,8 @@ export function AuthProvider({ children }) {
     const router = useRouter();
     const { lang } = useLanguage();
     const { t } = useTranslation([NS_ERRORS]);
-    const {pathname} = usePathname();
-//console.log("PATTTH", window.location.origin, window.location.pathname)
+    const { pathname } = usePathname();
+    //console.log("PATTTH", window.location.origin, window.location.pathname)
     const [userAuth, setUserAuth] = useState(null);           // ton user métier (ou snapshot)
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
@@ -213,7 +214,7 @@ export function AuthProvider({ children }) {
                 // Signed up 
                 const user = userCredential.user;
                 const { uid } = user;
-                const student = new ClassUserStudent({ uid, email,status:ClassUser.STATUS.FIRST_CONNEXION, preferred_language: lang });
+                const student = new ClassUserStudent({ uid, email, status: ClassUser.STATUS.FIRST_CONNEXION, preferred_language: lang });
                 //const displayName = student.createDisplayName();
                 setIsLoading(true);
                 await student.createFirestore();
@@ -283,7 +284,7 @@ export function AuthProvider({ children }) {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             const uid = auth.currentUser.uid;
-           
+
             await ClassUser.update(uid, {
                 last_connexion_time: new Date(),
                 //status: ClassUser.STATUS.ONLINE,
@@ -343,6 +344,17 @@ export function AuthProvider({ children }) {
         router.replace(PAGE_LOGIN);
         //console.log("DISC OK");
     };
+    const editEmail = async (e, newEmail) => {
+        e?.preventDefault?.();
+        updateEmail(auth.currentUser, newEmail).then(() => {
+            // Email updated!
+            // ...
+            console.log("Email updated", newEmail);
+        }).catch((error) => {
+            // An error occurred
+            // ...
+        });
+    }
     const editPassword = async (e, newPassword) => {
         e?.preventDefault?.();
         await updatePassword(auth.currentUser, newPassword).then(async (user) => {
@@ -365,9 +377,9 @@ export function AuthProvider({ children }) {
         if (!_user) throw new Error("No authenticated user");
         var now = new Date();
         //now = now.setDate(now.getMinutes),
-        now.setMinutes(now.getMinutes() + (20*60));        // +20 min
+        now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
         console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
-        
+
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
             url: `${window.location.origin}/auth/verify-email?returnTo=${encodeURIComponent(`${window.location.origin}${window.location.pathname}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified
@@ -375,7 +387,7 @@ export function AuthProvider({ children }) {
             handleCodeInApp: false,
         };
         await sendEmailVerification(_user, actionCodeSettings);
-        
+
     };
     const sendResetPassword = async (e, email) => {
         e?.preventDefault?.();
@@ -441,6 +453,7 @@ disabled: true,
         signIn,
         login,
         logout,
+        editEmail,
         editPassword,
         sendVerification,
         sendResetPassword,

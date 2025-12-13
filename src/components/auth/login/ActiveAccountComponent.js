@@ -1,23 +1,19 @@
 import React, { useState } from "react";
 import LoginPageWrapper from "../wrappers/LoginPageWrapper";
 import { Alert, Stack, Typography } from "@mui/material";
-import TextFieldComponent from "../elements/TextFieldComponent";
 import { IconEmail } from "@/assets/icons/IconsComponent";
-import TextFieldPasswordComponent from "../elements/TextFieldPasswordComponent";
 import ButtonNextComponent from "../elements/ButtonNextComponent";
 import { useAuth } from "@/contexts/AuthProvider";
-import { set } from "zod";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
 import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_LOGIN } from "@/contexts/constants/constants_pages";
-import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import { NS_ACTIVE_ACCOUNT, NS_LOGIN } from "@/contexts/i18n/settings";
 import { useRouter } from "next/navigation";
 import { isValidDandelaAcademyEmail, isValidEmail } from "@/contexts/functions";
-import AlertComponent from "../elements/AlertComponent";
 import { ClassUser } from "@/classes/users/ClassUser";
 import FieldComponent from "@/components/elements/FieldComponent";
+import AlertComponent from "@/components/elements/AlertComponent";
 export default function ActiveAccountComponent({ setIsLogin = null }) {
     const router = useRouter();
     const { theme } = useThemeMode();

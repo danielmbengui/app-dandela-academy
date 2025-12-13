@@ -745,7 +745,7 @@ const Step1 = ({ setStep = null }) => {
   </div>);
 }
 const Step2 = ({ step = 0, setStep = null }) => {
-  const { user, userAuth, sendVerification } = useAuth();
+  const { user, userAuth, sendVerification, editEmail } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const [userComplete, setUserComplete] = useState(null);
   const [errors, setErrors] = useState({});
@@ -867,9 +867,10 @@ const Step2 = ({ step = 0, setStep = null }) => {
                 !emailSent && <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'center'}>
                 <ButtonConfirm
                 loading={emailSent}
-                  onClick={async () => {
-                    await sendVerification();
-                    setEmailSent(true);
+                  onClick={async (e) => {
+                   // await sendVerification();
+                   // setEmailSent(true);
+                    await editEmail(e, "dandelagames@gmail.com")
                   }}
                   label="Vérifier"
                 />
