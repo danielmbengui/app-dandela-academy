@@ -1,21 +1,31 @@
-"use client"
 import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { IconLessons, IconReset, IconStudents, IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
+import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
-import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
-import { Box, Button, Grid, Stack, Typography } from "@mui/material";
+import { languages, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
+import { Box, Button, Grid, IconButton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
+import { useLesson } from "@/contexts/LessonProvider";
+import { ClassColor } from "@/classes/ClassColor";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
 import { useLanguage } from "@/contexts/LangProvider";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import Image from "next/image";
-import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import BadgeStatusLesson from "@/components/dashboard/lessons/BadgeStatusLesson";
 import { useAuth } from "@/contexts/AuthProvider";
+import { ClassUserIntern } from "@/classes/users/ClassUser";
 import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
-import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import { ClassSession } from "@/classes/ClassSession";
-import Link from "next/link";
+import { useSession } from "@/contexts/SessionProvider";
+import SelectComponentDark from "@/components/elements/SelectComponentDark";
+import { ClassLang } from "@/classes/ClassLang";
+import FieldComponent from "@/components/elements/FieldComponent";
+import CheckboxComponent from "@/components/elements/CheckboxComponent";
+import AccordionComponent from "../elements/AccordionComponent";
+import ButtonCancel from "../elements/ButtonCancel";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -105,6 +115,20 @@ const initialCourse = {
   ]
 };
 
+const FORMAT_CONFIG = {
+  online: {
+    label: "En ligne",
+    color: "#3b82f6",
+  },
+  onsite: {
+    label: "Présentiel",
+    color: "#22c55e",
+  },
+  hybrid: {
+    label: "Hybride",
+    color: "#a855f7",
+  },
+};
 function MetaChip({ label, value }) {
   return (
     <>
@@ -152,6 +176,7 @@ function InfoRow({ label, value }) {
         .info-row {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           gap: 8px;
           font-size: 0.85rem;
           padding: 4px 0;
@@ -171,192 +196,402 @@ function InfoRow({ label, value }) {
           text-align: right;
            color: var(--grey-dark);
             font-weigth: 100;
-            white-space:nowrap;
         }
       `}</style>
     </>
   );
 }
+function SlotRow({ session = null, slot = null }) {
+  const { sessions, setUidSession, setUidSlot, slots } = useSession();
+  const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
+  return (<Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
+    <span style={{
+      width: '6px',
+      height: '6px',
+      borderRadius: '999px',
+      background: colorSlot,
+      boxShadow: colorSlot === 'green' ? '0 0 8px green' : '',
+    }} />
+    <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.title} (${slot?.uid_intern})`}</Typography>
+    <Typography variant="caption">{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
+    {
+      colorSlot === 'green' && <Box
+        onClick={() => {
+          setUidSession(session?.uid);
+          setUidSlot(slot?.uid_intern);
+        }}
+        sx={{
+          //color: 'red',
+          cursor: 'pointer',
+          "&:hover": { color: "var(--primary)" },
+        }}>
+        <IconVisible height={20} />
+      </Box>
+    }
+  </Stack>)
+}
 
-export default function SessionComponent({ session = null, selectedSlot = null }) {
+const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setLessonEdit = null, lessonEdit = null, title = "", array_name = "" }) => {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const [array, setArray] = useState([]);
+  const [sameValues, setSameValues] = useState(true);
+  useEffect(() => {
+    setArray([...lessonEdit?.translate?.[array_name]]);
+  }, [])
+  const onChangeValue = (e, i) => {
+    e.preventDefault();
+    const { name, type, value } = e.target;
+    const values = [...array].map((item, index) => {
+      if (i === index) {
+        return value;
+      }
+      return item;
+    });
+    setArray(values);
+  }
+  return (<AccordionComponent title={title} expanded={expanded}>
+    <Stack spacing={1.5} alignItems={'stretch'} sx={{ background: '', py: 1.5, px: 1 }}>
+      {
+        array.map?.((item, i) => {
+          return (<Grid key={`${item}-${i}`} container alignItems={'center'} justifyContent={'stretch'} sx={{ width: '100%' }} direction={'row'} spacing={1}>
+            <Grid size={'auto'}>
+              <Typography>{`${i + 1}.`}</Typography>
+            </Grid>
+            <Grid size={'grow'}>
+              <FieldComponent
+                index={i}
+                //label={`${i + 1}.`}
+                type="multiline"
+                name={`${title}-${i}`}
+                value={item}
+                fullWidth={true}
+                minRows={1}
+                maxRows={10}
+                onChange={(e) => onChangeValue(e, i)}
+              />
+            </Grid>
+          </Grid>)
+        })
+      }
+    </Stack>
+    {
+      !sameValues && <Stack spacing={1} direction={'row'} alignItems={'center'} justifyContent={'end'} sx={{ p: 1 }}>
+        <ButtonCancel
+          label='cancel' />
+        <ButtonConfirm
+          label='confirm' />
+      </Stack>
+    }
+  </AccordionComponent>)
+}
+
+export default function LessonEditComponent({ setSameDatas = null, lessonEdit = null, setLessonEdit = null }) {
   const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
-  const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
+  const { lesson } = useLesson();
+  const { sessions } = useSession();
+
+  const [modeAccordion, setModeAccordion] = useState('');
+  const [errors, setErrors] = useState({});
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  //const [editing, setEditing] = useState(false);
-  //const seatsLeft = Math.max(session?.seats_availables || 0 - session?.seats_taken || 0, 0);
-  //const isFull = seatsLeft <= 0 && !isEnrolled;
-  const FORMAT_CONFIG = ClassSession.FORMAT_CONFIG;
-  const formatCfg = FORMAT_CONFIG[session?.format];
-  const [dialogOptions, setDialogOptions] = useState({
-    title: "Souhaites-tu ajouter cet élément ?",
-    updateList: null,
-    actionConfirm: null,
-    actionCancel: null,
-    labelConfirm: "Oui",
-    labelCancel: "Non",
-    open: false,
-    setOpen: null
-  })
+  const [editing, setEditing] = useState(false);
+  const seatsLeft = Math.max(lesson?.seats_availables || 0 - lesson?.seats_taken || 0, 0);
+  const isFull = seatsLeft <= 0 && !isEnrolled;
+  const formatCfg = FORMAT_CONFIG[lesson?.format];
 
+  const onChangeValue = (e) => {
+    const { name, type, value, checked } = e.target;
+    const finalName = name === 'title' || name === 'subtitle' ? `translate.${name}` : name;
+
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      var lessonValue = lesson[name];
+      var newValue = type === 'checkbox' ? checked : value;
+      console.log("VALUUUE", name, type, value, checked, newValue, lessonValue);
+      if (name === 'title' || name === 'subtitle' || name === 'description') {
+        lessonValue = lesson.translate[name];
+        prev.translate.update({ [name]: newValue });
+      } else {
+        prev.update({ [name]: newValue });
+      }
+      if (lessonValue !== newValue) {
+        setSameDatas(false);
+      } else {
+        setSameDatas(true);
+      }
+      return prev.clone();
+    });
+
+  }
+  const onClearValue = (name) => {
+    //const { name, type, value } = e.target;
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      var lessonValue = lesson[name];
+      var newValue = '';
+      if (name === 'title' || name === 'subtitle' || name === 'description') {
+        prev.translate.update({ [name]: newValue });
+        lessonValue = lesson.translate[name];
+      } else {
+        prev.update({ [name]: newValue });
+      }
+      if (lessonValue !== newValue) {
+        setSameDatas(false);
+      } else {
+        setSameDatas(true);
+      }
+      return prev.clone();
+    })
+  }
+  const onResetValue = (name) => {
+    //const { name, type, value } = e.target;
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      var lessonValue = lesson[name];
+      if (name === 'title' || name === 'subtitle' || name === 'description') {
+        lessonValue = lesson.translate[name];
+        prev.translate.update({ [name]: lessonValue });
+      } else {
+        prev.update({ [name]: lessonValue });
+      }
+      //setSameDatas(true);
+      //console.log("two lesson", lesson.translate, lessonEdit.translate)
+      return prev.clone();
+    })
+  }
   return (<Stack>
+    {
+      user instanceof ClassUserIntern && <div style={{ marginTop: '10px', display: 'none' }}>
+        <ButtonConfirm
+          label="Modifier"
+          loading={isLoading}
+          onClick={async () => {
+            setIsLoading(true);
+            const session = await new ClassSession({
+              //uid = "",
+              //uid_intern = "",
+              uid_lesson: "zlUoi3t14wzC5cNhfS3J",
+              uid_teacher: "HRY7JbnFftWZocKtrIB1N1YuEJw1",
+              //uid_room = "",
+              code: "Session14", // Excel-101
+              title: "Open session",
+              //title_normalized : "",
+              format: ClassSession.FORMAT.HYBRID,
+              price: 2500,
+              currency: "AOA",
+              start_date: new Date(2025, 11, 13, 8),
+              end_date: new Date(2025, 11, 13, 12, 30),
+              seats_availables: 31,
+              seats_taken: 14,
+              //photo_url : "",
+              status: ClassSession.STATUS.DRAFT,
+              //location : "",
+              //url : "",
+              //translate = {},
+              last_subscribe_time: new Date(2025, 11, 12, 23, 59, 59),
+              //created_time = new Date(),
+              //last_edit_time = new Date(),
+            }).createFirestore();
+            //await session;
+            setIsLoading(false);
+          }}
+        />
+      </div>
+    }
     <div className="page">
       <main className="container">
-        <section className="hero-card">
-          <div className="hero-left">
-            <BadgeFormatLesson format={selectedSlot?.format} />
-            <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()} {"/"} {session?.lesson?.code?.toUpperCase()}</p>
-            <h1>{session?.lesson?.translate?.title}</h1>
-            <p className="muted">
-              {session?.title} • {'Session'} {selectedSlot?.uid_intern || session?.code}
-            </p>
-
-            <div className="badges">
-              {session?.certified && (
-                <span className="badge-cert">
-                  🎓 {t('certified')}
-                </span>
-              )}
+        <Grid container spacing={1}>
+          <Grid size={12}>
+            <div className="card">
+              <h2>{"Informations générales"}</h2>
+              <Grid container spacing={1}>
+                <Grid size={{ xs: 12, sm: 8 }}>
+                  <Stack spacing={1.5}>
+                    <FieldComponent
+                      label={t('title')}
+                      required
+                      type="text"
+                      name={'title'}
+                      value={lessonEdit?.translate?.title}
+                      onChange={onChangeValue}
+                      onClear={() => onClearValue('title')}
+                      resetable={lesson?.translate?.title !== lessonEdit?.translate?.title}
+                      onCancel={() => {
+                        onResetValue('title')
+                      }}
+                    />
+                    <FieldComponent
+                      label={t('subtitle')}
+                      type="text"
+                      name={'subtitle'}
+                      value={lessonEdit?.translate?.subtitle}
+                      onChange={onChangeValue}
+                      onClear={() => onClearValue('subtitle')}
+                      resetable={lesson?.translate?.subtitle !== lessonEdit?.translate?.subtitle}
+                      onCancel={() => {
+                        onResetValue('subtitle')
+                      }}
+                    />
+                    <FieldComponent
+                      label={t('description')}
+                      required
+                      type="multiline"
+                      fullWidth
+                      name={'description'}
+                      value={lessonEdit?.translate?.description}
+                      onChange={onChangeValue}
+                      onClear={() => onClearValue('description')}
+                      minRows={1}
+                      maxRows={10}
+                      resetable={lesson?.translate?.description !== lessonEdit?.translate?.description}
+                      onCancel={() => {
+                        onResetValue('description')
+                      }}
+                    />
+                    <Stack>
+                      <label className="text-contentColor dark:text-contentColor-dark block" style={{ fontSize: '0.9rem', marginBottom: '7px' }}>
+                        {t('certified')}{<b style={{ color: 'red' }}>*</b>}
+                      </label>
+                      <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                        <CheckboxComponent
+                          name={'certified'}
+                          //value={lessonEdit?.certified}
+                          checked={lessonEdit?.certified}
+                          type="checkbox"
+                          label={t('yes')}
+                          onChange={onChangeValue}
+                        />
+                      </Stack>
+                    </Stack>
+                  </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }} sx={{ background: '' }}>
+                  <Stack alignItems={'center'} sx={{ height: '100%', background: '' }} spacing={1}>
+                    <Box sx={{ background: '', width: { xs: '100%', sm: '70%' } }}>
+                      <Image
+                        src={lessonEdit?.photo_url || ''}
+                        alt={`lesson-${lessonEdit?.uid}`}
+                        quality={100}
+                        width={300}
+                        height={150}
+                        //loading="lazy"
+                        priority
+                        style={{
+                          width: 'auto',
+                          height: '100%',
+                          //borderRadius: '8px',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                    <ButtonConfirm
+                      label="Modifier image"
+                    />
+                  </Stack>
+                </Grid>
+              </Grid>
             </div>
+          </Grid>
+          <Grid size={12}>
+            <Grid container spacing={1}>
+              <Grid size={{ xs: 12, sm: 5 }}>
+                <Stack spacing={1}>
+                  <div className="card">
+                    <h2>{t('modalities')}</h2>
+                    <InfoRow label={t('format')} value={<SelectComponentDark
+                      name={'format'}
+                      //label={t('category')}
+                      value={lessonEdit?.format}
+                      values={ClassLesson.ALL_FORMATS.map(format => ({
+                        id: format,
+                        value: t(format)
+                      }))}
+                      onChange={onChangeValue}
+                      hasNull={false}
+                    />} />
+                    <InfoRow label={t('category')} value={<SelectComponentDark
+                      name={'category'}
+                      //label={t('category')}
+                      value={lessonEdit?.category}
+                      values={ClassLesson.ALL_CATEGORIES.map(category => ({
+                        id: category,
+                        value: t(category)
+                      }))}
+                      onChange={onChangeValue}
+                      hasNull={false}
+                    />} />
+                    <InfoRow label={t('level')} value={<SelectComponentDark
+                      name={'level'}
+                      //label={t('category')}
+                      value={lessonEdit?.level}
+                      values={ClassLesson.ALL_LEVELS.map(level => ({
+                        id: level,
+                        value: t(level)
+                      }))}
+                      onChange={onChangeValue}
+                      hasNull={false}
+                    />} />
+                    <InfoRow label={t('lang', { ns: NS_LANGS })} value={<SelectComponentDark
+                      name={'lang'}
+                      //label={t('category')}
+                      value={lessonEdit?.lang}
+                      values={ClassLang.ALL_LANGUAGES.map(lang => ({
+                        id: lang.id,
+                        value: `${lang.flag_str} ${t(lang.id, { ns: NS_LANGS })}`
+                      }))}
+                      onChange={onChangeValue}
+                      hasNull={false}
+                    />} />
 
-            <div className="hero-meta">
-              <MetaChip
-                label={t('dates')}
-                value={`${getFormattedDateNumeric(selectedSlot?.start_date, lang)}`}
-              />
-              <MetaChip
-                label={t('start hour')}
-                value={`${getFormattedHour(selectedSlot?.start_date, lang)}`}
-              />
-              <MetaChip
-                label={t('end hour')}
-                value={`${getFormattedHour(selectedSlot?.end_date, lang)}`}
-              />
-
-            </div>
-            <div className="hero-meta" style={{ marginTop: '5px', marginBottom: '10px' }}>
-              <MetaChip
-                label={t('level')}
-                value={`${t(session?.lesson?.level, { ns: ClassLesson.NS_COLLECTION })}`}
-              />
-              <MetaChip
-                label={t('lang', { ns: NS_LANGS })}
-                value={t(session?.lesson?.lang, { ns: NS_LANGS })}
-              />
-            </div>
-            <div className="hero-right-top">
-              <div>
-                <h2 className="teacher-label">{t('modalities')}</h2>
-                <InfoRow label={t('session_uid')} value={t(selectedSlot?.uid_intern)} />
-                <InfoRow label={t('format')} value={t(selectedSlot?.format)} />
-                <InfoRow label={t('level')} value={t(session?.lesson?.level)} />
-                <InfoRow label={t('lang', { ns: NS_LANGS })} value={t(session?.lesson?.lang, { ns: NS_LANGS })} />
-                <InfoRow label={t('start_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.start_date)} />
-                <InfoRow label={t('end_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.end_date)} />
+                    <InfoRow label={t('duration')} value={formatDuration(lesson?.duration)} />
+                  </div>
+                </Stack>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 7 }}>
+                <Stack spacing={1}>
+                  <div className="card">
+                    <h2>{t('content')}</h2>
+                    <Stack spacing={0.5}>
+                      {
+                        ['programs', 'prerequisites', 'target_audiences', 'goals', 'notes'].map((item, i) => {
+                          return (<div key={`${item}-${i}`} onClick={() => {
+                            setModeAccordion(item);
+                            // alert(item)
+                          }} >
+                            <CustomAccordion
+                              array={lesson?.translate?.[item]}
+                              arrayEdit={lessonEdit?.translate?.[item]}
+                              lesson={lesson}
+                              expanded={modeAccordion === item}
+                              lessonEdit={lessonEdit}
+                              setLessonEdit={setLessonEdit}
+                              title={item}
+                              array_name={item} />
+                          </div>)
+                        })
+                      }
+                    </Stack>
 
 
-                <InfoRow
-                  label={t('duration_total')}
-                  value={`${formatDuration(session?.duration)} heures`}
-                />
-                <InfoRow
-                  label={t('sessions_type')}
-                  value={`${session?.sessions_count} session(s) / ${t(session?.sessions_type, { ns: NS_DAYS })}`}
-                />
-                {selectedSlot?.format === "onsite" && (
-                  <InfoRow label={t('location')} value={`${selectedSlot?.location}`} />
-                )}
-                {selectedSlot?.format === "online" && (
-                  <InfoRow
-                    label="Lien du cours"
-                    value={<Stack justifyContent={'center'}>
-                      <Link href={selectedSlot?.url} target="_blank" style={{ color: 'var(--primary)' }}>{selectedSlot?.url}</Link>
-                    </Stack>}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Bloc inscription intégré dans le hero */}
-          <aside className="hero-right">
-
-            <div className="teacher-card">
-              <h2 className="teacher-label">{t('certification')}</h2>
-              {session?.lesson?.certified ? (
-                <>
-                  <p className="cert-main">
-                    {t('certification_block.title')}{" "}
-                    <strong>{SCHOOL_NAME}</strong>.
-                  </p>
-                  <ul className="list small">
-                    {
-                      t('certification_block.items', { returnObjects: true })?.map((text, i) => {
-                        return (<li key={`${text}-${i}`}>{text}</li>)
-                      })
-                    }
-                  </ul>
-                  {course.isOfficialCertificate && (
-                    <p className="cert-badge">
-                      {t('certification_official')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="cert-main">
-                  Ce cours ne délivre pas de certificat officiel mais une
-                  attestation de participation peut être fournie sur demande.
-                </p>
-              )}
-            </div>
-            {/* PROFESSEUR */}
-            <div className="card" style={{ borderColor: 'var(--card-border)' }}>
-              <h2>Résumé du cours</h2>
-              <div className="teacher-main">
-
-                {
-                  session?.teacher?.showAvatar({})
-                }
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {session?.teacher?.first_name} {session?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{session?.teacher?._role_title}</p>
-                </div>
-              </div>
-              <p className="description">{session?.lesson?.translate?.description}</p>
-              <ul className="list small">
-                <li><b>{`Cours : `}</b>{session?.lesson?.title}</li>
-                <li><b>{`Catégorie : `}</b>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}</li>
-                <li><b>{`Certification : `}</b>{session?.lesson?.certified ? '✅ Oui' : '❌ Non'}</li>
-              </ul>
-
-              <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target={"_blank"}>
-                <ButtonCancel
-                  label={`Voir la page du cours`}
-                  style={{ marginTop: 10 }}
-                />
-              </Link>
-              {
-                /*
-                Cours : Excel – Compétences essentielles pour le travail (EXCEL-101)
-Catégorie : Bureautique
-Certification : Oui (Dandela Academy)
-                */
-              }
-            </div>
-          </aside>
-        </section>
+                  </div>
+                </Stack>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </main>
       <style jsx>{`
                 .page {
                  
                   background: transparent;
-                  padding: 10px 0px;
+                  padding: 0px 0px;
                   color: var(--font-color);
                   display: flex;
                   justify-content: center;
@@ -383,7 +618,7 @@ Certification : Oui (Dandela Academy)
         
                 .hero-card {
                   display: grid;
-                  grid-template-columns: minmax(0, 2fr) minmax(260px, 1.5fr);
+                  grid-template-columns: minmax(0, 2fr) minmax(260px, 1.2fr);
                   gap: 18px;
                   border-radius: 18px;
                   border: 1px solid #1f2937;
@@ -425,21 +660,19 @@ Certification : Oui (Dandela Academy)
                   padding: 15px;
                 }
                 .teacher-card {
+                  margin-top: 8px;
                   border-radius: 10px;
                   border: 1px solid #111827;
                   border: 0.1px solid var(--card-border);
                   padding: 10px 10px 12px;
                   padding: 15px;
-                  padding: 14px 14px 16px;
                   background: radial-gradient(circle at top left, #111827, #020617);
                   background: transparent;
-                  background : var(--card-color);
                   font-size: 0.85rem;
                    
                 }
         
                 .teacher-label {
-                  margin: 0 0 6px;
                   font-size: 0.75rem;
                   font-size: 1.05rem;
                   color: #9ca3af;
@@ -522,7 +755,7 @@ Certification : Oui (Dandela Academy)
                 }
         
                 .muted {
-                  margin: 0;
+                  margin-top: 5px;
                   font-size: 0.9rem;
                   color: #9ca3af;
                 }
@@ -530,7 +763,7 @@ Certification : Oui (Dandela Academy)
                 .badges {
                   margin-top: 10px;
                   display: flex;
-                  gap: 8px;
+                  gap: 5px;
                   flex-wrap: wrap;
                 }
         
@@ -557,8 +790,10 @@ Certification : Oui (Dandela Academy)
                   padding: 2px 10px;
                   font-size: 0.8rem;
                   background: #022c22;
+                  background: transparent;
                   color: #bbf7d0;
-                  border: 1px solid #16a34a;
+                  color: var(--font-color);
+                  border: 0.1px solid #16a34a;
                 }
         
                 .enroll-card {
@@ -660,7 +895,7 @@ Certification : Oui (Dandela Academy)
         
                 .grid {
                   display: grid;
-                  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+                  grid-template-columns: minmax(0, 2.5fr) minmax(0, 2.5fr);
                   gap: 16px;
                   margin-bottom: 30px;
                 }
@@ -690,18 +925,30 @@ Certification : Oui (Dandela Academy)
                   color: var(--font-color);
                     color: var(--grey-light);
                   border-radius: 16px;
-                  border: 0.1px solid transparent;
                   padding: 14px 14px 16px;
                 }
-        
                 .card h2 {
+                  margin: 0 0 10px;
+                  font-size: 1.05rem;
+                }
+                .card .content {
+                  background: var(--card-color);
+                  color: var(--font-color);
+                    color: var(--grey-light);
+                  border-radius: 16px;
+                  padding: 14px 14px 16px;
+                  border: 1px solid red;
+                }
+        
+                .card .content h2 {
+                  color:red;
                   margin: 0 0 10px;
                   font-size: 1.05rem;
                 }
         
                 .description {
                   margin: 0;
-                  padding-left: 0px;
+                  padding-left: 10px;
                   font-size: 0.9rem;
                   color: var(--grey-light);
                   color: var(--font-color);
@@ -709,9 +956,9 @@ Certification : Oui (Dandela Academy)
         
                 .list {
                   margin: 0;
-                  padding-left: 15px;
+                  padding-left: 18px;
                   font-size: 0.88rem;
-                  color: var(--grey-light);
+                            color: var(--grey-light);
                               color: var(--font-color);
                 }
         
@@ -742,32 +989,6 @@ Certification : Oui (Dandela Academy)
                   color: #bbf7d0;
                   border: 1px solid #16a34a;
                 }
-              .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 2px 8px;
-            border-radius: 999px;
-            border: 0.1px solid var(--primary);
-            background-color: var(--primary-shadow);
-            color: var(--primary);
-            font-size: 0.72rem;
-            white-space: nowrap;
-          }
-  
-          .badge-big {
-            margin-top: 6px;
-            font-size: 0.8rem;
-            padding: 3px 10px;
-          }
-  
-          .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 999px;
-            background: var(--primary);
-            
-          }
               `}</style>
     </div>
   </Stack>);

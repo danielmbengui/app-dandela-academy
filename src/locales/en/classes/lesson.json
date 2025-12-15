@@ -1,5 +1,5 @@
 {
-  "office": "Office",
+  "office": "Office automation",
   "beginner": "Beginner",
   "intermediate": "Intermediate",
   "competent": "Competent",
@@ -8,13 +8,14 @@
   "hybrid": "Hybrid",
   "onsite": "On-site",
   "online": "Online",
-  "open": "Open registrations",
+  "open": "Registrations open",
   "full": "Full",
   "finished": "Finished",
   "draft": "Draft",
   "certified": "Certified by Dandela Academy",
   "level": "Level",
-  "category": "Category",
+  "lang": "Language",
+  "category": "Type",
   "format": "Format",
   "location": "Location",
   "schedule": "Schedule",
@@ -28,22 +29,23 @@
   "programs": "Program",
   "prerequisites": "Prerequisites",
   "target_audiences": "Who is it for?",
-  "modalities": "Practical modalities",
+  "modalities": "Practical information",
   "certification": "Certification",
-  "certification_official": "✅ Certification officially recognized within Dandela Academy pathways.",
+  "certification_official": "✅ Certification recognized within the Dandela Academy learning paths.",
   "certification_block": {
     "title": "🎓 This course grants a certificate issued by Dandela Academy.",
     "items": [
-      "Certificate of completion detailing acquired skills.",
-      "Certificate delivered in PDF format (and optionally printed).",
-      "Ideal to complement a CV or an application dossier."
-    ]
+      "Proof of completion listing the acquired skills.",
+      "Certificate delivered as a PDF (and possibly printed).",
+      "Perfect to enrich a CV or application file."
+    ],
+    "no_certification": "This course does not issue an official certificate, but a participation statement can be provided upon request."
   },
   "notes": "Important information",
   "seats_taken": "Registered",
-  "seats_availables": "Remaining seats",
+  "seats_availables": "Remaining seat(s)",
   "multiple_payments": "Installment payment available",
-  "security": "Secure registration • You will receive a confirmation email with all practical details.",
+  "security": "Secure registration • You will receive a confirmation email with all practical information.",
   "unknown": "Unknown",
-  "btn-subscribe": "Enroll in this course"
+  "btn-subscribe": "Register for this course"
 }

@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { ClassSession, ClassLessonSessionTranslate } from '@/classes/ClassSession';
 import { useLanguage } from './LangProvider';
-import { ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassLesson } from '@/classes/ClassLesson';
 import Preloader from '@/components/shared/Preloader';
@@ -21,7 +21,7 @@ import { useAuth } from './AuthProvider';
 const SessionContext = createContext(null);
 export const useSession = () => useContext(SessionContext);
 
-export function SessionProvider({ children }) {
+export function SessionProvider({ children, uidLesson = "" }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
     const { t } = useTranslation([ClassSession.NS_COLLECTION]);
@@ -46,6 +46,7 @@ export function SessionProvider({ children }) {
         return () => listener?.();
     }, []);
     useEffect(() => {
+        console.log("*UUUID lesson", uidLesson, "UID session", uidSession)
         if (uidSession) {
             const _session = getOneSession(uidSession);
             setSession(_session);
@@ -54,7 +55,7 @@ export function SessionProvider({ children }) {
         } else {
             setSession(null);
         }
-    }, [uidSession]);
+    }, [uidLesson, uidSession]);
     useEffect(() => {
         if (uidSlot && session) {
             //const _session = getOneSession(uidSession);
@@ -72,6 +73,9 @@ export function SessionProvider({ children }) {
         const constraints = [];
         if (!(user instanceof ClassUserIntern)) {
             constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
+        }
+        if (uidLesson) {
+            constraints.push(where("uid_lesson", "==", uidLesson));
         }                //const coll = this.colRef();
         const q = constraints.length
             ? query(colRef, ...constraints)
@@ -107,20 +111,21 @@ export function SessionProvider({ children }) {
                 var _slots_session = session_new.slots;
                 if (!(user instanceof ClassUserIntern)) {
                     //constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
-                    _slots_session = session_new.slots.filter(slot=>slot.status!==ClassSession.STATUS.DRAFT);
+                    _slots_session = session_new.slots.filter(slot => slot.status !== ClassSession.STATUS.DRAFT);
                 }
                 _slots.push(..._slots_session);
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
-           // console.log("OBJECT list SLOTS", _slots)
+            // console.log("OBJECT list SLOTS", _slots)
             setSessions(_sessions);
             setSlots(_slots);
             setIsLoading(false);
         });
         return snapshotSessions;
-    }, []);
+    }, [uidLesson]);
     const listenToOneSession = useCallback((uidSession) => {
+        console.log("*UUUID lesson", uidLesson, uidSession)
         if (!uidSession) {
             setSession(null);
             //setIsConnected(false);
@@ -136,6 +141,7 @@ export function SessionProvider({ children }) {
                 setIsLoading(false);
                 return;
             }
+            console.log("change session")
             const _session = snap.data();
             const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
             const teacher = _session.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_session.uid_teacher) : null;
@@ -153,7 +159,11 @@ export function SessionProvider({ children }) {
             setSession(prev => {
                 if (!prev || prev === null) return session_new;
                 prev.update(session_new.toJSON());
-               // console.log('set prev session', session_new);
+                // console.log('set prev session', session_new);
+                //const session_new = new ClassSession(session_new.toJSON());
+                //prev.lesson = lesson;
+                //prev.teacher = teacher;
+                //prev.room = room;
                 return prev;
             });
             //setIsConnected(true);
@@ -163,7 +173,7 @@ export function SessionProvider({ children }) {
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, [uidSession]);
+    }, [uidSession, uidLesson]);
 
     async function refreshList() {
         var _sessions = [];
@@ -215,7 +225,7 @@ export function SessionProvider({ children }) {
     async function update(_lesson = null) {
         if (!_lesson || _lesson === null || !(_lesson instanceof ClassSession)) return;
         setIsLoading(true);
-       // console.log("start update")
+        // console.log("start update")
         //var newDevice = await _device.createFirestore();
         var updatedLesson = await _lesson.updateFirestore();
         //console.log("start update firestore", updatedLesson)
@@ -286,7 +296,7 @@ export function SessionProvider({ children }) {
             setSession(null);
         }
 
-     //   console.log("change session", _lesson)
+        //   console.log("change session", _lesson)
 
     }
 

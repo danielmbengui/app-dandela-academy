@@ -868,9 +868,9 @@ const Step2 = ({ step = 0, setStep = null }) => {
                 <ButtonConfirm
                 loading={emailSent}
                   onClick={async (e) => {
-                   // await sendVerification();
-                   // setEmailSent(true);
-                    await editEmail(e, "dandelagames@gmail.com")
+                   await sendVerification();
+                   setEmailSent(true);
+                   // await editEmail(e, "daniel.mbengui@gmail.com")
                   }}
                   label="Vérifier"
                 />

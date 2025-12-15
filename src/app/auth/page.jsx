@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getAuth, applyActionCode } from "firebase/auth";
 import VerifyEmailComponent from "@/components/auth/VerifyEmailComponent";
 import NotFoundComponent from "@/components/not-found/NotFoundComponent";
+import VerifyAndChangeEmailComponent from "@/components/auth/VerifyAndChangeEmailComponent";
 
 const MODES_AUTH = [
     "verifyEmail",
@@ -78,6 +79,9 @@ export default function AuthPage() {
     }
     if(mode === "verifyEmail") {
         return (<VerifyEmailComponent actionConfirm={confirm} />);
+    }
+    if(mode === "verifyAndChangeEmail") {
+        return (<VerifyAndChangeEmailComponent actionConfirm={confirm} />);
     }
     if (status === "checking") return <div style={{ padding: 20 }}>Vérification du lien…</div>;
 

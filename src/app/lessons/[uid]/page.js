@@ -10,19 +10,25 @@ import { useLesson } from "@/contexts/LessonProvider";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import LessonComponent from "@/components/dashboard/lessons/LessonComponent";
 import DialogLesson from "@/components/dashboard/lessons/DialogLesson";
+import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
+import { useAuth } from "@/contexts/AuthProvider";
+import { ClassUserIntern } from "@/classes/users/ClassUser";
 
 export default function DashboardOneLesson() {
     const params = useParams();
     const { uid } = params; // <- ici tu récupères l'uid
-    const { isLoading: isLoadingLessons, getOneLesson } = useLesson();
+    const { lesson,isLoading: isLoadingLessons, getOneLesson, setUidLesson } = useLesson();
     const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
-    const [lesson, setLesson] = useState(null);
+    //const [lesson, setLesson] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
+    const {user} = useAuth();
 
     useEffect(() => {
         if (uid && !isLoadingLessons) {
             const _lesson = getOneLesson(uid);
-            setLesson(_lesson);
+            //setLesson(_lesson);
+            setUidLesson(uid);
+            console.log("UUUID lesson", uid)
         }
     }, [uid, isLoadingLessons]);
 
@@ -33,10 +39,20 @@ export default function DashboardOneLesson() {
                 { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_LESSONS },
                 { name: lesson?.translate?.title, url: '' }
             ]}
-            title={`Cours / ${lesson?.code}`}
-            subtitle={lesson?.translate?.subtitle}
+            //title={`Cours / ${lesson?.title}`}
+            //subtitle={lesson?.translate?.subtitle}
             icon={<IconLessons />}>
-                <DialogLesson lesson={lesson} isOpen={false} setIsOpen={setIsOpen} />
+            {
+                user instanceof ClassUserIntern && <>
+                <ButtonConfirm
+                label={`Modifier`}
+                onClick={() => setIsOpen(true)}
+                style={{ marginBottom: '10px' }}
+            />
+           
+                </>
+            }
+             <DialogLesson isOpen={isOpen} setIsOpen={setIsOpen} />
             <LessonComponent lesson={lesson} />
         </DashboardPageWrapper>
     );

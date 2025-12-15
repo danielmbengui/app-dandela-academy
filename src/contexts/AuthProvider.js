@@ -19,6 +19,9 @@ import {
     sendSignInLinkToEmail,
     updatePassword,
     updateEmail,
+    verifyBeforeUpdateEmail,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
 } from 'firebase/auth';
 
 import {
@@ -165,7 +168,7 @@ export function AuthProvider({ children }) {
                 setIsLoading(false);
                 //  console.timeEnd("auth");
                 const unsubUser = listenToUser(fbUser);
-                console.log("FFFF init user", fbUser.emailVerified);
+                //console.log("FFFF init user", fbUser.emailVerified);
                 return () => unsubUser?.();
             } else {
                 // console.log("no user FB")
@@ -347,24 +350,45 @@ export function AuthProvider({ children }) {
     const editEmail = async (e, newEmail) => {
         e?.preventDefault?.();
         //const credential = promptForCredentials();
-         console.log("Email updated", newEmail);
-/*
-        reauthenticateWithCredential(user, credential).then(() => {
+        console.log("Email to updated", newEmail);
+        const credential = EmailAuthProvider.credential(user.email, "Projetsdevie2025#");
+        reauthenticateWithCredential(auth.currentUser, credential).then(async () => {
             // User re-authenticated.
+            var now = new Date();
+            //now = now.setDate(now.getMinutes),
+            now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
+            console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
+
+            const actionCodeSettings = {
+                // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
+                url: `${window.location.origin}/auth/`,
+                // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
+                handleCodeInApp: false,
+            };
+            console.log("re authenticate");
+            await verifyBeforeUpdateEmail(auth.currentUser, newEmail, actionCodeSettings);
+        console.log("email updated");
         }).catch((error) => {
             // An error ocurred
+            console.log("ERRRROR", error)
             // ...
         });
-        */
-        updateEmail(auth.currentUser, newEmail).then(() => {
-            // Email updated!
-            // ...
-            console.log("Email updated", newEmail);
-        }).catch((error) => {
-            // An error occurred
-            // ...
-            console.log("ERRROR", error)
-        });
+
+
+        /*
+
+                */
+        /*
+         updateEmail(auth.currentUser, newEmail).then(() => {
+             // Email updated!
+             // ...
+             console.log("Email updated", newEmail);
+         }).catch((error) => {
+             // An error occurred
+             // ...
+             console.log("ERRROR", error)
+         });
+         */
     }
     const editPassword = async (e, newPassword) => {
         e?.preventDefault?.();
@@ -382,18 +406,18 @@ export function AuthProvider({ children }) {
     }
     const sendVerification = async () => {
         if (!auth.currentUser) return;
-        console.log("SUCCESS", auth.currentUser.email);
+       // console.log("SUCCESS", auth.currentUser.email);
         //const auth = getAuth();
         const _user = auth.currentUser;
         if (!_user) throw new Error("No authenticated user");
         var now = new Date();
         //now = now.setDate(now.getMinutes),
         now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
-        console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
+       // console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
 
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
-            url: `${window.location.origin}/auth/verify-email?returnTo=${encodeURIComponent(`${window.location.origin}${window.location.pathname}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified
+            url: `${window.location.origin}/auth?returnTo=${encodeURIComponent(`${window.location.pathname}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified
             // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
             handleCodeInApp: false,
         };

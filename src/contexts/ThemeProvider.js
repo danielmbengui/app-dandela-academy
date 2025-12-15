@@ -214,7 +214,7 @@ export const ThemeProvider = ({ children }) => {
                 //fontSize: '2.5rem',
                 fontSize: `1.8rem`,
                 fontWeight: 500,
-                lineHeight: 1,
+                //lineHeight: 1,
                 //color: 'black',
             },
             h2: {

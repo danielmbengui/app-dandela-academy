@@ -24,7 +24,7 @@ import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 import Preloader from "../shared/Preloader";
 import { auth } from "@/contexts/firebase/config";
 import OtherPageWrapper from "../wrappers/OtherPageWrapper";
-import { applyActionCode, checkActionCode } from "firebase/auth";
+import { applyActionCode } from "firebase/auth";
 
 const StatusComponent = ({ status, actionConfirm = null }) => {
     const { t } = useTranslation([NS_FORGOT_PASSWORD]);
@@ -42,7 +42,7 @@ const StatusComponent = ({ status, actionConfirm = null }) => {
             >{t('btn-home')}</ButtonConfirm>
         }
     </>;
-    var title = "Vérification d'email";
+    var title = "Changer l'adresse email du compte";
     var subtitle = `Active ton compte en vérifiant ton adresse email : ${user?.email}.`;
     if (status === "error") {
         title = "Lien invalide";
@@ -100,9 +100,9 @@ const CardComponent = ({ children, title = "", subtitle = "" }) => {
         }
     </Stack>)
 }
-export default function VerifyEmailComponent() {
+export default function VerifyAndChangeEmailComponent() {
     const { t } = useTranslation([NS_FORGOT_PASSWORD]);
-    const { user, updateOneUser, isLoading } = useAuth();
+    const { user, isLoading, updateOneUser } = useAuth();
     const router = useRouter();
     const sp = useSearchParams();
 
@@ -116,59 +116,35 @@ export default function VerifyEmailComponent() {
     //const returnTo = sp.get("returnTo") || "/dashboard";
     const raw = sp.get("returnTo") || PAGE_DASHBOARD_HOME;
     const returnTo = raw.startsWith("/") ? raw : PAGE_DASHBOARD_HOME;
-    const expirationDate = sp.get("expiration") ? new Date(sp.get("expiration")) : new Date();
-    console.log("expiration", sp.get("expiration"), returnTo, expirationDate)
+    const expirationDate = sp.get("expiration") || new Date();
     // var now = new Date();
     //now = now.setDate(now.getMinutes),
     //   now.setMinutes(now.getMinutes() + (20*60));  
     useEffect(() => {
+        /*
         const now = new Date();
+        if (now >= expirationDate) {
+            setStatus('expired');
+        }
+        
+        if (!isLoading && !user.email_verified) {
+            setStatus('verified')
+        }
+        */
+        // 1) validation du lien
+        /*
         if (!mode || !oobCode) {
             setStatus("error");
             setError("Lien invalide : paramètres manquants.");
             return;
         }
-        (async () => {
-            try {
-                // ✅ 1) On teste le code d'abord -> si expiré/invalid, on l'affiche immédiatement
-                await checkActionCode(auth, oobCode);
-                console.log("check acrtion")
-            } catch (e) {
-                // ✅ C’est ici que tu détectes "expiré" en 1er statut affiché
-                console.log("ERRROR", e);
-                if (e?.code === "auth/expired-action-code") {
-                    setStatus("expired");
-                    setError("Lien expiré");
-                     console.log("expired");
-                    //setDetails("Ce lien a expiré. Demande un nouvel e-mail.");
-                    return;
-                }
-                if (e?.code === "auth/invalid-action-code") {
-                    setStatus("error");
-                    setError("Lien invalide ou déjà utilisé.");
-                     console.log("invalid");
-                    return;
-                }
-                setStatus("invalid");
-                setError("Erreur inconnue");
-            }
-        })();
-/*
-        if (now.getTime() >= expirationDate.getTime()) {
-            setStatus('expired');
-        }
-        */
-
-        if (!isLoading && user.email_verified) {
-            setStatus('verified')
-        }
-        // 1) validation du lien
-
         if (mode !== "verifyEmail") {
             setStatus("error");
             setError(`Mode non supporté: ${mode}`);
             return;
         }
+        */
+
         // 2) on affiche un bouton "Confirmer"
         // setStatus("ready");
     }, [mode, oobCode, isLoading, user]);
@@ -177,30 +153,23 @@ export default function VerifyEmailComponent() {
             setStatus("applying");
             setError("");
             //const auth = getAuth();
-
+            
             // ✅ C’EST ÇA qui “valide” le clic sur le lien et met emailVerified à jour côté Firebase
             await applyActionCode(auth, oobCode);
             const _user = user?.clone();
-            _user.update({ email_verified: true, status: ClassUser.STATUS.ONLINE });
-            await updateOneUser(_user);
+            _user.update({ email: "daniel.mbengui@gmail.com", email_verified:true });
+            await updateOneUser();
             // Optionnel : si l'utilisateur est connecté dans ce navigateur, on reload pour avoir emailVerified à jour
             if (auth.currentUser) {
                 await auth.currentUser.reload();
             }
             setStatus("verified");
-            router.replace(returnTo);
+            //router.replace(returnTo);
             //router.replace(PAGE_DASHBOARD_HOME);
         } catch (e) {
             setStatus("error");
             setError(e?.message || "Impossible de valider ce lien.");
-            console.log("ERRROR", e);
-            if (e.code === "auth/expired-action-code") {
-                // lien expiré -> proposer "renvoyer l'email"
-            } else if (e.code === "auth/invalid-action-code") {
-                // lien invalide / déjà utilisé
-            } else {
-                // autre erreur
-            }
+            console.log("ERRRROR", e);
         }
     };
     if (isLoading) {

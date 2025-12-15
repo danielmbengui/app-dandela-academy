@@ -33,7 +33,7 @@ export class ClassLesson {
         BEGINNER: 'beginner', // débutant
         INTERMEDIATE: 'intermediate', // intermediraire
         COMPETENT: 'competent', // compétent
-        ADVANCED: 'advaned', // avancé
+        ADVANCED: 'advanced', // avancé
         EXPERT: 'expert', // expert
         UNKNOWN: 'unknown',
     });
@@ -96,12 +96,24 @@ export class ClassLesson {
         YEARLY: 'yearly',
         UNKNOWN: 'unknown',
     });
+    static ALL_CATEGORIES = [
+        ClassLesson.CATEGORY.OFFICE
+    ]
+    static ALL_LEVELS = [
+        ClassLesson.LEVEL.BEGINNER,
+        ClassLesson.LEVEL.INTERMEDIATE,
+        ClassLesson.LEVEL.COMPETENT,
+        ClassLesson.LEVEL.ADVANCED,
+        ClassLesson.LEVEL.EXPERT,
+    ]
+    static ALL_FORMATS = [
+        ClassLesson.FORMAT.ONSITE,
+        ClassLesson.FORMAT.ONLINE,
+        ClassLesson.FORMAT.HYBRID,
+    ]
     constructor({
         uid = "",
         uid_intern = "",
-        uid_teacher = "",
-        uid_room = "",
-        code = "", // Excel-101
         title = "",
         title_normalized = "",
         subtitle = "",
@@ -112,16 +124,7 @@ export class ClassLesson {
         lang = "",
         format = "",
         certified = false,
-        price = 0,
-        currency = "",
-        start_date = null,
-        end_date = null,
-        seats_availables = 0,
-        seats_taken = 0,
         duration = 0,
-        sessions_count = 0,
-        sessions_type = "",      // ex: "hebdomadaire", "weekend", "intensif"
-        sessions_schedule = this._defaultSchedule(),
         goals = [],
         programs = [],
         prerequisites = [],
@@ -129,18 +132,12 @@ export class ClassLesson {
         notes = [],
         photo_url = "",
         status = ClassLesson.STATUS.DRAFT,
-        location = "",           // NOUVEAU
-        url = "",                // NOUVEAU
         translate = {},
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
         this._uid = uid;
         this._uid_intern = uid_intern;
-        this._uid_teacher = uid_teacher;
-        this._teacher = null;
-        this._uid_room = uid_room;
-        this._code = code;
         this._title = title;
         this._title_normalized = title_normalized;
         this._subtitle = subtitle;
@@ -151,16 +148,7 @@ export class ClassLesson {
         this._lang = lang;
         this._format = format;
         this._certified = certified;
-        this._price = price;
-        this._currency = currency;
-        this._start_date = start_date;
-        this._end_date = end_date;
-        this._seats_availables = seats_availables;
-        this._seats_taken = seats_taken;
         this._duration = duration;
-        this._sessions_count = sessions_count;
-        this._sessions_type = sessions_type;
-        this._sessions_schedule = this._normalizeSchedule(sessions_schedule);
         this._goals = goals;
         this._programs = programs;
         this._prerequisites = prerequisites;
@@ -168,8 +156,6 @@ export class ClassLesson {
         this._notes = notes;
         this._photo_url = photo_url;
         this._status = status;
-        this._location = location;
-        this._url = url;
         this._translate = translate;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
@@ -222,38 +208,6 @@ export class ClassLesson {
     }
     set uid_intern(value) {
         this._uid_intern = value;
-    }
-
-    // uid_teacher
-    get uid_teacher() {
-        return this._uid_teacher;
-    }
-    set uid_teacher(value) {
-        this._uid_teacher = value;
-    }
-    // teacher
-    get teacher() {
-        return this._teacher;
-    }
-    set teacher(value) {
-        if (!(value instanceof ClassUserTeacher)) return;
-        this._teacher = value;
-    }
-
-    // uid_room
-    get uid_room() {
-        return this._uid_room;
-    }
-    set uid_room(value) {
-        this._uid_room = value;
-    }
-
-    // code
-    get code() {
-        return this._code;
-    }
-    set code(value) {
-        this._code = value;
     }
 
     // title
@@ -336,54 +290,6 @@ export class ClassLesson {
         this._certified = value;
     }
 
-    // price
-    get price() {
-        return this._price;
-    }
-    set price(value) {
-        this._price = value;
-    }
-
-    // currency
-    get currency() {
-        return this._currency;
-    }
-    set currency(value) {
-        this._currency = value;
-    }
-
-    // start_date
-    get start_date() {
-        return this._start_date;
-    }
-    set start_date(value) {
-        this._start_date = value;
-    }
-
-    // end_date
-    get end_date() {
-        return this._end_date;
-    }
-    set end_date(value) {
-        this._end_date = value;
-    }
-
-    // seats_availables
-    get seats_availables() {
-        return this._seats_availables;
-    }
-    set seats_availables(value) {
-        this._seats_availables = value;
-    }
-
-    // seats_taken
-    get seats_taken() {
-        return this._seats_taken;
-    }
-    set seats_taken(value) {
-        this._seats_taken = value;
-    }
-
     // duration
     get duration() {
         return this._duration;
@@ -392,29 +298,6 @@ export class ClassLesson {
         this._duration = value;
     }
 
-    // sessions_count
-    get sessions_count() {
-        return this._sessions_count;
-    }
-    set sessions_count(value) {
-        this._sessions_count = value;
-    }
-
-    // sessions_type
-    get sessions_type() {
-        return this._sessions_type;
-    }
-    set sessions_type(value) {
-        this._sessions_type = value;
-    }
-
-    // sessions_schedule
-    get sessions_schedule() {
-        return this._sessions_schedule;
-    }
-    set sessions_schedule(value) {
-        this._sessions_schedule = value;
-    }
 
     // goals
     get goals() {
@@ -470,21 +353,6 @@ export class ClassLesson {
     set photo_url(value) {
         this._photo_url = value;
     }
-    // location
-    get location() {
-        return this._location;
-    }
-    set location(value) {
-        this._location = value;
-    }
-
-    // url
-    get url() {
-        return this._url;
-    }
-    set url(value) {
-        this._url = value;
-    }
 
     // translates
     get translate() {
@@ -537,7 +405,8 @@ export class ClassLesson {
         }
     }
     clone() {
-        return ClassLesson.makeLessonInstance(this._uid, this.toJSON());
+        const translate = this._translate?.clone();
+        return ClassLesson.makeLessonInstance(this._uid, {...this.toJSON(), translate});
         //return new ClassUser(this.toJSON());
     }
 
@@ -1008,7 +877,7 @@ export class ClassLessonTranslate {
         }
     }
     clone() {
-        return ClassLessonTranslate.makeLessonTranslateInstance(this._uid, this.toJSON());
+        return ClassLessonTranslate.makeLessonTranslateInstance(this._uid_lesson, this.toJSON());
         //return new ClassUser(this.toJSON());
     }
 
@@ -1021,8 +890,8 @@ export class ClassLessonTranslate {
         if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
         return null;
     }
-    static makeLessonTranslateInstance(uid, data = {}) {
-        return new ClassLessonTranslate({ uid, ...data });
+    static makeLessonTranslateInstance(uid_lesson, data = {}) {
+        return new ClassLessonTranslate({uid_lesson, ...data });
     }
     static get converter() {
         return {

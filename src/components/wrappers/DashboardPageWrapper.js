@@ -177,14 +177,14 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
         <Box sx={{ display: 'flex', }}>
             <CssBaseline />
             <AppBar
-                elevation={1}
+                elevation={0}
                 position="fixed"
                 sx={{
                     background: cardColor.main,
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
-                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', p: 2, }}>
+                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px',py:1, px: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>
                         <IconButton
                             color="inherit"
@@ -196,9 +196,9 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             <MenuIcon />
                         </IconButton>
 
-                        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 0.5, px: 1, height: '100%', color: text.main, border: `1px solid ${ClassColor.GREY_LIGHT}`, borderRadius: '20px' }}>
+                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{ py: 0.25, px: 0.5, height: '100%', color: text.main, border: `1px solid ${ClassColor.GREY_LIGHT}`, borderRadius: '20px' }}>
                             {
-                                user?.showAvatar({ size: 25, fontSize: '8px' })
+                                user?.showAvatar({ size: 20, fontSize: '5px' })
                             }
                             <Stack>
                                 <Typography variant={'string'} noWrap fontSize={'12px'}>
@@ -250,9 +250,9 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 sx={{ flexGrow: 1, p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
                 <Toolbar />
-                <Container maxWidth={'xl'} sx={{ py: 1, background: '', }}>
-                    <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
-                        <Stack sx={{ width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
+                <Container maxWidth={'xl'} sx={{ py: 0, background: '', }}>
+                    <Stack spacing={1.5} maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
+                        <Stack justifyContent={'center'} sx={{background:'', width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
@@ -279,7 +279,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             <Typography sx={{ color: 'var(--grey-light)' }}>{subtitle}</Typography>
 
                         </Stack>
-                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ mt: 1, width: '100%', height: '100%', background: '' }}>
+                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{width: '100%', height: '100%', background: '' }}>
                             {children}
                         </Stack>
                     </Stack>

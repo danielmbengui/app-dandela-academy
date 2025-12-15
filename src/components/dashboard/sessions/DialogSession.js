@@ -14,10 +14,10 @@ import SessionComponent from "./SessionComponent";
 import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import DialogSubscribeSession from "./DialogSubscribeSession";
 
-export default function DialogSession({}) {
+export default function DialogSession({ }) {
     const { t } = useTranslation([NS_ROLES]);
     const { lang } = useLanguage();
-    const {session, setUidSession,slot } = useSession();
+    const { session, setUidSession, slot } = useSession();
     const { theme } = useThemeMode();
     const { blueDark, primary, cardColor, text, greyLight } = theme.palette;
     const [wantSubscribe, setWantSubscribe] = useState(false);
@@ -114,7 +114,7 @@ export default function DialogSession({}) {
 
                                     }} />
                                     <ButtonConfirm label={`S'inscrire`} variant='contained' onClick={async () => {
-setWantSubscribe(true);
+                                        setWantSubscribe(true);
                                     }} />
                                 </Stack>
                                 <IconButton size={'small'}>
@@ -129,7 +129,7 @@ setWantSubscribe(true);
             </Dialog>
             <DialogSubscribeSession
                 //session={session}
-               // selectedSlot={slot}
+                // selectedSlot={slot}
                 open={wantSubscribe}
                 setOpen={setWantSubscribe}
             />

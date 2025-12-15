@@ -21,7 +21,7 @@ export default function TextFieldComponent({
     fullWidth = false,
     onChange: onChangeValue = null,
     onClear = null,
-    maxHeight = '2.5rem',
+    maxHeight = '1.85rem',
     autoComplete = [],
     onSubmit = () => { },
     ...props
@@ -31,7 +31,7 @@ export default function TextFieldComponent({
     const { blue, greyLight, text, primary, cardColor } = theme.palette;
     if (autoComplete.length > 0) {
         return (<Autocomplete
-            onClick={() => alert('ok')}
+            //onClick={() => alert('ok')}
             disablePortal
             value={value}
             options={autoComplete}
@@ -73,12 +73,14 @@ export default function TextFieldComponent({
                 value={value}
                 onChange={onChangeValue}
                 error={error}
+                fullWidth={fullWidth}
                 placeholder={placeholder}
                 onKeyDown={onSubmit}
                 sx={{
                     pointerEvents: 'auto',
                     //color:'black',
                     //borderWidth:'1px',
+                    maxHeight:maxHeight,
                     borderRadius: '7px',
                     //my: 1,
                     '& .MuiOutlinedInput-root': {
@@ -124,7 +126,7 @@ export default function TextFieldComponent({
         )
     }
     return (<TextField
-        className="shadow-sm"
+        //className="shadow-sm"
         lang={lang}
         disabled={disabled}
         type={type}
@@ -151,16 +153,16 @@ export default function TextFieldComponent({
                 '& fieldset': {
                     //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
                     color: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
-                    border: `0.1px solid var(card-border)`,
+                    border: `0.1px solid var(--grey-hyper-light)`,
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
                     //color: 'red', // couleur par défaut
-                    border: `1px solid ${primary.main}`,
+                    border: `0.1px solid ${primary.main}`,
                 },
                 '&.Mui-focused fieldset': {
                     //borderColor: ClassColor.TRANSPARENT, // quand focus
-                    border: `2px solid ${primary.main}`,
+                    border: `1px solid ${primary.main}`,
                 },
                 '&.Mui-error fieldset': {
                     // borderColor: 'error.main', // en cas d'erreur
@@ -180,7 +182,7 @@ export default function TextFieldComponent({
                     cursor: 'not-allowed',      // curseur sur le texte aussi
                 },
                 '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
-                    color: 'red',
+                    //color: 'red',
                 },
             },
         }}
@@ -196,7 +198,7 @@ export default function TextFieldComponent({
                         color: 'error.main',
                     },
                     '&.Mui-disabled': {
-                        color: ClassColor.GREY_HYPER_LIGHT,
+                        color: 'var(--grey-light)',
                     },
                 }
             },
@@ -206,7 +208,7 @@ export default function TextFieldComponent({
                     background: cardColor.main,
                     //borderRadius:'20px',
                     fontSize: '14px',
-                    //maxHeight: maxHeight 
+                    maxHeight: maxHeight 
                 },
                 startAdornment: icon && (
                     <InputAdornment position="start" sx={{ color: ClassColor.GREY_LIGHT }}>

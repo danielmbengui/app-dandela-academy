@@ -11,6 +11,7 @@ import { useRoom } from './RoomProvider';
 import { ClassLesson, ClassLessonTranslate } from '@/classes/ClassLesson';
 import { useLanguage } from './LangProvider';
 import { ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassRoom } from '@/classes/ClassRoom';
 
 
 const LessonContext = createContext(null);
@@ -20,6 +21,7 @@ export function LessonProvider({ children }) {
     const { lang } = useLanguage();
     const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
+    const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
     const [lesson, setLesson] = useState(null);           // ton user métier (ou snapshot)
     const [lessons, setLessons] = useState([]);           // ton user métier (ou snapshot)
     const [filterType, setFilterType] = useState('all');
@@ -35,8 +37,16 @@ export function LessonProvider({ children }) {
         return () => listener?.();
     }, [lang]);
     useEffect(() => {
-        refreshList();
-    }, [lesson]);
+        console.log("*UUUID lesson", uidLesson,)
+        if (uidLesson) {
+            const _lesson = getOneLesson(uidLesson);
+            setLesson(_lesson);
+            const listener = listenToOneLesson(uidLesson);
+            return () => listener?.();
+        } else {
+            setLesson(null);
+        }
+    }, [uidLesson]);
     // écoute du doc utilisateur
     const listenToLessons = useCallback(() => {
         const colRef = ClassLesson.colRef(); // par ex.
@@ -53,18 +63,19 @@ export function LessonProvider({ children }) {
 
             //console.log("is not empty", snap.docs.map(doc => doc.data()));
             var _lessons = [];
-            
+
             for (const snapshot of snap.docs) {
                 const lesson = await snapshot.data();
-                console.log("IS teacher", lesson)
+
                 //const teacher = await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher);
-               // console.log("IS teacher", teacher)
+                // console.log("IS teacher", teacher)
                 const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
                 const lesson_new = new ClassLesson({
                     ...lesson.toJSON(),
                     //translate: translate,
                 });
                 lesson_new.translate = translate;
+                //console.log("IS teacher", lesson)
                 //lesson_new.teacher = teacher;
                 _lessons.push(lesson_new);
             }
@@ -86,6 +97,58 @@ export function LessonProvider({ children }) {
         });
         return snapshotLessons;
     }, []);
+    const listenToOneLesson = useCallback((uidLesson) => {
+        console.log("*UUUID lesson", uidLesson)
+        if (!uidLesson) {
+            setLesson(null);
+            //setIsConnected(false);
+            setIsLoading(false);
+            return;
+        }
+        const uid = uidLesson;
+        const ref = ClassLesson.docRef(uid);
+        const unsubscribe = onSnapshot(ref, async (snap) => {
+            if (!snap.exists()) {
+                setLesson(null);
+                //setIsConnected(false);
+                setIsLoading(false);
+                return;
+            }
+            //console.log("change session")
+            const _lesson = snap.data();
+            //const lesson = _lesson.uid_lesson ? await ClassLesson.fetchFromFirestore(_lesson.uid_lesson, lang) : null;
+            //const teacher = _lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_lesson.uid_teacher) : null;
+            const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
+            //console.log("IS teacher", teacher)
+            const translate = await ClassLessonTranslate.fetchFromFirestore(_lesson.uid, lang);
+            //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
+            const lesson_new = new ClassLesson({
+                ..._lesson.toJSON(),
+                // translate: translate,
+            });
+            //lesson_new.lesson = lesson;
+            //lesson_new.teacher = teacher;
+            lesson_new.room = room;
+            lesson_new.translate = translate;
+            console.log("IS lesson new", lesson_new)
+            setLesson(prev => {
+                if (!prev || prev === null) return lesson_new;
+                prev.update(lesson_new.toJSON());
+                // console.log('set prev session', session_new);
+                //const session_new = new ClassSession(session_new.toJSON());
+                //prev.lesson = lesson;
+                //prev.teacher = teacher;
+                //prev.room = room;
+                return prev;
+            });
+            //setIsConnected(true);
+            setIsLoading(false);
+            //setUser(fbUser);
+            //setIsConnected(true);
+            //setIsLoading(false);
+        });
+        return unsubscribe;
+    }, [uidLesson]);
     async function refreshList() {
         var _lessons = [];
         const constraints = [];
@@ -97,7 +160,7 @@ export function LessonProvider({ children }) {
             constraints.push(where("type", '==', filterType));
         }
         */
-       _lessons = await ClassLesson.fetchListFromFirestore(lang, constraints);        
+        _lessons = await ClassLesson.fetchListFromFirestore(lang, constraints);
         _lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
         setLessons(_lessons);
     }
@@ -169,7 +232,6 @@ export function LessonProvider({ children }) {
         }
         return _removed;
     }
-
     function getOneLesson(uid = '') {
         if (!uid || uid === '' || uid === null) {
             return null;
@@ -188,6 +250,7 @@ export function LessonProvider({ children }) {
     }
 
     const value = {
+        setUidLesson,
         create,
         update,
         remove,

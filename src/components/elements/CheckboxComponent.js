@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-export default function CheckboxComponent({ name, checked, onChange, label, disabled = false, required = false }) {
+export default function CheckboxComponent({type, name, checked, onChange, label, disabled = false, required = false }) {
   const checkboxRef = useRef(null);
   return (
     <label htmlFor={name} className="flex items-center gap-2">
@@ -12,7 +12,7 @@ export default function CheckboxComponent({ name, checked, onChange, label, disa
         type="checkbox"
         name={name}
         value={checked}
-        //checked={checked}
+        checked={checked}
         onChange={onChange}
         disabled={disabled}
         style={{ cursor: 'pointer' }}
@@ -20,8 +20,8 @@ export default function CheckboxComponent({ name, checked, onChange, label, disa
       />
       {
         label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ cursor: 'pointer', fontSize: '0.9rem' }} onClick={(e) => {
-         e.preventDefault();
-         checkboxRef.current.click();
+          e.preventDefault();
+          checkboxRef.current.click();
           //onChange();
         }}>
           {label}{required && <b style={{ color: 'red' }}>*</b>}

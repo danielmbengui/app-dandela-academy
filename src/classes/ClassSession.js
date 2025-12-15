@@ -291,6 +291,21 @@ export class ClassSession {
         }
     }
 
+    sortSlots(sortBy = 'uid_intern', sortDirection = 'asc') {
+        if (sortBy === 'uid_intern') {
+            if (sortDirection === 'asc') {
+                this._slots = this._slots.sort((a, b) => a.uid_intern - b.uid_intern);
+            } else {
+                this._slots = this._slots.sort((a, b) => b.uid_intern - a.uid_intern);
+            }
+        } else if (sortBy === 'start_date') {
+            if (sortDirection === 'asc') {
+                this._slots = this._slots.sort((a, b) => a.start_date.getTime() - b.start_date.getTime());
+            } else {
+                this._slots = this._slots.sort((a, b) => b.start_date.getTime() - a.start_date.getTime());
+            }
+        }
+    }
 
     // --- Serialization ---
     toJSON() {
@@ -737,6 +752,7 @@ export class ClassSessionSlot {
         this._last_subscribe_time = last_subscribe_time;
         this._created_time = ClassSession._toJsDate(created_time);
         this._last_edit_time = ClassSession._toJsDate(last_edit_time);
+        this.teacher = null;
     }
 
     get uid_intern() { return this._uid_intern; }
@@ -823,6 +839,8 @@ export class ClassSessionSlot {
         }
         return false;
     }
+
+
 
 
     // --- Serialization ---

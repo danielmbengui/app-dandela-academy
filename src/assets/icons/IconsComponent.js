@@ -217,6 +217,12 @@ export const IconLogoImage = ({width = 24, height = 24, color = 'inherit'}) => {
     </div>)
 }
 
+export const IconReset = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ix:reset" width={width} height={height} color={color} />)
+}
+export const IconVisible = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="lsicon:view-outline" width={width} height={height} color={color} />)
+}
 export const IconDropDown = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="bxs:down-arrow" width={width} height={height} color={color} />)
 }

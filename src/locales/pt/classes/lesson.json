@@ -1,5 +1,5 @@
 {
-  "office": "Burocrática",
+  "office": "Burocrática / Informática",
   "beginner": "Iniciante",
   "intermediate": "Intermediário",
   "competent": "Competente",
@@ -14,13 +14,14 @@
   "draft": "Rascunho",
   "certified": "Certificado pela Dandela Academy",
   "level": "Nível",
-  "category": "Categoria",
+  "lang": "Idioma",
+  "category": "Tipo",
   "format": "Formato",
   "location": "Local",
   "schedule": "Horários",
   "duration": "Duração",
   "duration_total": "Duração total",
-  "duration_lesson": "{{duration}} de formação supervisionada",
+  "duration_lesson": "{{duration}} de formação acompanhada",
   "sessions_type": "Ritmo",
   "dates": "Datas",
   "description": "Sobre este curso",
@@ -30,20 +31,21 @@
   "target_audiences": "Para quem?",
   "modalities": "Modalidades práticas",
   "certification": "Certificação",
-  "certification_official": "✅ Certificação reconhecida oficialmente nos percursos da Dandela Academy.",
+  "certification_official": "✅ Certificação reconhecida no âmbito dos percursos Dandela Academy.",
   "certification_block": {
-    "title": "🎓 Este curso concede um certificado emitido pela Dandela Academy.",
+    "title": "🎓 Este curso dá direito a um certificado emitido pela Dandela Academy.",
     "items": [
-      "Certificado de participação detalhando as competências adquiridas.",
+      "Declaração de participação detalhando as competências adquiridas.",
       "Certificado entregue em formato PDF (e eventualmente impresso).",
-      "Ideal para complementar um CV ou um dossier de candidatura."
-    ]
+      "Ideal para complementar um CV ou candidatura."
+    ],
+    "no_certification": "Este curso não emite certificado oficial, mas uma declaração de participação pode ser fornecida mediante pedido."
   },
   "notes": "Informações importantes",
   "seats_taken": "Inscritos",
   "seats_availables": "Vaga(s) restante(s)",
-  "multiple_payments": "Pagamento parcelado disponível",
-  "security": "Inscrição segura • Você receberá um e-mail de confirmação com todas as informações práticas.",
+  "multiple_payments": "Pagamento em prestações disponível",
+  "security": "Inscrição segura • Receberás um e-mail de confirmação com todas as informações práticas.",
   "unknown": "Desconhecido",
-  "btn-subscribe": "Inscrever-se neste curso"
+  "btn-subscribe": "Inscrever-me neste curso"
 }

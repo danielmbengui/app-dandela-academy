@@ -20,10 +20,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
-export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 1,
+export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 5,
     icon = "", fullWidth = false,
     prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required = false,
-    editable = false, onSubmit = () => { }, onCancel = () => { },autoComplete=[] }) {
+    editable = false,resetable=false, onSubmit = () => { }, onCancel = () => { },autoComplete=[], ...props}) {
     //console.log("FILED", name, type)
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
@@ -192,7 +192,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                     </>
                 }
                 {
-                    (type === 'text' || type === 'email') && <TextFieldComponent
+                    (type === 'text' || type === 'email' || type === "number") && <TextFieldComponent
                         //id={name}
                         name={name}
                         disabled={disabled}
@@ -207,10 +207,11 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         //helperText={error}
                         className={`${inputBase} ${error ? 'border-red-500' : ''}`}
                         fullWidth={fullWidth}
+                        {...props}
                     />
                 }
                 {
-                    editable && <Stack direction={'row'} spacing={0.5}>
+                    (editable || resetable) && <Stack direction={'row'} spacing={0.5}>
                         <IconButton
                             onClick={() => {
                                 if (onCancel) {
@@ -231,7 +232,8 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                             }} aria-label="delete" size="small">
                             <RestartAltIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
                         </IconButton>
-                        <IconButton
+                        {
+                            editable && <IconButton
                             loading={processing}
                             onClick={() => {
                                 setProcessing(true);
@@ -253,6 +255,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                             }} aria-label="delete" size="small">
                             <CheckIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
                         </IconButton>
+                        }
                     </Stack>
                 }
             </Stack>

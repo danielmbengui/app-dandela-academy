@@ -102,7 +102,7 @@ export default function DialogCompleteProfile({ isOpen = false }) {
                                         <Typography variant='h5' color='greyLight'>{`Complète les informations de ton profil`}</Typography>
                                     </Stack>
                                 </Stack>
-                                <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
+                                <CloseIcon sx={{display:'none', cursor: 'pointer' }} onClick={handleClose} />
                             </Stack>
                         </DialogTitle>
                         <DialogContent dividers={scroll === 'paper'} sx={{ p: { xs: 1, md: 2 }, background: 'var(--background)' }}>
