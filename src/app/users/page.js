@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { IconDashboard, } from "@/assets/icons/IconsComponent";
+import { IconDashboard, IconUsers, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
 import { NS_DASHBOARD_HOME, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -25,6 +25,9 @@ import FieldComponent from '@/components/elements/FieldComponent';
 import DialogUser from '@/components/dashboard/users/DialogUser';
 import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
 import { ClassColor } from '@/classes/ClassColor';
+import DialogNewUser from '@/components/dashboard/users/DialogNewUser';
+import BadgeStatusUser from '@/components/dashboard/users/BadgeStatusUser';
+import BadgeRoleUser from '@/components/dashboard/users/BadgeRoleUser';
 
 const USERS_MOCK = [
   {
@@ -144,6 +147,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
   const [sortBy, setSortBy] = useState("name");
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([]);
+  const [wantCreate, setWantCreate] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -202,14 +206,14 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
       <main className="container">
         {/* HEADER */}
         {/* BARRE DE FILTRES */}
-        <Grid container sx={{ mb: 2.5 }} direction={'row'} alignItems={'center'} spacing={{ xs: 1, sm: 1 }}>
+        <Grid container direction={'row'} alignItems={'center'} spacing={{ xs: 1, sm: 1 }}>
           <Grid size={{ xs: 12, sm: 6 }} sx={{ background: '' }}>
             <TextFieldComponentDark
               value={search}
-              placeholder={t('placeholder_search', {ns:ClassUser.NS_COLLECTION})}
+              placeholder={t('placeholder_search', { ns: ClassUser.NS_COLLECTION })}
               fullWidth
               onChange={(e) => setSearch(e.target.value)}
-              onClear={()=>setSearch('')}
+              onClear={() => setSearch('')}
             />
           </Grid>
           <Grid size={'grow'}>
@@ -240,6 +244,12 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
             </Stack>
           </Grid>
         </Grid>
+        <Box sx={{ my: 2 }}>
+          <ButtonConfirm label='create'
+            onClick={() => setWantCreate(true)}
+          />
+        </Box>
+        <DialogNewUser isOpen={wantCreate} setIsOpen={setWantCreate} />
 
         {/* TABLE / LISTE */}
         <section className="card">
@@ -250,7 +260,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
             <span className="th th-email">{t('email', { ns: ClassUser.NS_COLLECTION })}</span>
             <span className="th th-status">{t('status', { ns: ClassUser.NS_COLLECTION })}</span>
             <span className="th th-group">{t('connexion', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-actions" style={{display:'none'}}>{t('actions', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-actions" style={{ display: 'none' }}>{t('actions', { ns: ClassUser.NS_COLLECTION })}</span>
           </div>
 
           <div className="table-body">
@@ -262,8 +272,8 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
 
             {users.map((user, i) => (
               <Box key={`${user?.uid}-${i}`} onClick={() => {
-              setUserDialog(user);
-            }} sx={{cursor:'pointer'}}>
+                setUserDialog(user);
+              }} sx={{ cursor: 'pointer' }}>
                 <UserRow user={user} setUserDialog={setUserDialog} lastChild={i === users.length - 1} />
               </Box>
             ))}
@@ -445,7 +455,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
   );
 }
 
-function UserRow({ user, lastChild = false,setUserDialog=null }) {
+function UserRow({ user, lastChild = false, setUserDialog = null }) {
   const { theme } = useThemeMode();
   const { greyLight, cardColor, text } = theme.palette;
   const { lang } = useLanguage();
@@ -475,19 +485,7 @@ function UserRow({ user, lastChild = false,setUserDialog=null }) {
 
         {/* Rôle */}
         <div className="cell cell-role">
-          <span
-            className="role-badge"
-            style={{
-              borderColor: roleCfg?.color || '',
-              color: '',
-            }}
-          >
-            <span
-              className="role-dot"
-              style={{ backgroundColor: roleCfg?.color || '', display: 'none' }}
-            />
-            {t(user?.role, { ns: NS_ROLES }) || ''}
-          </span>
+          <BadgeRoleUser role={user?.role} />
         </div>
 
         {/* Email */}
@@ -498,13 +496,7 @@ function UserRow({ user, lastChild = false,setUserDialog=null }) {
 
         {/* Statut */}
         <div className="cell cell-status">
-          <span className="status-pill">
-            <span
-              className="status-dot"
-              style={{ backgroundColor: statusCfg?.color || '' }}
-            />
-            {t(user?.status, { ns: ClassUser.NS_COLLECTION }) || ''}
-          </span>
+          <BadgeStatusUser status={user?.status} />
         </div>
 
         {/* Groupe / Langue */}
@@ -667,7 +659,6 @@ function UserRow({ user, lastChild = false,setUserDialog=null }) {
     </>
   );
 }
-
 function Avatar({ user }) {
   const initials = `${user?.firstName?.[0] || user?.first_name?.[0] || ''}${user.lastName?.[0] || user.last_name?.[0] || ''}`;
 
@@ -778,7 +769,17 @@ export default function DashboardUsersHome() {
 
 
 
-  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconDashboard width={22} height={22} />}>
+  return (<DashboardPageWrapper
+    //title={t('title')} 
+    subtitle={t('subtitle')}
+    //icon={<IconDashboard 
+    //width={22} 
+    //height={22} 
+    //title={'Cours'} 
+    titles={[{ name: t('title'), url: '' }]}
+    //subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} 
+    icon={<IconUsers width={22} height={22} />}
+  >
     <DialogUser userDialog={user} setUserDialog={setUser} />
     <Stack sx={{ width: '100%', height: '100%' }}>
       <UsersPage userDialog={user} setUserDialog={setUser} />

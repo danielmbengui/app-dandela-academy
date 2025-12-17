@@ -133,6 +133,7 @@ export class ClassLesson {
         photo_url = "",
         status = ClassLesson.STATUS.DRAFT,
         translate = {},
+        translates = [],
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
@@ -157,6 +158,7 @@ export class ClassLesson {
         this._photo_url = photo_url;
         this._status = status;
         this._translate = translate;
+        this._translates = translates;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
     }
@@ -354,12 +356,19 @@ export class ClassLesson {
         this._photo_url = value;
     }
 
-    // translates
+    // translate
     get translate() {
         return this._translate;
     }
     set translate(value) {
         this._translate = value;
+    }
+        // translates
+    get translates() {
+        return this._translates;
+    }
+    set translates(value) {
+        this._translates = value;
     }
 
     // created_time
@@ -405,8 +414,9 @@ export class ClassLesson {
         }
     }
     clone() {
-        const translate = this._translate?.clone();
-        return ClassLesson.makeLessonInstance(this._uid, {...this.toJSON(), translate});
+        //const translate = this._translate?.clone();
+      //  const translates = this._translates?.map();
+        return ClassLesson.makeLessonInstance(this._uid, { ...this.toJSON() });
         //return new ClassUser(this.toJSON());
     }
 
@@ -441,8 +451,9 @@ export class ClassLesson {
     static get converter() {
         return {
             toFirestore(lessonInstance) {
+                const translates = lessonInstance.translates?.map(item=>item.toJSON());
                 // chaque classe a un .toJSON() propre
-                return lessonInstance?.toJSON ? lessonInstance.toJSON() : lessonInstance;
+                return lessonInstance?.toJSON ? {...lessonInstance.toJSON(), translates} : lessonInstance;
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
@@ -498,14 +509,16 @@ export class ClassLesson {
         const indexof = array.findIndex(item => item.uid === uid);
         return indexof;
     }
-    static async get(uid, lang=defaultLanguage) {
+    static async get(uid, lang = defaultLanguage) {
         const snap = await getDoc(this.docRef(uid));
         if (snap.exists()) {
             //const data = await snap.data();
             const lesson = snap.data();
             const translate = await ClassLessonTranslate.fetchFromFirestore(uid, lang);
+            const translates = await ClassLessonTranslate.fetchListFromFirestore(uid);
             //console.log("leson class translate firestore", translate);
             lesson.translate = translate;
+            lesson.translates = translates;
             //console.log("leson class get firestore", lesson);
             return (lesson);
         }
@@ -527,7 +540,7 @@ export class ClassLesson {
         return null; // -> ClassModule | null
     }
     // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
-    static async list(lang='fr',constraints = []) {
+    static async list(lang = 'fr', constraints = []) {
         const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
         return qSnap.docs.map(async (item) => {
@@ -582,11 +595,17 @@ export class ClassLesson {
             const ref = this.constructor.docRef(this._uid);
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
-            await updateDoc(ref, this.toJSON(), { merge: true });
+            
+            const updated = {...this.toJSON()};
+            delete updated.translate;
+            //updated.translates = updated.translates.map(item=>item.toJSON());
+            console.log("want update", updated);
+            await updateDoc(ref, updated, { merge: true });
             //console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeLessonInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
+            console.log("ERRRRROR", e)
             return null;
         }
     }
@@ -615,11 +634,11 @@ export class ClassLesson {
         }
     }
     // (Legacy) méthode de fetch directe
-    static async fetchFromFirestore(uid="", lang=defaultLanguage) {
+    static async fetchFromFirestore(uid = "", lang = defaultLanguage) {
         try {
             if (!uid) throw new Error("UID is required to get school.");
             const _lesson = await ClassLesson.get(uid, lang);
-           // console.log("leson class fetch firestore", _lesson);
+            // console.log("leson class fetch firestore", _lesson);
             //const _translate = await ClassLessonTranslate.fetchFromFirestore(uid, lang);
             //_lesson.translate = _translate;
             return _lesson;
@@ -637,7 +656,7 @@ export class ClassLesson {
             return null;
         }
     }
-    static async fetchListFromFirestore(lang='fr',constraints = []) {
+    static async fetchListFromFirestore(lang = 'fr', constraints = []) {
         try {
             //if (!uid) throw new Error("UID is required to get module.");
             return await this.list(lang, constraints);
@@ -718,7 +737,6 @@ export class ClassLessonTranslate {
             glow: "#422006",
         },
     });
-
     static SESSION_TYPE = Object.freeze({
         DAILY: 'daily', // bureautique
         WEEKLY: 'weekly',
@@ -729,14 +747,16 @@ export class ClassLessonTranslate {
     constructor({
         uid_lesson = "",
         lang = "",
+        title = "",
+        subtitle = "",
         description = "",
         goals = [],
         notes = [],
         prerequisites = [],
         programs = [],
         target_audiences = [],
-        subtitle = "",
-        title = "",
+
+
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
@@ -891,7 +911,7 @@ export class ClassLessonTranslate {
         return null;
     }
     static makeLessonTranslateInstance(uid_lesson, data = {}) {
-        return new ClassLessonTranslate({uid_lesson, ...data });
+        return new ClassLessonTranslate({ uid_lesson, ...data });
     }
     static get converter() {
         return {
@@ -1025,10 +1045,11 @@ export class ClassLessonTranslate {
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, this.toJSON(), { merge: true });
-            //console.log("UPDATE COMPLETED", { ...this })
+            console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeLessonTranslateInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
+            console.log("error update lesson", e)
             return null;
         }
     }

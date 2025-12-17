@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { IconLessons, IconReset, IconStudents, IconVisible } from "@/assets/icons/IconsComponent";
+import { IconLessons, IconRemove, IconReset, IconStudents, IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
@@ -230,55 +230,238 @@ function SlotRow({ session = null, slot = null }) {
     }
   </Stack>)
 }
+const makeId = () => (crypto?.randomUUID?.() ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
 const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setLessonEdit = null, lessonEdit = null, title = "", array_name = "" }) => {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const [array, setArray] = useState([]);
-  const [sameValues, setSameValues] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const { lang } = useLanguage();
+  const originalRef = useRef([]); // snapshot pour comparer/cancel
+  const [newValue, setNewValue] = useState("");
+  //const [sameValues, setSameValues] = useState(true);
   useEffect(() => {
-    setArray([...lessonEdit?.translate?.[array_name]]);
+    const initial = Array.isArray(lessonEdit?.translate?.[array_name])
+      ? lessonEdit.translate[array_name]
+      : [];
+    //setArray([...lessonEdit?.translate?.[array_name]]);
+    originalRef.current = initial;
+
+    setArray(
+      initial.map((val) => ({
+        id: makeId(),
+        value: val ?? "",
+      }))
+    );
   }, [])
-  const onChangeValue = (e, i) => {
-    e.preventDefault();
-    const { name, type, value } = e.target;
-    const values = [...array].map((item, index) => {
-      if (i === index) {
-        return value;
-      }
-      return item;
-    });
-    setArray(values);
-  }
-  return (<AccordionComponent title={title} expanded={expanded}>
+  const sameValues = useMemo(() => {
+    const current = array.map((r) => r.value);
+    const original = lessonEdit?.translate?.[array_name] || [];
+    // console.log("LEEEENGTH", current.length, original.length)
+    if (current.length !== original.length) return false;
+    for (let i = 0; i < current.length; i++) {
+      if ((current[i] ?? "") !== (original[i] ?? "")) return false;
+    }
+    return true;
+  }, [array]);
+  const onChangeValue = useCallback((e, index) => {
+    const name = e?.target?.name ?? "";
+    const value = e?.target?.value ?? "";
+    console.log("OOOK", value, index);
+    setArray((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, value } : row))
+    );
+    if (index < 0) {
+      setNewValue(value);
+    }
+  }, []);
+  const onClearValue = useCallback((index) => {
+    //const value = e?.target?.value ?? "";
+    //console.log("OOOK", value, index);
+    setArray((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, value: "" } : row))
+    );
+    if (index < 0) {
+      setNewValue(prev => ({ ...prev, value: "" }));
+    }
+  }, []);
+  const onResetValue = useCallback((index) => {
+    //const value = e?.target?.value ?? "";
+    //console.log("OOOK", value, index);
+    const original = originalRef.current || [];
+    setArray((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, value: original[i] } : row))
+    );
+  }, []);
+  const onDeleteValue = useCallback((index) => {
+    //const value = e?.target?.value ?? "";
+    //console.log("OOOK", value, index);
+    //const original = originalRef.current || [];
+    //const initial = originalRef.current || [];
+    //console.log("WEEESH", original.filter(uid=>uid!==id))
+
+    const original = originalRef.current || [];
+    const _array = original.filter((a, i) => i !== index).map((val) => ({
+      id: makeId(),
+      value: val ?? "",
+    }));
+    //  const current = array.map((r) => r.value);
+    originalRef.current = _array.map((r) => r.value);
+    setArray([..._array]);
+    console.log("WEEESH", _array, array, original)
+  }, []);
+  const onAddValue = useCallback((value) => {
+    //const value = e?.target?.value ?? "";
+    //console.log("OOOK", value, index);
+    //const original = originalRef.current || [];
+    //const initial = originalRef.current || [];
+    const _lesson = lessonEdit.clone();
+
+    console.log("WEEESH 1", value, _lesson)
+
+    const original = originalRef.current || [];
+    const _array = original.map((val) => ({
+      id: makeId(),
+      value: val ?? "",
+    }));
+    _array.push({ id: makeId(), value: value });
+    //_array = [...values, newValue];
+    //  const current = array.map((r) => r.value);
+    originalRef.current = _array.map((r) => r.value);
+    setArray(_array);
+    setNewValue('');
+    console.log("WEEESH", _array, original)
+  }, []);
+  const onResetAllValues = useCallback(() => {
+    //const value = e?.target?.value ?? "";
+    //console.log("OOOK", value, index);
+    //const original = originalRef.current || [];
+    const original = lessonEdit?.translate?.[array_name] || [];
+    originalRef.current = original;
+
+    setArray(
+      original.map((val) => ({
+        id: makeId(),
+        value: val ?? "",
+      }))
+    );
+    setNewValue('');
+  }, []);
+  const onSubmit = useCallback(async () => {
+    //const value = e?.target?.value ?? "";
+    //console.log("OOOK", value, index);
+    const original = originalRef.current || [];
+    //const initial = originalRef.current || [];
+    const _lesson = lessonEdit.clone();
+    console.log("WEEESH 1", _lesson, original);
+    //const result = await fetch(`/api/test?lang=${lang}&translations=${JSON.stringify({ [title]: original })}`);
+    //const json = await result.json();
+
+    for (const lang of languages) {
+
+      const fetch = await ClassLessonTranslate.fetchFromFirestore(_lesson.uid, lang);
+
+      const translation = new ClassLessonTranslate({ uid_lesson: _lesson.uid, lang: lang });
+      //await translation.updateFirestore()
+      console.log("LANG result", translation);
+    }
+
+    console.log("RESSSULT", all_translations);
+    /*
+        const original = originalRef.current || [];
+        const _array = original.map((val) => ({
+          id: makeId(),
+          value: val ?? "",
+        }));
+        _array.push({ id: makeId(), value: value });
+        //_array = [...values, newValue];
+        //  const current = array.map((r) => r.value);
+        originalRef.current = _array.map((r) => r.value);
+        setArray(_array);
+        setNewValue('');
+        console.log("WEEESH", _array, original)
+        */
+  }, []);
+  return (<AccordionComponent title={t(title)} expanded={expanded}>
     <Stack spacing={1.5} alignItems={'stretch'} sx={{ background: '', py: 1.5, px: 1 }}>
       {
-        array.map?.((item, i) => {
-          return (<Grid key={`${item}-${i}`} container alignItems={'center'} justifyContent={'stretch'} sx={{ width: '100%' }} direction={'row'} spacing={1}>
+        array?.map?.((item, i) => {
+          const original = originalRef.current || [];
+          //          console.log("MMMAAAP", original[i], item.value)
+
+          return (<Grid key={`${item.id}`} container alignItems={'center'} justifyContent={'stretch'} sx={{ width: '100%' }} direction={'row'} spacing={1}>
             <Grid size={'auto'}>
               <Typography>{`${i + 1}.`}</Typography>
             </Grid>
             <Grid size={'grow'}>
               <FieldComponent
                 index={i}
+                disabled={processing}
                 //label={`${i + 1}.`}
                 type="multiline"
-                name={`${title}-${i}`}
-                value={item}
+                name={`${item.id}`}
+                value={item.value}
                 fullWidth={true}
                 minRows={1}
                 maxRows={10}
                 onChange={(e) => onChangeValue(e, i)}
+                onClear={() => onClearValue(i)}
+                resetable={original[i] !== item.value}
+                onCancel={() => {
+                  onResetValue(i);
+                }}
+                removable={!processing}
+                onRemove={() => {
+                  onDeleteValue(i);
+                }}
               />
+
+            </Grid>
+            <Grid>
             </Grid>
           </Grid>)
         })
       }
+      <Grid key={`create`} container alignItems={'center'} justifyContent={'stretch'} sx={{ width: '100%' }} direction={'row'} spacing={1}>
+        <Grid size={'auto'}>
+          <Typography>{`${array.length + 1}.`}</Typography>
+        </Grid>
+        <Grid size={'grow'}>
+          <FieldComponent
+            //index={i}
+            disabled={processing}
+            //label={`${i + 1}.`}
+            type="multiline"
+            name={`create`}
+            value={newValue}
+            fullWidth={true}
+            minRows={1}
+            maxRows={10}
+            onChange={(e) => onChangeValue(e, -1)}
+            onClear={() => onClearValue(-1)}
+            //resetable={original[i] !== item.value}
+            editable={newValue.length > 0}
+            onSubmit={(e) => { onAddValue(newValue) }}
+          />
+
+        </Grid>
+        <Grid>
+        </Grid>
+      </Grid>
     </Stack>
     {
       !sameValues && <Stack spacing={1} direction={'row'} alignItems={'center'} justifyContent={'end'} sx={{ p: 1 }}>
         <ButtonCancel
+          onClick={onResetAllValues}
+          disabled={processing}
           label='cancel' />
         <ButtonConfirm
+          loading={processing}
+          onClick={async () => {
+            setProcessing(true);
+            await onSubmit();
+            setProcessing(false);
+          }}
           label='confirm' />
       </Stack>
     }
@@ -561,7 +744,7 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
                     <Stack spacing={0.5}>
                       {
                         ['programs', 'prerequisites', 'target_audiences', 'goals', 'notes'].map((item, i) => {
-                          return (<div key={`${item}-${i}`} onClick={() => {
+                          return (<div key={`${item}`} onClick={() => {
                             setModeAccordion(item);
                             // alert(item)
                           }} >

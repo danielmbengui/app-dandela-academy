@@ -60,6 +60,50 @@ export class ClassUser {
         PROFESSIONAL: 'professional',
         TUTOR: 'tutor',
     });
+    static ROLE_CONFIG = Object.freeze({
+        student: {
+            label: 'student',
+            color: "black",
+            badgeBg: "#16a34a",
+            badgeBorder: "#16a34a",
+            badgeText: "var(--card-color)",
+            glow: "rgba(22, 163, 74, 0.33)",
+        },
+        team: {
+            label: "team",
+            color: "#fff317ff",
+            badgeBg: "#fff317ff",
+            badgeBorder: "#fff317ff",
+            badgeText: "black",
+            glow: "rgba(255, 243, 23, 0.33)",
+        },
+        teacher: {
+            label: "teacher",
+            color: "#3b82f6",
+            badgeBg: "#3b82f6",
+            badgeBorder: "#3b82f6",
+            badgeText: "var(--card-color)",
+            glow: "rgba(59, 130, 246, 0.33)",
+        },
+        admin: {
+            label: "admin",
+            color: "#f97316",
+            badgeBg: "#f97316",
+            badgeBorder: "#f97316",
+            badgeText: "var(--card-color)",
+            glow: "rgba(249, 115, 22, 0.33)",
+        },
+        super_admin: { label: "Super-Admin", color: "#a855f7" },
+        ['super-admin']: {
+            label: "super-Admin",
+            color: "#a855f7",
+            badgeBg: "#a855f7",
+            badgeBorder: "#a855f7",
+            badgeText: "var(--card-color)",
+            glow: "rgba(168, 85, 247, 0.33)",
+        },
+        intern: { label: "Stagiaire", color: "#e5e7eb" },
+    });
     static STATUS = Object.freeze({
         FIRST_CONNEXION: 'first-connexion',
         ONLINE: 'online',
@@ -79,6 +123,41 @@ export class ClassUser {
         NO_ACTIVATED: 'no-activated',
         CONNECTED: 'connected',
         DISCONNECTED: 'disconnected',
+    });
+    static STATUS_CONFIG = Object.freeze({
+        online: {
+            label: 'online',
+            color: "#022c22",
+            badgeBg: "#022c22",
+            badgeBorder: "#16a34a",
+            badgeText: "#bbf7d0",
+            glow: "#22c55e55",
+        },
+        offline: {
+            label: 'offline',
+            color: "#111827",
+            badgeBg: "#111827",
+            badgeBorder: "#6b7280",
+            badgeText: "#e5e7eb",
+            glow: "#6b728055",
+        },
+        disconnected: { label: "disconnected", color: "#6b7280" },
+        away: {
+            label: 'away',
+            color: "#eab308",
+            badgeBg: "#422006",
+            badgeBorder: "#eab308",
+            badgeText: "#fed7aa",
+            glow: "#f9731655",
+        },
+        ['must-activate']: {
+            label: 'must-activate',
+            color: `#111827`,
+            badgeBg: "#111827",
+            badgeBorder: "rgb(255,0,0)",
+            badgeText: "rgba(253, 214, 214, 1)",
+            glow: "rgba(255,0,0,0.3)",
+        },
     });
 
     static ALL_TYPES = [

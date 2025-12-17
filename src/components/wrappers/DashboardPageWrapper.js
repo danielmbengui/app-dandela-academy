@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -19,12 +19,15 @@ import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import { useTranslation } from 'react-i18next';
 import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Preloader from '../shared/Preloader';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import LoginPageWrapper from './LoginPageWrapper';
 import LoginComponent from '../auth/login/LoginComponent';
+import OtherPageWrapper from './OtherPageWrapper';
+import NotAuthorizedComponent from '../auth/NotAuthorizedComponent';
+import { PAGE_NOT_AUTHORIZED } from '@/contexts/constants/constants_pages';
 
 const drawerWidth = 240;
 
@@ -35,8 +38,9 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     const [isClosing, setIsClosing] = useState(false);
     const { theme } = useThemeMode();
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
-    const { user, isLoading,logout } = useAuth();
+    const { user, isLoading, logout } = useAuth();
     const [accordionMenu, setAccordionMenu] = useState('');
+    const router = useRouter();
     const path = usePathname();
     const handleDrawerClose = () => {
         setIsClosing(true);
@@ -149,18 +153,32 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         }
                     </List>
                 </Stack>
-                <Button 
-                variant='contained' 
-                sx={{ background: 'red', color: backgroundMenu.main }}
-                onClick={async ()=>{
-                    await logout();
-                }}
+                <Button
+                    variant='contained'
+                    sx={{ background: 'red', color: backgroundMenu.main }}
+                    onClick={async () => {
+                        await logout();
+                    }}
                 >
                     {'disconnect'}
                 </Button>
             </Stack>
         </Stack>
     );
+const isAllowed = useMemo(() => {
+    if (!user) return false;
+    const menus = user?.menuDashboard?.() || [];
+    // Choisis la règle :
+    return menus.some(m => path === m.path || path.startsWith(m.path + "/") || path.startsWith(m.path));
+  }, [user, path]);
+
+  useEffect(() => {
+    if (!isLoading && user && !isAllowed) {
+      router.push(PAGE_NOT_AUTHORIZED);
+    }
+  }, [isLoading, user, isAllowed, router]);
+    //console.log("PATH", path,user?.menuDashboard(),user?.menuDashboard().includes(path));
+
 
     // Remove this const when copying and pasting into your project.
     // const container = window !== undefined ? () => window().document.body : undefined;
@@ -172,7 +190,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             <LoginComponent />
         </LoginPageWrapper>);
     }
-
+    if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
     return (
         <Box sx={{ display: 'flex', }}>
             <CssBaseline />
@@ -184,7 +202,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
-                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px',py:1, px: 2, }}>
+                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', py: 1, px: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>
                         <IconButton
                             color="inherit"
@@ -196,7 +214,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             <MenuIcon />
                         </IconButton>
 
-                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{ py: 0.25, px: 0.5, height: '100%', color: text.main, border: `1px solid ${ClassColor.GREY_LIGHT}`, borderRadius: '20px' }}>
+                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{ py: 0.25, px: 0.5, height: '100%', color: text.main, border: `0.1px solid var(--grey-light)`, borderRadius: '20px' }}>
                             {
                                 user?.showAvatar({ size: 20, fontSize: '5px' })
                             }
@@ -252,7 +270,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 <Toolbar />
                 <Container maxWidth={'xl'} sx={{ py: 0, background: '', }}>
                     <Stack spacing={1.5} maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
-                        <Stack justifyContent={'center'} sx={{background:'', width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
+                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
@@ -263,12 +281,12 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                 {
                                     titles.length > 1 && titles.map((title, i) => {
                                         if (i < titles.length - 1) {
-                                            return (<Link key={`${title}-${i}`} underline="hover" style={{fontStyle:'underline'}} color="inherit" href={title.url} >
+                                            return (<Link key={`${title}-${i}`} underline="hover" style={{ fontStyle: 'underline' }} color="inherit" href={title.url} >
                                                 <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                                                     {
                                                         i === 0 && <div style={{ color: primary.main }}>{icon}</div>
                                                     }
-                                                    <Typography variant='h5' sx={{textDecoration:'underline'}}>{title.name}</Typography>
+                                                    <Typography variant='h5' sx={{ textDecoration: 'underline' }}>{title.name}</Typography>
                                                 </Stack>
                                             </Link>)
                                         }
@@ -279,7 +297,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             <Typography sx={{ color: 'var(--grey-light)' }}>{subtitle}</Typography>
 
                         </Stack>
-                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{width: '100%', height: '100%', background: '' }}>
+                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ width: '100%', height: '100%', background: '' }}>
                             {children}
                         </Stack>
                     </Stack>

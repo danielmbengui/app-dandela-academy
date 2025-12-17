@@ -1,21 +1,22 @@
 import React from "react";
 import { ClassUser } from "@/classes/users/ClassUser";
 import { useTranslation } from "react-i18next";
+import { NS_ROLES } from "@/contexts/i18n/settings";
 // Mapping des statuts → label + couleurs
 
-export default function BadgeStatusUser({ status, big = false }) {
-    const {t} = useTranslation([ClassUser.NS_COLLECTION]);
-    const STATUS_CONFIG = ClassUser.STATUS_CONFIG || [];
-    const cfg = STATUS_CONFIG[status];
+export default function BadgeRoleUser({ role, big = false }) {
+  const { t } = useTranslation([NS_ROLES]);
+  const ROLE_CONFIG = ClassUser.ROLE_CONFIG || [];
+  const cfg = ROLE_CONFIG[role];
 
-    return (
-        <>
-            <span className={`badge ${big ? "badge-big" : ""}`}>
-                <span className="dot" />
-                {t(cfg?.label)}
-            </span>
+  return (
+    <>
+      <span className={`badge ${big ? "badge-big" : ""}`}>
+        <span className="dot" />
+        {t(role)}
+      </span>
 
-            <style jsx>{`
+      <style jsx>{`
           .badge {
             display: inline-flex;
             align-items: center;
@@ -23,8 +24,10 @@ export default function BadgeStatusUser({ status, big = false }) {
             padding: 2px 8px;
             border-radius: 999px;
             border: 0.1px solid ${cfg?.badgeBorder};
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             white-space: nowrap;
+            color: ${cfg?.badgeText};
+            background: ${cfg?.badgeBg};
           }
   
           .badge-big {
@@ -37,10 +40,10 @@ export default function BadgeStatusUser({ status, big = false }) {
             width: 6px;
             height: 6px;
             border-radius: 999px;
-            background: ${cfg?.badgeBorder};
-            box-shadow: 0 0 8px ${cfg?.glow};
+            background: ${cfg?.badgeBg};
+            display: none;
           }
         `}</style>
-        </>
-    );
+    </>
+  );
 }

@@ -21,16 +21,13 @@ Texte source (${sourceLang}) :
 ${JSON.stringify(text, null, 2)}
 
 Traduis ce texte dans les langues suivantes : ${_languages.join(", ")}.
-Et corrige les fautes d'orthographes de la langue entrée : ${sourceLang}
+Corrige les fautes d'orthographes de la langue entrée : ${sourceLang} avant de traduire le reste.
 
-Tu dois renvoyer STRICTEMENT un JSON de la forme :
-
+Tu dois renvoyer STRICTEMENT un JSON de la forme si c'est un objet :
 {
-  "translations": {
     "<langue>": {
       "<clé de l'objet d'entrée>": "<traduction dans la langue cible>"
     }
-  }
 }
 
 Règles :

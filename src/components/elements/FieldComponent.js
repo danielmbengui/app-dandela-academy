@@ -19,16 +19,17 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useThemeMode } from '@/contexts/ThemeProvider';
+import { IconRemove, IconReset } from '@/assets/icons/IconsComponent';
 const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
 export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 5,
     icon = "", fullWidth = false,
     prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required = false,
-    editable = false,resetable=false, onSubmit = () => { }, onCancel = () => { },autoComplete=[], ...props}) {
+    editable = false,resetable=false,removable=false,onRemove=()=>{}, onSubmit = () => { }, onCancel = () => { },autoComplete=[], ...props}) {
     //console.log("FILED", name, type)
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
     const { theme } = useThemeMode();
-    const { primary, background } = theme.palette;
+    const { primary,primaryShadow, background } = theme.palette;
     const [processing, setProcessing] = useState(false);
     return (
         <div>
@@ -211,27 +212,57 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                     />
                 }
                 {
-                    (editable || resetable) && <Stack direction={'row'} spacing={0.5}>
-                        <IconButton
+                    (editable || resetable || removable) && <Stack direction={'row'} spacing={0.5}>
+                        {
+                            resetable && <IconButton
+                            loading={processing}
                             onClick={() => {
                                 if (onCancel) {
+                                    setProcessing(true);
                                     onCancel();
+                                    setProcessing(false);
+                                }
+                            }}
+                            sx={{
+                                display: processing ? 'none' : 'flex',
+                                background: primary.main,
+                                color: background.main,
+                                width: '24px',
+                                height:  '24px',
+                                '&:hover': {
+                                    color: background.main,
+                                    backgroundColor: 'primary.main',
+                                    boxShadow: `0 0 0 0.2rem ${primaryShadow.main}`,
+                                },
+                            }} aria-label="delete" size="small">
+                            <IconReset width={14} height={14} />
+                        </IconButton>
+                        }
+                        {
+                            removable && <IconButton
+                            loading={processing}
+                            onClick={() => {
+                                if (onRemove) {
+                                    setProcessing(true);
+                                    onRemove();
+                                    setProcessing(false);
                                 }
                             }}
                             sx={{
                                 display: processing ? 'none' : 'flex',
                                 background: 'red',
                                 color: background.main,
-                                width: { xs: '25px', sm: '25px' },
-                                height: { xs: '25px', sm: '25px' },
+                                width: '24px',
+                                height:  '24px',
                                 '&:hover': {
                                     color: background.main,
-                                    backgroundColor: 'red',
-                                    boxShadow: '0 0 0 0.2rem rgba(255,0,0,.5)',
+                                    backgroundColor: 'error.main',
+                                    boxShadow: `0 0 0 0.2rem rgba(255,0,0,0.5)`,
                                 },
                             }} aria-label="delete" size="small">
-                            <RestartAltIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
+                            <IconRemove width={14} height={14} />
                         </IconButton>
+                        }
                         {
                             editable && <IconButton
                             loading={processing}

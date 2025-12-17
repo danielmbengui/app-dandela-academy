@@ -1,0 +1,9 @@
+{
+  "title-page": "Accès refusé - App Dandela Academy",
+  "description-page": "L'utilisateur n'a pas accès à cette page de la plateforme de Dandela Academy",
+  "title": "Accès refusé",
+  "subtitle": "<span>Tu es bien connecté·e à Dandela Academy avec ton compte <b>{{email}}</b>, mais ton rôle ne te permet pas d’accéder à cette page.</span>",
+  "role": "Ton rôle",
+  "error": "Si tu penses qu’il s’agit d’une erreur, contacte un administrateur de la plateforme.",
+  "btn-back": "Retour au tableau de bord"
+}

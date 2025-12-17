@@ -39,8 +39,9 @@ import { useLanguage } from './LangProvider';
 import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
-import { auth, firestore } from '@/contexts/firebase/config';
+import { auth, firestore, database } from '@/contexts/firebase/config';
 import { PAGE_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
+import { ref, serverTimestamp, set } from 'firebase/database';
 //import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
@@ -65,6 +66,12 @@ export function AuthProvider({ children }) {
     const [isErrorSignIn, setIsErrorSignIn] = useState(false);
     const [textErrorSignIn, setTextErrorSignIn] = useState('');
     const [provider, setProvider] = useState('');
+
+    useEffect(() => {
+        if(user) {
+            //set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
+        }
+    }, [user]);
 
     useEffect(() => {
         if (auth) {
@@ -133,13 +140,12 @@ export function AuthProvider({ children }) {
                 //await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             /*
-            if (status !== ClassUser.STATUS.FIRST_CONNEXION) {
-                await ClassUser.update(fbUser.uid, {
-                    last_connexion_time: new Date(),
-                    status: ClassUser.STATUS.ONLINE,
-                });
-            }
-            */
+                        await ClassUser.update(fbUser.uid, {
+                            last_connexion_time: new Date(),
+                            //status: ClassUser.STATUS.ONLINE,
+                        });
+                        */
+
             const _user = data;
             //setUser(_user);
             setUser(prev => {
@@ -161,6 +167,10 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
             if (fbUser) {
+                await ClassUser.update(fbUser.uid, {
+                    last_connexion_time: new Date(),
+                    //status: ClassUser.STATUS.ONLINE,
+                });
                 const _user = await ClassUser.fetchFromFirestore(fbUser.uid);
                 setUser(_user);
                 setUserAuth(fbUser);
@@ -367,7 +377,7 @@ export function AuthProvider({ children }) {
             };
             console.log("re authenticate");
             await verifyBeforeUpdateEmail(auth.currentUser, newEmail, actionCodeSettings);
-        console.log("email updated");
+            console.log("email updated");
         }).catch((error) => {
             // An error ocurred
             console.log("ERRRROR", error)
@@ -406,14 +416,14 @@ export function AuthProvider({ children }) {
     }
     const sendVerification = async () => {
         if (!auth.currentUser) return;
-       // console.log("SUCCESS", auth.currentUser.email);
+        // console.log("SUCCESS", auth.currentUser.email);
         //const auth = getAuth();
         const _user = auth.currentUser;
         if (!_user) throw new Error("No authenticated user");
         var now = new Date();
         //now = now.setDate(now.getMinutes),
         now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
-       // console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
+        // console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
 
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien

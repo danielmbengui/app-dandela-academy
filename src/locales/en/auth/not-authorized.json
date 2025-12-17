@@ -1,0 +1,9 @@
+{
+  "title-page": "Access denied - Dandela Academy App",
+  "description-page": "The user does not have access to this page of the Dandela Academy platform",
+  "title": "Access denied",
+  "subtitle": "<span>You are correctly signed in to Dandela Academy with your account <b>{{email}}</b>, but your role does not allow you to access this page.</span>",
+  "role": "Your role",
+  "error": "If you believe this is a mistake, please contact a platform administrator.",
+  "btn-back": "Back to dashboard"
+}

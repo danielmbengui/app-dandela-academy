@@ -11,6 +11,6 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function DashboardUsersLayout({ children }) {
+export default async function UsersLayout({ children }) {
   return (children);
 }

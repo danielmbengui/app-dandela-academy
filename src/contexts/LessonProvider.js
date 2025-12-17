@@ -121,6 +121,7 @@ export function LessonProvider({ children }) {
             const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
             //console.log("IS teacher", teacher)
             const translate = await ClassLessonTranslate.fetchFromFirestore(_lesson.uid, lang);
+            const translates = await ClassLessonTranslate.fetchListFromFirestore(_lesson.uid);
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLesson({
                 ..._lesson.toJSON(),
@@ -130,6 +131,7 @@ export function LessonProvider({ children }) {
             //lesson_new.teacher = teacher;
             lesson_new.room = room;
             lesson_new.translate = translate;
+            lesson_new.translates = translates;
             console.log("IS lesson new", lesson_new)
             setLesson(prev => {
                 if (!prev || prev === null) return lesson_new;

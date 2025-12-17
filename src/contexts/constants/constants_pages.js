@@ -3,6 +3,7 @@ export const PAGE_LOGIN = "/login";
 export const PAGE_REGISTER = "/register";
 export const PAGE_ACTIVE_ACCOUNT = "/active-account";
 export const PAGE_FORGOT_PASSWORD = "/forgot-password";
+export const PAGE_NOT_AUTHORIZED = "/not-authorized";
 export const PAGE_NOT_FOUND = "/not-found";
 
 export const PAGE_DASHBOARD_HOME = "/dashboard";

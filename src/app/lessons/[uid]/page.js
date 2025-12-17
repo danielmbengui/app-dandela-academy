@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { IconLessons } from "@/assets/icons/IconsComponent";
-import { ClassLesson } from "@/classes/ClassLesson";
+import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
+import { languages, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
@@ -17,11 +17,11 @@ import { ClassUserIntern } from "@/classes/users/ClassUser";
 export default function DashboardOneLesson() {
     const params = useParams();
     const { uid } = params; // <- ici tu récupères l'uid
-    const { lesson,isLoading: isLoadingLessons, getOneLesson, setUidLesson } = useLesson();
+    const { lesson, isLoading: isLoadingLessons, getOneLesson, setUidLesson } = useLesson();
     const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
     //const [lesson, setLesson] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
-    const {user} = useAuth();
+    const { user } = useAuth();
 
     useEffect(() => {
         if (uid && !isLoadingLessons) {
@@ -43,16 +43,32 @@ export default function DashboardOneLesson() {
             //subtitle={lesson?.translate?.subtitle}
             icon={<IconLessons />}>
             {
+
                 user instanceof ClassUserIntern && <>
-                <ButtonConfirm
-                label={`Modifier`}
-                onClick={() => setIsOpen(true)}
-                style={{ marginBottom: '10px' }}
-            />
-           
+                    <ButtonConfirm
+                        label={`Modifier`}
+                        onClick={async () => {
+                            //const translate = await ClassLessonTranslate.fetchFromFirestore("zlUoi3t14wzC5cNhfS3J", 'en');
+                            const _lesson = await ClassLesson.fetchFromFirestore("zlUoi3t14wzC5cNhfS3J");
+                            const _translates = {};
+                            
+                            for (const lang of languages) {
+                                const _tr = await ClassLessonTranslate.fetchFromFirestore("zlUoi3t14wzC5cNhfS3J", lang);
+                                //_lesson.update({ translates: { [lang]: _tr?.toJSON() } });
+                                _translates[lang] = _tr?.toJSON();
+                            }
+                            
+                            _lesson.update({ translates: _translates});
+                            await _lesson.updateFirestore();
+                            console.log("Translate", _lesson)
+                            //setIsOpen(true)
+                        }}
+                        style={{ marginBottom: '10px' }}
+                    />
+
                 </>
             }
-             <DialogLesson isOpen={isOpen} setIsOpen={setIsOpen} />
+            <DialogLesson isOpen={isOpen} setIsOpen={setIsOpen} />
             <LessonComponent lesson={lesson} />
         </DashboardPageWrapper>
     );

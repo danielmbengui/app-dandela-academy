@@ -984,9 +984,10 @@ export default function LessonsPage() {
 
 
   return (<DashboardPageWrapper 
-  title={'Cours'} 
+  //title={'Cours'} 
   titles={[{name:t('lessons', {ns:NS_DASHBOARD_MENU}), url:''}]}
-  subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}>
+  subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}
+  >
     <DialogUser userDialog={user} setUserDialog={setUser} />
     <Stack sx={{ width: '100%', height: '100%' }}>
       <LessonsComponent userDialog={user} setUserDialog={setUser} />

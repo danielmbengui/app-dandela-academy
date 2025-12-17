@@ -1,0 +1,9 @@
+{
+  "title-page": "Acesso negado - App Dandela Academy",
+  "description-page": "O utilizador não tem acesso a esta página da plataforma Dandela Academy",
+  "title": "Acesso negado",
+  "subtitle": "<span>Estás corretamente conectado(a) à Dandela Academy com a tua conta <b>{{email}}</b>, mas o teu perfil não permite aceder a esta página.</span>",
+  "role": "O teu perfil",
+  "error": "Se achares que isto é um erro, entra em contacto com um administrador da plataforma.",
+  "btn-back": "Voltar ao painel"
+}
