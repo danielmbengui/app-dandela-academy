@@ -33,18 +33,47 @@ async (event) => {
   const uid = event.params.uid;
   const before = event.data.before.val();
   const after = event.data.after.val();
-  logger.info("RTDB status written", {uid, before, after});
+  logger.info("RTDB status written", before, after);
   if (!uid || !after) return;
-  const wasOnline = before?.state === "online";
-  const isOffline = after?.state === "offline";
+  const prevState = before?.status;
+  const currState = after?.status;
+  // Toujours stocker l’état courant
+  if (currState === "online") {
+    logger.info("is online");
+    await admin.firestore().doc(`USERS/${uid}`).set(
+        {
+          status: "online",
+          last_connexion_time: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        {merge: true},
+    );
+    return;
+  }
+  // Quand ça passe offline, on met last_seen_at
+  if (prevState === "online" && currState === "offline") {
+    logger.info("is offline");
+    await admin.firestore().doc(`USERS/${uid}`).set(
+        {
+          status: "offline",
+          last_connexion_time: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        {merge: true},
+    );
+  }
+  /*
+  const wasOnline = before?.status === "online";
+  const isOffline = after?.status === "offline";
+  logger.info("we dont know");
   if (!wasOnline || !isOffline) return;
-  await admin.firestore().doc(`users/${uid}`).set(
+  // logger.info("is offline");
+  await admin.firestore().doc(`USERS/${uid}`).set(
       {
-        last_seen_at: admin.firestore.FieldValue.serverTimestamp(),
-        presence_last_state: "offline",
+        last_connexion_time: admin.firestore.FieldValue.serverTimestamp(),
+        status: "offline",
       },
       {merge: true},
   );
+  */
   logger.info("Firestore updated", {uid});
 },
 );
