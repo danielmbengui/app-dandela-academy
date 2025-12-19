@@ -32,7 +32,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # firebase
-functions/
+functions/node_modules
+functions/.env
+functions/.gitignore
 
 # Environnements
 *.env

@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         if(user) {
-            //set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
+            set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
         }
     }, [user]);
 
