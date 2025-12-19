@@ -5,15 +5,15 @@ import { useTranslation } from "react-i18next";
 // Mapping des statuts → label + couleurs
 
 
-
-export default function BadgeStatusLesson({ status="", big = false }) {
+export default function BadgeFormatLessonContained({ format="", big = false }) {
     const {t} = useTranslation([ClassLesson.NS_COLLECTION]);
-    const STATUS_CONFIG = ClassLesson.STATUS_CONFIG;
-    const cfg = STATUS_CONFIG[status]; 
+    const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
+    const cfg = FORMAT_CONFIG[format];
+
     return (
         <>
             <span className={`badge ${big ? "badge-big" : ""}`}>
-              <span className="dot" />
+                <span className="dot" style={{display:'none'}} />
                 {t(cfg?.label)}
             </span>
 
@@ -24,10 +24,12 @@ export default function BadgeStatusLesson({ status="", big = false }) {
             gap: 5px;
             padding: 2px 8px;
             border-radius: 999px;
-            border: 0.1px solid ${cfg?.color};
-            background-color: ${cfg?.glow};
-            color: ${cfg?.color};
+            border: 1px solid ${cfg?.color};
+            border: 1.5px solid ${cfg?.color};
+            background-color: ${cfg?.color};
+            color: var(--card-color);
             font-size: 0.72rem;
+            font-weight: bold;
             white-space: nowrap;
           }
   

@@ -208,7 +208,7 @@ export const ThemeProvider = ({ children }) => {
         },
         typography: {
             allVariants: {
-                lineHeight: 1,
+                lineHeight: 1.15,
             },
             h1: {
                 //fontSize: '2.5rem',

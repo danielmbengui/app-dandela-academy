@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { ClassSession, ClassLessonSessionTranslate } from '@/classes/ClassSession';
 import { useLanguage } from './LangProvider';
-import { ClassUser, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserAdministrator, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassLesson } from '@/classes/ClassLesson';
 import Preloader from '@/components/shared/Preloader';
@@ -42,9 +42,12 @@ export function SessionProvider({ children, uidLesson = "" }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-        const listener = listenToSessions();
-        return () => listener?.();
-    }, []);
+        if (user) {
+            console.log("user session provider", user)
+            const listener = listenToSessions(user);
+            return () => listener?.();
+        }
+    }, [user]);
     useEffect(() => {
         console.log("*UUUID lesson", uidLesson, "UID session", uidSession)
         if (uidSession) {
@@ -68,7 +71,8 @@ export function SessionProvider({ children, uidLesson = "" }) {
     }, [uidSlot, session]);
 
     // écoute du doc utilisateur
-    const listenToSessions = useCallback(() => {
+    const listenToSessions = useCallback((user) => {
+        if(!user || user === null) return;
         const colRef = ClassSession.colRef(); // par ex.
         const constraints = [];
         if (!(user instanceof ClassUserIntern)) {
@@ -93,6 +97,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
             //console.log("is not empty", snap.docs.map(doc => doc.data()));
             var _sessions = [];
             var _slots = [];
+            
             for (const snapshot of snap.docs) {
                 const session = snapshot.data();
                 const lesson = session.uid_lesson ? await ClassLesson.fetchFromFirestore(session.uid_lesson, lang) : null;
@@ -108,16 +113,16 @@ export function SessionProvider({ children, uidLesson = "" }) {
                 session_new.teacher = teacher;
                 session_new.room = room;
                 _sessions.push(session_new);
-                var _slots_session = session_new.slots;
-                if (!(user instanceof ClassUserIntern)) {
+                var _slots_session = session_new.slots.filter(slot => slot.status !== ClassSession.STATUS.DRAFT);
+                if (user instanceof ClassUserIntern) {
                     //constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
-                    _slots_session = session_new.slots.filter(slot => slot.status !== ClassSession.STATUS.DRAFT);
+                    _slots_session = session_new.slots;
                 }
                 _slots.push(..._slots_session);
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
-            // console.log("OBJECT list SLOTS", _slots)
+            console.log("OBJECT list SLOTS", _slots)
             setSessions(_sessions);
             setSlots(_slots);
             setIsLoading(false);

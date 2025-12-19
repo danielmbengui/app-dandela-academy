@@ -18,6 +18,7 @@ import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
 import DialogLesson from "@/components/dashboard/lessons/DialogLesson";
 import { ClassSession } from "@/classes/ClassSession";
 import { useSession } from "@/contexts/SessionProvider";
+import DialogSession from "../sessions/DialogSession";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -196,7 +197,10 @@ function InfoRow({ label, value }) {
 function SlotRow({ session = null, slot = null }) {
   const { sessions, setUidSession, setUidSlot, slots } = useSession();
   const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
-  return (<Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
+  const [open,setOpen] = useState(false);
+  return (<>
+    <DialogSession isOpen={open} setIsOpen={setOpen} />
+  <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
     <span style={{
       width: '6px',
       height: '6px',
@@ -211,6 +215,7 @@ function SlotRow({ session = null, slot = null }) {
         onClick={() => {
           setUidSession(session?.uid);
           setUidSlot(slot?.uid_intern);
+          setOpen(true);
         }}
         sx={{
           //color: 'red',
@@ -220,7 +225,8 @@ function SlotRow({ session = null, slot = null }) {
         <IconVisible height={20} />
       </Box>
     }
-  </Stack>)
+  </Stack>
+  </>)
 }
 
 export default function LessonComponent() {
@@ -312,10 +318,6 @@ export default function LessonComponent() {
               <MetaChip
                 label={t('category')}
                 value={`${t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })}`}
-              />
-              <MetaChip
-                label={t('duration')}
-                value={`${formatDuration(lesson?.duration || 0)}`}
               />
               <MetaChip
                 label={t('level')}

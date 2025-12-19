@@ -73,28 +73,28 @@ export class ClassSession {
     static STATUS_CONFIG = Object.freeze({
         open: {
             label: "open", // "Inscriptions ouvertes",
-            color: "#22c55e",
-            glow: "#022c22",
+            color: "var(--session-status-open)",
+            glow: "var(--session-status-open-glow)",
         },
         expired: {
             label: "expired", // "Inscriptions ouvertes",
-            color: "#e70d0dff",
-            glow: "#e70d0d54",
+            color: "var(--session-status-expired)",
+            glow: "var(--session-status-expired-glow)",
         },
         full: {
             label: "full", // "Complet",
-            color: "#f97316",
-            glow: "#451a03",
+            color: "var(--session-status-full)",
+            glow: "var(--session-status-full-glow)",
         },
         finished: {
             label: "finished", // "Terminé",
-            color: "#9ca3af",
-            glow: "#0b1120",
+            color: "var(--session-status-finished)",
+            glow: "var(--session-status-finished-glow)",
         },
         draft: {
             label: "draft", // "Brouillon",
-            color: "#eab308",
-            glow: "#422006",
+            color: "var(--session-status-draft)",
+            glow: "var(--session-status-draft-glow)",
         },
     });
     static SESSION_TYPE = Object.freeze({
@@ -114,6 +114,8 @@ export class ClassSession {
         title = "",
         title_normalized = "",
         format = "",
+        lang = "",
+        level = "",
         price = 0,
         currency = "",
         start_date = null,
@@ -145,6 +147,8 @@ export class ClassSession {
         this._title = title;
         this._title_normalized = title_normalized;
         this._format = format;
+        this._lang = lang;
+        this._level = level;
         this._price = price;
         this._currency = currency;
         this._start_date = start_date;
@@ -210,6 +214,12 @@ export class ClassSession {
 
     get format() { return this._format; }
     set format(value) { this._format = value; }
+
+    get lang() { return this._lang; }
+    set lang(value) { this._lang = value; }
+
+    get level() { return this._level; }
+    set level(value) { this._level = value; }
 
     get price() { return this._price; }
     set price(value) { this._price = value; }
@@ -290,7 +300,6 @@ export class ClassSession {
             this._subscribers_onsite = this._subscribers_onsite.filter(subscriber => subscriber !== uid);
         }
     }
-
     sortSlots(sortBy = 'uid_intern', sortDirection = 'asc') {
         if (sortBy === 'uid_intern') {
             if (sortDirection === 'asc') {
@@ -366,6 +375,15 @@ export class ClassSession {
         }
         if (format === ClassSession.FORMAT.ONSITE) {
             return this._subscribers_onsite.length;
+        }
+        return 0;
+    }
+    countFree(format = "") {
+        if (format === ClassSession.FORMAT.ONLINE) {
+            return this._seats_availables_online - this._subscribers_online.length;
+        }
+        if (format === ClassSession.FORMAT.ONSITE) {
+            return this._seats_availables_onsite - this._subscribers_onsite.length;
         }
         return 0;
     }
@@ -718,18 +736,14 @@ export class ClassSessionSlot {
     constructor({
         uid_intern = "",
         uid_session = "",
-
         format = "",
-
         start_date = null,
         end_date = null,
         seats_availables_onsite = 0,
         seats_availables_online = 0,
-
         status = ClassSession.STATUS.DRAFT,
         location = "",
         url = "",
-
         subscribers_online = [],
         subscribers_onsite = [],
         last_subscribe_time = new Date(),
@@ -829,8 +843,14 @@ export class ClassSessionSlot {
         this._subscribers_online = Array.from(new Set(this._subscribers_online));
         this._subscribers_onsite = Array.from(new Set(this._subscribers_onsite));
     }
-    isSubscribe(uid = "") {
+    isSubscribe(uid = "", format = "") {
         if (!uid) return;
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
+            return this._subscribers_online.includes(uid);
+        }
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
+            return this._subscribers_onsite.includes(uid);
+        }
         if (this._subscribers_online.includes(uid)) {
             return true;
         }
@@ -839,10 +859,11 @@ export class ClassSessionSlot {
         }
         return false;
     }
-
-
-
-
+    getDuration() {
+        if (!this._start_date || !this._end_date) return 0;
+        const diff = this._end_date.getTime() - this._start_date.getTime();
+        return parseInt(diff / (1000 * 60 * 60));
+    }
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
@@ -870,6 +891,15 @@ export class ClassSessionSlot {
         }
         if (format === ClassSessionSlot.FORMAT.ONSITE) {
             return this._subscribers_onsite.length;
+        }
+        return 0;
+    }
+    countFree(format = "") {
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
+            return this._seats_availables_online - this._subscribers_online.length;
+        }
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
+            return this._seats_availables_onsite - this._subscribers_onsite.length;
         }
         return 0;
     }

@@ -17,7 +17,7 @@ import {
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS } from "@/contexts/constants/constants_pages";
-import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTutors, IconUsers } from "@/assets/icons/IconsComponent";
+import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -47,6 +47,7 @@ export class ClassUser {
     });
     static TYPE = Object.freeze({
         INTERN: 'intern',
+        ADMINISTRATOR: 'administrator',
         EXTERN: 'extern',
         WAITING_LIST: 'waiting-list',
         SPONSOR: 'sponsor',
@@ -177,7 +178,7 @@ export class ClassUser {
     static ALL_STATUS = [
         ClassUser.STATUS.ONLINE,
         ClassUser.STATUS.OFFLINE,
-        ClassUser.STATUS.AWAY,
+        //ClassUser.STATUS.AWAY,
         ClassUser.STATUS.MUST_ACTIVATE,
     ];
 
@@ -826,6 +827,7 @@ export class ClassUserIntern extends ClassUser {
         ClassUser.ROLE.ADMIN,
         ClassUser.ROLE.TEAM,
         ClassUser.ROLE.TUTOR,
+        ClassUser.ROLE.STUDENT,
     ];
     constructor(props = { type: ClassUser.TYPE.INTERN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
@@ -834,8 +836,24 @@ export class ClassUserIntern extends ClassUser {
         return new ClassUserIntern(this.toJSON());
     }
 }
+{/* ADMIN */ }
+export class ClassUserAdministrator extends ClassUserIntern {
+    static ALL_TYPES = [
+        ClassUser.TYPE.ADMINISTRATOR,
+    ];
+    static ALL_ROLES = [
+        ClassUser.ROLE.SUPER_ADMIN,
+        ClassUser.ROLE.ADMIN,
+    ];
+    constructor(props = { type: ClassUser.TYPE.ADMINISTRATOR }) {
+        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+    }
+    clone() {
+        return new ClassUserAdministrator(this.toJSON());
+    }
+}
 {/* SUPER_ADMIN */ }
-export class ClassUserSuperAdmin extends ClassUserIntern {
+export class ClassUserSuperAdmin extends ClassUserAdministrator {
     static ALL_ROLES = [
         ClassUser.ROLE.SUPER_ADMIN,
     ];
@@ -847,7 +865,7 @@ export class ClassUserSuperAdmin extends ClassUserIntern {
     }
 }
 {/* ADMIN */ }
-export class ClassUserAdmin extends ClassUserIntern {
+export class ClassUserAdmin extends ClassUserAdministrator {
     static ALL_ROLES = [
         ClassUser.ROLE.ADMIN,
     ];
@@ -859,6 +877,18 @@ export class ClassUserAdmin extends ClassUserIntern {
     }
 }
 {/* TEAM */ }
+export class ClassUserTeam extends ClassUserIntern {
+    static ALL_ROLES = [
+        ClassUser.ROLE.TEAM,
+        ClassUser.ROLE.STUDENT,
+    ];
+    constructor(props = { role: ClassUser.ROLE.TEAM }) {
+        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+    }
+    clone() {
+        return new ClassUserTeam(this.toJSON());
+    }
+}
 {/* TUTOR */ }
 /*************************** EXTERNS ************************************************/
 {/* EXTERN */ }

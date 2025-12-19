@@ -33,7 +33,6 @@ export default function DialogSubscribeSession({
 }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
-  const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
     const { session, sessions,slot, setUidSession, setUidSlot} = useSession();
   const { user } = useAuth();
   const { lang } = useLanguage();
