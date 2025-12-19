@@ -64,6 +64,7 @@ export class ClassLesson {
         OPEN: 'open', // bureautique
         FULL: 'full',
         FINISHED: 'finished',
+        VALID: 'valid',
         DRAFT: 'draft',
         UNKNOWN: 'unknown',
     });
@@ -124,7 +125,6 @@ export class ClassLesson {
         lang = "",
         format = "",
         certified = false,
-        duration = 0,
         goals = [],
         programs = [],
         prerequisites = [],
@@ -149,7 +149,6 @@ export class ClassLesson {
         this._lang = lang;
         this._format = format;
         this._certified = certified;
-        this._duration = duration;
         this._goals = goals;
         this._programs = programs;
         this._prerequisites = prerequisites;
@@ -166,35 +165,6 @@ export class ClassLesson {
         return Object.values(ClassLesson.CATEGORY).includes(category)
             ? category
             : ClassLesson.CATEGORY.UNKNOWN;
-    }
-    _normalizeSchedule(schedule) {
-        if (!(schedule instanceof Object) || Object.keys(schedule).length === 0) {
-            return this._defaultSchedule();
-        }
-        var base = this._defaultSchedule();
-
-        // on prend au max 7 jours, on complète si moins
-        Object.keys(base).map((key, index) => {
-            const source = schedule[key] || {};
-            base[key] = {
-                is_open: typeof source.is_open === "boolean" ? source.is_open : base[key].is_open,
-                open_hour: Number.isFinite(source.open_hour) ? source.open_hour : base[key].open_hour,
-                close_hour: Number.isFinite(source.close_hour) ? source.close_hour : base[key].close_hour,
-            };
-        });
-
-        return base;
-    }
-    _defaultSchedule() {
-        return {
-            monday: { is_open: false, open_hour: 0, close_hour: 0 }, // lundi
-            thuesday: { is_open: false, open_hour: 0, close_hour: 0 },
-            wednesday: { is_open: false, open_hour: 0, close_hour: 0 },
-            thursday: { is_open: false, open_hour: 0, close_hour: 0 },
-            friday: { is_open: false, open_hour: 0, close_hour: 0 },
-            saturday: { is_open: false, open_hour: 0, close_hour: 0 },
-            sunday: { is_open: false, open_hour: 0, close_hour: 0 }, // dimanche
-        };
     }
     // uid
     get uid() {
@@ -257,7 +227,7 @@ export class ClassLesson {
         return this._category;
     }
     set category(value) {
-        this._category = value;
+        this._category = this._normalizeCategory(value);
     }
 
     // level
@@ -291,15 +261,6 @@ export class ClassLesson {
     set certified(value) {
         this._certified = value;
     }
-
-    // duration
-    get duration() {
-        return this._duration;
-    }
-    set duration(value) {
-        this._duration = value;
-    }
-
 
     // goals
     get goals() {

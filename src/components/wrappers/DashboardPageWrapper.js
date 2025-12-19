@@ -268,7 +268,7 @@ const isAllowed = useMemo(() => {
                 sx={{ flexGrow: 1, p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
                 <Toolbar />
-                <Container maxWidth={'xl'} sx={{ py: 0, background: '', }}>
+                <Container maxWidth={'xl'} sx={{ pb: 2, background: '', }}>
                     <Stack spacing={1.5} maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
                         <Stack justifyContent={'center'} sx={{ background: '', width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">

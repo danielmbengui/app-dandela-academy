@@ -5,8 +5,9 @@ import { formatDuration, formatPrice, getFormattedDate, getFormattedDateComplete
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
 import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
+
 import { useLanguage } from "@/contexts/LangProvider";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import Image from "next/image";
@@ -14,8 +15,13 @@ import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import { useAuth } from "@/contexts/AuthProvider";
 import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
-import { ClassSession } from "@/classes/ClassSession";
+import { ClassSession, ClassSessionSlot } from "@/classes/ClassSession";
 import Link from "next/link";
+import { IconDuration, IconHour, IconLevel, IconLink, IconLocation, IconTranslation } from "@/assets/icons/IconsComponent";
+import { useThemeMode } from "@/contexts/ThemeProvider";
+import BadgeFormatLessonContained from "../lessons/BadgeFormatLessonContained";
+import ButtonRemove from "../elements/ButtonRemove";
+import { useSession } from "@/contexts/SessionProvider";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -139,12 +145,15 @@ function MetaChip({ label, value }) {
     </>
   );
 }
+
 /** Petit composant pour les lignes d'info à droite */
 function InfoRow({ label, value }) {
+  const { t } = useTranslation(ClassLesson.NS_COLLECTION);
+
   return (
     <>
       <div className="info-row">
-        <span className="info-label">{label}</span>
+        <span className="info-label">{t(label)}</span>
         <span className="info-value">{value}</span>
       </div>
 
@@ -178,10 +187,151 @@ function InfoRow({ label, value }) {
   );
 }
 
-export default function SessionComponent({ session = null, selectedSlot = null }) {
+function CardFormat({ slot = null, format = "" }) {
+  const { session, update, slots } = useSession();
   const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const [processing, setProcessing] = useState(false);
+  const { ONLINE, ONSITE } = ClassSession.FORMAT;
+  const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
+  return (<Grid key={`${format}`} size={{ xs: 12, sm: 6 }} sx={{
+    border: `0.1px solid var(--card-border)`,
+    borderRadius: '10px',
+    p: 1,
+    //background:FORMAT_CONFIG['onsite']?.glow,
+    //display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
+  }}>
+    <Stack direction={'row'} spacing={1} alignItems={'center'}>
+      <BadgeFormatLessonContained format={format} />
+      <Typography variant="caption" sx={{ color: 'var(--font-color)' }}>
+        <Trans
+          t={t}
+          i18nKey={'seats_free'}
+          values={{
+            total: slot?.[`seats_availables_${format}`],
+            taken: slot?.countSubscribers?.(format)
+          }}
+        />
+      </Typography>
+
+    </Stack>
+    <div className="hero-seats">
+      <p className="seats-sub">
+        <Trans
+          t={t}
+          i18nKey={slot?.isFull?.(format) ? 'full' : 'seats_availables'}
+          values={{ count: slot?.countFree?.(format) }}
+          className="seats-sub"
+        />
+      </p>
+      <div className="seats-bar">
+        <div
+          className="seats-fill"
+          style={{
+            width: `${(slot?.countSubscribers?.(format) / slot?.[`seats_availables_${format}`]) * 100}%`,
+          }}
+        />
+      </div>
+    </div>
+    <Stack direction={'row'} spacing={0.5}>
+      {
+        slot?.isSubscribe?.(user.uid, format) && <ButtonRemove
+          disabled={!slot?.isSubscribe?.(user.uid, format) || processing}
+          //variant='outlined'
+          //  disabled={!selectedSlot?.isSubscribe?.(user.uid) || processing}
+          loading={processing}
+          //color="error"
+          onClick={async () => {
+            //update
+            setProcessing(true);
+            slot?.unsubscribeStudent?.(user.uid, format);
+            session?.updateSlot(slot);
+            await update(session);
+            //console.log("new slot ?", slot);
+            setProcessing(false);
+            //alert('ok');
+            //console.log("new slot ?", session.slots)
+          }}
+          label={t('btn-unsubscribe')}
+          style={{
+            marginTop: '10px', width: '100%',
+            //display: !slot?.isSubscribe?.(user.uid) || processing ? 'none' : 'flex'
+          }}
+        />
+      }
+
+      <ButtonConfirm
+        disabled={slot?.isFull?.(format) || slot?.isSubscribe?.(user.uid) || processing}
+        loading={processing}
+        onClick={async () => {
+          //update
+          setProcessing(true);
+          slot?.subscribeStudent?.(user.uid, format);
+          session?.updateSlot(slot);
+          //session.update({slots:slots.map(s=>s.uid===selectedSlot.uid?selectedSlot:s)});
+          await update(session);
+          //console.log("new slot ?", session.slots);
+          //alert('ok');
+          //console.log("new slot ?", session.slots)
+          setProcessing(false);
+        }}
+        label={t('btn-subscribe')}
+        style={{
+          marginTop: '10px', width: '100%',
+          //display: slot?.isFull?.(format) || processing || slot?.isSubscribe?.(user.uid) ? 'none' : 'flex'
+        }}
+      />
+    </Stack>
+    <style jsx>
+      {`
+        .hero-seats {
+          margin-top: 6px;
+          font-size: 0.85rem;
+        }
+        .seats-sub {
+          margin: 2px 0 4px;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+        .seats-bar {
+          width: 100%;
+          height: 7px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #111827;
+          border: 1px solid var(--card-bord);
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+          overflow: hidden;
+        }
+        .seats-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+          background: red;
+        }`}
+    </style>
+  </Grid>)
+}
+function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
+  return (<Stack direction={'row'} spacing={1} sx={{ px: 1, py: 1, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
+    <Stack justifyContent={'center'}>
+      <Box sx={{ border: `0.1px solid var(--card-border)`, background: '', color: 'var(--primary)', p: 0.3, borderRadius: '100%' }}>
+        {icon}
+      </Box>
+    </Stack>
+    <Stack>
+      <Typography color="var(--grey-dark)">{title}</Typography>
+      {valueComponent}
+    </Stack>
+  </Stack>)
+}
+
+export default function SessionComponent({}) {
+  const { theme } = useThemeMode();
+
+  const { primary } = theme.palette;
+  const { user } = useAuth();
+  const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
   const { lang } = useLanguage();
+  const { session,slot, update, slots } = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
@@ -201,90 +351,57 @@ export default function SessionComponent({ session = null, selectedSlot = null }
     labelCancel: "Non",
     open: false,
     setOpen: null
-  })
+  });
 
   return (<Stack>
     <div className="page">
       <main className="container">
         <section className="hero-card">
           <div className="hero-left">
-            <BadgeFormatLesson format={selectedSlot?.format} />
-            <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()} {"/"} {session?.lesson?.code?.toUpperCase()}</p>
+            <MetaChip label={t('uid_intern')} value={slot?.uid_intern} />
+            <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()}</p>
             <h1>{session?.lesson?.translate?.title}</h1>
-            <p className="muted">
-              {session?.title} • {'Session'} {selectedSlot?.uid_intern || session?.code}
-            </p>
+            <Grid container spacing={1} sx={{ marginY: 1 }}>
+              <Grid size={'auto'}>
+                <CardSlot title={t('level')} icon={<IconLevel />} valueComponent={<Typography color="var(--font-color)">{t(session?.level)}</Typography>} />
+              </Grid>
+              <Grid size={'auto'}>
+                <CardSlot title={t('duration')} icon={<IconDuration />} valueComponent={<Typography>
+                  {formatDuration(slot?.getDuration?.())}
+                </Typography>} />
+              </Grid>
+              <Grid size={'auto'}>
+                <CardSlot title={t('lang')} icon={<IconTranslation />} valueComponent={<Typography color="var(--font-color)">{t(session?.lang, {ns:NS_LANGS})}</Typography>} />
+              </Grid>
+            </Grid>
+            <Grid container spacing={1} sx={{ marginY: 1 }}>
+              <Grid size={'auto'}>
+                <CardSlot title={t('location')} icon={<IconLocation />} valueComponent={<Typography color="var(--font-color)">{slot?.location}</Typography>} />
+              </Grid>
+              <Grid size={'auto'}>
+                <CardSlot title={t('url')} icon={<IconLink />} valueComponent={<Link href={slot?.url || ""} target="_blank" style={{ color: "var(--primary)" }}>{session?.code}</Link>} />
+              </Grid>
+              <Grid size={'auto'}></Grid>
+              <Grid size={'auto'}></Grid>
+              <Grid size={'auto'}></Grid>
+              <Grid size={'auto'}></Grid>
+            </Grid>
 
-            <div className="badges">
-              {session?.certified && (
-                <span className="badge-cert">
-                  🎓 {t('certified')}
-                </span>
-              )}
-            </div>
+            <Grid container spacing={1}>
+              {
+                [ONLINE, ONSITE].map((format) => {
+                  if (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format) {
+                    return (<CardFormat key={format} slot={slot} format={format} />)
+                  }
+                  return null;
+                })
+              }
 
-            <div className="hero-meta">
-              <MetaChip
-                label={t('dates')}
-                value={`${getFormattedDateNumeric(selectedSlot?.start_date, lang)}`}
-              />
-              <MetaChip
-                label={t('start hour')}
-                value={`${getFormattedHour(selectedSlot?.start_date, lang)}`}
-              />
-              <MetaChip
-                label={t('end hour')}
-                value={`${getFormattedHour(selectedSlot?.end_date, lang)}`}
-              />
-
-            </div>
-            <div className="hero-meta" style={{ marginTop: '5px', marginBottom: '10px' }}>
-              <MetaChip
-                label={t('level')}
-                value={`${t(session?.lesson?.level, { ns: ClassLesson.NS_COLLECTION })}`}
-              />
-              <MetaChip
-                label={t('lang', { ns: NS_LANGS })}
-                value={t(session?.lesson?.lang, { ns: NS_LANGS })}
-              />
-            </div>
-            <div className="hero-right-top">
-              <div>
-                <h2 className="teacher-label">{t('modalities')}</h2>
-                <InfoRow label={t('session_uid')} value={t(selectedSlot?.uid_intern)} />
-                <InfoRow label={t('format')} value={t(selectedSlot?.format)} />
-                <InfoRow label={t('level')} value={t(session?.lesson?.level)} />
-                <InfoRow label={t('lang', { ns: NS_LANGS })} value={t(session?.lesson?.lang, { ns: NS_LANGS })} />
-                <InfoRow label={t('start_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.start_date)} />
-                <InfoRow label={t('end_date')} value={getFormattedDateCompleteNumeric(selectedSlot?.end_date)} />
-
-
-                <InfoRow
-                  label={t('duration_total')}
-                  value={`${formatDuration(session?.duration)} heures`}
-                />
-                <InfoRow
-                  label={t('sessions_type')}
-                  value={`${session?.sessions_count} session(s) / ${t(session?.sessions_type, { ns: NS_DAYS })}`}
-                />
-                {selectedSlot?.format === "onsite" && (
-                  <InfoRow label={t('location')} value={`${selectedSlot?.location}`} />
-                )}
-                {selectedSlot?.format === "online" && (
-                  <InfoRow
-                    label="Lien du cours"
-                    value={<Stack justifyContent={'center'}>
-                      <Link href={selectedSlot?.url} target="_blank" style={{ color: 'var(--primary)' }}>{selectedSlot?.url}</Link>
-                    </Stack>}
-                  />
-                )}
-              </div>
-            </div>
+            </Grid>
           </div>
 
           {/* Bloc inscription intégré dans le hero */}
           <aside className="hero-right">
-
             <div className="teacher-card">
               <h2 className="teacher-label">{t('certification')}</h2>
               {session?.lesson?.certified ? (
@@ -295,7 +412,7 @@ export default function SessionComponent({ session = null, selectedSlot = null }
                   </p>
                   <ul className="list small">
                     {
-                      t('certification_block.items', { returnObjects: true })?.map((text, i) => {
+                      t('certification_block.items', { returnObjects: true })?.map?.((text, i) => {
                         return (<li key={`${text}-${i}`}>{text}</li>)
                       })
                     }
@@ -313,48 +430,11 @@ export default function SessionComponent({ session = null, selectedSlot = null }
                 </p>
               )}
             </div>
-            {/* PROFESSEUR */}
-            <div className="card" style={{ borderColor: 'var(--card-border)' }}>
-              <h2>Résumé du cours</h2>
-              <div className="teacher-main">
-
-                {
-                  session?.teacher?.showAvatar({})
-                }
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {session?.teacher?.first_name} {session?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{session?.teacher?._role_title}</p>
-                </div>
-              </div>
-              <p className="description">{session?.lesson?.translate?.description}</p>
-              <ul className="list small">
-                <li><b>{`Cours : `}</b>{session?.lesson?.title}</li>
-                <li><b>{`Catégorie : `}</b>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}</li>
-                <li><b>{`Certification : `}</b>{session?.lesson?.certified ? '✅ Oui' : '❌ Non'}</li>
-              </ul>
-
-              <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target={"_blank"}>
-                <ButtonCancel
-                  label={`Voir la page du cours`}
-                  style={{ marginTop: 10 }}
-                />
-              </Link>
-              {
-                /*
-                Cours : Excel – Compétences essentielles pour le travail (EXCEL-101)
-Catégorie : Bureautique
-Certification : Oui (Dandela Academy)
-                */
-              }
-            </div>
           </aside>
         </section>
       </main>
       <style jsx>{`
                 .page {
-                 
                   background: transparent;
                   padding: 10px 0px;
                   color: var(--font-color);

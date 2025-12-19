@@ -41,10 +41,73 @@ import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
 import { auth, firestore, database } from '@/contexts/firebase/config';
 import { PAGE_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
-import { ref, serverTimestamp, set } from 'firebase/database';
 //import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
+// src/hooks/usePresenceRTDB.js
+
+import { ref, onValue, set, onDisconnect, serverTimestamp, get } from "firebase/database";
+import { usePageActivity } from './hooks/usePageActivity';
+
+/**
+ * Presence RTDB:
+ * - écrit online quand connecté
+ * - écrit offline automatiquement quand la connexion tombe (onDisconnect)
+ */
+function usePresenceRTDB(uid) {
+    useEffect(() => {
+        if (!uid) return;
+        const userStatusRef = ref(database, `/status/${uid}`);
+        const connectedRef = ref(database, ".info/connected");
+        console.log("use ref status", userStatusRef);
+        console.log("CONNECTED ref", connectedRef);
+
+        // écoute l'état de connexion au backend Firebase
+        const unsubscribe = onValue(connectedRef, async (snap) => {
+            const isConnected = snap.val() === true;
+            //console.log("SNAP val", snap.val());
+            if (!isConnected) return;
+            //console.log("is connected", snap.val());
+            // programmé côté serveur : quand ça coupe -> offline
+            onDisconnect(userStatusRef).set({
+                status: ClassUser.STATUS.OFFLINE,
+                //last_changed: serverTimestamp(),
+                last_connexion_time: serverTimestamp(),
+                //logged: false
+            });
+           // const _snap = await get(userStatusRef);
+           // const prev = _snap.val() || {};
+            // online immédiat
+           // console.log("USEEER stats realtime", prev)
+           await setPresence(uid, ClassUser.STATUS.ONLINE);
+           /*
+            set(userStatusRef, {
+                //...prev,
+                status: ClassUser.STATUS.ONLINE,
+                //last_changed: serverTimestamp(),
+                //last_connexion_time: serverTimestamp(),
+                //logged: true
+            });
+            */
+        });
+
+        // cleanup listener
+        return () => unsubscribe();
+    }, [uid]);
+}
+async function setPresence(uid, status = '') {
+    if (!uid || !status) return;
+    const userStatusRef = ref(database, `/status/${uid}`);
+    //const _snap = await get(userStatusRef);
+    //const prev = _snap.val() || {};
+    const userData = {
+        //...prev,
+        status: status, // "online" | "away" | "offline"
+        last_connexion_time: serverTimestamp(),
+    };
+    // RTDB write (ok, pas cher)
+    await set(userStatusRef, userData);
+}
 
 const COLLECTION_USERS = ClassUser.COLLECTION;
 const AuthContext = createContext(null);
@@ -67,9 +130,12 @@ export function AuthProvider({ children }) {
     const [textErrorSignIn, setTextErrorSignIn] = useState('');
     const [provider, setProvider] = useState('');
 
+    // ✅ presence
+    usePresenceRTDB(user?.uid);
+
     useEffect(() => {
-        if(user) {
-            set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
+        if (user) {
+            //set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
         }
     }, [user]);
 
@@ -78,50 +144,60 @@ export function AuthProvider({ children }) {
             auth.languageCode = lang;
         }
     }, [lang]);
-    /*
-        usePageActivity({
-            onVisible: async () => {
-                // la page redevient visible → on repart un chrono
-                //startTimeRef.current = Date.now();
-                if (user) {
-                    setUser(prev => {
-                        if (!prev || prev === null) return null;
-                        prev.update({
-                            last_connexion_time: new Date(),
-                            status: ClassUser.STATUS.ONLINE,
-                        });
-                        return prev.clone();
-                    })
-    
-                    console.log("[Chrono] start (visible)", new Date());
-                }
-            },
-            onHidden: async () => {
-                // la page n'est plus visible → on arrête le chrono
-                if (user) {
-                    if (auth.currentUser) {
-                        await ClassUser.update(user.uid, {
-                            last_connexion_time: new Date(),
-                            status: ClassUser.STATUS.AWAY,
-                        });
-                    }
-                    console.log("[Chrono] hidden → temps passé sur cette session:", new Date(), "s");
-                }
-            },
-            onBeforeUnload: async () => {
-                // l'utilisateur ferme/reload/navigue ailleurs
-                if (user) {
-                    if (auth.currentUser) {
-                        await ClassUser.update(user.uid, {
-                            last_connexion_time: new Date(),
-                            status: ClassUser.STATUS.AWAY,
-                        });
-                    }
-                    console.log("[Chrono] beforeunload → dernière session:", new Date(), "s");
-                }
-            },
-        });
-    */
+
+    usePageActivity({
+        onVisible: async () => {
+            // la page redevient visible → on repart un chrono
+            //startTimeRef.current = Date.now();
+            if (!user) return;
+            setUser(prev => {
+                if (!prev || prev === null) return null;
+                prev.update({
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.ONLINE,
+                });
+                return prev.clone();
+            });
+            await setPresence(user.uid, ClassUser.STATUS.ONLINE);
+            console.log("[Chrono] start (visible)", new Date());
+        },
+        onHidden: async () => {
+            // la page n'est plus visible → on arrête le chrono
+            /*
+            if (!user) return;
+            setUser(prev => {
+                if (!prev || prev === null) return null;
+                prev.update({
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.AWAY,
+                });
+                return prev.clone();
+            });
+            */
+            // ✅ RTDB: away (onglet caché)
+            //await setPresence(user.uid, ClassUser.STATUS.AWAY);
+            console.log("[Chrono] hidden → temps passé sur cette session:", new Date(), "s");
+        },
+        onBeforeUnload: async () => {
+            // l'utilisateur ferme/reload/navigue ailleurs
+            if (!user) return;
+            /*
+            setUser(prev => {
+                if (!prev || prev === null) return null;
+                prev.update({
+                    last_connexion_time: new Date(),
+                    status: ClassUser.STATUS.AWAY,
+                });
+                return prev.clone();
+            });
+            */
+            // ✅ RTDB: away (onglet caché)
+            //await setPresence(user.uid, ClassUser.STATUS.AWAY);
+            console.log("[Chrono] beforeunload → dernière session:", new Date(), "s");
+
+        },
+    });
+
     // écoute du doc utilisateur
     const listenToUser = useCallback((fbUser) => {
         const { uid } = fbUser;

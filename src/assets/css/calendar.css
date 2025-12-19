@@ -60,9 +60,9 @@
   border-color: var(--primary) !important;
 }
 .fc-day-past {
-  background: var(--grey-light);
+  background: var(--grey-hyper-dark);
   cursor: not-allowed;
-  color:black;
+  color: var(--card-color);
 }
 
 .fc-day-free {

@@ -4,7 +4,7 @@ import { IconCalendar, IconDashboard, IconEmail, IconLogo, IconTiktok } from "@/
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
 import { getFormattedHour, translateWithVars } from "@/contexts/functions";
-import { NS_DASHBOARD_CALENDAR } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_CALENDAR, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Box, CircularProgress, Grid, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -20,17 +20,29 @@ import { useSession } from '@/contexts/SessionProvider';
 import DialogSession from '@/components/dashboard/sessions/DialogSession';
 import DialogLesson from '@/components/dashboard/lessons/DialogLesson';
 import { ClassLesson } from '@/classes/ClassLesson';
+import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
 
 export default function DashboardCalendar() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_CALENDAR, ClassLesson.NS_COLLECTION]);
-  const { session, sessions, getOneSession, changeSession, isLoading, setUidSession, setUidSlot,slot, slots } = useSession();
-  
+  const {
+    session,
+    sessions,
+    getOneSession,
+    changeSession,
+    isLoading,
+    setUidSession,
+    slot,
+    setUidSlot,
+    slots
+  } = useSession();
+
   const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState('read');
+  //const [session, setSession] = useState(false);
   //const [slots, setSlots] = useState([]);
   //const [slot, setSlot] = useState(null);
-
   const {
     today: title_today,
     month: title_month,
@@ -44,66 +56,7 @@ export default function DashboardCalendar() {
     //changeSession("pyLG1VRKbJo22kqlnS3Z")
     //alert(info.dateStr)
   }
-  useEffect(() => {
-    //console.log("xessions change", session);
-    //setIsOpen(session !== null);
-    /*
-    if (sessions.length > 0) {
-      const _slots = [];
-      for (const session of sessions) {
-        const sessionOnsiteCapacity = session.seats_availables_onsite || 0;
-        const sessionOnlineCapacity = session.seats_availables_online || 0;
-        const sessionOnsiteSubscribers = session.subscribers_onsite?.length || 0;
-        const sessionOnlineSubscribers = session.subscribers_online?.length || 0;
 
-        const sessionTotal = sessionOnsiteCapacity + sessionOnlineCapacity;
-        const sessionRegistered = sessionOnsiteSubscribers + sessionOnlineSubscribers;
-        const slots = session.slots || [];
-        for (const slot of slots) {
-          const onsiteCapacity = slot.seats_availables_onsite || 0;
-          const onlineCapacity = slot.seats_availables_online || 0;
-          const onsiteSubscribers = slot.subscribers_onsite?.length || 0;
-          const onlineSubscribers = slot.subscribers_online?.length || 0;
-
-          const total = onsiteCapacity + onlineCapacity;
-          const registered = onsiteSubscribers + onlineSubscribers;
-          const today = new Date();
-          const status = today.getTime() > slot.end_date ? 'finished' : today.getTime() > slot.last_subscribe_time?.getTime?.() ? 'expired' : slot.status;
-          _slots.push({
-                  id: session.uid + "-" + slot.uid_intern,
-                  title: session.lesson?.translate?.title || session.lesson?.title || "",
-                  start: slot.start_date,
-                  end: slot.end_date,
-
-                  backgroundColor: '#fecaca',   // “zone occupée”
-                  borderColor: '#1d4ed8',
-                  textColor: '#fff',
-
-                  // 👇 ici
-                  classNames: [
-                    'fc-daygrid-event',
-                    `${status}`
-                  ],
-
-                  extendedProps: {
-                    capacity: total,
-                    available: total - registered,
-                    registered,
-                    session: session,
-                    lesson: session.lesson,
-                    slot,           // pratique si tu veux récupérer le slot exact
-                    sessionUid: session.uid,
-                  },
-                });
-        }
-      }
-      console.log("SLOTS", _slots)
-      setSlots(_slots);
-    } else {
-      setSlots([]);
-    }
-    */
-  }, [sessions]);
   const handleEventClick = (info) => {
     //info.event.preventDefault();
     const { event } = info;
@@ -112,9 +65,12 @@ export default function DashboardCalendar() {
     const { capacity, session, slot } = extendedProps;
     //console.log(uid, "CAPACACITY,", capacity)
 
-    const _session = getOneSession(uid);
-    //console.log('Click sur le evenement :', info.event.id, _session);
+    //const _session = getOneSession(uid);
+    console.log('Click sur le evenement :', slot);
+    //setSession(session);
     //setSlot(slot);
+    //setSlot(slot);
+    setIsOpen(prev => !prev);
     setUidSession(session.uid);
     setUidSlot(slot.uid_intern);
     //setSession(_session);
@@ -123,7 +79,6 @@ export default function DashboardCalendar() {
     //console.log('Click sur event :', info.event.source, info.event.id)
     //alert(info.dateStr)
   }
-
   const renderEventContent = (arg) => {
     const { event } = arg;
     //const lesson = event
@@ -199,170 +154,193 @@ export default function DashboardCalendar() {
     );
   }
 
-  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconCalendar width={22} height={22} />}>
-    En construction...
+  return (<DashboardPageWrapper 
+  title={t('title')} 
+  subtitle={t('subtitle')} 
+  icon={<IconCalendar width={22} height={22} />}
+  titles={[{name:t('calendar', {ns:NS_DASHBOARD_MENU}), url:''}]}
+  >
     {
       isLoading && <CircularProgress />
     }
     {
-      session && slot && <DialogSession session={session} selectedSlot={slot} isOpen={isOpen} />
+      <DialogSession
+        //session={session} 
+        //setUidSession={setUidSession}
+        //slot={slot} 
+        mode={mode}
+        setMode={setMode}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
     }
-  {
-    !isLoading &&   <Stack sx={{
-      width: '100%',
-      flex: 1,
-      maxWidth: '100%',         // ne jamais dépasser la largeur écran
-      overflowX: 'hidden',       // évite le scroll horizontal global
-      //background: 'red'
-    }}>
-      <Box sx={{
+    {
+      !isLoading && <Stack 
+      alignItems={'start'}
+      spacing={2}
+      sx={{
         width: '100%',
-        '& .fc': {
-          width: '100% !important',   // FullCalendar ne dépasse pas
-          maxWidth: '100vw',
-          //background: 'cyan',
+        flex: 1,
+        maxWidth: '100%',         // ne jamais dépasser la largeur écran
+        overflowX: 'hidden',       // évite le scroll horizontal global
+        //background: 'red'
+      }}>
+            <ButtonConfirm
+        label='Create session'
+        onClick={()=>{
+          setMode('create');
+          setIsOpen(true);
+        }}
+        />
+        <Box sx={{
           width: '100%',
-          maxWidth: '100vw',
-          '& .fc-header-toolbar': {
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.25rem',
-            //background:'yellow',
-            //margin:0,
-            padding: 0,
-            width: "100%"
-          },
-          '@media (max-width:600px)': {
+          '& .fc': {
+            width: '100% !important',   // FullCalendar ne dépasse pas
+            maxWidth: '100vw',
+            //background: 'cyan',
+            width: '100%',
+            maxWidth: '100vw',
             '& .fc-header-toolbar': {
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.25rem',
+              //background:'yellow',
+              //margin:0,
+              padding: 0,
+              width: "100%"
+            },
+            '@media (max-width:600px)': {
+              '& .fc-header-toolbar': {
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
             },
           },
-        },
-      }}>
+        }}>
 
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView="dayGridMonth"
-          locale={lang}                 // langue française
-          firstDay={1}                // semaine commence le lundi
-          weekends={true}             // mettre false si tu veux cacher sam/dim
-          height="auto"
-          expandRows={true}
-          aspectRatio={0.5}
-          handleWindowResize={true}
-          //hiddenDays={[0]}  // masque juste dimanche (0), par ex.
-          //slotMinTime="08:00:00"  // pour les vues timeGrid
-          //slotMaxTime="20:00:00"
-          nowIndicator={true}     // petite ligne rouge “maintenant”
-          /** 🔹 Barre du haut : boutons & titre */
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-          }}
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            initialView="dayGridMonth"
+            locale={lang}                 // langue française
+            firstDay={1}                // semaine commence le lundi
+            weekends={true}             // mettre false si tu veux cacher sam/dim
+            height="auto"
+            expandRows={true}
+            aspectRatio={0.5}
+            handleWindowResize={true}
+            //hiddenDays={[0]}  // masque juste dimanche (0), par ex.
+            //slotMinTime="08:00:00"  // pour les vues timeGrid
+            //slotMaxTime="20:00:00"
+            nowIndicator={true}     // petite ligne rouge “maintenant”
+            /** 🔹 Barre du haut : boutons & titre */
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            }}
 
-          /** 🔹 Texte des boutons */
-          buttonText={{
-            today: title_today,
-            month: title_month,
-            week: title_week,
-            day: title_day,
-            list: title_list
-          }}
+            /** 🔹 Texte des boutons */
+            buttonText={{
+              today: title_today,
+              month: title_month,
+              week: title_week,
+              day: title_day,
+              list: title_list
+            }}
 
-          /** 🔹 Événements (occupé / libre) */
-          eventColor="#1d4ed8"       // fond
-          eventTextColor="#ffffff"   // texte
-          events={[
-            ...slots.map(slot=>{
-              const onsiteCapacity = slot.seats_availables_onsite || 0;
-              const onlineCapacity = slot.seats_availables_online || 0;
-              const onsiteSubscribers = slot.subscribers_onsite?.length || 0;
-              const onlineSubscribers = slot.subscribers_online?.length || 0;
-    
-              const total = onsiteCapacity + onlineCapacity;
-              const registered = onsiteSubscribers + onlineSubscribers;
-              const today = new Date();
-              const status = today.getTime() > slot.end_date ? 'finished' : today.getTime() > slot.last_subscribe_time?.getTime?.() ? 'expired' : slot.status;
-              const session = getOneSession(slot.uid_session);
-              return({
-                id: session?.uid + "-" + slot.uid_intern,
-                title: session?.lesson?.translate?.title || session.lesson?.title || "",
-                start: slot.start_date,
-                end: slot.end_date,
+            /** 🔹 Événements (occupé / libre) */
+            eventColor="#1d4ed8"       // fond
+            eventTextColor="#ffffff"   // texte
+            events={[
+              ...slots.map(slot => {
+                const onsiteCapacity = slot.seats_availables_onsite || 0;
+                const onlineCapacity = slot.seats_availables_online || 0;
+                const onsiteSubscribers = slot.subscribers_onsite?.length || 0;
+                const onlineSubscribers = slot.subscribers_online?.length || 0;
 
-                backgroundColor: '#fecaca',   // “zone occupée”
+                const total = onsiteCapacity + onlineCapacity;
+                const registered = onsiteSubscribers + onlineSubscribers;
+                const today = new Date();
+                //const status = today.getTime() > slot.end_date ? 'finished' : today.getTime() > slot.last_subscribe_time?.getTime?.() ? 'expired' : slot.status;
+                const status = slot.status;
+                const session = getOneSession(slot.uid_session);
+                return ({
+                  id: session?.uid + "-" + slot.uid_intern,
+                  title: session?.lesson?.translate?.title || session.lesson?.title || "",
+                  start: slot.start_date,
+                  end: slot.end_date,
+
+                  backgroundColor: '#fecaca',   // “zone occupée”
+                  borderColor: '#1d4ed8',
+                  textColor: '#fff',
+
+                  // 👇 ici
+                  classNames: [
+                    'fc-daygrid-event',
+                    `${status}`
+                  ],
+
+                  extendedProps: {
+                    capacity: total,
+                    available: total - registered,
+                    registered,
+                    session: session,
+                    lesson: session.lesson,
+                    slot,           // pratique si tu veux récupérer le slot exact
+                    sessionUid: session.uid,
+                  },
+                })
+              }),
+              {
+                id: '1',
+                title: 'Cours Excel',
+                start: '2025-11-25T08:30:00',
+                end: '2025-11-25T12:00:00',
+                backgroundColor: '#1d4ed8',   // occupé
+                //height: '200%',
                 borderColor: '#1d4ed8',
                 textColor: '#fff',
-
-                // 👇 ici
-                classNames: [
-                  'fc-daygrid-event',
-                  `${status}`
-                ],
-
+                //display: 'background',
+                backgroundColor: '#fecaca',    // “zone occupée”
                 extendedProps: {
-                  capacity: total,
-                  available: total - registered,
-                  registered,
-                  session: session,
-                  lesson: session.lesson,
-                  slot,           // pratique si tu veux récupérer le slot exact
-                  sessionUid: session.uid,
-                },
-              })
-            }),
-            {
-              id: '1',
-              title: 'Cours Excel',
-              start: '2025-11-25T08:30:00',
-              end: '2025-11-25T12:00:00',
-              backgroundColor: '#1d4ed8',   // occupé
-              //height: '200%',
-              borderColor: '#1d4ed8',
-              textColor: '#fff',
-              //display: 'background',
-              backgroundColor: '#fecaca',    // “zone occupée”
-              extendedProps: {
-                capacity: 20,        // nombre total de places
-                registered: 12       // nombre d’inscrits
+                  capacity: 20,        // nombre total de places
+                  registered: 12       // nombre d’inscrits
+                }
+              },
+              {
+                id: '2',
+                title: 'Maintenance serveur',
+                start: '2025-11-26T18:30:00',
+                end: '2025-11-26T22:00:00',
+                //display: 'background',        // couleur de fond sur le jour
+                backgroundColor: '#fecaca',    // “zone occupée”
+                extendedProps: {
+                  capacity: 18,        // nombre total de places
+                  registered: 4       // nombre d’inscrits
+                }
               }
-            },
-            {
-              id: '2',
-              title: 'Maintenance serveur',
-              start: '2025-11-26T18:30:00',
-              end: '2025-11-26T22:00:00',
-              //display: 'background',        // couleur de fond sur le jour
-              backgroundColor: '#fecaca',    // “zone occupée”
-              extendedProps: {
-                capacity: 18,        // nombre total de places
-                registered: 4       // nombre d’inscrits
+            ]}
+
+            /** 🔹 Style des cases “libres” / “occupées” via classes */
+            dayCellClassNames={(args) => {
+              // console.log("args...", args.id)
+              // args.date est un objet Date
+              const iso = args.date.toISOString().slice(0, 10)
+              if (iso === '2025-11-29') {
+                return ['fc-day-free']       // classe custom pour ce jour
               }
-            }
-          ]}
+              return []
+            }}
 
-          /** 🔹 Style des cases “libres” / “occupées” via classes */
-          dayCellClassNames={(args) => {
-            // console.log("args...", args.id)
-            // args.date est un objet Date
-            const iso = args.date.toISOString().slice(0, 10)
-            if (iso === '2025-11-29') {
-              return ['fc-day-free']       // classe custom pour ce jour
-            }
-            return []
-          }}
+            /** 🔹 Callback quand on clique sur un jour / un event */
+            dateClick={handleDateClick}
+            eventClick={handleEventClick}
+            eventContent={renderEventContent}
 
-          /** 🔹 Callback quand on clique sur un jour / un event */
-          dateClick={handleDateClick}
-          eventClick={handleEventClick}
-          eventContent={renderEventContent}
-
-        />
-      </Box>
-    </Stack>
-  }
+          />
+        </Box>
+      </Stack>
+    }
   </DashboardPageWrapper>);
 }

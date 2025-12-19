@@ -64,6 +64,7 @@
 
   --grey-hyper-light: #e4e4e4;
   --grey-light: #A6A6A6;
+  --grey: #727272;
   --grey-dark: #3E3E3E;
   --grey-hyper-dark: #1c1c1c;
 
@@ -79,8 +80,8 @@
   --session-status-expired: #eab308;
   --session-status-expired-glow: #eab30854;
 
-  --session-status-draft: #3E3E3E;
-  --session-status-draft-glow: rgba(62, 62, 62, 0.33);
+  --session-status-draft: #a6a6a6;
+  --session-status-draft-glow: rgba(166, 166, 166, 0.33);
 
   --test: #3b82f654;
   /*

@@ -17,7 +17,7 @@ import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
 import SelectComponentDark from '@/components/elements/SelectComponentDark';
 import { ClassUser } from '@/classes/users/ClassUser';
-import { getFormattedDateComplete, getFormattedDateCompleteNumeric } from '@/contexts/functions';
+import { getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedHour } from '@/contexts/functions';
 import { useLanguage } from '@/contexts/LangProvider';
 import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark';
 import TextFieldComponent from '@/components/elements/TextFieldComponent';
@@ -28,6 +28,7 @@ import { ClassColor } from '@/classes/ClassColor';
 import DialogNewUser from '@/components/dashboard/users/DialogNewUser';
 import BadgeStatusUser from '@/components/dashboard/users/BadgeStatusUser';
 import BadgeRoleUser from '@/components/dashboard/users/BadgeRoleUser';
+import { useUsers } from '@/contexts/UsersProvider';
 
 const USERS_MOCK = [
   {
@@ -128,7 +129,7 @@ const ROLE_CONFIG = {
   intern: { label: "Stagiaire", color: "#e5e7eb" },
 };
 
-const STATUS_CONFIG_1 = {
+const STATUS_CONFIG = {
   online: { label: "En ligne", color: "#22c55e" },
   connected: { label: "En ligne", color: "#22c55e" },
   offline: { label: "Hors ligne", color: "#6b7280" },
@@ -139,32 +140,27 @@ const STATUS_CONFIG_1 = {
 
 function UsersPage({ userDialog = null, setUserDialog = null }) {
   const { theme } = useThemeMode();
+  const {users} = useUsers();
   const { text, cardColor, greyLight, blueDark } = theme.palette;
   const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [allUsers, setAllUsers] = useState([]);
-  const [users, setUsers] = useState([]);
+  //const [allUsers, setAllUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [wantCreate, setWantCreate] = useState(false);
 
   useEffect(() => {
-    async function init() {
-      const _users = await ClassUser.fetchListFromFirestore();
-      console.log("USERS", _users);
-      setAllUsers(_users);
-      setUsers(_users);
-    }
-    init();
-  }, []);
+    setFilteredUsers(users);
+  }, [users]);
   useEffect(() => {
-    let list = [...allUsers];
+    let list = [...users];
 
     if (roleFilter !== "all") {
       list = list.filter((u) => u.role === roleFilter);
     }
-    if (statusFilter !== "all") {
+    if (statusFilter !== "all_status") {
       list = list.filter((u) => u.status === statusFilter);
     }
 
@@ -190,14 +186,14 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
 
     if (sortBy === "name") {
       list.sort((a, b) =>
-        `${a.lastName} ${a.firstName}`.localeCompare(
-          `${b.lastName} ${b.firstName}`
+        `${a.last_name} ${a.first_name}`.localeCompare(
+          `${b.last_name} ${b.first_name}`
         )
       );
     } else if (sortBy === "role") {
       list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
     }
-    setUsers(list);
+    setFilteredUsers(list);
   }, [search, roleFilter, statusFilter, sortBy]);
 
 
@@ -218,7 +214,8 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
           </Grid>
           <Grid size={'grow'}>
             <Grid container spacing={0.5} alignItems={'center'} justifyContent={{ xs: 'start', sm: 'end' }} sx={{ background: '', height: '100%' }}>
-              <Grid size={'auto'}>            <SelectComponentDark
+              <Grid size={'auto'}>            
+                <SelectComponentDark
                 //label={'Rôle'}
                 value={roleFilter}
                 values={['all', ...ClassUser.ALL_ROLES].map(item => ({ id: item, value: t(item, { ns: NS_ROLES }) }))}
@@ -264,17 +261,17 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
           </div>
 
           <div className="table-body">
-            {users.length === 0 && (
+            {filteredUsers.length === 0 && (
               <div className="empty-state">
                 {t('not-found', { ns: ClassUser.NS_COLLECTION })}
               </div>
             )}
 
-            {users.map((user, i) => (
+            {filteredUsers.map((user, i) => (
               <Box key={`${user?.uid}-${i}`} onClick={() => {
                 setUserDialog(user);
               }} sx={{ cursor: 'pointer' }}>
-                <UserRow user={user} setUserDialog={setUserDialog} lastChild={i === users.length - 1} />
+                <UserRow user={user} setUserDialog={setUserDialog} lastChild={i === filteredUsers.length - 1} />
               </Box>
             ))}
           </div>
@@ -460,8 +457,10 @@ function UserRow({ user, lastChild = false, setUserDialog = null }) {
   const { greyLight, cardColor, text } = theme.palette;
   const { lang } = useLanguage();
   const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
+  const ROLE_CONFIG = ClassUser.ROLE_CONFIG;
+  const STATUS_CONFIG = ClassUser.STATUS_CONFIG;
   const roleCfg = ROLE_CONFIG[user.role];
-  const statusCfg = STATUS_CONFIG_1[user.status || (user.activated ? 'activated' : 'no-activated')];
+  const statusCfg = STATUS_CONFIG[user.status || (user.activated ? 'activated' : 'no-activated')];
 
   return (
     <>
@@ -471,7 +470,7 @@ function UserRow({ user, lastChild = false, setUserDialog = null }) {
           {user?.showAvatar?.({ size: 30, fontSize: '14px' })}
           <div className="user-text">
             <p className="user-name">
-              {user.firstName || user.first_name || ''} {user.lastName || user.last_name || ''}
+              {user.last_name || ''} {user.first_name || ''}
             </p>
             <p className="user-id">{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
           </div>
@@ -479,7 +478,7 @@ function UserRow({ user, lastChild = false, setUserDialog = null }) {
 
         {/* Username */}
         <div className="cell cell-username">
-          <p className="text-main">@{user.username || user.display_name || ''}</p>
+          <p className="text-main">@{user?.display_name || ''}</p>
           <p className="text-sub" style={{ display: 'none' }}>{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${user.language || t(user.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
         </div>
 
@@ -501,8 +500,24 @@ function UserRow({ user, lastChild = false, setUserDialog = null }) {
 
         {/* Groupe / Langue */}
         <div className="cell cell-group">
-          <p className="text-main">{'Dernière connexion'}</p>
-          <p className="text-sub">{user.mainGroup || getFormattedDateCompleteNumeric(user?.last_connexion_time, lang) || ''}</p>
+          {
+            user.status === ClassUser.STATUS.ONLINE && <>
+                      <p className="text-main">{'Connecté'}</p>
+          <p className="text-sub">{`En ligne depuis : ${getFormattedHour(user?.last_connexion_time, lang)}`}</p>
+            </>
+          }
+          {
+            user.status === ClassUser.STATUS.OFFLINE && <>
+                      <p className="text-main">{'Dernière connexion'}</p>
+          <p className="text-sub">{`${getFormattedDateCompleteNumeric(user?.last_connexion_time, lang)}`}</p>
+            </>
+          }
+          {
+            user.status === ClassUser.STATUS.MUST_ACTIVATE && <>
+                      <p className="text-main">{'Non autorisé'}</p>
+          <p className="text-sub">{`---`}</p>
+            </>
+          }
         </div>
 
         {/* Actions */}
@@ -728,46 +743,6 @@ export default function DashboardUsersHome() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-
-  const filteredUsers = useMemo(() => {
-    //const _users = await ClassUser.fetchListFromFirestore();
-    //console.log("USERS memo", _users);
-    let list = [...USERS_MOCK];
-
-    if (roleFilter !== "all") {
-      list = list.filter((u) => u.role === roleFilter);
-    }
-
-    if (statusFilter !== "all") {
-      list = list.filter((u) => u.status === statusFilter);
-    }
-
-    if (search.trim()) {
-      const s = search.toLowerCase();
-      list = list.filter((u) => {
-        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-        return (
-          fullName.includes(s) ||
-          u.username.toLowerCase().includes(s) ||
-          u.email.toLowerCase().includes(s) ||
-          u.schoolEmail.toLowerCase().includes(s)
-        );
-      });
-    }
-
-    if (sortBy === "name") {
-      list.sort((a, b) =>
-        `${a.lastName} ${a.firstName}`.localeCompare(
-          `${b.lastName} ${b.firstName}`
-        )
-      );
-    } else if (sortBy === "role") {
-      list.sort((a, b) => a.role.localeCompare(b.role));
-    }
-    return list;
-  }, [search, roleFilter, statusFilter, sortBy]);
-
-
 
   return (<DashboardPageWrapper
     //title={t('title')} 
