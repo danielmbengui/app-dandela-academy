@@ -311,27 +311,27 @@ function CardFormat({ slot = null, format = "" }) {
   </Grid>)
 }
 function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
-  return (<Stack direction={'row'} spacing={1} sx={{ px: 1, py: 1, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
+  return (<Stack direction={'row'} spacing={1} sx={{ px: 0.5, py: 0.25, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
     <Stack justifyContent={'center'}>
       <Box sx={{ border: `0.1px solid var(--card-border)`, background: '', color: 'var(--primary)', p: 0.3, borderRadius: '100%' }}>
         {icon}
       </Box>
     </Stack>
     <Stack>
-      <Typography color="var(--grey-dark)">{title}</Typography>
+      <Typography color="var(--grey-dark)" fontSize={'0.9rem'}>{title}</Typography>
       {valueComponent}
     </Stack>
   </Stack>)
 }
 
-export default function SessionComponent({}) {
+export default function SessionComponent({ }) {
   const { theme } = useThemeMode();
 
   const { primary } = theme.palette;
   const { user } = useAuth();
   const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
   const { lang } = useLanguage();
-  const { session,slot, update, slots } = useSession();
+  const { session, slot, update, slots } = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
@@ -363,24 +363,31 @@ export default function SessionComponent({}) {
             <h1>{session?.lesson?.translate?.title}</h1>
             <Grid container spacing={1} sx={{ marginY: 1 }}>
               <Grid size={'auto'}>
-                <CardSlot title={t('level')} icon={<IconLevel />} valueComponent={<Typography color="var(--font-color)">{t(session?.level)}</Typography>} />
+                <CardSlot 
+                title={t('level')} 
+                icon={<IconLevel height={18} width={18} />} 
+                valueComponent={<Typography color="var(--font-color)" fontSize={'0.85rem'}>{t(slot?.level)}</Typography>} />
               </Grid>
               <Grid size={'auto'}>
                 <CardSlot title={t('duration')} icon={<IconDuration />} valueComponent={<Typography>
-                  {formatDuration(slot?.getDuration?.())}
+                  {formatDuration(slot?.duration)}
                 </Typography>} />
               </Grid>
               <Grid size={'auto'}>
-                <CardSlot title={t('lang')} icon={<IconTranslation />} valueComponent={<Typography color="var(--font-color)">{t(session?.lang, {ns:NS_LANGS})}</Typography>} />
+                <CardSlot title={t('lang')} icon={<IconTranslation />} valueComponent={<Typography color="var(--font-color)">{t(slot?.lang, { ns: NS_LANGS })}</Typography>} />
               </Grid>
             </Grid>
             <Grid container spacing={1} sx={{ marginY: 1 }}>
-              <Grid size={'auto'}>
-                <CardSlot title={t('location')} icon={<IconLocation />} valueComponent={<Typography color="var(--font-color)">{slot?.location}</Typography>} />
-              </Grid>
-              <Grid size={'auto'}>
-                <CardSlot title={t('url')} icon={<IconLink />} valueComponent={<Link href={slot?.url || ""} target="_blank" style={{ color: "var(--primary)" }}>{session?.code}</Link>} />
-              </Grid>
+              {
+                (slot?.format === ClassSessionSlot.FORMAT.HYBRID || slot?.format === ClassSessionSlot.FORMAT.ONSITE) && <Grid size={'auto'}>
+                  <CardSlot title={t('location')} icon={<IconLocation />} valueComponent={<Typography color="var(--font-color)">{slot?.location}</Typography>} />
+                </Grid>
+              }
+              {
+                (slot?.format === ClassSessionSlot.FORMAT.HYBRID || slot?.format === ClassSessionSlot.FORMAT.ONLINE) && <Grid size={'auto'}>
+                  <CardSlot title={t('url')} icon={<IconLink />} valueComponent={<Link href={slot?.url || ""} target="_blank" style={{ color: "var(--primary)" }}>{session?.code}</Link>} />
+                </Grid>
+              }
               <Grid size={'auto'}></Grid>
               <Grid size={'auto'}></Grid>
               <Grid size={'auto'}></Grid>
@@ -597,7 +604,7 @@ export default function SessionComponent({}) {
         
                 h1 {
                   margin: 0;
-                  font-size: 1.5rem;
+                  font-size: 1.25rem;
                   line-height: 1.5rem;
                 }
         

@@ -53,7 +53,7 @@
   --font-color: #000000;
   --font-reverse-color: #FFFFFF;
   --primary: #1160e5;
-  --primary-shadow: #1160e580;
+  --primary-shadow: rgba(17, 96, 229, 0.33);
 
   --warning: #ffa600;
   --calendar-free: #3ce0a2;

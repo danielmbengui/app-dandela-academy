@@ -101,7 +101,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
             for (const snapshot of snap.docs) {
                 const session = snapshot.data();
                 const lesson = session.uid_lesson ? await ClassLesson.fetchFromFirestore(session.uid_lesson, lang) : null;
-                const teacher = session.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(session.uid_teacher) : null;
+                const teacher = session.uid_teacher ? await ClassUser.fetchFromFirestore(session.uid_teacher) : null;
                 const room = session.uid_room ? await ClassRoom.fetchFromFirestore(session.uid_room) : null;
                 //console.log("IS teacher", teacher)
                 //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
@@ -149,7 +149,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
             console.log("change session")
             const _session = snap.data();
             const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
-            const teacher = _session.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_session.uid_teacher) : null;
+            const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
             //console.log("IS teacher", teacher)
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);

@@ -1,20 +1,13 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
-import { Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, IconButton, Stack, Typography } from '@mui/material';
-import { ClassHardware, ClassDevice } from '@/classes/ClassDevice';
+import { Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useLanguage } from '@/contexts/LangProvider';
-import ButtonCancel from '../elements/ButtonCancel';
-import ButtonConfirm from '../elements/ButtonConfirm';
 import SessionSubscribeComponent from './SessionSubscribeComponent';
 import { useSession } from '@/contexts/SessionProvider';
 
@@ -39,20 +32,10 @@ export default function DialogSubscribeSession({
   const [mode, setMode] = useState('create');
   const [processing, setProcessing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [device, setDevice] = useState(new ClassDevice());
   const [deviceEdit, setDeviceEdit] = useState(null);
 
   const onChangeValue = (e) => {
-    const { name, value, type } = e.target;
-    console.log(name, value);
-    setDevice(prev => {
-      if (!prev || prev === null) {
-        return prev;
-      }
-      prev.updateFirestore({ [name]: type === 'date' ? new Date(value) : value });
-      console.log("WAAAA10", ClassDevice.getTypesByCategory(prev.category))
-      return prev.clone();
-    })
+
   }
 
   const handleClose = () => {

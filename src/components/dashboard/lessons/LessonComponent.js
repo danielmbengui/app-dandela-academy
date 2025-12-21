@@ -1,24 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { IconLessons, IconStudents, IconVisible } from "@/assets/icons/IconsComponent";
-import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
-import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
+import React, { useState } from "react";
+import { IconVisible } from "@/assets/icons/IconsComponent";
+import { ClassLesson } from "@/classes/ClassLesson";
+import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
-import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
 import { useLanguage } from "@/contexts/LangProvider";
-import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import Image from "next/image";
 import BadgeStatusLesson from "@/components/dashboard/lessons/BadgeStatusLesson";
 import { useAuth } from "@/contexts/AuthProvider";
 import { ClassUserIntern } from "@/classes/users/ClassUser";
-import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
-import DialogLesson from "@/components/dashboard/lessons/DialogLesson";
-import { ClassSession } from "@/classes/ClassSession";
+import { SCHOOL_NAME } from "@/contexts/constants/constants";
 import { useSession } from "@/contexts/SessionProvider";
-import DialogSession from "../sessions/DialogSession";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -199,7 +194,9 @@ function SlotRow({ session = null, slot = null }) {
   const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
   const [open,setOpen] = useState(false);
   return (<>
-    <DialogSession isOpen={open} setIsOpen={setOpen} />
+   {
+    // <DialogSession isOpen={open} setIsOpen={setOpen} />
+   }
   <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
     <span style={{
       width: '6px',
@@ -245,46 +242,6 @@ export default function LessonComponent() {
   const formatCfg = FORMAT_CONFIG[lesson?.format];
 
   return (<Stack>
-
-    {
-      user instanceof ClassUserIntern && <div style={{ marginTop: '10px', display: 'none' }}>
-        <ButtonConfirm
-          label="Modifier"
-          loading={isLoading}
-          onClick={async () => {
-            setIsLoading(true);
-            const session = await new ClassSession({
-              //uid = "",
-              //uid_intern = "",
-              uid_lesson: "zlUoi3t14wzC5cNhfS3J",
-              uid_teacher: "HRY7JbnFftWZocKtrIB1N1YuEJw1",
-              //uid_room = "",
-              code: "Session14", // Excel-101
-              title: "Open session",
-              //title_normalized : "",
-              format: ClassSession.FORMAT.HYBRID,
-              price: 2500,
-              currency: "AOA",
-              start_date: new Date(2025, 11, 13, 8),
-              end_date: new Date(2025, 11, 13, 12, 30),
-              seats_availables: 31,
-              seats_taken: 14,
-              //photo_url : "",
-              status: ClassSession.STATUS.DRAFT,
-              //location : "",
-              //url : "",
-              //translate = {},
-              last_subscribe_time: new Date(2025, 11, 12, 23, 59, 59),
-              //created_time = new Date(),
-              //last_edit_time = new Date(),
-            }).createFirestore();
-            //await session;
-            setIsLoading(false);
-          }}
-        />
-        <DialogLesson lesson={lesson} isOpen={editing} setIsOpen={setEditing} />
-      </div>
-    }
     <div className="page">
       <main className="container">
         <section className="hero-card">
@@ -302,9 +259,6 @@ export default function LessonComponent() {
             </p>
 
             <div className="badges">
-
-              <BadgeFormatLesson format={lesson?.format} />
-
               {lesson?.certified && (
                 <span className="badge-cert">
                   🎓 {t('certified')}
@@ -314,20 +268,6 @@ export default function LessonComponent() {
             <p className="hero-description">
               {lesson?.translate?.description}
             </p>
-            <div className="hero-meta">
-              <MetaChip
-                label={t('category')}
-                value={`${t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })}`}
-              />
-              <MetaChip
-                label={t('level')}
-                value={`${t(lesson?.level)}`}
-              />
-              <MetaChip
-                label={t('lang')}
-                value={`${t(lesson?.lang, { ns: NS_LANGS })}`}
-              />
-            </div>
             {
               lesson?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
                 <Image

@@ -99,10 +99,16 @@ exports.updateSessionsStatus = onSchedule(
       const slots_new = [];
       for (const slot of slots) {
         const endDate = toDate(slot.end_date);
+        const lastDate = toDate(slot.last_subscribe_time);
+        
         var slot_new = { ...slot };
         if (!endDate || endDate.getTime() < new Date().getTime()) {
           console.log(`Session ${doc.id} slot ${slot.uid_intern} is past due, updating status to 'finished'`);
           slot_new.status = 'finished';
+        }
+        if (!lastDate || lastDate.getTime() < new Date().getTime()) {
+          console.log(`Session ${doc.id} slot ${slot.uid_intern} doesnt accept any subscribers, updating status to 'expired'`);
+          slot_new.status = 'expired';
         }
         slots_new.push(slot_new);
       }

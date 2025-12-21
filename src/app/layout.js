@@ -10,7 +10,6 @@ import "swiper/css/pagination";
 import "swiper/css/effect-cards";
 import "./globals.css";
 import Providers from "@/contexts/providers";
-import Head from "next/head";
 import { getPreferredLocale } from "@/contexts/i18n/detect-locale";
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_HOME } from "@/contexts/constants/constants_pages";

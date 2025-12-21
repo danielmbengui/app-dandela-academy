@@ -22,10 +22,11 @@ export const formatPrice = (amount, currency = "CHF") => {
   }).format(amount);
 }
 export function formatDuration(duration = 0) {
+  if(duration===0) return `00 minutes`;
   const hour = parseInt(duration);
   const minutes = (duration - hour) * 60;
   if (hour < 1 && minutes > 0) {
-    return `${minutes}min`
+    return minutes.toString().padStart(2, '0') + "min";
   }
   return `${hour}h${minutes > 0 ? minutes : ''}`;
 }
@@ -214,7 +215,7 @@ export function getFormattedDateComplete(date = new Date(), lang = defaultLangua
       second: '2-digit',
     });
   } else {
-    return date;
+    return null;
   }
 }
 export function getFormattedDateCompleteNumeric(date = null, lang = defaultLanguage) {

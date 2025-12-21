@@ -10,6 +10,7 @@
   "price": "Prix",
   "currency": "Devise",
   "start_date": "Date de début",
+  "start_hour": "Heure de début",
   "end_date": "Date de fin",
   "seats_availables_onsite": "Places disponibles en présentiel",
   "seats_availables_online": "Places disponibles en ligne",
@@ -65,5 +66,27 @@
   "btn-unsubscribe": "Quitter",
   "btn-see-lesson": "Voir le cours",
   "btn-edit-slot": "Modifier",
-  "btn-subscribe-user": "Inscrire"
+  "btn-subscribe-user": "Inscrire",
+  "errors": {
+    "uid_lesson": "Sélectionne un cours",
+    "uid_teacher": "Sélectionne un(e) professeur(e)",
+    "uid_room": "Sélectionne une salle",
+    "code": "Entre un code",
+    "title": "Entre un nom",
+    "price": "Indique un prix",
+    "currency": "Indique une devise",
+    "start_date": "Sélectionne une date de début",
+    "start_hour": "Sélectionne une heure de début",
+    "end_date": "Sélectionne une date de fin",
+    "duration": "Sélectionne une durée",
+    "seats_availables_onsite": "Indique le nombre de places disponibles",
+    "seats_availables_online": "Indique le nombre de places disponibles",
+    "format": "Sélectionne un format",
+    "url": "Indique un lien pour le cours",
+    "url-invalid": "Entre une URL valide",
+    "level": "Sélectionne un niveau",
+    "lang": "Sélectionne une langue",
+    "before-continue": "Veuillez corriger les erreurs avant de continuer",
+    "main": "Une erreur est survenue. Veuillez réessayer plus tard."
+  }
 }

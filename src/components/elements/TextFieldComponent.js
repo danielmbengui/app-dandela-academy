@@ -203,6 +203,7 @@ export default function TextFieldComponent({
                 }
             },
             input: {
+                //inputProps: { min: 0, max: 100, step: 1 },
                 sx: {
                     color: cardColor.contrastText, // couleur par défaut
                     background: cardColor.main,
