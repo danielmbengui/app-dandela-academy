@@ -53,6 +53,7 @@
   "seats_availables": "{{count}} seat(s) remaining",
   "certification": "Certification",
   "certification_official": "✅ Certification recognized within the Dandela Academy learning paths.",
+  "certification_not": "This course does not issue an official certificate, but a participation statement can be provided upon request.",
   "certification_block": {
     "title": "🎓 This course grants a certificate issued by Dandela Academy.",
     "items": [
@@ -86,6 +87,7 @@
     "url-invalid": "Enter a valid URL",
     "level": "Select a level",
     "lang": "Select a language",
+    "last_subscribe_time": "You can no longer register since <b>{{date}}</b>",
     "before-continue": "Please fix the errors before continuing",
     "main": "An error occurred. Please try again later."
   }

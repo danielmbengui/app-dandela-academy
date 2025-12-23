@@ -607,7 +607,6 @@ export class ClassSession {
     }
 }
 
-
 export class ClassSessionSlot {
     static COLLECTION = "SESSIONS_SLOTS";
     static COLLECTION_TRANSLATE = "i18n";
@@ -662,28 +661,28 @@ export class ClassSessionSlot {
     static STATUS_CONFIG = Object.freeze({
         open: {
             label: "open", // "Inscriptions ouvertes",
-            color: "#22c55e",
-            glow: "#022c22",
+            color: "var(--session-status-open)",
+            glow: "var(--session-status-open-glow)",
         },
         expired: {
             label: "expired", // "Inscriptions ouvertes",
-            color: "#e70d0dff",
-            glow: "#e70d0d54",
+            color: "var(--session-status-expired)",
+            glow: "var(--session-status-expired-glow)",
         },
         full: {
             label: "full", // "Complet",
-            color: "#f97316",
-            glow: "#451a03",
+            color: "var(--session-status-full)",
+            glow: "var(--session-status-full-glow)",
         },
         finished: {
             label: "finished", // "Terminé",
-            color: "#9ca3af",
-            glow: "#0b1120",
+            color: "var(--session-status-finished)",
+            glow: "var(--session-status-finished-glow)",
         },
         draft: {
             label: "draft", // "Brouillon",
-            color: "#eab308",
-            glow: "#422006",
+            color: "var(--session-status-draft)",
+            glow: "var(--session-status-draft-glow)",
         },
     });
     static SESSION_TYPE = Object.freeze({
@@ -732,7 +731,7 @@ export class ClassSessionSlot {
         this._url = url;
         this._subscribers_online = subscribers_online;
         this._subscribers_onsite = subscribers_onsite;
-        this._last_subscribe_time = last_subscribe_time;
+        this._last_subscribe_time = ClassSession._toJsDate(last_subscribe_time);
         this._created_time = ClassSession._toJsDate(created_time);
         this._last_edit_time = ClassSession._toJsDate(last_edit_time);
         this.teacher = null;

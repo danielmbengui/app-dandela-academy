@@ -86,7 +86,7 @@ exports.updateSessionsStatus = onSchedule(
     // retryCount: 0,               // optionnel: désactiver les retries
   },
   async (event) => {
-    logger.info("hourlyJob triggered", { when: new Date().toISOString() });
+    //logger.info("hourlyJob triggered", { when: new Date().toISOString() });
     const query = firestore.collection("SESSIONS")
     //.limit(500);
     const snap = await query.get();
@@ -97,22 +97,36 @@ exports.updateSessionsStatus = onSchedule(
       const session = doc.data();
       const slots = session?.slots || [];
       const slots_new = [];
+      var session_status = session.status || '';
+      var session_last_edit_time = session.last_edit_time || new Date();
       for (const slot of slots) {
         const endDate = toDate(slot.end_date);
         const lastDate = toDate(slot.last_subscribe_time);
-        
+
         var slot_new = { ...slot };
         if (!endDate || endDate.getTime() < new Date().getTime()) {
-          console.log(`Session ${doc.id} slot ${slot.uid_intern} is past due, updating status to 'finished'`);
+          //console.log(`Session ${doc.id} slot ${slot.uid_intern} is past due, updating status to 'finished'`);
           slot_new.status = 'finished';
+          slot_new.last_edit_time = new Date();
+          if (slots.length === 1) {
+            session_status = 'finished';
+            session_last_edit_time = new Date();
+          }
         }
         if (!lastDate || lastDate.getTime() < new Date().getTime()) {
-          console.log(`Session ${doc.id} slot ${slot.uid_intern} doesnt accept any subscribers, updating status to 'expired'`);
+          //console.log(`Session ${doc.id} slot ${slot.uid_intern} doesnt accept any subscribers, updating status to 'expired'`);
           slot_new.status = 'expired';
+          slot_new.last_edit_time = new Date();
+          if (slots.length === 1) {
+            session_status = 'expired';
+            session_last_edit_time = new Date();
+          }
         }
         slots_new.push(slot_new);
       }
       batch.update(doc.ref, {
+        'status': session_status,
+        'last_edit_time':session_last_edit_time,
         'slots': slots_new,
       }, { merge: true });
       count++;

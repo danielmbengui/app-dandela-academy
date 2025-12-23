@@ -12,6 +12,7 @@ import { useSession } from "@/contexts/SessionProvider";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthProvider";
 import LessonComponent from "@/components/dashboard/lessons/LessonComponent";
+import DialogSession from "@/components/dashboard/sessions/DialogSession";
 
 export default function DashboardOneLesson() {
     const params = useParams();
@@ -21,6 +22,7 @@ export default function DashboardOneLesson() {
     const { lesson, isLoading: isLoadingLessons, getOneLesson, setUidLesson } = useLesson();
     const { session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
+    const [mode, setMode] = useState('read');
 
     console.log("LESSSON", lesson, session);
     useEffect(() => {

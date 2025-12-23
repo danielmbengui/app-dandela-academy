@@ -16,8 +16,7 @@ import { useSession } from '@/contexts/SessionProvider';
 import { ClassLesson } from '@/classes/ClassLesson';
 import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
 import DialogSession from '@/components/dashboard/sessions/DialogSession';
-
-export default function DashboardCalendar() {
+export default function CalendarPage() {
   const { t } = useTranslation([NS_DASHBOARD_CALENDAR, ClassLesson.NS_COLLECTION]);
   const {
     //session,
@@ -32,7 +31,7 @@ export default function DashboardCalendar() {
   } = useSession();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState('read');
+  const [mode, setMode] = useState('');
   //const [session, setSession] = useState(false);
   //const [slots, setSlots] = useState([]);
   //const [slot, setSlot] = useState(null);
@@ -45,8 +44,8 @@ export default function DashboardCalendar() {
   } = t('calendar', { returnObjects: true });
   const { lang } = useLanguage();
   const handleDateClick = (info) => {
-    console.log('Click sur le jour :', info.dateStr, info)
-    //changeSession("pyLG1VRKbJo22kqlnS3Z")
+    console.log('Click sur le jour :', info.dateStr,"info", info)
+    console.log("new date", new Date(info.dateStr),)
     //alert(info.dateStr)
   }
   const handleEventClick = (info) => {
@@ -181,8 +180,8 @@ export default function DashboardCalendar() {
     {
       isLoading && <CircularProgress />
     }
-    {
-      
+    { 
+    
       <DialogSession
         //session={session} 
         //setUidSession={setUidSession}

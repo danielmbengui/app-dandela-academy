@@ -155,6 +155,45 @@ function MetaChip({ label, value }) {
     </>
   );
 }
+function MetaChipIcon({ label, value, icon = <></> }) {
+  return (
+    <>
+      <div className="meta-chip">
+        <Stack justifyContent={'center'}>
+          <Box sx={{ border: `0.1px solid var(--card-border)`, background: '', color: 'var(--primary)', p: 0.3, borderRadius: '100%' }}>
+            {icon}
+          </Box>
+        </Stack>
+        <span className="meta-label">{label}</span>
+        <span className="meta-value">{value}</span>
+      </div>
+
+      <style jsx>{`
+        .meta-chip {
+          border-radius: 999px;
+          border: 0.1px solid var(--card-border);
+          background: #020617;
+          background: transparent;
+          padding: 4px 10px;
+          font-size: 0.78rem;
+          display: inline-flex;
+          gap: 6px;
+        }
+
+        .meta-label {
+          color: #9ca3af;
+          color: var(--font-color);
+        }
+
+        .meta-value {
+          color: var(--font-color);
+          color: #9ca3af;
+          font-weight: 500;
+        }
+      `}</style>
+    </>
+  );
+}
 
 /** Petit composant pour les lignes d'info à droite */
 function InfoRow({ label, value }) {
@@ -213,7 +252,7 @@ function CardFormat({ slot = null, setSession = null, format = "", session = nul
       //IF SESSION
       //onChange={(e)=>onChangeValue(e, 'session')}
       const slot = prev.slots[0] || new ClassSessionSlot();
-      slot.update({ [name]: type==='number' ? parseInt(value) : value });
+      slot.update({ [name]: type === 'number' ? parseInt(value) : value });
       prev.update({ slots: [slot] });
       return prev.clone();
     });
@@ -337,7 +376,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
     open: false,
     setOpen: null
   });
-  const defaultSession = new ClassSession({ slots: [new ClassSessionSlot({ uid_intern: 1,status:ClassSessionSlot.STATUS.OPEN })] });
+  const defaultSession = new ClassSession({ slots: [new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN })] });
   useEffect(() => {
     if (mode === 'create') {
       setSessionNew(defaultSession);
@@ -441,7 +480,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
             const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
             const slot = prev.slots[0] || new ClassSessionSlot();
-            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite:count });
+            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: count });
             prev.update({ uid_room: room?.uid, room: room });
             console.log("PROPE", prev);
             return prev.clone();
@@ -450,7 +489,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
             const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
             const slot = prev.slots[0] || new ClassSessionSlot();
-            slot.update({ location: `${room?.school?.name} - ${room?.name}`,seats_availables_online:0, seats_availables_onsite:count });
+            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_online: 0, seats_availables_onsite: count });
             prev.update({ uid_room: room?.uid, room: room });
             console.log("PROPE", prev);
             return prev.clone();
@@ -459,7 +498,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
             const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
             const slot = prev.slots[0] || new ClassSessionSlot();
-            slot.update({ location: `${room?.school?.name} - ${room?.name}`,seats_availables_onsite:0 });
+            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: 0 });
             prev.update({ uid_room: room?.uid, room: room });
             console.log("PROPE", prev);
             return prev.clone();
@@ -711,6 +750,9 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
               <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(sessionNew?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()}</p>
               <h1>{sessionNew?.lesson?.translate?.title}</h1>
               <Grid container spacing={1} sx={{ marginY: 1 }}>
+                <Grid>
+                  <MetaChipIcon title={t('level')} />
+                </Grid>
                 <Grid size={'auto'}>
                   <CardSlot title={t('level')} icon={<IconLevel />} valueComponent={<Typography color="var(--font-color)">{t(sessionNew?.level)}</Typography>} />
                 </Grid>

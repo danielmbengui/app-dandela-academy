@@ -3,7 +3,7 @@ import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -14,6 +14,8 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { ClassUserIntern } from "@/classes/users/ClassUser";
 import { SCHOOL_NAME } from "@/contexts/constants/constants";
 import { useSession } from "@/contexts/SessionProvider";
+import DialogSession from "../sessions/DialogSession";
+import { ClassSessionSlot } from "@/classes/ClassSession";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -191,28 +193,35 @@ function InfoRow({ label, value }) {
 
 function SlotRow({ session = null, slot = null }) {
   const { sessions, setUidSession, setUidSlot, slots } = useSession();
-  const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
-  const [open,setOpen] = useState(false);
+  //const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState('read');
+  const STATUS_CONFIG = ClassSessionSlot.STATUS_CONFIG || [];
+  const colorSlot = STATUS_CONFIG[slot?.status];
   return (<>
-   {
-    // <DialogSession isOpen={open} setIsOpen={setOpen} />
-   }
-  <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
-    <span style={{
-      width: '6px',
-      height: '6px',
-      borderRadius: '999px',
-      background: colorSlot,
-      boxShadow: colorSlot === 'green' ? '0 0 8px green' : '',
-    }} />
-    <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.title} (${slot?.uid_intern})`}</Typography>
-    <Typography variant="caption">{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
-    {
-      colorSlot === 'green' && <Box
+    <DialogSession
+      mode={mode}
+      setMode={setMode}
+      isOpen={open}
+      setIsOpen={setOpen}
+    />
+    <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
+      <span style={{
+        width: '6px',
+        height: '6px',
+        borderRadius: '999px',
+        background: colorSlot?.color,
+        boxShadow: `0px 0px 8px ${colorSlot?.glow}`,
+      }} />
+      <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.code} (${session?.uid_intern})`}</Typography>
+      <Typography variant="caption">{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
+      <Box
         onClick={() => {
+          setMode('read');
           setUidSession(session?.uid);
           setUidSlot(slot?.uid_intern);
           setOpen(true);
+
         }}
         sx={{
           //color: 'red',
@@ -221,8 +230,7 @@ function SlotRow({ session = null, slot = null }) {
         }}>
         <IconVisible height={20} />
       </Box>
-    }
-  </Stack>
+    </Stack>
   </>)
 }
 
@@ -231,11 +239,11 @@ export default function LessonComponent() {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   //const [lesson, setLesson] = useState(null);
-  const {lesson} = useLesson();
-  const { sessions} = useSession();
+  const { lesson } = useLesson();
+  const { sessions, isLoading: isLoadingSessions } = useSession();
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const seatsLeft = Math.max(lesson?.seats_availables || 0 - lesson?.seats_taken || 0, 0);
   const isFull = seatsLeft <= 0 && !isEnrolled;
@@ -291,47 +299,52 @@ export default function LessonComponent() {
 
           {/* Bloc inscription intégré dans le hero */}
           <aside className="hero-right">
-            <div className="hero-right-top">
-              <Stack spacing={1}>
-                <p className="teacher-label">{t('next-sessions', { ns: NS_LESSONS_ONE })}</p>
-                <Stack spacing={0.5}>
-                  {
-                    sessions.map((session, i) => {
-                      const today = new Date();
-                      const slots = session.slots?.filter(slot => slot.start_date.getTime() >= today.getTime()) || [];
+            {
+              !isLoadingSessions && sessions.length && <>
+                <div className="hero-right-top">
+                  <Stack spacing={1}>
+                    <p className="teacher-label">{t('next-sessions', { ns: NS_LESSONS_ONE })}</p>
+                    <Stack spacing={0.5}>
 
-                      //  console.log("SSSLOTS", slots)
-                      return (slots.sort((a, b) => a.uid_intern - b.uid_intern).map((slot, i) => {
-                        return (<div key={`${session.uid}-${slot.uid_intern}-${i}`}>
-                          <SlotRow session={session} slot={slot} />
-                        </div>)
-                      }))
+                      {
+                        sessions.map((session, i) => {
+                          const today = new Date();
+                          session.sortSlots('start_date', 'asc');
+                          const slots = session.slots?.filter(slot => slot.start_date.getTime() >= today.getTime()) || [];
 
-                    })
-                  }
-                </Stack>
-              </Stack>
-            </div>
-            <div className="hero-right-top">
-              <Stack spacing={1}>
-                <p className="teacher-label">{t('previous-sessions', { ns: NS_LESSONS_ONE })}</p>
-                <Stack spacing={0.5}>
-                  {
-                    sessions.map((session, i) => {
-                      const today = new Date();
-                      session.sortSlots('start_date', 'asc');
-                      const slots = session?.slots?.filter(slot => slot.start_date.getTime() < today.getTime()) || [];
-                      return (slots/*.filter(slot => slot.start_date.getTime() < today.getTime()).sort((a, b) => a.uid_intern - b.uid_intern)*/.map((slot, i) => {
-                        return (<div key={`${session.uid}-${slot.uid_intern}-${i}`}>
-                          <SlotRow session={session} slot={slot} />
-                        </div>)
-                      }))
+                          //  console.log("SSSLOTS", slots)
+                          return (slots.sort((a, b) => a.uid_intern - b.uid_intern).map((slot, i) => {
+                            return (<div key={`${session.uid}-${slot.uid_intern}-${i}`}>
+                              <SlotRow session={session} slot={slot} />
+                            </div>)
+                          }))
 
-                    })
-                  }
-                </Stack>
-              </Stack>
-            </div>
+                        })
+                      }
+                    </Stack>
+                  </Stack>
+                </div>
+                <div className="hero-right-top">
+                  <Stack spacing={1}>
+                    <p className="teacher-label">{t('previous-sessions', { ns: NS_LESSONS_ONE })}</p>
+                    <Stack spacing={0.5}>
+                      {
+                        sessions.map((session, i) => {
+                          const today = new Date();
+                          session.sortSlots('start_date', 'asc');
+                          const slots = session?.slots?.filter(slot => slot.start_date.getTime() < today.getTime()) || [];
+                          return (slots/*.filter(slot => slot.start_date.getTime() < today.getTime()).sort((a, b) => a.uid_intern - b.uid_intern)*/.map((slot, i) => {
+                            return (<div key={`${session.uid}-${slot.uid_intern}-${i}`}>
+                              <SlotRow session={session} slot={slot} />
+                            </div>)
+                          }))
+                        })
+                      }
+                    </Stack>
+                  </Stack>
+                </div>
+              </>
+            }
 
           </aside>
         </section>
@@ -381,15 +394,6 @@ export default function LessonComponent() {
 
           {/* COL DROITE : infos pratiques & certification */}
           <div className="side-col">
-            <div className="card">
-              <h2>{t('modalities')}</h2>
-              <InfoRow label={t('format')} value={t(lesson?.format)} />
-              <InfoRow label={t('category')} value={t(lesson?.category)} />
-              <InfoRow label={t('duration')} value={formatDuration(lesson?.duration)} />
-              <InfoRow label={t('level')} value={t(lesson?.level)} />
-              <InfoRow label={t('lang', { ns: NS_LANGS })} value={t(lesson?.lang, { ns: NS_LANGS })} />
-            </div>
-
             <div className="card">
               <h2>{t('certification')}</h2>
               {lesson?.certified ? (

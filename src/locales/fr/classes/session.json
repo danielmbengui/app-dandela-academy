@@ -53,6 +53,7 @@
   "seats_availables": "{{count}} place(s) restante(s)",
   "certification": "Certification",
   "certification_official": "✅ Certification reconnue dans le cadre des parcours Dandela Academy.",
+  "certification_not": "Ce cours ne délivre pas de certificat officiel mais une attestation de participation peut être fournie sur demande.",
   "certification_block": {
     "title": "🎓 Ce cours donne droit à un certificat délivré par Dandela Academy.",
     "items": [
@@ -86,6 +87,7 @@
     "url-invalid": "Entre une URL valide",
     "level": "Sélectionne un niveau",
     "lang": "Sélectionne une langue",
+    "last_subscribe_time": "Tu ne peux plus t'inscrire depuis le <b>{{date}}</b>",
     "before-continue": "Veuillez corriger les erreurs avant de continuer",
     "main": "Une erreur est survenue. Veuillez réessayer plus tard."
   }
