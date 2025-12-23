@@ -76,7 +76,8 @@ export function SessionProvider({ children, uidLesson = "" }) {
         const colRef = ClassSession.colRef(); // par ex.
         const constraints = [];
         if (!(user instanceof ClassUserIntern)) {
-            constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
+            //constraints.push(where("start_date", ">", new Date()));
+            constraints.push(where("status", "in", [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED]));
         }
         if (uidLesson) {
             constraints.push(where("uid_lesson", "==", uidLesson));

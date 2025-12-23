@@ -347,7 +347,12 @@ function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
   </Stack>)
 }
 
-function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = null, errors = {}, setErrors = null }) {
+function RenderContent({ mode = 'create',
+  sessionNew = null, setSessionNew = null,
+  errors = {}, setErrors = null,
+  initStartDate = null,
+  setInitStartDate = null,
+}) {
   const { theme } = useThemeMode();
   const { primary } = theme.palette;
   const { user } = useAuth();
@@ -358,7 +363,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
   const { session, update, slots } = useSession();
   const { rooms, getOneRoom } = useRoom();
   const { lessons, getOneLesson } = useLesson();
-  const [slot, setSlot] = useState(new ClassSessionSlot());
+  const [slot, setSlot] = useState(new ClassSessionSlot({uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date:initStartDate}));
   //const [sessionNew, setSessionNew] = useState(null);
   //const [errors, setErrors] = useState({});
   const [proessing, setProcessing] = useState(false);
@@ -376,7 +381,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
     open: false,
     setOpen: null
   });
-  const defaultSession = new ClassSession({ slots: [new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN })] });
+  const defaultSession = new ClassSession({ slots: [slot] });
   useEffect(() => {
     if (mode === 'create') {
       setSessionNew(defaultSession);
@@ -405,7 +410,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
       //IF SESSION
       //onChange={(e)=>onChangeValue(e, 'session')}
       //console.log("PROPE", time, time?.getHours(), time?.getMinutes());
-      const slot = prev.slots[0] || new ClassSessionSlot();
+      //const slot = prev.slots[0] || new ClassSessionSlot();
       const hours = time?.getHours() || 0;
       const minutes = time?.getMinutes() || 0;
       var date = value ? new Date(value) : null;
@@ -414,7 +419,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
         date.setMinutes(minutes);
         date.setSeconds(0);
       }
-      const endDate = calculateEndDate(date, sessionNew?.slots?.[0]?.duration);
+      const endDate = calculateEndDate(date, slot?.duration);
       slot.update({ [name]: date, end_date: endDate });
       prev.update({ slots: [slot] });
       //console.log("VALUE", prev, prev.clone())
@@ -429,7 +434,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
       //IF SESSION
       //onChange={(e)=>onChangeValue(e, 'session')}
       var valueData = value ? new Date(value) : null;
-      const slot = prev.slots[0] || new ClassSessionSlot();
+      //const slot = prev.slots[0] || new ClassSessionSlot();
       var date = day || new Date();
       const hours = valueData.getHours();
       const minutes = valueData.getMinutes();
@@ -437,7 +442,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
       date.setMinutes(minutes);
       date.setSeconds(0);
       //console.log("PROPE", valueData, hours, minutes, date);
-      const endDate = calculateEndDate(date, sessionNew?.slots?.[0]?.duration);
+      const endDate = calculateEndDate(date, slot?.duration);
       slot.update({ start_date: date, end_date: endDate });
       prev.update({ slots: [slot] });
       //console.log("VALUE", date)
@@ -449,7 +454,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
     setErrors(prev => ({ ...prev, [name]: '' }));
     setSessionNew(prev => {
       if (!prev || prev === null) return defaultSession;
-      const slot = prev.slots[0] || new ClassSessionSlot();
+      //const slot = prev.slots[0] || new ClassSessionSlot();
       const endDate = calculateEndDate(day, value);
       //const hours = parseInt(value);
       //const minutes = (value - hours) * 60;
@@ -472,14 +477,14 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
       //onChange={(e)=>onChangeValue(e, 'session')}
 
       if (mode === 'slot') {
-        const slot = prev.slots[0] || new ClassSessionSlot();
+        //const slot = prev.slots[0] || new ClassSessionSlot();
         slot.update({ [name]: value });
         prev.update({ slots: [slot] });
         if (name === 'format') {
           if (value === ClassSessionSlot.FORMAT.HYBRID || value === ClassSessionSlot.FORMAT.ONSITE) {
             const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
-            const slot = prev.slots[0] || new ClassSessionSlot();
+            //const slot = prev.slots[0] || new ClassSessionSlot();
             slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: count });
             prev.update({ uid_room: room?.uid, room: room });
             console.log("PROPE", prev);
@@ -488,7 +493,7 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
           if (value === ClassSessionSlot.FORMAT.ONSITE) {
             const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
-            const slot = prev.slots[0] || new ClassSessionSlot();
+            //const slot = prev.slots[0] || new ClassSessionSlot();
             slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_online: 0, seats_availables_onsite: count });
             prev.update({ uid_room: room?.uid, room: room });
             console.log("PROPE", prev);
@@ -496,8 +501,8 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
           }
           if (value === ClassSessionSlot.FORMAT.ONLINE) {
             const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
-            const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
-            const slot = prev.slots[0] || new ClassSessionSlot();
+            //const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
+            //const slot = prev.slots[0] || new ClassSessionSlot();
             slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: 0 });
             prev.update({ uid_room: room?.uid, room: room });
             console.log("PROPE", prev);
@@ -566,12 +571,12 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                     disablePast={true}
                     disableFuture={false}
                     label={t('start_date')}
-                    value={sessionNew?.slots?.[0]?.start_date || ""}
-                    onChange={(e) => onChangeDateValue(e, sessionNew?.slots?.[0]?.start_date)}
+                    value={slot?.start_date || ""}
+                    onChange={(e) => onChangeDateValue(e, slot?.start_date)}
                     error={errors?.start_date}
                   />
                   {
-                    sessionNew?.slots?.[0]?.start_date && <Stack spacing={1.5}>
+                    slot?.start_date && <Stack spacing={1.5}>
                       <Grid container direction={'row'} spacing={1.5} alignItems={'center'}>
                         <Grid size={{ xs: 7, sm: 5 }}>
                           <FieldComponent
@@ -580,13 +585,13 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                             //disablePast={true}
                             disableFuture={false}
                             label={t('start_hour')}
-                            value={sessionNew?.slots?.[0]?.start_date || ""}
-                            onChange={(e) => onChangeHourValue(e, sessionNew?.slots?.[0]?.start_date)}
+                            value={slot?.start_date || ""}
+                            onChange={(e) => onChangeHourValue(e, slot?.start_date)}
                             error={errors?.start_hour}
                           />
                         </Grid>
                         {
-                          sessionNew?.slots?.[0]?.start_date && <Grid size={'grow'}>
+                          slot?.start_date && <Grid size={'grow'}>
                             <SelectComponentDark
                               name={'duration'}
                               label={t('duration')}
@@ -594,28 +599,26 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                                 value: formatDuration(duration),
                                 id: duration
                               }))}
-                              value={sessionNew?.slots?.[0]?.duration || 0}
-                              onChange={(e) => onChangeDurationValue(e, sessionNew?.slots?.[0]?.start_date)}
+                              value={slot?.duration || 0}
+                              onChange={(e) => onChangeDurationValue(e, slot?.start_date)}
                               error={errors?.duration}
-                              hasNull={!(sessionNew?.slots?.[0]?.duration)}
+                              hasNull={!(slot?.duration)}
                             />
                           </Grid>
                         }
 
                       </Grid>
                       {
-                        sessionNew?.slots?.[0]?.start_date && sessionNew?.slots?.[0]?.end_date && sessionNew?.slots?.[0]?.duration && <FieldTextComponent
+                        slot?.start_date && slot?.end_date && slot?.duration && <FieldTextComponent
                           name={'end_date'}
                           //type="hour"
                           // disablePast={true}
                           // disableFuture={false}
                           label={t('end_date')}
-                          value={`${getFormattedDateNumeric(sessionNew?.slots?.[0]?.end_date)} - ${getFormattedHour(sessionNew?.slots?.[0]?.end_date)}`}
-                          //onChange={(e) => onChangeHourValue(e, sessionNew?.slots?.[0]?.end_date)}
+                          value={`${getFormattedDateNumeric(slot?.end_date)} - ${getFormattedHour(slot?.end_date)}`}
                           error={errors?.end_date}
                         />
                       }
-
                     </Stack>
                   }
                 </Stack>
@@ -631,9 +634,9 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                       value: t(lang, { ns: NS_LANGS }),
                       id: lang
                     }))}
-                    value={sessionNew?.slots?.[0]?.lang || ""}
+                    value={slot?.lang || ""}
                     onChange={(e) => onChangeValue(e, 'slot')}
-                    hasNull={!(sessionNew?.slots?.[0]?.lang)}
+                    hasNull={!(slot?.lang)}
                     error={errors?.lang}
                   />
                   <SelectComponentDark
@@ -643,9 +646,9 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                       value: t(level),
                       id: level
                     }))}
-                    value={sessionNew?.slots?.[0]?.level || ""}
+                    value={slot?.level || ""}
                     onChange={(e) => onChangeValue(e, 'slot')}
-                    hasNull={!(sessionNew?.slots?.[0]?.level)}
+                    hasNull={!(slot?.level)}
                     error={errors?.level}
                   />
                   <SelectComponentDark
@@ -655,19 +658,19 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                       value: t(format),
                       id: format
                     }))}
-                    value={sessionNew?.slots?.[0]?.format || ""}
+                    value={slot?.format || ""}
                     onChange={(e) => onChangeValue(e, 'slot')}
-                    hasNull={!(sessionNew?.slots?.[0]?.format)}
+                    hasNull={!(slot?.format)}
                     error={errors?.format}
                   />
 
                   <Grid container spacing={1}>
                     {
-                      (sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.HYBRID || sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.ONLINE) &&
+                      (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === ClassSession.FORMAT.ONLINE) &&
                       <CardFormat
                         session={sessionNew}
                         setSession={setSessionNew}
-                        slot={sessionNew?.slots?.[0]}
+                        slot={slot}
                         errors={errors}
                         setErrors={setErrors}
                         format={'online'} />
@@ -702,81 +705,10 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
                   </>
                 ) : (
                   <p className="cert-main">
-                    Ce cours ne délivre pas de certificat officiel mais une
-                    attestation de participation peut être fournie sur demande.
+                    {t('certification_not')}
                   </p>
                 )}
-                <FieldTextComponent
-                  name={'uid_lesson_result'}
-                  //type="date"
-                  //disablePast={true}
-                  //disableFuture={false}
-                  label={t('uid_lesson')}
-                  value={sessionNew?.lesson?.translate?.title || "---"}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setSessionNew(prev => {
-                      if (!prev || prev === null) return defaultSession;
-                      const slot = prev.slots[0] || new ClassSessionSlot();
-                      slot.update({ start_date: value ? new Date(value) : null });
-                      prev.update({ slots: [slot] });
-                      return prev.clone();
-                    });
-                  }}
-                />
               </Stack>
-
-              <SelectComponentDark
-                label={t('uid_lesson')}
-                values={lessons.map(lesson => ({
-                  value: lesson.translate?.title || lesson.title,
-                  id: lesson.uid
-                }))}
-                value={sessionNew?.uid_lesson || ""}
-                onChange={(e) => {
-                  const { value } = e.target;
-                  setSessionNew(prev => {
-                    if (!prev || prev === null) return defaultSession;
-                    const lesson = getOneLesson(value);
-                    const slot = prev.slots[0] || new ClassSessionSlot();
-                    slot.update({ level: lesson?.level || '' });
-                    prev.update({ uid_lesson: value, lesson: lesson, level: lesson?.level || '', lang: lesson?.lang || '', slots: [slot] });
-                    console.log("VALUE", prev, prev.clone())
-                    return prev.clone();
-                  });
-                }}
-              />
-              <MetaChip label={t('uid_intern')} value={slot?.uid_intern} />
-              <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(sessionNew?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()}</p>
-              <h1>{sessionNew?.lesson?.translate?.title}</h1>
-              <Grid container spacing={1} sx={{ marginY: 1 }}>
-                <Grid>
-                  <MetaChipIcon title={t('level')} />
-                </Grid>
-                <Grid size={'auto'}>
-                  <CardSlot title={t('level')} icon={<IconLevel />} valueComponent={<Typography color="var(--font-color)">{t(sessionNew?.level)}</Typography>} />
-                </Grid>
-                <Grid size={'auto'}>
-                  <CardSlot title={t('duration')} icon={<IconDuration />} valueComponent={<Typography>
-                    {formatDuration(slot?.getDuration?.())}
-                  </Typography>} />
-                </Grid>
-                <Grid size={'auto'}>
-                  <CardSlot title={t('lang')} icon={<IconTranslation />} valueComponent={<Typography color="var(--font-color)">{t(sessionNew?.lang, { ns: NS_LANGS })}</Typography>} />
-                </Grid>
-              </Grid>
-              <Grid container spacing={1} sx={{ marginY: 1 }}>
-                <Grid size={'auto'}>
-                  <CardSlot title={t('location')} icon={<IconLocation />} valueComponent={<Typography color="var(--font-color)">{slot?.location}</Typography>} />
-                </Grid>
-                <Grid size={'auto'}>
-                  <CardSlot title={t('url')} icon={<IconLink />} valueComponent={<Link href={slot?.url || ""} target="_blank" style={{ color: "var(--primary)" }}>{sessionNew?.code}</Link>} />
-                </Grid>
-                <Grid size={'auto'}></Grid>
-                <Grid size={'auto'}></Grid>
-                <Grid size={'auto'}></Grid>
-                <Grid size={'auto'}></Grid>
-              </Grid>
             </div>
           }
         </section>
@@ -1201,7 +1133,13 @@ function RenderContent({ mode = 'create', sessionNew = null, setSessionNew = nul
   </Stack>);
 }
 
-export default function SessionCreateComponent({ sessionNew = null, setSessionNew = null, errors = {}, setErrors = null, mode = 'create' }) {
+export default function SessionCreateComponent({
+  sessionNew = null, setSessionNew = null,
+  errors = {}, setErrors = null,
+  mode = 'create',
+  initStartDate = null,
+  setInitStartDate = null,
+}) {
   return (<UsersProvider>
     <RoomProvider>
       <RenderContent
@@ -1209,7 +1147,10 @@ export default function SessionCreateComponent({ sessionNew = null, setSessionNe
         setSessionNew={setSessionNew}
         errors={errors}
         setErrors={setErrors}
-        mode={mode} />
+        mode={mode}
+        initStartDate={initStartDate}
+        setInitStartDate={setInitStartDate}
+      />
     </RoomProvider>
   </UsersProvider>);
 }

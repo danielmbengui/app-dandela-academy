@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo, useState } from 'react';
 import { IconCalendar } from "@/assets/icons/IconsComponent";
-import { getFormattedHour } from "@/contexts/functions";
+import { getFormattedHour, getStartOfDay } from "@/contexts/functions";
 import { NS_DASHBOARD_CALENDAR, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,8 @@ import { useSession } from '@/contexts/SessionProvider';
 import { ClassLesson } from '@/classes/ClassLesson';
 import ButtonConfirm from '@/components/dashboard/elements/ButtonConfirm';
 import DialogSession from '@/components/dashboard/sessions/DialogSession';
+import { useAuth } from '@/contexts/AuthProvider';
+import { ClassUserIntern } from '@/classes/users/ClassUser';
 export default function CalendarPage() {
   const { t } = useTranslation([NS_DASHBOARD_CALENDAR, ClassLesson.NS_COLLECTION]);
   const {
@@ -25,13 +27,15 @@ export default function CalendarPage() {
     //changeSession,
     isLoading,
     setUidSession,
-   //slot,
+    //slot,
     setUidSlot,
     slots
   } = useSession();
+  const { user } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
   //const [session, setSession] = useState(false);
   //const [slots, setSlots] = useState([]);
   //const [slot, setSlot] = useState(null);
@@ -44,8 +48,17 @@ export default function CalendarPage() {
   } = t('calendar', { returnObjects: true });
   const { lang } = useLanguage();
   const handleDateClick = (info) => {
-    console.log('Click sur le jour :', info.dateStr,"info", info)
-    console.log("new date", new Date(info.dateStr),)
+    console.log('Click sur le jour :', info.dateStr, "info", info)
+    console.log("new date", new Date(info.dateStr),);
+    if (user instanceof ClassUserIntern) {
+      const date = info.date || new Date(info.dateStr) || null;
+      if (date && getStartOfDay(date) < getStartOfDay(new Date())) {
+        return;
+      }
+      setSelectedDate(date);
+      setMode('create');
+      setIsOpen(true);
+    }
     //alert(info.dateStr)
   }
   const handleEventClick = (info) => {
@@ -180,8 +193,8 @@ export default function CalendarPage() {
     {
       isLoading && <CircularProgress />
     }
-    { 
-    
+    {
+
       <DialogSession
         //session={session} 
         //setUidSession={setUidSession}
@@ -190,8 +203,10 @@ export default function CalendarPage() {
         setMode={setMode}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        initStartDate={selectedDate}
+        setInitStartDate={setSelectedDate}
       />
-      
+
     }
     {
       !isLoading && <Stack
@@ -209,6 +224,7 @@ export default function CalendarPage() {
           onClick={() => {
             setMode('create');
             setIsOpen(true);
+            setSelectedDate(null);
           }}
         />
         <Box sx={{

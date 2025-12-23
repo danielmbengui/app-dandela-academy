@@ -302,51 +302,7 @@ export default function DialogSession({
                             }
                         </DialogContent>
                         <DialogActions sx={{ minHeight: '20px' }}>
-                            {
-                                /*
-                                mode === 'read' && <Stack direction={'row'} spacing={1}>
-                                    {
-                                        !path?.startsWith(PAGE_LESSONS) && <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
-                                            <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target="_blank" style={{ textDecoration: 'none' }}>
-                                                <ButtonCancel label={t('btn-see-lesson')} variant='outlined' />
-                                            </Link>
-                                        </Stack>
-                                    }
-                                    {
-                                        user instanceof ClassUserAdministrator && <Box>
-                                            <ButtonConfirm
-                                                label={t('btn-subscribe-user')}
-                                            />
-                                        </Box>
-                                    }
-                                    {
-                                        user instanceof ClassUserAdministrator && <Stack justifyContent={'center'} sx={{ background: '', cursor: 'pointer' }}>
-                                            <IconEdit color="var(--primary)" />
-                                        </Stack>
-                                    }
-                                </Stack>
-                                */
-                            }
-                            {
-                                /*
-                                mode === 'create' && <Stack alignItems={'center'} direction={'row'} spacing={1}>
-                                    {
-                                        errors.main && <AlertComponent severity="error" title={errors.main} />
-                                    }
-                                    {
-
-                                        <Box>
-                                            <ButtonConfirm
-                                                label={'Créer'}
-                                                loading={processing}
-                                                disabled={disabledCreate}
-                                                onClick={onSubmit}
-                                            />
-                                        </Box>
-                                    }
-                                </Stack>
-                                */
-                            }
+                         
                         </DialogActions>
                     </>
                 }

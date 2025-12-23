@@ -1,20 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconCalendar, IconCertificate, IconHour, IconLessons, IconTeachers } from "@/assets/icons/IconsComponent";
-import { ClassSession } from "@/classes/ClassSession";
+import { IconCalendar, IconCertificate, IconEdit, IconHour, IconLessons, IconTeachers } from "@/assets/icons/IconsComponent";
+import { ClassSession, ClassSessionSlot } from "@/classes/ClassSession";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useSession } from "@/contexts/SessionProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, Typography } from "@mui/material";
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, Typography } from "@mui/material";
 import { usePathname } from "next/navigation";
-import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, isValidURL } from "@/contexts/functions";
 import CloseIcon from '@mui/icons-material/Close';
+import SessionComponent from "./SessionComponent";
+import SessionCreateComponent from "./SessionCreateComponent";
+import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { ClassUserAdministrator } from "@/classes/users/ClassUser";
+import Link from "next/link";
+import ButtonCancel from "../elements/ButtonCancel";
+import ButtonConfirm from "../elements/ButtonConfirm";
+import AlertComponent from "@/components/elements/AlertComponent";
 
 function MetaChipTitle({ label, value, status = '' }) {
     const STATUS_CONFIG = ClassSession.STATUS_CONFIG;
     const colors = STATUS_CONFIG[status] || [];
-    function IconTitle () {
+    function IconTitle() {
         switch (label) {
             case 'certified':
                 return <IconCertificate height={14} width={14} />;
@@ -68,10 +76,13 @@ export default function DialogSession({
     mode = '',
     setMode = null,
     isOpen = false,
-    setIsOpen = null
+    setIsOpen = null,
+    initStartDate=null,
+    setInitStartDate=null,
 }) {
     const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     const errorsTranslate = t('errors', { returnObjects: true });
+    const dialogTranslate = t('dialog', { returnObjects: true });
     const { user } = useAuth();
     const STATUS_CONFIG = ClassSession.STATUS_CONFIG;
     const { session, slot, setUidSession, setUidSlot } = useSession();
@@ -85,17 +96,93 @@ export default function DialogSession({
     const [wantSubscribe, setWantSubscribe] = useState(false);
     const [disabledCreate, setDisabledCreate] = useState(false);
     const [processing, setProcessing] = useState(false);
+    useEffect(() => {
+        var disabled = false;
+        setDisabledCreate(disabled);
+    }, [sessionNew]);
     const handleClose = () => {
+        setSessionNew(null);
         setUidSession(null);
         setUidSlot(null);
         setIsOpen(false);
         setMode('');
+        setInitStartDate(null);
+        setErrors({});
+        setProcessing(false);
+        setDisabledCreate(false);
     };
-    useEffect(() => {
-        var disabled = false;
+    const onCreateSession = async () => {
+        setProcessing(true);
+        const _errors = {};
+        try {
+            setErrors({});
+            setDisabledCreate(false);
+            if (!sessionNew?.uid_lesson) {
+                _errors.uid_lesson = errorsTranslate.uid_lesson;
+            }
+            if (!sessionNew?.uid_teacher) {
+                _errors.uid_teacher = errorsTranslate.uid_teacher;
+            }
+            if (!sessionNew?.slots?.[0]?.start_date) {
+                _errors.start_date = errorsTranslate.start_date;
+            } else {
+                if (sessionNew?.slots?.[0]?.start_date < new Date()) {
+                    _errors.start_hour = errorsTranslate.start_hour_before;
+                }
+            }
 
-        setDisabledCreate(disabled);
-    }, [sessionNew]);
+            if (!sessionNew?.slots?.[0]?.duration) {
+                _errors.duration = errorsTranslate.duration;
+            }
+            if (!sessionNew?.slots?.[0]?.lang) {
+                _errors.lang = errorsTranslate.lang;
+            }
+            if (!sessionNew?.slots?.[0]?.level) {
+                _errors.level = errorsTranslate.level;
+            }
+            if (!sessionNew?.slots?.[0]?.format) {
+                _errors.format = errorsTranslate.format;
+            }
+            if (sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.HYBRID || sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.ONLINE) {
+                if (!sessionNew?.slots?.[0].seats_availables_online || sessionNew?.slots?.[0].seats_availables_online <= 0) {
+                    _errors.seats_availables_online = errorsTranslate.seats_availables_online;
+                }
+            }
+            if (sessionNew?.slots?.[0]?.url?.length > 0 && !isValidURL(sessionNew?.slots?.[0]?.url)) {
+                _errors.url = errorsTranslate['url-invalid'];
+            }
+            if (Object.keys(_errors).length > 0) {
+                _errors.main = errorsTranslate['before-continue'];
+                setErrors(_errors);
+                setDisabledCreate(true);
+                return;
+            }
+            /*
+            if (sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.HYBRID || sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.ONSITE) {
+                var count = sessionNew?.room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
+                sessionNew?.slots?.[0]?.format
+                const slot = sessionNew?.slots[0] || new ClassSessionSlot();
+                slot.update({ seats_availables_onsite: count });
+                prev.update({ slots: [slot] });
+            }
+            */
+            //last_subscribe_time
+            const start_date = sessionNew?.slots?.[0]?.start_date;
+            const last_subscribe_time = new Date(start_date);
+            last_subscribe_time.setHours(start_date.getHours() - 3);
+            const slot = sessionNew.slots?.[0] || new ClassSessionSlot();
+            slot.update({ last_subscribe_time: last_subscribe_time });
+            sessionNew.update({ slots: [slot] });
+            await sessionNew.createFirestore();
+            handleClose();
+        } catch (error) {
+            console.log("ERROR", error);
+            _errors.main = errorsTranslate['main'];
+            setErrors(_errors);
+        } finally {
+            setProcessing(false);
+        }
+    }
     return (<Stack sx={{ width: '100%', height: '100%' }}>
         <Dialog
             //fullWidth
@@ -167,7 +254,7 @@ export default function DialogSession({
                                     mode !== 'create' && <Typography noWrap variant='h4' sx={{ lineHeight: '1.5rem', }}>{`${session?.code} - ${t(slot?.level, { ns: ClassSession.NS_COLLECTION }) || ''}`}</Typography>
                                 }
                                 {
-                                    mode === 'create' && <Typography noWrap variant="h4" sx={{ lineHeight: '1.5rem', }}>{`Nouvelle session`}</Typography>
+                                    mode === 'create' && <Typography noWrap variant="h4" sx={{ lineHeight: '1.5rem', }}>{dialogTranslate['title-create-session']}</Typography>
                                 }
                             </Stack>
                             {
@@ -196,23 +283,70 @@ export default function DialogSession({
 
                     </Grid>
                     <Grid size={'auto'} sx={{ background: '' }}>
-                           <Stack alignItems={'end'}>
+                        <Stack alignItems={'end'}>
                             <CloseIcon sx={{ cursor: 'pointer' }} onClick={handleClose} />
                         </Stack>
                     </Grid>
                 </Grid>
             </DialogTitle>
-            {
-                <>
-
-                    <DialogContent dividers={true} sx={{ p: 1, background: 'var(--background)' }}>
-                        {'content'}
-                    </DialogContent>
-                    <DialogActions sx={{ minHeight: '20px' }}>
-                        {'actions'}
-                    </DialogActions>
-                </>
-            }
+            <DialogContent dividers={true} sx={{ p: 1, background: 'var(--background)' }}>
+                {
+                    mode === 'read' && <SessionComponent />
+                }
+                {
+                    mode === 'create' && <SessionCreateComponent
+                        sessionNew={sessionNew}
+                        setSessionNew={setSessionNew}
+                        errors={errors}
+                        setErrors={setErrors}
+                        mode={mode}
+                        initStartDate={initStartDate}
+                        setInitStartDate={setInitStartDate}
+                        />
+                }
+            </DialogContent>
+            <DialogActions sx={{ minHeight: '20px' }}>
+                {
+                    mode === 'read' && <Stack direction={'row'} spacing={1}>
+                        {
+                            !path?.startsWith(PAGE_LESSONS) && <Stack sx={{ width: '100%' }} direction={'row'} spacing={1} justifyContent={'end'} alignItems={'center'}>
+                                <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target="_blank" style={{ textDecoration: 'none' }}>
+                                    <ButtonCancel label={dialogTranslate['btn-see-lesson']} variant='outlined' />
+                                </Link>
+                            </Stack>
+                        }
+                        {
+                            user instanceof ClassUserAdministrator && <Box>
+                                <ButtonConfirm
+                                    label={dialogTranslate['btn-subscribe-user']}
+                                />
+                            </Box>
+                        }
+                        {
+                            user instanceof ClassUserAdministrator && <Stack justifyContent={'center'} sx={{ background: '', cursor: 'pointer' }}>
+                                <IconEdit color="var(--primary)" />
+                            </Stack>
+                        }
+                    </Stack>
+                }
+                {
+                    mode === 'create' && <Stack alignItems={'center'} direction={'row'} spacing={1}>
+                        {
+                            errors.main && <AlertComponent severity="error" title={errors.main} />
+                        }
+                        {
+                            <Box>
+                                <ButtonConfirm
+                                    label={dialogTranslate['btn-create-session']}
+                                    loading={processing}
+                                    disabled={disabledCreate}
+                                    onClick={onCreateSession}
+                                />
+                            </Box>
+                        }
+                    </Stack>
+                }
+            </DialogActions>
         </Dialog>
     </Stack>);
 }

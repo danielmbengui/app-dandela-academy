@@ -102,6 +102,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                     disableFuture={disableFuture}
                                     //label={label} 
                                     format="DD-MM-YYYY"
+                                    minDate={disablePast ? dayjs(new Date()) : null}
                                     maxDate={disableFuture ? dayjs(new Date()) : null}
                                     //type="date"
                                     name={name}
@@ -122,16 +123,16 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                             size: 'small',
                                             slotProps: {
                                                 input: {
-                                                    sx:{
+                                                    sx: {
                                                         maxHeight: '2rem',
-                                                        borderRadius:'5px',
-                                                        borderColor:'var(--card-border)'
+                                                        borderRadius: '5px',
+                                                        borderColor: 'var(--card-border)'
                                                     }
                                                 }
                                             },
-                                            sx:{
-                                                width:'100%',
-                                                
+                                            sx: {
+                                                width: '100%',
+
                                             }
                                         },
                                     }}
@@ -145,7 +146,10 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                     disablePast={disablePast}
                                     disableFuture={disableFuture}
                                     //label={label} 
+                                    //minTime={disablePast ? dayjs(new Date()) : null}
+                                    //maxDate={disableFuture ? dayjs(new Date()) : null}
                                     format="HH:mm"
+                                    
                                     //maxDate={disableFuture ? dayjs(new Date()) : null}
                                     //type="date"
                                     //sx={{maxHeight: '40px',}}
@@ -167,16 +171,16 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                             size: 'small',
                                             slotProps: {
                                                 input: {
-                                                    sx:{
+                                                    sx: {
                                                         maxHeight: '2rem',
-                                                        borderRadius:'5px',
-                                                        borderColor:'var(--card-border)'
+                                                        borderRadius: '5px',
+                                                        borderColor: 'var(--card-border)'
                                                     }
                                                 }
                                             },
-                                            sx:{
-                                                width:'100%',
-                                                
+                                            sx: {
+                                                width: '100%',
+
                                             }
                                         },
                                     }}

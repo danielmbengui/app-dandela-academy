@@ -104,15 +104,6 @@ exports.updateSessionsStatus = onSchedule(
         const lastDate = toDate(slot.last_subscribe_time);
 
         var slot_new = { ...slot };
-        if (!endDate || endDate.getTime() < new Date().getTime()) {
-          //console.log(`Session ${doc.id} slot ${slot.uid_intern} is past due, updating status to 'finished'`);
-          slot_new.status = 'finished';
-          slot_new.last_edit_time = new Date();
-          if (slots.length === 1) {
-            session_status = 'finished';
-            session_last_edit_time = new Date();
-          }
-        }
         if (!lastDate || lastDate.getTime() < new Date().getTime()) {
           //console.log(`Session ${doc.id} slot ${slot.uid_intern} doesnt accept any subscribers, updating status to 'expired'`);
           slot_new.status = 'expired';
@@ -122,11 +113,20 @@ exports.updateSessionsStatus = onSchedule(
             session_last_edit_time = new Date();
           }
         }
+        if (!endDate || endDate.getTime() < new Date().getTime()) {
+          //console.log(`Session ${doc.id} slot ${slot.uid_intern} is past due, updating status to 'finished'`);
+          slot_new.status = 'finished';
+          slot_new.last_edit_time = new Date();
+          if (slots.length === 1) {
+            session_status = 'finished';
+            session_last_edit_time = new Date();
+          }
+        }
         slots_new.push(slot_new);
       }
       batch.update(doc.ref, {
         'status': session_status,
-        'last_edit_time':session_last_edit_time,
+        'last_edit_time': session_last_edit_time,
         'slots': slots_new,
       }, { merge: true });
       count++;

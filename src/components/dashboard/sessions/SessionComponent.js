@@ -113,7 +113,7 @@ const initialCourse = {
 };
 
 
-function MetaChip({ label, value,}) {
+function MetaChip({ label, value, }) {
   return (
     <>
       <div className="meta-chip">
@@ -230,59 +230,7 @@ function MetaChipIcon({ label, value, icon = <></> }) {
     </>
   );
 }
-function MetaChipTitle({ label, value, status = '' }) {
-  const STATUS_CONFIG = ClassSession.STATUS_CONFIG;
-  const colors = STATUS_CONFIG[status] || [];
-  const Icon = () => {
-    switch (label) {
-      case 'certified':
-        return <IconCertificate height={14} width={14} />;
-      case 'date':
-        return <IconCalendar height={14} width={14} />;
-      case 'hour':
-        return <IconHour height={14} width={14} />;
-      case 'teacher':
-        return <IconTeachers height={14} width={14} />;
-      default:
-        return null;
-    }
-  }
-  console.log("STATUS", status)
-  return (
-    <>
-      <div className="meta-chip">
-        <Icon />
-        <span className="meta-value">{value}</span>
-      </div>
 
-      <style jsx>{`
-        .meta-chip {
-          border-radius: 999px;
-          background: #020617;
-          background: transparent;
-          border: 0.1px solid ${colors?.color};
-          border: 0.1px solid var(--card-border);
-          padding: 4px 7px;
-          font-size: 0.78rem;
-          display: inline-flex;
-          gap: 6px;
-          color: ${colors?.color};
-          color: var(--card-border);
-        }
-
-        .meta-label {
-          color: #9ca3af;
-          color: var(--font-color);
-        }
-
-        .meta-value {
-          color: var(--font-color);
-          font-weight: 500;
-        }
-      `}</style>
-    </>
-  );
-}
 /** Petit composant pour les lignes d'info à droite */
 function InfoRow({ label, value }) {
   const { t } = useTranslation(ClassLesson.NS_COLLECTION);
@@ -447,6 +395,46 @@ function CardFormat({ slot = null, format = "" }) {
     </style>
   </Grid>)
 }
+function SubscribeComponent({ slot = null, format = "" }) {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const { lang } = useLanguage();
+  if (slot?.status === ClassSessionSlot.STATUS.OPEN) {
+
+  } else if (slot?.status === ClassSessionSlot.STATUS.SUBSCRIPTION_EXPIRED) {
+    return (<AlertComponent
+      subtitle={<Trans
+        t={t}
+        i18nKey={'errors.last_subscribe_time'}
+        values={{
+          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+        }}
+        components={{
+          //span: <Typography variant="body2" color="text.secondary" />, 
+          b: <strong />
+        }}
+      />
+      }
+      severity="warning"
+    />)
+  } else if (slot?.status === ClassSessionSlot.STATUS.FINISHED) {
+    return (<AlertComponent
+      subtitle={<Trans
+        t={t}
+        i18nKey={'errors.last_subscribe_time'}
+        values={{
+          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+        }}
+        components={{
+          //span: <Typography variant="body2" color="text.secondary" />, 
+          b: <strong />
+        }}
+      />
+      }
+      severity="warning"
+    />)
+  }
+  return (<>{slot?.status}</>);
+}
 function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
   return (<Stack direction={'row'} spacing={1} sx={{ width: '100%', px: 0.5, py: 0.25, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
     <Stack justifyContent={'center'}>
@@ -468,7 +456,7 @@ export default function SessionComponent({ }) {
   const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
   const errorsTranslate = t('errors');
   const { lang } = useLanguage();
-  const { session, slot, update, slots,isLoading } = useSession();
+  const { session, slot, update, slots, isLoading } = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
@@ -489,8 +477,8 @@ export default function SessionComponent({ }) {
 
   //const canSubscribe = new Date() >= slot?.last_subscribe_time;
 
-  useEffect(()=>{
-    if(session && slots.length>0 && slot && new Date() >= slot.last_subscribe_time) {
+  useEffect(() => {
+    if (session && slots.length > 0 && slot && new Date() >= slot.last_subscribe_time) {
       setCanSubscribe(false);
     } else {
       setCanSubscribe(true);
@@ -507,10 +495,10 @@ export default function SessionComponent({ }) {
                 <div className="hero-left" style={{ background: '' }}>
                   <div style={{ marginBottom: '5px' }}>
                     <MetaChip
-                    label={t('lang', { ns: NS_LANGS })}
-                    value={t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}
-                    icon={<IconTranslation height={16} width={16} />}
-                  />
+                      label={t('lang', { ns: NS_LANGS })}
+                      value={t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}
+                      icon={<IconTranslation height={16} width={16} />}
+                    />
                   </div>
                   <h1>{session?.lesson?.translate?.title}</h1>
                   <Grid container spacing={0.5} sx={{ marginY: 1, width: '100%' }}>
@@ -530,10 +518,10 @@ export default function SessionComponent({ }) {
                     </Grid>
                     <Grid>
                       <MetaChipIcon
-                    label={t('lang', { ns: NS_LANGS })}
-                    value={t(slot?.lang, { ns: NS_LANGS })}
-                    icon={<IconTranslation height={16} width={16} />}
-                  />
+                        label={t('lang', { ns: NS_LANGS })}
+                        value={t(slot?.lang, { ns: NS_LANGS })}
+                        icon={<IconTranslation height={16} width={16} />}
+                      />
                     </Grid>
                   </Grid>
                   <Grid container spacing={1} sx={{ marginY: 1, width: '100%' }}>
@@ -557,11 +545,13 @@ export default function SessionComponent({ }) {
                     }
                   </Grid>
                   <Grid container spacing={1}>
+                    <SubscribeComponent slot={slot} />
                     {
                       canSubscribe && [ONLINE, ONSITE].map((format) => {
                         if (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format) {
                           return (<CardFormat key={format} slot={slot} format={format} />)
                         }
+
                         return null;
                       })
                     }
@@ -573,9 +563,9 @@ export default function SessionComponent({ }) {
                           values={{
                             date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
                           }}
-                          components={{ 
-                              //span: <Typography variant="body2" color="text.secondary" />, 
-                              b: <strong /> 
+                          components={{
+                            //span: <Typography variant="body2" color="text.secondary" />, 
+                            b: <strong />
                           }}
                         />
                         }

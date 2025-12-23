@@ -63,6 +63,15 @@
     ],
     "no_certification": "Ce cours ne délivre pas de certificat officiel mais une attestation de participation peut être fournie sur demande."
   },
+  "dialog": {
+    "title-create-session": "Nouvelle session",
+    "btn-create-session": "Créer une session",
+    "btn-subscribe": "Entrer",
+    "btn-unsubscribe": "Quitter",
+    "btn-see-lesson": "Voir le cours",
+    "btn-edit-slot": "Modifier",
+    "btn-subscribe-user": "Inscrire"
+  },
   "btn-subscribe": "Entrer",
   "btn-unsubscribe": "Quitter",
   "btn-see-lesson": "Voir le cours",
@@ -78,6 +87,7 @@
     "currency": "Indique une devise",
     "start_date": "Sélectionne une date de début",
     "start_hour": "Sélectionne une heure de début",
+    "start_hour_before": "La date ne peut pas etre avant le {{date}}",
     "end_date": "Sélectionne une date de fin",
     "duration": "Sélectionne une durée",
     "seats_availables_onsite": "Indique le nombre de places disponibles",
