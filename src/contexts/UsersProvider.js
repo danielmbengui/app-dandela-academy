@@ -69,12 +69,12 @@ export function UsersProvider({ children}) {
     }, []);
 
 
-    function getOneRoom(uid = '') {
+    function getOneUser(uid = '') {
         if (!uid || uid === '' || uid === null) {
             return null;
         }
-        const _room = users.find(item => item.uid === uid);
-        return _room;
+        const _user = users.find(item => item.uid === uid);
+        return _user;
     }
     function getOneRoomName(uid = '') {
         if (!uid || uid === '' || uid === null) {
@@ -98,7 +98,7 @@ export function UsersProvider({ children}) {
         user,
         setUser,
         changeRoom,
-        getOneRoom,
+        getOneUser,
         getOneRoomName,
         isLoading,
         isConnected,

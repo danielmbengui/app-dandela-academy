@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import TextFieldComponent from './TextFieldComponent';
 import TextFieldPasswordComponent from './TextFieldPasswordComponent';
 import TextAreaComponent from './TextAreaComponent';
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker, LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
@@ -20,21 +20,24 @@ import CloseIcon from '@mui/icons-material/Close';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { IconRemove, IconReset } from '@/assets/icons/IconsComponent';
+import { max } from 'date-fns';
 const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
 export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 5,
     icon = "", fullWidth = false,
+    disablePast = false,
+    disableFuture = false,
     prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required = false,
-    editable = false,resetable=false,removable=false,onRemove=()=>{}, onSubmit = () => { }, onCancel = () => { },autoComplete=[], ...props}) {
+    editable = false, resetable = false, removable = false, onRemove = () => { }, onSubmit = () => { }, onCancel = () => { }, autoComplete = [], ...props }) {
     //console.log("FILED", name, type)
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
     const { theme } = useThemeMode();
-    const { primary,primaryShadow, background } = theme.palette;
+    const { primary, primaryShadow, background } = theme.palette;
     const [processing, setProcessing] = useState(false);
     return (
         <div>
             {
-                label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ fontSize: '0.9rem', marginBottom:'7px' }}>
+                label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ fontSize: '0.9rem', marginBottom: '7px' }}>
                     {label}{required && <b style={{ color: 'red' }}>*</b>}
                 </label>
             }
@@ -95,9 +98,12 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         {
                             type === 'date' && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
                                 <DatePicker
+                                    disablePast={disablePast}
+                                    disableFuture={disableFuture}
                                     //label={label} 
                                     format="DD-MM-YYYY"
-                                    maxDate={dayjs(new Date())}
+                                    minDate={disablePast ? dayjs(new Date()) : null}
+                                    maxDate={disableFuture ? dayjs(new Date()) : null}
                                     //type="date"
                                     name={name}
                                     value={value ? dayjs(value) : null} // convertir string -> dayjs
@@ -114,81 +120,73 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                     //className={inputBase}
                                     slotProps={{
                                         textField: {
-                                            size: "small",
+                                            size: 'small',
+                                            slotProps: {
+                                                input: {
+                                                    sx: {
+                                                        maxHeight: '2rem',
+                                                        borderRadius: '5px',
+                                                        borderColor: 'var(--card-border)'
+                                                    }
+                                                }
+                                            },
                                             sx: {
                                                 width: '100%',
-                                                borderRadius: "7px",
-                                                cursor: 'pointer',
-                                                '& .MuiOutlinedInput-root': {
-                                                    '& fieldset': {
-                                                        //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
-                                                        color: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
-                                                        border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
-                                                    },
-                                                    '&:hover fieldset': {
-                                                        // borderColor: ClassColor.GREY_LIGHT, // au survol
-                                                        //color: 'red', // couleur par défaut
-                                                        border: `1px solid ${primary.main}`,
-                                                    },
-                                                    '&.Mui-focused fieldset': {
-                                                        //borderColor: ClassColor.TRANSPARENT, // quand focus
-                                                        border: `2px solid ${primary.main}`,
-                                                    },
-                                                    '&.Mui-error fieldset': {
-                                                        // borderColor: 'error.main', // en cas d'erreur
-                                                        border: `0.1px solid ${'red'}`,
-                                                    },
-                                                    '&.Mui-disabled': {
-                                                        cursor: 'not-allowed',      // curseur
-                                                        pointerEvents: 'auto',      // réactive les events pour voir le curseur
-                                                    },
-                                                    '&.Mui-disabled fieldset': {
-                                                        // borderColor: greyLight.main, // désactivé
-                                                        border: `0.1px solid ${ClassColor.GREY_HYPER_LIGHT}`,
-                                                        color: ClassColor.GREY_LIGHT,
-                                                    },
-                                                    '&.Mui-disabled .MuiOutlinedInput-input': {
-                                                        cursor: 'not-allowed',      // curseur sur le texte aussi
-                                                    },
-                                                    '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
-                                                        color: 'red',
-                                                    },
-                                                },
-                                            },
+
+                                            }
                                         },
                                     }}
                                     disabled={disabled}
                                 />
                             </LocalizationProvider>
-                            /*
-                            type === "date" && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
-                                <DatePicker
-                                    maxDate={dayjs(new Date())}
-                                    className="shadow-sm"
-                                    //label="Date de naissance"
-                                    //value={value}
+                        }
+                        {
+                            type === 'hour' && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
+                                <TimePicker
+                                    disablePast={disablePast}
+                                    disableFuture={disableFuture}
+                                    //label={label} 
+                                    //minTime={disablePast ? dayjs(new Date()) : null}
+                                    //maxDate={disableFuture ? dayjs(new Date()) : null}
+                                    format="HH:mm"
+                                    
+                                    //maxDate={disableFuture ? dayjs(new Date()) : null}
+                                    //type="date"
+                                    //sx={{maxHeight: '40px',}}
                                     name={name}
-                                    value={''} // convertir string -> dayjs
+                                    value={value ? dayjs(value) : null} // convertir string -> dayjs
                                     onChange={(newValue) => {
                                         onChange({
                                             target: {
-                                                type: "date",
-                                                name: "birthday",
-                                                value: newValue ? newValue.format("YYYY-MM-DD") : "" // ici on repasse en string
+                                                type: "hour",
+                                                name: name,
+                                                value: newValue ? newValue : "" // ici on repasse en string
                                             }
                                         });
                                     }}
-                                    type="date"
-                                    sx={{ my: 1, borderRadius: '7px', width: '100%' }}
-                                    inputClass={inputClass}
+                                    //inputClass={inputBase}
+                                    //className={inputBase}
                                     slotProps={{
                                         textField: {
                                             size: 'small',
-                                        }
+                                            slotProps: {
+                                                input: {
+                                                    sx: {
+                                                        maxHeight: '2rem',
+                                                        borderRadius: '5px',
+                                                        borderColor: 'var(--card-border)'
+                                                    }
+                                                }
+                                            },
+                                            sx: {
+                                                width: '100%',
+
+                                            }
+                                        },
                                     }}
+                                    disabled={disabled}
                                 />
                             </LocalizationProvider>
-                            */
                         }
                     </>
                 }
@@ -215,77 +213,77 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                     (editable || resetable || removable) && <Stack direction={'row'} spacing={0.5}>
                         {
                             resetable && <IconButton
-                            loading={processing}
-                            onClick={() => {
-                                if (onCancel) {
-                                    setProcessing(true);
-                                    onCancel();
-                                    setProcessing(false);
-                                }
-                            }}
-                            sx={{
-                                display: processing ? 'none' : 'flex',
-                                background: primary.main,
-                                color: background.main,
-                                width: '24px',
-                                height:  '24px',
-                                '&:hover': {
+                                loading={processing}
+                                onClick={() => {
+                                    if (onCancel) {
+                                        setProcessing(true);
+                                        onCancel();
+                                        setProcessing(false);
+                                    }
+                                }}
+                                sx={{
+                                    display: processing ? 'none' : 'flex',
+                                    background: primary.main,
                                     color: background.main,
-                                    backgroundColor: 'primary.main',
-                                    boxShadow: `0 0 0 0.2rem ${primaryShadow.main}`,
-                                },
-                            }} aria-label="delete" size="small">
-                            <IconReset width={14} height={14} />
-                        </IconButton>
+                                    width: '24px',
+                                    height: '24px',
+                                    '&:hover': {
+                                        color: background.main,
+                                        backgroundColor: 'primary.main',
+                                        boxShadow: `0 0 0 0.2rem ${primaryShadow.main}`,
+                                    },
+                                }} aria-label="delete" size="small">
+                                <IconReset width={14} height={14} />
+                            </IconButton>
                         }
                         {
                             removable && <IconButton
-                            loading={processing}
-                            onClick={() => {
-                                if (onRemove) {
-                                    setProcessing(true);
-                                    onRemove();
-                                    setProcessing(false);
-                                }
-                            }}
-                            sx={{
-                                display: processing ? 'none' : 'flex',
-                                background: 'red',
-                                color: background.main,
-                                width: '24px',
-                                height:  '24px',
-                                '&:hover': {
+                                loading={processing}
+                                onClick={() => {
+                                    if (onRemove) {
+                                        setProcessing(true);
+                                        onRemove();
+                                        setProcessing(false);
+                                    }
+                                }}
+                                sx={{
+                                    display: processing ? 'none' : 'flex',
+                                    background: 'red',
                                     color: background.main,
-                                    backgroundColor: 'error.main',
-                                    boxShadow: `0 0 0 0.2rem rgba(255,0,0,0.5)`,
-                                },
-                            }} aria-label="delete" size="small">
-                            <IconRemove width={14} height={14} />
-                        </IconButton>
+                                    width: '24px',
+                                    height: '24px',
+                                    '&:hover': {
+                                        color: background.main,
+                                        backgroundColor: 'error.main',
+                                        boxShadow: `0 0 0 0.2rem rgba(255,0,0,0.5)`,
+                                    },
+                                }} aria-label="delete" size="small">
+                                <IconRemove width={14} height={14} />
+                            </IconButton>
                         }
                         {
                             editable && <IconButton
-                            loading={processing}
-                            onClick={() => {
-                                setProcessing(true);
-                                if (onSubmit) {
-                                    onSubmit();
-                                }
-                                setProcessing(false);
-                            }}
-                            sx={{
-                                background: primary.main,
-                                color: background.main,
-                                width: { xs: '25px', sm: '25px' },
-                                height: { xs: '25px', sm: '25px' },
-                                '&:hover': {
+                                loading={processing}
+                                onClick={() => {
+                                    setProcessing(true);
+                                    if (onSubmit) {
+                                        onSubmit();
+                                    }
+                                    setProcessing(false);
+                                }}
+                                sx={{
+                                    background: primary.main,
                                     color: background.main,
-                                    backgroundColor: primary.main,
-                                    boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
-                                },
-                            }} aria-label="delete" size="small">
-                            <CheckIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
-                        </IconButton>
+                                    width: { xs: '25px', sm: '25px' },
+                                    height: { xs: '25px', sm: '25px' },
+                                    '&:hover': {
+                                        color: background.main,
+                                        backgroundColor: primary.main,
+                                        boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
+                                    },
+                                }} aria-label="delete" size="small">
+                                <CheckIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
+                            </IconButton>
                         }
                     </Stack>
                 }

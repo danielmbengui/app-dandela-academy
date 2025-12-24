@@ -10,6 +10,7 @@
   "price": "Prix",
   "currency": "Devise",
   "start_date": "Date de début",
+  "start_hour": "Heure de début",
   "end_date": "Date de fin",
   "seats_availables_onsite": "Places disponibles en présentiel",
   "seats_availables_online": "Places disponibles en ligne",
@@ -52,6 +53,7 @@
   "seats_availables": "{{count}} place(s) restante(s)",
   "certification": "Certification",
   "certification_official": "✅ Certification reconnue dans le cadre des parcours Dandela Academy.",
+  "certification_not": "Ce cours ne délivre pas de certificat officiel mais une attestation de participation peut être fournie sur demande.",
   "certification_block": {
     "title": "🎓 Ce cours donne droit à un certificat délivré par Dandela Academy.",
     "items": [
@@ -61,9 +63,42 @@
     ],
     "no_certification": "Ce cours ne délivre pas de certificat officiel mais une attestation de participation peut être fournie sur demande."
   },
+  "dialog": {
+    "title-create-session": "Nouvelle session",
+    "btn-create-session": "Créer une session",
+    "btn-subscribe": "Entrer",
+    "btn-unsubscribe": "Quitter",
+    "btn-see-lesson": "Voir le cours",
+    "btn-edit-slot": "Modifier",
+    "btn-subscribe-user": "Inscrire"
+  },
   "btn-subscribe": "Entrer",
   "btn-unsubscribe": "Quitter",
   "btn-see-lesson": "Voir le cours",
   "btn-edit-slot": "Modifier",
-  "btn-subscribe-user": "Inscrire"
+  "btn-subscribe-user": "Inscrire",
+  "errors": {
+    "uid_lesson": "Sélectionne un cours",
+    "uid_teacher": "Sélectionne un(e) professeur(e)",
+    "uid_room": "Sélectionne une salle",
+    "code": "Entre un code",
+    "title": "Entre un nom",
+    "price": "Indique un prix",
+    "currency": "Indique une devise",
+    "start_date": "Sélectionne une date de début",
+    "start_hour": "Sélectionne une heure de début",
+    "start_hour_before": "La date ne peut pas etre avant le {{date}}",
+    "end_date": "Sélectionne une date de fin",
+    "duration": "Sélectionne une durée",
+    "seats_availables_onsite": "Indique le nombre de places disponibles",
+    "seats_availables_online": "Indique le nombre de places disponibles",
+    "format": "Sélectionne un format",
+    "url": "Indique un lien pour le cours",
+    "url-invalid": "Entre une URL valide",
+    "level": "Sélectionne un niveau",
+    "lang": "Sélectionne une langue",
+    "last_subscribe_time": "Tu ne peux plus t'inscrire depuis le <b>{{date}}</b>",
+    "before-continue": "Veuillez corriger les erreurs avant de continuer",
+    "main": "Une erreur est survenue. Veuillez réessayer plus tard."
+  }
 }

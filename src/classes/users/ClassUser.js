@@ -614,15 +614,10 @@ export class ClassUser {
     }
 
     static async count(constraints = []) {
+        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
         //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const q = constraints.length
-            ? query(coll, ...constraints)
-            : coll;
-
+        //const coll = this.colRef();
         const snap = await getCountFromServer(q);
-        //const snap = await getCountFromServer(coll);
-        console.log("YAAA", "")
         return snap.data().count; // -> nombre total
     }
     static async countByDates(start_date = null, end_date = null) {

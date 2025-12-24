@@ -44,6 +44,7 @@
     "next": "15.4.9",
     "node": "22",
     "nodemailer": "^7.0.6",
+    "openai": "^6.15.0",
     "prop-types": "^15.8.1",
     "rate-limiter-flexible": "^7.3.0",
     "react": "^19.1.1",
@@ -67,7 +68,7 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
-    "firebase-tools": "^15.0.0",
+    "firebase-tools": "^15.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
   }

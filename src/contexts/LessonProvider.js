@@ -98,7 +98,7 @@ export function LessonProvider({ children }) {
         return snapshotLessons;
     }, []);
     const listenToOneLesson = useCallback((uidLesson) => {
-        console.log("*UUUID lesson", uidLesson)
+        console.log("*UUUID lesson LessonProvider", uidLesson)
         if (!uidLesson) {
             setLesson(null);
             //setIsConnected(false);
@@ -132,7 +132,7 @@ export function LessonProvider({ children }) {
             lesson_new.room = room;
             lesson_new.translate = translate;
             lesson_new.translates = translates;
-            console.log("IS lesson new", lesson_new)
+            //console.log("IS lesson new", lesson_new)
             setLesson(prev => {
                 if (!prev || prev === null) return lesson_new;
                 prev.update(lesson_new.toJSON());

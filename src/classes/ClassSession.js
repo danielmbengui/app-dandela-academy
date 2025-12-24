@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { ClassUserTeacher } from "./users/ClassUser";
+import { ClassUser, ClassUserTeacher } from "./users/ClassUser";
 import { ClassRoom } from "./ClassRoom";
 import { ClassLesson } from "./ClassLesson";
 
@@ -35,7 +35,7 @@ export class ClassSession {
         BEGINNER: 'beginner', // débutant
         INTERMEDIATE: 'intermediate', // intermediraire
         COMPETENT: 'competent', // compétent
-        ADVANCED: 'advaned', // avancé
+        ADVANCED: 'advanced', // avancé
         EXPERT: 'expert', // expert
         UNKNOWN: 'unknown',
     });
@@ -104,9 +104,9 @@ export class ClassSession {
         YEARLY: 'yearly',
         UNKNOWN: 'unknown',
     });
-    static ALL_CATEGORIES = [
-        ClassSession.CATEGORY.OFFICE
-    ]
+    static ALL_CATEGORIES = Object.values(ClassSession.CATEGORY).filter(item => item !== ClassSession.CATEGORY.UNKNOWN);
+    static ALL_LEVELS = Object.values(ClassSession.LEVEL).filter(item => item !== ClassSession.LEVEL.UNKNOWN);
+    static ALL_FORMATS = Object.values(ClassSession.FORMAT).filter(item => item !== ClassSession.FORMAT.UNKNOWN);
     constructor({
         uid = "",
         uid_intern = "",
@@ -119,25 +119,12 @@ export class ClassSession {
         code = "", // Excel-101
         title = "",
         title_normalized = "",
-        format = "",
-        lang = "",
-        level = "",
         price = 0,
         currency = "",
         start_date = null,
         end_date = null,
-        seats_availables_onsite = 0,
-        seats_availables_online = 0,
-        seats_taken = 0,
         slots = [],
-        photo_url = "",
         status = ClassSession.STATUS.DRAFT,
-        location = "",
-        url = "",
-        translate = {},
-        subscribers_online = [],
-        subscribers_onsite = [],
-        last_subscribe_time = new Date(),
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
@@ -152,25 +139,12 @@ export class ClassSession {
         this._code = code;
         this._title = title;
         this._title_normalized = title_normalized;
-        this._format = format;
-        this._lang = lang;
-        this._level = level;
         this._price = price;
         this._currency = currency;
         this._start_date = start_date;
         this._end_date = end_date;
-        this._seats_availables_onsite = seats_availables_onsite;
-        this._seats_availables_online = seats_availables_online;
-        this._seats_taken = seats_taken;
-        this._photo_url = photo_url;
         this._status = status;
-        this._location = location;
-        this._url = url;
-        this._translate = translate;
-        this._subscribers_online = subscribers_online;
-        this._subscribers_onsite = subscribers_onsite;
         this._slots = slots;
-        this._last_subscribe_time = last_subscribe_time;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
     }
@@ -198,7 +172,7 @@ export class ClassSession {
     }
     get teacher() { return this._teacher; }
     set teacher(value) {
-        if (value && !(value instanceof ClassUserTeacher)) return;
+        if (value && !(value instanceof ClassUser)) return;
         this._teacher = value;
         this._touchLastEdit();
     }
@@ -218,15 +192,6 @@ export class ClassSession {
     get title_normalized() { return this._title_normalized; }
     set title_normalized(value) { this._title_normalized = value; }
 
-    get format() { return this._format; }
-    set format(value) { this._format = value; }
-
-    get lang() { return this._lang; }
-    set lang(value) { this._lang = value; }
-
-    get level() { return this._level; }
-    set level(value) { this._level = value; }
-
     get price() { return this._price; }
     set price(value) { this._price = value; }
 
@@ -239,41 +204,11 @@ export class ClassSession {
     get end_date() { return this._end_date; }
     set end_date(value) { this._end_date = value; }
 
-    get seats_availables_onsite() { return this._seats_availables_onsite; }
-    set seats_availables_onsite(value) { this._seats_availables_onsite = value; }
-
-    get seats_availables_online() { return this._seats_availables_online; }
-    set seats_availables_online(value) { this._seats_availables_online = value; }
-
-    get seats_taken() { return this._seats_taken; }
-    set seats_taken(value) { this._seats_taken = value; }
-
-    get photo_url() { return this._photo_url; }
-    set photo_url(value) { this._photo_url = value; }
-
     get status() { return this._status; }
     set status(value) { this._status = value; }
 
-    get location() { return this._location; }
-    set location(value) { this._location = value; }
-
-    get url() { return this._url; }
-    set url(value) { this._url = value; }
-
-    get translate() { return this._translate; }
-    set translate(value) { this._translate = value; }
-
-    get subscribers_online() { return this._subscribers_online; }
-    set subscribers_online(value) { this._subscribers_online = value; }
-
-    get subscribers_onsite() { return this._subscribers_onsite; }
-    set subscribers_onsite(value) { this._subscribers_onsite = value; }
-
     get slots() { return this._slots; }
     set slots(value) { this._slots = value; }
-
-    get last_subscribe_time() { return this._last_subscribe_time; }
-    set last_subscribe_time(value) { this._last_subscribe_time = value; }
 
     get created_time() { return this._created_time; }
     set created_time(value) { this._created_time = value; }
@@ -351,9 +286,9 @@ export class ClassSession {
         console.log("CLONE SESSION", this._lesson)
         return ClassSession.makeLessonSessionInstance(this._uid, {
             ...this.toJSON(),
-            room:this._room,
-            lesson:this._lesson,
-            teacher:this._teacher,
+            room: this._room,
+            lesson: this._lesson,
+            teacher: this._teacher,
         });
         //return new ClassUser(this.toJSON());
     }
@@ -463,14 +398,14 @@ export class ClassSession {
                 const created_time = ClassSession._toJsDate(data.created_time);
                 const last_edit_time = ClassSession._toJsDate(data.last_edit_time);
                 const session = ClassSession.makeLessonSessionInstance(uid, { ...data, start_date, end_date, last_subscribe_time, created_time, last_edit_time });
-                const slots = data.slots?.map(slot => {
+                const slots = data.slots?.map?.(slot => {
                     const item = new ClassSessionSlot(slot);
                     //const item_session = new ClassSession(session.toJSON());
                     //delete item_session.slots;
                     //delete item_session.slots;
                     //item.session = item_session;
                     return item;
-                });
+                }) || [];
                 slots.sort((a, b) => a.uid_intern - b.uid_intern);
                 session.slots = slots;
                 return session;
@@ -500,10 +435,12 @@ export class ClassSession {
     static docRef(id) {
         return doc(firestore, this.COLLECTION, id).withConverter(this.converter);
     }
-    static async count() {
+
+    static async count(constraints = []) {
+        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
         //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const snap = await getCountFromServer(coll);
+        //const coll = this.colRef();
+        const snap = await getCountFromServer(q);
         return snap.data().count; // -> nombre total
     }
     // Récupérer un module par id
@@ -566,11 +503,22 @@ export class ClassSession {
         //const model = data instanceof ClassLessonSession ? data : new ClassLessonSession({ ...data });
         //model.uid = newRef.id;()
 
-        const countLesson = await this.constructor.count() || 0;
-        const idLesson = countLesson + 1;
+        const countSession = await this.constructor.count() || 0;
+        const idSession = countSession + 1;
         this._uid = newRef.id;
-        this._uid_intern = idLesson;
+        this._uid_intern = idSession;
+        this._code = `Session${idSession}`;
         this._title_normalized = this.createTitleNormalized(this._title);
+        this._slots = this._slots.map((slot, index) => {
+            if (!(slot instanceof ClassSessionSlot)) return slot;
+            const uid_intern = index + 1;
+            const uid_session = newRef.id;
+            slot.uid_intern = uid_intern;
+            slot.uid_session = uid_session;
+            slot.created_time = new Date();
+            slot.last_edit_time = new Date();
+            return slot;
+        });
         //this._subtitle_normalized = this.createTitleNormalized(this.subtitle);
         //this._name_normalized = createNameNormalized(this._name);
         // const uid = newRef.id;
@@ -597,7 +545,7 @@ export class ClassSession {
             //this._room = null;
             const data = { ...this.toJSON(), slots: this._slots.map(slot => slot.toJSON()) };
             await updateDoc(ref, data, { merge: true });
-            console.log("UPDATE COMPLETED", this._slots);
+            //console.log("UPDATE COMPLETED", this._slots);
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeLessonSessionInstance(this._uid, this.toJSON()); // -> ClassModule
         } catch (e) {
@@ -659,7 +607,6 @@ export class ClassSession {
     }
 }
 
-
 export class ClassSessionSlot {
     static COLLECTION = "SESSIONS_SLOTS";
     static COLLECTION_TRANSLATE = "i18n";
@@ -676,7 +623,7 @@ export class ClassSessionSlot {
         BEGINNER: 'beginner', // débutant
         INTERMEDIATE: 'intermediate', // intermediraire
         COMPETENT: 'competent', // compétent
-        ADVANCED: 'advaned', // avancé
+        ADVANCED: 'advanced', // avancé
         EXPERT: 'expert', // expert
         UNKNOWN: 'unknown',
     });
@@ -714,28 +661,28 @@ export class ClassSessionSlot {
     static STATUS_CONFIG = Object.freeze({
         open: {
             label: "open", // "Inscriptions ouvertes",
-            color: "#22c55e",
-            glow: "#022c22",
+            color: "var(--session-status-open)",
+            glow: "var(--session-status-open-glow)",
         },
         expired: {
             label: "expired", // "Inscriptions ouvertes",
-            color: "#e70d0dff",
-            glow: "#e70d0d54",
+            color: "var(--session-status-expired)",
+            glow: "var(--session-status-expired-glow)",
         },
         full: {
             label: "full", // "Complet",
-            color: "#f97316",
-            glow: "#451a03",
+            color: "var(--session-status-full)",
+            glow: "var(--session-status-full-glow)",
         },
         finished: {
             label: "finished", // "Terminé",
-            color: "#9ca3af",
-            glow: "#0b1120",
+            color: "var(--session-status-finished)",
+            glow: "var(--session-status-finished-glow)",
         },
         draft: {
             label: "draft", // "Brouillon",
-            color: "#eab308",
-            glow: "#422006",
+            color: "var(--session-status-draft)",
+            glow: "var(--session-status-draft-glow)",
         },
     });
     static SESSION_TYPE = Object.freeze({
@@ -745,12 +692,18 @@ export class ClassSessionSlot {
         YEARLY: 'yearly',
         UNKNOWN: 'unknown',
     });
+    static ALL_LEVELS = Object.values(ClassSessionSlot.LEVEL).filter(item => item !== ClassSessionSlot.LEVEL.UNKNOWN);
+    static ALL_FORMATS = Object.values(ClassSessionSlot.FORMAT).filter(item => item !== ClassSessionSlot.FORMAT.UNKNOWN);
+    static ALL_DURATIONS = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8];
     constructor({
         uid_intern = "",
         uid_session = "",
         format = "",
+        level = "",
+        lang = "",
         start_date = null,
         end_date = null,
+        duration = 0,
         seats_availables_onsite = 0,
         seats_availables_online = 0,
         status = ClassSession.STATUS.DRAFT,
@@ -766,8 +719,11 @@ export class ClassSessionSlot {
         this._uid_session = uid_session;
         //this._session = null;
         this._format = format;
+        this._level = level;
+        this._lang = lang || defaultLanguage;
         this._start_date = ClassSession._toJsDate(start_date);
         this._end_date = ClassSession._toJsDate(end_date);
+        this._duration = duration;
         this._seats_availables_onsite = seats_availables_onsite;
         this._seats_availables_online = seats_availables_online;
         this._status = status;
@@ -775,7 +731,7 @@ export class ClassSessionSlot {
         this._url = url;
         this._subscribers_online = subscribers_online;
         this._subscribers_onsite = subscribers_onsite;
-        this._last_subscribe_time = last_subscribe_time;
+        this._last_subscribe_time = ClassSession._toJsDate(last_subscribe_time);
         this._created_time = ClassSession._toJsDate(created_time);
         this._last_edit_time = ClassSession._toJsDate(last_edit_time);
         this.teacher = null;
@@ -789,12 +745,19 @@ export class ClassSessionSlot {
 
     get format() { return this._format; }
     set format(value) { this._format = value; }
+    get level() { return this._level; }
+    set level(value) { this._level = value; }
+    get lang() { return this._lang; }
+    set lang(value) { this._lang = value; }
 
     get start_date() { return this._start_date; }
     set start_date(value) { this._start_date = value; }
 
     get end_date() { return this._end_date; }
     set end_date(value) { this._end_date = value; }
+
+    get duration() { return this._duration; }
+    set duration(value) { this._duration = value; }
 
     get seats_availables_onsite() { return this._seats_availables_onsite; }
     set seats_availables_onsite(value) { this._seats_availables_onsite = value; }
@@ -830,6 +793,12 @@ export class ClassSessionSlot {
     // --- normalisation interne ---
     _touchLastEdit() {
         this._last_edit_time = new Date();
+    }
+
+    getDuration() {
+        if (!this._start_date || !this._end_date) return 0;
+        const diff = this._end_date.getTime() - this._start_date.getTime();
+        return parseInt(diff / (1000 * 60 * 60));
     }
 
     // --- GETTERS ---
@@ -871,11 +840,7 @@ export class ClassSessionSlot {
         }
         return false;
     }
-    getDuration() {
-        if (!this._start_date || !this._end_date) return 0;
-        const diff = this._end_date.getTime() - this._start_date.getTime();
-        return parseInt(diff / (1000 * 60 * 60));
-    }
+
     // --- Serialization ---
     toJSON() {
         const out = { ...this };

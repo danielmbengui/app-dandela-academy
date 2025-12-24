@@ -14,6 +14,8 @@ import {
     limit,
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
+import { ClassSchool } from "./ClassSchool";
+import { ClassHardware } from "./ClassDevice";
 
 export class ClassRoom {
     static COLLECTION = "ROOMS";
@@ -40,6 +42,8 @@ export class ClassRoom {
         uid = "",
         uid_intern = "",
         uid_school = "",
+        school = null,
+        computers = [],
         type = ClassRoom.TYPE.UNKNOWN,
         name = "",
         name_normalized = "",
@@ -53,6 +57,8 @@ export class ClassRoom {
         this._uid = uid;
         this._uid_intern = uid_intern;
         this._uid_school = uid_school;
+        this._school = school;
+        this._computers = computers;
         this._type = type;
         this._name = name;
         this._name_normalized = name_normalized;
@@ -86,7 +92,7 @@ export class ClassRoom {
             const element = categories[i];
             array.push(this._normalizeCategory(element));
         }
-        return [...new Set(array)].filter(item=>item!==ClassRoom.CATEGORY.UNKNOWN);
+        return [...new Set(array)].filter(item => item !== ClassRoom.CATEGORY.UNKNOWN);
     }
 
     // --- GETTERS ---
@@ -98,6 +104,12 @@ export class ClassRoom {
     }
     get uid_school() {
         return this._uid_school;
+    }
+    get school() {
+        return this._school;
+    }
+    get computers() {
+        return this._computers;
     }
     get type() {
         return this._type;
@@ -146,6 +158,17 @@ export class ClassRoom {
         this._uid_school = value;
         this._touchLastEdit();
     }
+    set school(value) {
+        if (value && !(value instanceof ClassSchool)) return;
+        this._school = value;
+        this._touchLastEdit();
+    }
+    set computers(value) {
+        if (value && !(value instanceof Array)) return;
+        this._computers = value;
+        this._touchLastEdit();
+    }
+
     set type(value) {
         this._type = value;
         this._touchLastEdit();
@@ -194,6 +217,12 @@ export class ClassRoom {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
+        cleaned.school = null;
+        cleaned.computers = null;
+        delete cleaned.school;
+        delete cleaned.computers;
+        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
+        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
         return cleaned;
     }
     update(props = {}) {
@@ -204,7 +233,11 @@ export class ClassRoom {
         }
     }
     clone() {
-        return ClassRoom.makeRoomInstance(this._uid, this.toJSON());
+        return ClassRoom.makeRoomInstance(this._uid, {
+            ...this.toJSON(),
+            school: this._school,
+            computers: this._computers,
+        });
     }
 
     // ---------- VALIDATIONS ----------
@@ -354,7 +387,7 @@ export class ClassRoom {
     // Créer un user (avec option timestamps serveur)
     createRoomName(idRoom = '', isNormalized = false) {
         var prefix = isNormalized ? "room" : "ROOM";
-        
+
         return `${prefix}-${(idRoom).toString().padStart(2, '0')}`;;
     }
     // Créer un user (avec option timestamps serveur)

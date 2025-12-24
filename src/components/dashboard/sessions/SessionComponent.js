@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
-import { Box, Button, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Grid, Stack, Typography } from "@mui/material";
 
 import { Trans, useTranslation } from "react-i18next";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
@@ -22,6 +22,7 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import BadgeFormatLessonContained from "../lessons/BadgeFormatLessonContained";
 import ButtonRemove from "../elements/ButtonRemove";
 import { useSession } from "@/contexts/SessionProvider";
+import AlertComponent from "@/components/elements/AlertComponent";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -111,12 +112,31 @@ const initialCourse = {
   ]
 };
 
-function MetaChip({ label, value }) {
+
+function MetaChip({ label, value, }) {
   return (
     <>
       <div className="meta-chip">
-        <span className="meta-label">{label}</span>
-        <span className="meta-value">{value}</span>
+        <Stack alignItems={'center'} direction={'row'} spacing={0.5}>
+          <Stack direction={'row'} alignItems={'center'} spacing={0.25}>
+            <Typography className="meta-label" sx={{
+              fontSize: '0.85rem',
+              color: 'var(--grey-dark)',
+              fontWeight: 500,
+            }}>{label}</Typography>
+            <Typography
+              className="meta-value"
+              //noWrap
+              sx={{
+                width: '100%',
+                fontSize: '0.8rem',
+                color: 'var(--font-color)',
+                fontWeight: 400,
+              }}>{value}</Typography>
+          </Stack>
+        </Stack>
+
+
       </div>
 
       <style jsx>{`
@@ -125,21 +145,86 @@ function MetaChip({ label, value }) {
           border: 0.1px solid var(--card-border);
           background: #020617;
           background: transparent;
-          padding: 4px 10px;
+          padding: 2.5px 7px;
           font-size: 0.78rem;
           display: inline-flex;
-          gap: 6px;
+          width:'100%;
         }
 
         .meta-label {
           color: #9ca3af;
-          color: var(--font-color);
+          font-size: 0.9rem;
+          color: var(--grey-dark);
         }
 
         .meta-value {
           color: var(--font-color);
-          color: #9ca3af;
           font-weight: 500;
+          font-size: 0.85rem;
+        }
+      `}</style>
+    </>
+  );
+}
+function MetaChipIcon({ label, value, icon = <></> }) {
+  return (
+    <>
+      <div className="meta-chip">
+        <Stack alignItems={'center'} direction={'row'} spacing={0.5}>
+          <Stack justifyContent={'center'}>
+            <Box sx={{
+              //border: `0.1px solid var(--card-border)`, 
+              background: '',
+              color: 'var(--card-border)',
+              //p: 0.3, 
+              //borderRadius: '100%' 
+            }}>
+              {icon}
+            </Box>
+          </Stack>
+          <Stack direction={'row'} alignItems={'center'} spacing={0.25}>
+            <Typography className="meta-label" sx={{
+              fontSize: '0.85rem',
+              color: 'var(--grey-dark)',
+              fontWeight: 500,
+            }}>{label}</Typography>
+            <Typography
+              className="meta-value"
+              //noWrap
+              sx={{
+                width: '100%',
+                fontSize: '0.8rem',
+                color: 'var(--font-color)',
+                fontWeight: 400,
+              }}>{value}</Typography>
+          </Stack>
+        </Stack>
+
+
+      </div>
+
+      <style jsx>{`
+        .meta-chip {
+          border-radius: 999px;
+          border: 0.1px solid var(--card-border);
+          background: #020617;
+          background: transparent;
+          padding: 2.5px 7px;
+          font-size: 0.78rem;
+          display: inline-flex;
+          width:'100%;
+        }
+
+        .meta-label {
+          color: #9ca3af;
+          font-size: 0.9rem;
+          color: var(--grey-dark);
+        }
+
+        .meta-value {
+          color: var(--font-color);
+          font-weight: 500;
+          font-size: 0.85rem;
         }
       `}</style>
     </>
@@ -310,36 +395,73 @@ function CardFormat({ slot = null, format = "" }) {
     </style>
   </Grid>)
 }
+function SubscribeComponent({ slot = null, format = "" }) {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const { lang } = useLanguage();
+  if (slot?.status === ClassSessionSlot.STATUS.OPEN) {
+
+  } else if (slot?.status === ClassSessionSlot.STATUS.SUBSCRIPTION_EXPIRED) {
+    return (<AlertComponent
+      subtitle={<Trans
+        t={t}
+        i18nKey={'errors.last_subscribe_time'}
+        values={{
+          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+        }}
+        components={{
+          //span: <Typography variant="body2" color="text.secondary" />, 
+          b: <strong />
+        }}
+      />
+      }
+      severity="warning"
+    />)
+  } else if (slot?.status === ClassSessionSlot.STATUS.FINISHED) {
+    return (<AlertComponent
+      subtitle={<Trans
+        t={t}
+        i18nKey={'errors.last_subscribe_time'}
+        values={{
+          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+        }}
+        components={{
+          //span: <Typography variant="body2" color="text.secondary" />, 
+          b: <strong />
+        }}
+      />
+      }
+      severity="warning"
+    />)
+  }
+  return (<>{slot?.status}</>);
+}
 function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
-  return (<Stack direction={'row'} spacing={1} sx={{ px: 1, py: 1, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
+  return (<Stack direction={'row'} spacing={1} sx={{ width: '100%', px: 0.5, py: 0.25, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
     <Stack justifyContent={'center'}>
       <Box sx={{ border: `0.1px solid var(--card-border)`, background: '', color: 'var(--primary)', p: 0.3, borderRadius: '100%' }}>
         {icon}
       </Box>
     </Stack>
-    <Stack>
-      <Typography color="var(--grey-dark)">{title}</Typography>
+    <Stack sx={{ width: '100%' }}>
+      <Typography noWrap color="var(--grey-dark)" fontSize={'0.9rem'}>{title}</Typography>
       {valueComponent}
     </Stack>
   </Stack>)
 }
 
-export default function SessionComponent({}) {
+export default function SessionComponent({ }) {
   const { theme } = useThemeMode();
-
   const { primary } = theme.palette;
   const { user } = useAuth();
   const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
+  const errorsTranslate = t('errors');
   const { lang } = useLanguage();
-  const { session,slot, update, slots } = useSession();
+  const { session, slot, update, slots, isLoading } = useSession();
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   //const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(initialCourse);
-  const [isEnrolled, setIsEnrolled] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  //const [editing, setEditing] = useState(false);
-  //const seatsLeft = Math.max(session?.seats_availables || 0 - session?.seats_taken || 0, 0);
-  //const isFull = seatsLeft <= 0 && !isEnrolled;
+  const [canSubscribe, setCanSubscribe] = useState(true);
+
   const FORMAT_CONFIG = ClassSession.FORMAT_CONFIG;
   const formatCfg = FORMAT_CONFIG[session?.format];
   const [dialogOptions, setDialogOptions] = useState({
@@ -353,84 +475,163 @@ export default function SessionComponent({}) {
     setOpen: null
   });
 
+  //const canSubscribe = new Date() >= slot?.last_subscribe_time;
+
+  useEffect(() => {
+    if (session && slots.length > 0 && slot && new Date() >= slot.last_subscribe_time) {
+      setCanSubscribe(false);
+    } else {
+      setCanSubscribe(true);
+    }
+  }, [session]);
+
   return (<Stack>
     <div className="page">
       <main className="container">
         <section className="hero-card">
-          <div className="hero-left">
-            <MetaChip label={t('uid_intern')} value={slot?.uid_intern} />
-            <p className="breadcrumb" style={{ marginTop: '5px' }}>{t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION }).toUpperCase()}</p>
-            <h1>{session?.lesson?.translate?.title}</h1>
-            <Grid container spacing={1} sx={{ marginY: 1 }}>
-              <Grid size={'auto'}>
-                <CardSlot title={t('level')} icon={<IconLevel />} valueComponent={<Typography color="var(--font-color)">{t(session?.level)}</Typography>} />
-              </Grid>
-              <Grid size={'auto'}>
-                <CardSlot title={t('duration')} icon={<IconDuration />} valueComponent={<Typography>
-                  {formatDuration(slot?.getDuration?.())}
-                </Typography>} />
-              </Grid>
-              <Grid size={'auto'}>
-                <CardSlot title={t('lang')} icon={<IconTranslation />} valueComponent={<Typography color="var(--font-color)">{t(session?.lang, {ns:NS_LANGS})}</Typography>} />
-              </Grid>
-            </Grid>
-            <Grid container spacing={1} sx={{ marginY: 1 }}>
-              <Grid size={'auto'}>
-                <CardSlot title={t('location')} icon={<IconLocation />} valueComponent={<Typography color="var(--font-color)">{slot?.location}</Typography>} />
-              </Grid>
-              <Grid size={'auto'}>
-                <CardSlot title={t('url')} icon={<IconLink />} valueComponent={<Link href={slot?.url || ""} target="_blank" style={{ color: "var(--primary)" }}>{session?.code}</Link>} />
-              </Grid>
-              <Grid size={'auto'}></Grid>
-              <Grid size={'auto'}></Grid>
-              <Grid size={'auto'}></Grid>
-              <Grid size={'auto'}></Grid>
-            </Grid>
-
-            <Grid container spacing={1}>
-              {
-                [ONLINE, ONSITE].map((format) => {
-                  if (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format) {
-                    return (<CardFormat key={format} slot={slot} format={format} />)
-                  }
-                  return null;
-                })
-              }
-
-            </Grid>
-          </div>
-
-          {/* Bloc inscription intégré dans le hero */}
-          <aside className="hero-right">
-            <div className="teacher-card">
-              <h2 className="teacher-label">{t('certification')}</h2>
-              {session?.lesson?.certified ? (
-                <>
-                  <p className="cert-main">
-                    {t('certification_block.title')}{" "}
-                    <strong>{SCHOOL_NAME}</strong>.
-                  </p>
-                  <ul className="list small">
+          <Grid spacing={1.5} container sx={{ background: '' }}>
+            <Grid size={{ xs: 12, sm: 7 }} sx={{ background: '' }}>
+              <Stack spacing={1}>
+                <div className="hero-left" style={{ background: '' }}>
+                  <div style={{ marginBottom: '5px' }}>
+                    <MetaChip
+                      label={t('lang', { ns: NS_LANGS })}
+                      value={t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}
+                      icon={<IconTranslation height={16} width={16} />}
+                    />
+                  </div>
+                  <h1>{session?.lesson?.translate?.title}</h1>
+                  <Grid container spacing={0.5} sx={{ marginY: 1, width: '100%' }}>
+                    <Grid size={'auto'}>
+                      <MetaChipIcon
+                        label={t('level')}
+                        value={t(slot?.level)}
+                        icon={<IconLevel height={16} width={16} />}
+                      />
+                    </Grid>
+                    <Grid size={'auto'}>
+                      <MetaChipIcon
+                        label={t('duration')}
+                        value={formatDuration(slot?.duration)}
+                        icon={<IconDuration height={16} width={16} />}
+                      />
+                    </Grid>
+                    <Grid>
+                      <MetaChipIcon
+                        label={t('lang', { ns: NS_LANGS })}
+                        value={t(slot?.lang, { ns: NS_LANGS })}
+                        icon={<IconTranslation height={16} width={16} />}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={1} sx={{ marginY: 1, width: '100%' }}>
                     {
-                      t('certification_block.items', { returnObjects: true })?.map?.((text, i) => {
-                        return (<li key={`${text}-${i}`}>{text}</li>)
+                      (slot?.format === ClassSessionSlot.FORMAT.HYBRID || slot?.format === ClassSessionSlot.FORMAT.ONSITE) && <Grid>
+                        <MetaChipIcon
+                          label={t('location')}
+                          value={slot?.location}
+                          icon={<IconLocation height={16} width={16} />}
+                        />
+                      </Grid>
+                    }
+                    {
+                      (slot?.format === ClassSessionSlot.FORMAT.HYBRID || slot?.format === ClassSessionSlot.FORMAT.ONLINE) && slot?.url && slot?.isSubscribe?.(user.uid) && <Grid>
+                        <MetaChipIcon
+                          label={t('url')}
+                          value={<Link href={slot?.url || ""} target="_blank" style={{ color: "var(--primary)" }}>{session?.code}</Link>}
+                          icon={<IconLink height={16} width={16} />}
+                        />
+                      </Grid>
+                    }
+                  </Grid>
+                  <Grid container spacing={1}>
+                    <SubscribeComponent slot={slot} />
+                    {
+                      canSubscribe && [ONLINE, ONSITE].map((format) => {
+                        if (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format) {
+                          return (<CardFormat key={format} slot={slot} format={format} />)
+                        }
+
+                        return null;
                       })
                     }
-                  </ul>
-                  {course.isOfficialCertificate && (
-                    <p className="cert-badge">
-                      {t('certification_official')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="cert-main">
-                  Ce cours ne délivre pas de certificat officiel mais une
-                  attestation de participation peut être fournie sur demande.
-                </p>
-              )}
-            </div>
-          </aside>
+                    {
+                      !canSubscribe && <AlertComponent
+                        subtitle={<Trans
+                          t={t}
+                          i18nKey={'errors.last_subscribe_time'}
+                          values={{
+                            date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+                          }}
+                          components={{
+                            //span: <Typography variant="body2" color="text.secondary" />, 
+                            b: <strong />
+                          }}
+                        />
+                        }
+                        severity="warning"
+                      />
+                      /*
+                      last_subscribe_time
+                      */
+                    }
+                  </Grid>
+                </div>
+                {/* Bloc inscription intégré dans le hero */}
+                {
+                  canSubscribe && <aside className="hero-right">
+                    <div className="teacher-card">
+                      <h2 className="teacher-label">{t('certification')}</h2>
+                      {session?.lesson?.certified ? (
+                        <>
+                          <p className="cert-main">
+                            {t('certification_block.title')}{" "}
+                            <strong>{SCHOOL_NAME}</strong>.
+                          </p>
+                          <ul className="list small">
+                            {
+                              t('certification_block.items', { returnObjects: true })?.map?.((text, i) => {
+                                return (<li key={`${text}-${i}`}>{text}</li>)
+                              })
+                            }
+                          </ul>
+                          <p className="cert-badge">
+                            {t('certification_official')}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="cert-main">
+                          {t('certification_not')}
+                        </p>
+                      )}
+                    </div>
+                  </aside>
+                }
+              </Stack>
+            </Grid>
+            <Grid size={'grow'} sx={{ background: '' }}>
+              <Box sx={{ background: '', width: '100%' }}>
+                <Image
+                  src={session?.lesson?.photo_url || ''}
+                  alt={`lesson-${session?.lesson?.uid}`}
+                  quality={100}
+                  width={300}
+                  height={150}
+                  //loading="lazy"
+                  priority
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    borderRadius: '8px',
+                    objectFit: 'cover',
+                  }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+
+
+
         </section>
       </main>
       <style jsx>{`
@@ -462,8 +663,7 @@ export default function SessionComponent({}) {
                 }
         
                 .hero-card {
-                  display: grid;
-                  grid-template-columns: minmax(0, 2fr) minmax(260px, 1.5fr);
+                 
                   gap: 18px;
                   border-radius: 18px;
                   border: 1px solid #1f2937;
@@ -597,7 +797,7 @@ export default function SessionComponent({}) {
         
                 h1 {
                   margin: 0;
-                  font-size: 1.5rem;
+                  font-size: 1.25rem;
                   line-height: 1.5rem;
                 }
         

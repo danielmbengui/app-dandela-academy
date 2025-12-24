@@ -37,6 +37,7 @@ const {blueDark, text, cardColor} = theme.palette;
 
                     style={{fontSize:'0.9rem',fontWeight:'300', color:disabled?ClassColor.GREY_LIGHT:text.main, cursor:disabled ? 'not-allowed' : 'pointer', background:'transparent', borderRadius:'20px' }} 
                     className="text-base w-full p-13px pr-30px py-3px focus:outline-none block appearance-none relative z-20 rounded-xl"
+                    {...props}
                     >
                     {
                         hasNull && <option value={''}>{'---'}</option>

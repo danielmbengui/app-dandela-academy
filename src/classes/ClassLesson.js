@@ -71,23 +71,18 @@ export class ClassLesson {
     static STATUS_CONFIG = Object.freeze({
         open: {
             label: "open", // "Inscriptions ouvertes",
-            color: "#22c55e",
-            glow: "#022c22",
+            color: "var(--session-status-open)",
+            glow: "var(--session-status-open-glow)",
         },
-        full: {
-            label: "full", // "Complet",
-            color: "#f97316",
-            glow: "#451a03",
-        },
-        finished: {
-            label: "finished", // "Terminé",
-            color: "#9ca3af",
-            glow: "#0b1120",
+        valid: {
+            label: "open", // "Inscriptions ouvertes",
+            color: "var(--session-status-open)",
+            glow: "var(--session-status-open-glow)",
         },
         draft: {
             label: "draft", // "Brouillon",
-            color: "#eab308",
-            glow: "#422006",
+            color: "var(--session-status-draft)",
+            glow: "var(--session-status-draft-glow)",
         },
     });
     static SESSION_TYPE = Object.freeze({
@@ -121,9 +116,6 @@ export class ClassLesson {
         subtitle_normalized = "",
         description = "",
         category = "",
-        level = "",
-        lang = "",
-        format = "",
         certified = false,
         goals = [],
         programs = [],
@@ -145,9 +137,6 @@ export class ClassLesson {
         this._subtitle_normalized = subtitle_normalized;
         this._description = description;
         this._category = this._normalizeCategory(category);
-        this._level = level;
-        this._lang = lang;
-        this._format = format;
         this._certified = certified;
         this._goals = goals;
         this._programs = programs;
@@ -230,30 +219,6 @@ export class ClassLesson {
         this._category = this._normalizeCategory(value);
     }
 
-    // level
-    get level() {
-        return this._level;
-    }
-    set level(value) {
-        this._level = value;
-    }
-
-    // lang
-    get lang() {
-        return this._lang;
-    }
-    set lang(value) {
-        this._lang = value;
-    }
-
-    // format
-    get format() {
-        return this._format;
-    }
-    set format(value) {
-        this._format = value;
-    }
-
     // certified
     get certified() {
         return this._certified;
@@ -324,7 +289,7 @@ export class ClassLesson {
     set translate(value) {
         this._translate = value;
     }
-        // translates
+    // translates
     get translates() {
         return this._translates;
     }
@@ -376,7 +341,7 @@ export class ClassLesson {
     }
     clone() {
         //const translate = this._translate?.clone();
-      //  const translates = this._translates?.map();
+        //  const translates = this._translates?.map();
         return ClassLesson.makeLessonInstance(this._uid, { ...this.toJSON() });
         //return new ClassUser(this.toJSON());
     }
@@ -412,9 +377,9 @@ export class ClassLesson {
     static get converter() {
         return {
             toFirestore(lessonInstance) {
-                const translates = lessonInstance.translates?.map(item=>item.toJSON());
+                const translates = lessonInstance.translates?.map(item => item.toJSON());
                 // chaque classe a un .toJSON() propre
-                return lessonInstance?.toJSON ? {...lessonInstance.toJSON(), translates} : lessonInstance;
+                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates } : lessonInstance;
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
@@ -452,10 +417,12 @@ export class ClassLesson {
     static docRef(id) {
         return doc(firestore, this.COLLECTION, id).withConverter(this.converter);
     }
-    static async count() {
+
+    static async count(constraints = []) {
+        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
         //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const snap = await getCountFromServer(coll);
+        //const coll = this.colRef();
+        const snap = await getCountFromServer(q);
         return snap.data().count; // -> nombre total
     }
     // Récupérer un module par id
@@ -556,8 +523,8 @@ export class ClassLesson {
             const ref = this.constructor.docRef(this._uid);
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
-            
-            const updated = {...this.toJSON()};
+
+            const updated = { ...this.toJSON() };
             delete updated.translate;
             //updated.translates = updated.translates.map(item=>item.toJSON());
             console.log("want update", updated);
