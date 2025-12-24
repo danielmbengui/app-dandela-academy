@@ -720,7 +720,7 @@ function ModernSessionRow({ session, onOpen, onSubscribe }) {
             sx={primaryBtnSxSolid}
             disabled={session.status !== "PUBLISHED"}
           >
-            S'inscrire
+            {`S'inscrire`}
           </Button>
         </Stack>
       </Stack>
