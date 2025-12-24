@@ -67,6 +67,7 @@ export class ClassSession {
         FULL: 'full',
         SUBSCRIPTION_EXPIRED: 'expired',
         FINISHED: 'finished',
+        VALID: 'valid',
         DRAFT: 'draft',
         UNKNOWN: 'unknown',
     });
@@ -90,6 +91,11 @@ export class ClassSession {
             label: "finished", // "Terminé",
             color: "var(--session-status-finished)",
             glow: "var(--session-status-finished-glow)",
+        },
+        valid: {
+            label: "open", // "Inscriptions ouvertes",
+            color: "var(--session-status-open)",
+            glow: "var(--session-status-open-glow)",
         },
         draft: {
             label: "draft", // "Brouillon",
@@ -824,6 +830,15 @@ export class ClassSessionSlot {
         this._subscribers_online = Array.from(new Set(this._subscribers_online));
         this._subscribers_onsite = Array.from(new Set(this._subscribers_onsite));
     }
+    countSubscribers(format = "") {
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
+            return this._subscribers_online.length;
+        }
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
+            return this._subscribers_onsite.length;
+        }
+        return 0;
+    }
     isSubscribe(uid = "", format = "") {
         if (!uid) return;
         if (format === ClassSessionSlot.FORMAT.ONLINE) {
@@ -839,6 +854,17 @@ export class ClassSessionSlot {
             return true;
         }
         return false;
+    }
+    occupancyRate(format = "") {
+        var filled = this.countSubscribers(format);
+        var total = 0;
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
+            total = this._seats_availables_online;
+        }
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
+            total = this._seats_availables_onsite;
+        }
+        return (total > 0 ? filled / total : 0) * 100;
     }
 
     // --- Serialization ---
@@ -862,15 +888,7 @@ export class ClassSessionSlot {
         return new ClassSessionSlot(this.toJSON());
         //return new ClassUser(this.toJSON());
     }
-    countSubscribers(format = "") {
-        if (format === ClassSessionSlot.FORMAT.ONLINE) {
-            return this._subscribers_online.length;
-        }
-        if (format === ClassSessionSlot.FORMAT.ONSITE) {
-            return this._subscribers_onsite.length;
-        }
-        return 0;
-    }
+
     countFree(format = "") {
         if (format === ClassSessionSlot.FORMAT.ONLINE) {
             return this._seats_availables_online - this._subscribers_online.length;

@@ -43,13 +43,11 @@ export function SessionProvider({ children, uidLesson = "" }) {
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
         if (user) {
-            console.log("user session provider", user)
             const listener = listenToSessions(user);
             return () => listener?.();
         }
     }, [user]);
     useEffect(() => {
-        console.log("*UUUID lesson", uidLesson, "UID session", uidSession)
         if (uidSession) {
             const _session = getOneSession(uidSession);
             setSession(_session);
@@ -63,7 +61,6 @@ export function SessionProvider({ children, uidLesson = "" }) {
         if (uidSlot && session) {
             //const _session = getOneSession(uidSession);
             const _slot = session.slots?.find?.(a => a.uid_intern === uidSlot);
-            //console.log("get one slot", _slot)
             setSlot(_slot);
         } else {
             setSlot(null);
@@ -85,17 +82,14 @@ export function SessionProvider({ children, uidLesson = "" }) {
         const q = constraints.length
             ? query(colRef, ...constraints)
             : colRef;
-        // console.log("Col ref provider", colRef);
         const snapshotSessions = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
-            //console.log("snap", snap.size);
             if (snap.empty) {
                 setSessions([]);
                 setSession(null);
                 setIsLoading(false);
                 return;
             }
-            //console.log("is not empty", snap.docs.map(doc => doc.data()));
             var _sessions = [];
             var _slots = [];
             
@@ -104,7 +98,6 @@ export function SessionProvider({ children, uidLesson = "" }) {
                 const lesson = session.uid_lesson ? await ClassLesson.fetchFromFirestore(session.uid_lesson, lang) : null;
                 const teacher = session.uid_teacher ? await ClassUser.fetchFromFirestore(session.uid_teacher) : null;
                 const room = session.uid_room ? await ClassRoom.fetchFromFirestore(session.uid_room) : null;
-                //console.log("IS teacher", teacher)
                 //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
                 const session_new = new ClassSession({
                     ...session.toJSON(),
@@ -114,16 +107,15 @@ export function SessionProvider({ children, uidLesson = "" }) {
                 session_new.teacher = teacher;
                 session_new.room = room;
                 _sessions.push(session_new);
-                var _slots_session = session_new.slots.filter(slot => slot.status !== ClassSession.STATUS.DRAFT);
+                var _slots_session = session_new.slots.filter(slot => [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED].includes(slot.status));
                 if (user instanceof ClassUserIntern) {
                     //constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
                     _slots_session = session_new.slots;
                 }
-                _slots.push(..._slots_session);
+                _slots.push(...session_new.slots);
             }
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
-            console.log("OBJECT list SLOTS", _slots)
             setSessions(_sessions);
             setSlots(_slots);
             setIsLoading(false);
@@ -131,7 +123,6 @@ export function SessionProvider({ children, uidLesson = "" }) {
         return snapshotSessions;
     }, [uidLesson]);
     const listenToOneSession = useCallback((uidSession) => {
-        console.log("*UUUID lesson", uidLesson, uidSession)
         if (!uidSession) {
             setSession(null);
             //setIsConnected(false);
@@ -147,12 +138,10 @@ export function SessionProvider({ children, uidLesson = "" }) {
                 setIsLoading(false);
                 return;
             }
-            console.log("change session")
             const _session = snap.data();
             const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
             const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
-            //console.log("IS teacher", teacher)
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const session_new = new ClassSession({
                 ..._session.toJSON(),
@@ -165,7 +154,6 @@ export function SessionProvider({ children, uidLesson = "" }) {
             setSession(prev => {
                 if (!prev || prev === null) return session_new;
                 prev.update(session_new.toJSON());
-                // console.log('set prev session', session_new);
                 //const session_new = new ClassSession(session_new.toJSON());
                 //prev.lesson = lesson;
                 //prev.teacher = teacher;
@@ -231,10 +219,8 @@ export function SessionProvider({ children, uidLesson = "" }) {
     async function update(_lesson = null) {
         if (!_lesson || _lesson === null || !(_lesson instanceof ClassSession)) return;
         setIsLoading(true);
-        // console.log("start update")
         //var newDevice = await _device.createFirestore();
         var updatedLesson = await _lesson.updateFirestore();
-        //console.log("start update firestore", updatedLesson)
         try {
             if (updatedLesson) {
                 //setSession(updatedLesson.clone());
@@ -280,7 +266,6 @@ export function SessionProvider({ children, uidLesson = "" }) {
         if (!uid || uid === '' || uid === null) {
             return null;
         }
-        //console.log("OBJECT list SESSION get one item", sessions)
         const _lesson = sessions.find(item => item.uid === uid);
         return _lesson;
     }
@@ -301,9 +286,6 @@ export function SessionProvider({ children, uidLesson = "" }) {
         } else {
             setSession(null);
         }
-
-        //   console.log("change session", _lesson)
-
     }
 
     const value = {

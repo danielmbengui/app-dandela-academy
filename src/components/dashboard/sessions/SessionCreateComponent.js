@@ -286,7 +286,7 @@ function CardFormat({ slot = null, setSession = null, format = "", session = nul
           //disablePast={true}
           //disableFuture={false}
           label={t(`seats_availables_${format}`)}
-          value={session?.slots?.[0]?.[`seats_availables_${format}`]}
+          value={`${slot?.[`seats_availables_${format}`]}`}
           onChange={onChangeValue}
           onClear={() => onClearValue(`seats_availables_${format}`)}
           error={errors[`seats_availables_${format}`]}
@@ -363,7 +363,7 @@ function RenderContent({ mode = 'create',
   const { session, update, slots } = useSession();
   const { rooms, getOneRoom } = useRoom();
   const { lessons, getOneLesson } = useLesson();
-  const [slot, setSlot] = useState(new ClassSessionSlot({uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date:initStartDate}));
+  const [slot, setSlot] = useState(new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate }));
   //const [sessionNew, setSessionNew] = useState(null);
   //const [errors, setErrors] = useState({});
   const [proessing, setProcessing] = useState(false);
@@ -393,7 +393,7 @@ function RenderContent({ mode = 'create',
   const calculateEndDate = (start_date = null, duration = 0) => {
     if (!start_date || !(start_date instanceof Date) || !duration) return null;
     const newDate = new Date(start_date.toString());
-    const hours = parseInt(duration);
+    const hours = parseFloat(duration);
     const minutes = (duration - hours) * 60;
     newDate.setHours(newDate.getHours() + hours);
     newDate.setMinutes(newDate.getMinutes() + minutes);
@@ -455,14 +455,15 @@ function RenderContent({ mode = 'create',
     setSessionNew(prev => {
       if (!prev || prev === null) return defaultSession;
       //const slot = prev.slots[0] || new ClassSessionSlot();
-      const endDate = calculateEndDate(day, value);
+      const duration = parseFloat(value);
+      const endDate = calculateEndDate(day, duration);
       //const hours = parseInt(value);
       //const minutes = (value - hours) * 60;
       /// newDate.setHours(newDate.getHours() + hours);
       //newDate.setMinutes(newDate.getMinutes() + minutes);
       //newDate.setSeconds(0);
       //console.log("DURATION",calculateEndDate(day, value))
-      slot.update({ duration: value, end_date: endDate });
+      slot.update({ duration: duration, end_date: endDate });
       prev.update({ slots: [slot] });
       //console.log("VALUE", date)
       return prev.clone();

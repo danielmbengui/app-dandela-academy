@@ -151,12 +151,14 @@ export default function DialogSession({
             if (sessionNew?.slots?.[0]?.url?.length > 0 && !isValidURL(sessionNew?.slots?.[0]?.url)) {
                 _errors.url = errorsTranslate['url-invalid'];
             }
+            console.log("ERRRORS", _errors)
             if (Object.keys(_errors).length > 0) {
                 _errors.main = errorsTranslate['before-continue'];
                 setErrors(_errors);
                 setDisabledCreate(true);
                 return;
             }
+            
             /*
             if (sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.HYBRID || sessionNew?.slots?.[0]?.format === ClassSession.FORMAT.ONSITE) {
                 var count = sessionNew?.room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
@@ -313,18 +315,6 @@ export default function DialogSession({
                                 <Link href={`${PAGE_LESSONS}/${session?.lesson?.uid}`} target="_blank" style={{ textDecoration: 'none' }}>
                                     <ButtonCancel label={dialogTranslate['btn-see-lesson']} variant='outlined' />
                                 </Link>
-                            </Stack>
-                        }
-                        {
-                            user instanceof ClassUserAdministrator && <Box>
-                                <ButtonConfirm
-                                    label={dialogTranslate['btn-subscribe-user']}
-                                />
-                            </Box>
-                        }
-                        {
-                            user instanceof ClassUserAdministrator && <Stack justifyContent={'center'} sx={{ background: '', cursor: 'pointer' }}>
-                                <IconEdit color="var(--primary)" />
                             </Stack>
                         }
                     </Stack>

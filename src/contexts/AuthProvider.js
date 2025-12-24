@@ -59,15 +59,10 @@ function usePresenceRTDB(uid) {
         if (!uid) return;
         const userStatusRef = ref(database, `/status/${uid}`);
         const connectedRef = ref(database, ".info/connected");
-        console.log("use ref status", userStatusRef);
-        console.log("CONNECTED ref", connectedRef);
-
         // écoute l'état de connexion au backend Firebase
         const unsubscribe = onValue(connectedRef, async (snap) => {
             const isConnected = snap.val() === true;
-            //console.log("SNAP val", snap.val());
             if (!isConnected) return;
-            //console.log("is connected", snap.val());
             // programmé côté serveur : quand ça coupe -> offline
             onDisconnect(userStatusRef).set({
                 status: ClassUser.STATUS.OFFLINE,
@@ -76,19 +71,7 @@ function usePresenceRTDB(uid) {
                 //logged: false
             });
            // const _snap = await get(userStatusRef);
-           // const prev = _snap.val() || {};
-            // online immédiat
-           // console.log("USEEER stats realtime", prev)
            await setPresence(uid, ClassUser.STATUS.ONLINE);
-           /*
-            set(userStatusRef, {
-                //...prev,
-                status: ClassUser.STATUS.ONLINE,
-                //last_changed: serverTimestamp(),
-                //last_connexion_time: serverTimestamp(),
-                //logged: true
-            });
-            */
         });
 
         // cleanup listener
@@ -118,7 +101,6 @@ export function AuthProvider({ children }) {
     const { lang } = useLanguage();
     const { t } = useTranslation([NS_ERRORS]);
     const { pathname } = usePathname();
-    //console.log("PATTTH", window.location.origin, window.location.pathname)
     const [userAuth, setUserAuth] = useState(null);           // ton user métier (ou snapshot)
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +141,6 @@ export function AuthProvider({ children }) {
                 return prev.clone();
             });
             await setPresence(user.uid, ClassUser.STATUS.ONLINE);
-            console.log("[Chrono] start (visible)", new Date());
         },
         onHidden: async () => {
             // la page n'est plus visible → on arrête le chrono
@@ -176,7 +157,6 @@ export function AuthProvider({ children }) {
             */
             // ✅ RTDB: away (onglet caché)
             //await setPresence(user.uid, ClassUser.STATUS.AWAY);
-            console.log("[Chrono] hidden → temps passé sur cette session:", new Date(), "s");
         },
         onBeforeUnload: async () => {
             // l'utilisateur ferme/reload/navigue ailleurs
@@ -193,7 +173,6 @@ export function AuthProvider({ children }) {
             */
             // ✅ RTDB: away (onglet caché)
             //await setPresence(user.uid, ClassUser.STATUS.AWAY);
-            console.log("[Chrono] beforeunload → dernière session:", new Date(), "s");
 
         },
     });
@@ -210,24 +189,15 @@ export function AuthProvider({ children }) {
                 return;
             }
             const data = snap.data();
-            //console.log("DATA listne user", data);
             const { email_verified, status } = data;
             if (email_verified !== fbUser.emailVerified) {
                 //await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
-            /*
-                        await ClassUser.update(fbUser.uid, {
-                            last_connexion_time: new Date(),
-                            //status: ClassUser.STATUS.ONLINE,
-                        });
-                        */
-
             const _user = data;
             //setUser(_user);
             setUser(prev => {
                 if (!prev || prev === null) return _user.clone();
                 prev.update(_user.toJSON());
-                //console.log('set prev user', _user);
                 return prev.clone();
             });
             setIsConnected(true);
@@ -254,10 +224,8 @@ export function AuthProvider({ children }) {
                 setIsLoading(false);
                 //  console.timeEnd("auth");
                 const unsubUser = listenToUser(fbUser);
-                //console.log("FFFF init user", fbUser.emailVerified);
                 return () => unsubUser?.();
             } else {
-                // console.log("no user FB")
                 setUser(null);
                 setUserAuth(null);
                 setIsConnected(false);
@@ -402,7 +370,6 @@ export function AuthProvider({ children }) {
             } else if (errorCode === ClassUser.ERROR.TOO_MANY_REQUESTS) {
                 errorMessage = translateWithVars(t(`${NS_ERRORS}:wrong-password`), { password: password });
             }
-
             console.log("ERRRRRROR", errorCode, errorMessage, email, password);
             setUser(null);
             setIsConnected(false);
@@ -416,7 +383,6 @@ export function AuthProvider({ children }) {
         }
     };
     const logout = async () => {
-        console.log("logout", auth.currentUser)
         const uid = auth.currentUser.uid || '';
         setIsLoading(true);
         await signOut(auth);
@@ -431,50 +397,28 @@ export function AuthProvider({ children }) {
         setTextErrorSignIn(``);
         setIsLoading(false);
         router.replace(PAGE_LOGIN);
-        //console.log("DISC OK");
     };
     const editEmail = async (e, newEmail) => {
         e?.preventDefault?.();
         //const credential = promptForCredentials();
-        console.log("Email to updated", newEmail);
         const credential = EmailAuthProvider.credential(user.email, "Projetsdevie2025#");
         reauthenticateWithCredential(auth.currentUser, credential).then(async () => {
             // User re-authenticated.
             var now = new Date();
             //now = now.setDate(now.getMinutes),
             now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
-            console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
-
             const actionCodeSettings = {
                 // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
                 url: `${window.location.origin}/auth/`,
                 // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
                 handleCodeInApp: false,
             };
-            console.log("re authenticate");
             await verifyBeforeUpdateEmail(auth.currentUser, newEmail, actionCodeSettings);
-            console.log("email updated");
         }).catch((error) => {
             // An error ocurred
             console.log("ERRRROR", error)
             // ...
         });
-
-
-        /*
-
-                */
-        /*
-         updateEmail(auth.currentUser, newEmail).then(() => {
-             // Email updated!
-             // ...
-             console.log("Email updated", newEmail);
-         }).catch((error) => {
-             // An error occurred
-             // ...
-             console.log("ERRROR", error)
-         });
-         */
     }
     const editPassword = async (e, newPassword) => {
         e?.preventDefault?.();
@@ -482,25 +426,18 @@ export function AuthProvider({ children }) {
             // Update successful.
             const uid = auth.currentUser.uid;
             const ref = doc(firestore, ClassUser.COLLECTION, uid);
-            console.log("NEEEW PASSWORD", newPassword, uid);
             await updateDoc(ref, { default_password: '', password_changed: true });
         }).catch((error) => {
-            // An error ocurred
-            // ...
             console.log("ERRRROR password", error);
         });
     }
     const sendVerification = async () => {
         if (!auth.currentUser) return;
-        // console.log("SUCCESS", auth.currentUser.email);
-        //const auth = getAuth();
         const _user = auth.currentUser;
         if (!_user) throw new Error("No authenticated user");
         var now = new Date();
         //now = now.setDate(now.getMinutes),
         now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
-        // console.log("location redirect", `${window.location.origin}${window.location.pathname}${now.toString()}`);
-
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
             url: `${window.location.origin}/auth?returnTo=${encodeURIComponent(`${window.location.pathname}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified

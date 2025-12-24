@@ -241,7 +241,7 @@ export default function CalendarPage() {
               gap: '0.25rem',
               //background:'yellow',
               //margin:0,
-              padding: 0,
+              px: 1,
               width: "100%"
             },
             '@media (max-width:600px)': {
