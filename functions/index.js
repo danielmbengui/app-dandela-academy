@@ -103,7 +103,9 @@ exports.updateSessionsStatus = onSchedule(
         const startDate = toDate(slot.start_date);
         const endDate = toDate(slot.end_date);
         const lastDate = toDate(slot.last_subscribe_time);
-
+        if (endDate?.getTime() < new Date().getTime() && slot_new.status === 'draft') {
+          continue;
+        }
         var slot_new = { ...slot };
         if (lastDate?.getTime() < new Date().getTime()) {
           //console.log(`Session ${doc.id} slot ${slot.uid_intern} doesnt accept any subscribers, updating status to 'expired'`);
@@ -123,9 +125,7 @@ exports.updateSessionsStatus = onSchedule(
             session_last_edit_time = new Date();
           }
         }
-        if (endDate?.getTime() < new Date().getTime() && slot_new.status === 'draft') {
-          continue;
-        }
+
         slots_new.push(slot_new);
       }
       batch.update(doc.ref, {

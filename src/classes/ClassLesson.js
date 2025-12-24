@@ -110,6 +110,8 @@ export class ClassLesson {
     constructor({
         uid = "",
         uid_intern = "",
+        uid_teacher = "",
+        teacher = null,
         title = "",
         title_normalized = "",
         subtitle = "",
@@ -131,6 +133,8 @@ export class ClassLesson {
     } = {}) {
         this._uid = uid;
         this._uid_intern = uid_intern;
+        this._uid_teacher = uid_teacher;
+        this._teacher = teacher;
         this._title = title;
         this._title_normalized = title_normalized;
         this._subtitle = subtitle;
@@ -162,13 +166,26 @@ export class ClassLesson {
     set uid(value) {
         this._uid = value;
     }
-
     // uid_intern
     get uid_intern() {
         return this._uid_intern;
     }
     set uid_intern(value) {
         this._uid_intern = value;
+    }
+    // uid_teacher
+    get uid_teacher() {
+        return this._uid_teacher;
+    }
+    set uid_teacher(value) {
+        this._uid_teacher = value;
+    }
+    // teacher
+    get teacher() {
+        return this._teacher;
+    }
+    set teacher(value) {
+        this._teacher = value;
     }
 
     // title
@@ -319,9 +336,6 @@ export class ClassLesson {
         this._last_edit_time = new Date();
     }
 
-    // --- GETTERS ---
-
-
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
@@ -330,6 +344,8 @@ export class ClassLesson {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
+        cleaned.teacher = null;
+        delete cleaned.teacher;
         return cleaned;
     }
     update(props = {}) {
@@ -342,7 +358,10 @@ export class ClassLesson {
     clone() {
         //const translate = this._translate?.clone();
         //  const translates = this._translates?.map();
-        return ClassLesson.makeLessonInstance(this._uid, { ...this.toJSON() });
+        return ClassLesson.makeLessonInstance(this._uid, {
+            ...this.toJSON(),
+            teacher: this._teacher,
+        });
         //return new ClassUser(this.toJSON());
     }
 
@@ -388,9 +407,10 @@ export class ClassLesson {
                 var end_date = ClassLesson._toJsDate(data.end_date);
                 var created_time = ClassLesson._toJsDate(data.created_time);
                 var last_edit_time = ClassLesson._toJsDate(data.last_edit_time);
+                const translates = data.translates?.map?.(trans=>new ClassLessonTranslate(trans));
                 //console.log("uid lesson",uid, )
                 //console.log("translate", translate)
-                return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time });
+                return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time, translates });
             },
         };
     }

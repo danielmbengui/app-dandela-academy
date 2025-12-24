@@ -3,7 +3,7 @@ import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Skeleton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -16,6 +16,8 @@ import { SCHOOL_NAME } from "@/contexts/constants/constants";
 import { useSession } from "@/contexts/SessionProvider";
 import DialogSession from "../sessions/DialogSession";
 import { ClassSessionSlot } from "@/classes/ClassSession";
+import Link from "next/link";
+import ButtonCancel from "../elements/ButtonCancel";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -299,6 +301,33 @@ export default function LessonComponent() {
 
           {/* Bloc inscription intégré dans le hero */}
           <aside className="hero-right">
+            {/* PROFESSEUR */}
+            <div className="teacher-card">
+              <p className="teacher-label-text">Professeur du cours</p>
+              <div className="teacher-main">
+                {lesson?.teacher?.showAvatar?.({})}
+                <div className="teacher-text">
+                  <p className="teacher-name">
+                    {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
+                  </p>
+                  <p className="teacher-role">{lesson?.teacher?.role_title}</p>
+                </div>
+              </div>
+              <p className="teacher-bio">{lesson?.teacher?.bio}</p>
+              <p className="teacher-email">
+                📧 <span>{lesson?.teacher?.email}</span>
+              </p>
+              <button className="btn ghost-btn">
+                Contacter le professeur
+              </button>
+              <Link href={`mailto:${lesson?.teacher?.email}`}>
+                <ButtonCancel
+                  label="Contacter le professeur"
+                />
+              </Link>
+            </div>
+
+            <Skeleton variant="rounded"  height={60} />
             {
               !isLoadingSessions && sessions.length && <>
                 <div className="hero-right-top">
@@ -345,7 +374,6 @@ export default function LessonComponent() {
                 </div>
               </>
             }
-
           </aside>
         </section>
 
@@ -526,6 +554,12 @@ export default function LessonComponent() {
                   font-size: 0.75rem;
                   font-size: 1.05rem;
                   color: #9ca3af;
+                }
+                .teacher-label-text {
+                  font-size: 0.75rem;
+                  font-size: 1.05rem;
+                  color: #9ca3af;
+                  margin-bottom: 6px;
                 }
         
                 .teacher-main {

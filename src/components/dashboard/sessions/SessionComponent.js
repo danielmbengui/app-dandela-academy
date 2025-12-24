@@ -613,10 +613,10 @@ function SubscribeComponent({session=null,slot=null, format = "" }) {
   const { lang } = useLanguage();
   const { ONLINE, ONSITE } = ClassSessionSlot.FORMAT;
   if (slot?.status === ClassSessionSlot.STATUS.OPEN) {
-    return (<>
+    return (<Stack spacing={1}>
       <OpenComponent />
       <CertificationComponent />
-    </>);
+    </Stack>);
   } else if (slot?.status === ClassSessionSlot.STATUS.SUBSCRIPTION_EXPIRED) {
     return (<ExpiredComponent slot={slot} />);
   } else if (slot?.status === ClassSessionSlot.STATUS.FINISHED) {

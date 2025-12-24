@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { ClassLesson, ClassLessonTranslate } from '@/classes/ClassLesson';
 import { useLanguage } from './LangProvider';
-import { ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 
 
@@ -61,14 +61,14 @@ export function LessonProvider({ children }) {
             for (const snapshot of snap.docs) {
                 const lesson = await snapshot.data();
 
-                //const teacher = await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher);
+                const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
                 const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
                 const lesson_new = new ClassLesson({
                     ...lesson.toJSON(),
                     //translate: translate,
                 });
                 lesson_new.translate = translate;
-                //lesson_new.teacher = teacher;
+                lesson_new.teacher = teacher;
                 _lessons.push(lesson_new);
             }
             /*
