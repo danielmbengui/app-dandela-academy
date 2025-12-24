@@ -41,6 +41,7 @@
 .fc .fc-scrollgrid td,
 .fc .fc-scrollgrid th {
   border: 0.1px solid var(--card-border) !important;
+  
 }
 
 .fc .fc-scrollgrid th {
@@ -52,6 +53,7 @@
 .fc-daygrid-day {
   background-color: transparent;
   border: 0.1px solid var(--card-border);
+  border: none;
   cursor: pointer;
 }
 
@@ -78,7 +80,7 @@
 /* List view */
 .fc .fc-list-event {
   cursor: pointer;
-  background-color: red;
+   border: none;
 }
 
 .fc .fc-list-event-dot {
@@ -118,7 +120,7 @@
 }
 
 .fc-theme-standard .fc-list {
-  border: 0 !important;
+  border: none !important;
 }
 
 .fc-theme-standard .fc-list-table {
@@ -132,8 +134,6 @@
 /* Table liste */
 .fc .fc-list-table {
   border: none;
-  background-color: red;
-
   overflow: hidden;
   border: none;
   background: var(--card-color);
@@ -151,10 +151,6 @@
   border: none;
 }
 
-
-
-
-
 .fc-daygrid-event {
   border-radius: 6px;
   padding: 5px;
@@ -166,6 +162,7 @@
   white-space: nowrap;
   cursor: pointer;
   color: black;
+   border: none;
 }
 
 /* Week/Day view (timeGrid) */
@@ -179,6 +176,7 @@
   background: var(--session-status-open-glow);
   border: none;
   border-left: 2px solid var(--primary);
+   border: none;
   white-space: nowrap;
   cursor: pointer;
   color: black !important;
@@ -198,11 +196,16 @@
 .fc-daygrid-event.open,
 .fc-timegrid-event.open {
   background: var(--session-status-open-glow);
+  color: var(--session-status-open-text);
   border: 0.1px solid var(--session-status-open);
   border-left: 2px solid var(--session-status-open);
 }
 .fc-list-event.open {
   background: var(--session-status-open-glow);
+}
+.fc-list-event.open .fc-list-event-time,
+.fc-list-event.open .fc-list-event-title {
+  color: var(--session-status-open-text);
 }
 
 .fc-daygrid-event.open:hover,
@@ -220,11 +223,16 @@
 .fc-daygrid-event.full,
 .fc-timegrid-event.full {
   background: var(--session-status-full-glow);
+  color: var(--session-status-full-text);
   border: 0.1px solid var(--session-status-full);
   border-left: 2px solid var(--session-status-full);
 }
 .fc-list-event.full {
   background: var(--session-status-full-glow);
+}
+.fc-list-event.full .fc-list-event-time,
+.fc-list-event.full .fc-list-event-title {
+  color: var(--session-status-full-text);
 }
 
 .fc-daygrid-event.full:hover,
@@ -243,18 +251,22 @@
 .fc-daygrid-event.finished,
 .fc-timegrid-event.finished {
   background: var(--session-status-finished-glow);
+  color: var(--session-status-finished-text);
   border: 0.1px solid var(--session-status-finished);
   border-left: 2px solid var(--session-status-finished);
 }
 .fc-list-event.finished{
   background: var(--session-status-finished-glow);
 }
+.fc-list-event.finished .fc-list-event-time,
+.fc-list-event.finished .fc-list-event-title {
+  color: var(--session-status-finished-text);
+}
 
 .fc-daygrid-event.finished:hover,
 .fc-timegrid-event.finished:hover {
   background: var(--session-status-finished);
   border-left: 2px solid var(--primary);
-  color:white;
 }
 .fc .fc-list-event.finished:hover td {
   background: var(--session-status-finished);
@@ -267,24 +279,26 @@
 .fc-daygrid-event.expired,
 .fc-timegrid-event.expired {
   background: var(--session-status-expired-glow);
+  color: var(--session-status-expired-text);
   border: 0.1px solid var(--session-status-expired);
   border-left: 2px solid var(--session-status-expired);
-  color: var(--font-color);
 }
 .fc-list-event.expired {
   background: var(--session-status-expired-glow);
   color: var(--font-color);
+}
+.fc-list-event.expired .fc-list-event-time,
+.fc-list-event.expired .fc-list-event-title {
+  color: var(--session-status-expired-text);
 }
 
 .fc-daygrid-event.expired:hover,
 .fc-timegrid-event.expired:hover {
   background: var(--session-status-expired);
   border-left: 2px solid var(--primary);
-  color: black;
 }
 .fc .fc-list-event.expired:hover td {
   background: var(--session-status-expired);
-  color:black;
 }
 .fc .fc-list-event.expired:hover .fc-list-event-dot {
   border-color: var(--primary) !important;
@@ -293,11 +307,16 @@
 .fc-daygrid-event.draft,
 .fc-timegrid-event.draft {
   background: var(--session-status-draft-glow);
+  color: var(--session-status-draft-text);
   border: 0.1px solid var(--session-status-draft);
   border-left: 2px solid var(--session-status-draft);
 }
 .fc-list-event.draft {
   background: var(--session-status-draft-glow);
+}
+.fc-list-event.draft .fc-list-event-time,
+.fc-list-event.draft .fc-list-event-title {
+  color: var(--session-status-draft-text);
 }
 
 .fc-daygrid-event.draft:hover,

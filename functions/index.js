@@ -100,11 +100,12 @@ exports.updateSessionsStatus = onSchedule(
       var session_status = session.status || '';
       var session_last_edit_time = session.last_edit_time || new Date();
       for (const slot of slots) {
+        const startDate = toDate(slot.start_date);
         const endDate = toDate(slot.end_date);
         const lastDate = toDate(slot.last_subscribe_time);
 
         var slot_new = { ...slot };
-        if (!lastDate || lastDate.getTime() < new Date().getTime()) {
+        if (lastDate?.getTime() < new Date().getTime()) {
           //console.log(`Session ${doc.id} slot ${slot.uid_intern} doesnt accept any subscribers, updating status to 'expired'`);
           slot_new.status = 'expired';
           slot_new.last_edit_time = new Date();
@@ -113,7 +114,7 @@ exports.updateSessionsStatus = onSchedule(
             session_last_edit_time = new Date();
           }
         }
-        if (!endDate || endDate.getTime() < new Date().getTime()) {
+        if (endDate?.getTime() < new Date().getTime()) {
           //console.log(`Session ${doc.id} slot ${slot.uid_intern} is past due, updating status to 'finished'`);
           slot_new.status = 'finished';
           slot_new.last_edit_time = new Date();
@@ -121,6 +122,9 @@ exports.updateSessionsStatus = onSchedule(
             session_status = 'finished';
             session_last_edit_time = new Date();
           }
+        }
+        if (endDate?.getTime() < new Date().getTime() && slot_new.status === 'draft') {
+          continue;
         }
         slots_new.push(slot_new);
       }

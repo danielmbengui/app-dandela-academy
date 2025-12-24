@@ -37,7 +37,6 @@ export function LessonProvider({ children }) {
         return () => listener?.();
     }, [lang]);
     useEffect(() => {
-        console.log("*UUUID lesson", uidLesson,)
         if (uidLesson) {
             const _lesson = getOneLesson(uidLesson);
             setLesson(_lesson);
@@ -50,32 +49,25 @@ export function LessonProvider({ children }) {
     // écoute du doc utilisateur
     const listenToLessons = useCallback(() => {
         const colRef = ClassLesson.colRef(); // par ex.
-        // console.log("Col ref provider", colRef);
         const snapshotLessons = onSnapshot(colRef, async (snap) => {
             // snap est un QuerySnapshot
-            //console.log("snap", snap.size);
             if (snap.empty) {
                 setLessons([]);
                 setLesson(null);
                 setIsLoading(false);
                 return;
             }
-
-            //console.log("is not empty", snap.docs.map(doc => doc.data()));
             var _lessons = [];
-
             for (const snapshot of snap.docs) {
                 const lesson = await snapshot.data();
 
                 //const teacher = await ClassUserTeacher.fetchFromFirestore(lesson.uid_teacher);
-                // console.log("IS teacher", teacher)
                 const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
                 const lesson_new = new ClassLesson({
                     ...lesson.toJSON(),
                     //translate: translate,
                 });
                 lesson_new.translate = translate;
-                //console.log("IS teacher", lesson)
                 //lesson_new.teacher = teacher;
                 _lessons.push(lesson_new);
             }
@@ -91,14 +83,12 @@ export function LessonProvider({ children }) {
             });
             */
             _lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
-            console.log("OBJECT list LESSON", _lessons)
             setLessons(_lessons);
             setIsLoading(false);
         });
         return snapshotLessons;
     }, []);
     const listenToOneLesson = useCallback((uidLesson) => {
-        console.log("*UUUID lesson LessonProvider", uidLesson)
         if (!uidLesson) {
             setLesson(null);
             //setIsConnected(false);
@@ -114,12 +104,10 @@ export function LessonProvider({ children }) {
                 setIsLoading(false);
                 return;
             }
-            //console.log("change session")
             const _lesson = snap.data();
             //const lesson = _lesson.uid_lesson ? await ClassLesson.fetchFromFirestore(_lesson.uid_lesson, lang) : null;
             //const teacher = _lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_lesson.uid_teacher) : null;
             const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
-            //console.log("IS teacher", teacher)
             const translate = await ClassLessonTranslate.fetchFromFirestore(_lesson.uid, lang);
             const translates = await ClassLessonTranslate.fetchListFromFirestore(_lesson.uid);
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
@@ -132,11 +120,9 @@ export function LessonProvider({ children }) {
             lesson_new.room = room;
             lesson_new.translate = translate;
             lesson_new.translates = translates;
-            //console.log("IS lesson new", lesson_new)
             setLesson(prev => {
                 if (!prev || prev === null) return lesson_new;
                 prev.update(lesson_new.toJSON());
-                // console.log('set prev session', session_new);
                 //const session_new = new ClassSession(session_new.toJSON());
                 //prev.lesson = lesson;
                 //prev.teacher = teacher;

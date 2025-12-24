@@ -230,7 +230,6 @@ function MetaChipIcon({ label, value, icon = <></> }) {
     </>
   );
 }
-
 /** Petit composant pour les lignes d'info à droite */
 function InfoRow({ label, value }) {
   const { t } = useTranslation(ClassLesson.NS_COLLECTION);
@@ -271,20 +270,13 @@ function InfoRow({ label, value }) {
     </>
   );
 }
-
-function CardFormat({ slot = null, format = "" }) {
+function CardSubscribe({ slot = null, format = "" }) {
   const { session, update, slots } = useSession();
   const { user } = useAuth();
   const [processing, setProcessing] = useState(false);
   const { ONLINE, ONSITE } = ClassSession.FORMAT;
   const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
-  return (<Grid key={`${format}`} size={{ xs: 12, sm: 6 }} sx={{
-    border: `0.1px solid var(--card-border)`,
-    borderRadius: '10px',
-    p: 1,
-    //background:FORMAT_CONFIG['onsite']?.glow,
-    //display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
-  }}>
+  return (<>
     <Stack direction={'row'} spacing={1} alignItems={'center'}>
       <BadgeFormatLessonContained format={format} />
       <Typography variant="caption" sx={{ color: 'var(--font-color)' }}>
@@ -393,47 +385,335 @@ function CardFormat({ slot = null, format = "" }) {
           background: red;
         }`}
     </style>
-  </Grid>)
+  </>)
 }
-function SubscribeComponent({ slot = null, format = "" }) {
+function CardFormat({ format = "" }) {
+  const { session, slot, update, slots } = useSession();
+  const { user } = useAuth();
+  const [processing, setProcessing] = useState(false);
+  const { ONLINE, ONSITE } = ClassSession.FORMAT;
+  const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
+  const FORMAT_CONFIG = ClassSessionSlot.FORMAT_CONFIG;
+  const formatCfg = FORMAT_CONFIG[format];
+  return (<>
+    <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+      <BadgeFormatLessonContained format={format} />
+      <Typography className="seats-sub" sx={{
+        margin: '2px 0 4px',
+        fontSize: '0.78rem',
+        color: 'var(--font-color)',
+      }}>
+        <Trans
+          t={t}
+          i18nKey={'rate'}
+          values={{ rate: slot?.occupancyRate(format) }}
+          className="seats-sub"
+        />
+      </Typography>
+    </Stack>
+    <div className="hero-seats">
+      <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+        <div className="seats-bar">
+          <div
+            className="seats-fill"
+            style={{
+              width: `${(slot?.countSubscribers?.(format) / slot?.[`seats_availables_${format}`]) * 100}%`,
+            }}
+          />
+        </div>
+        <Typography className="seats-sub" sx={{
+          margin: '2px 0 4px',
+          fontSize: '0.78rem',
+          color: 'var(--grey-dark)',
+        }}>
+          {slot?.[`seats_availables_${format}`]}
+        </Typography>
+      </Stack>
+    </div>
+    <style jsx>
+      {`
+        .hero-seats {
+          margin-top: 6px;
+          font-size: 0.85rem;
+        }
+        .seats-sub {
+          margin: 2px 0 4px;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+        .seats-bar {
+          width: 100%;
+          height: 7px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #111827;
+          border: 1px solid var(--card-border);
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+          background: var(--font-color);
+          overflow: hidden;
+        }
+        .seats-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+          background: ${formatCfg?.color};
+        }`}
+    </style>
+  </>)
+}
+function OpenComponent() {
+  const { ONLINE, ONSITE } = ClassSessionSlot.FORMAT;
+  const { session, slot, update, slots, isLoading } = useSession();
+  const [canSubscribe, setCanSubscribe] = useState(true);
+  var arrayFormats = [];
+  if (slot?.format === ClassSessionSlot.FORMAT.HYBRID) {
+    arrayFormats = [ONLINE, ONSITE];
+  } else if (slot?.format === ClassSessionSlot.FORMAT.ONSITE) {
+    arrayFormats = [ONSITE];
+  } else if (slot?.format === ClassSessionSlot.FORMAT.ONLINE) {
+    arrayFormats = [ONLINE];
+  }
+  useEffect(() => {
+    if (session && slot && new Date() >= slot.last_subscribe_time) {
+      setCanSubscribe(false);
+    } else {
+      setCanSubscribe(true);
+    }
+  }, [session, slot]);
+  if (canSubscribe) {
+    return (<Grid container spacing={0.5}>
+      {
+        arrayFormats.map((format) => {
+          return (<Grid key={`${format}`} size={{ xs: 12, sm: 6 }} sx={{
+            border: `0.1px solid var(--card-border)`,
+            borderRadius: '10px',
+            p: 1,
+            //background:FORMAT_CONFIG['onsite']?.glow,
+            //display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
+          }}>
+            <CardSubscribe slot={slot} format={format} />
+          </Grid>
+          )
+        })
+      }
+    </Grid>)
+  }
+  return (<></>);
+}
+function ExpiredComponent({ slot = null }) {
   const { t } = useTranslation(ClassSession.NS_COLLECTION);
   const { lang } = useLanguage();
-  if (slot?.status === ClassSessionSlot.STATUS.OPEN) {
+  return (<AlertComponent
+    subtitle={<Trans
+      t={t}
+      i18nKey={'errors.last_subscribe_time'}
+      values={{
+        date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+      }}
+      components={{
+        //span: <Typography variant="body2" color="text.secondary" />, 
+        b: <strong />
+      }}
+    />
+    }
+    severity="error"
+  />)
+}
+function FullComponent({ slot = null }) {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const { lang } = useLanguage();
+  return (<AlertComponent
+    subtitle={<Trans
+      t={t}
+      i18nKey={'errors.full'}
+      values={{
+        //date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+      }}
+      components={{
+        //span: <Typography variant="body2" color="text.secondary" />, 
+        //b: <strong />
+      }}
+    />
+    }
+    severity="warning"
+  />)
+}
+function FinishedComponent() {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const { lang } = useLanguage();
+  const { ONLINE, ONSITE } = ClassSessionSlot.FORMAT;
+  const { session, slot, update, slots, isLoading } = useSession();
+  var arrayFormats = [];
+  if (slot?.format === ClassSessionSlot.FORMAT.HYBRID) {
+    arrayFormats = [ONLINE, ONSITE];
+  } else if (slot?.format === ClassSessionSlot.FORMAT.ONSITE) {
+    arrayFormats = [ONSITE];
+  } else if (slot?.format === ClassSessionSlot.FORMAT.ONLINE) {
+    arrayFormats = [ONLINE];
+  }
 
+  return (<Stack spacing={1}>
+    <Grid container spacing={0.5}>
+      {
+        arrayFormats.map((format) => {
+          return (<Grid key={`${format}`} size={{ xs: 12, sm: 6 }} sx={{
+            border: `0.1px solid var(--card-border)`,
+            borderRadius: '10px',
+            p: 1,
+            //background:FORMAT_CONFIG['onsite']?.glow,
+            //display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
+          }}>
+            <CardFormat slot={slot} format={format} />
+          </Grid>
+          )
+        })
+      }
+    </Grid>
+    <AlertComponent
+      subtitle={<Trans
+        t={t}
+        i18nKey={'errors.finished'}
+        values={{
+          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+        }}
+        components={{
+          //span: <Typography variant="body2" color="text.secondary" />, 
+          b: <strong />
+        }}
+      />
+      }
+      severity="success"
+      color="info"
+    />
+  </Stack>)
+}
+function DraftComponent({session=null,slot=null}) {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const { lang } = useLanguage();
+   return (<AlertComponent
+    subtitle={<Trans
+      t={t}
+      i18nKey={'errors.draft'}
+      values={{
+        date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
+      }}
+      components={{
+        //span: <Typography variant="body2" color="text.secondary" />, 
+        b: <strong />
+      }}
+    />}
+    buttonConfirmComponent={<ButtonConfirm label="Valider" onClick={()=>{
+
+      
+    }} />}
+    severity="info"
+  />)
+}
+function SubscribeComponent({session=null,slot=null, format = "" }) {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const { lang } = useLanguage();
+  const { ONLINE, ONSITE } = ClassSessionSlot.FORMAT;
+  if (slot?.status === ClassSessionSlot.STATUS.OPEN) {
+    return (<>
+      <OpenComponent />
+      <CertificationComponent />
+    </>);
   } else if (slot?.status === ClassSessionSlot.STATUS.SUBSCRIPTION_EXPIRED) {
-    return (<AlertComponent
-      subtitle={<Trans
-        t={t}
-        i18nKey={'errors.last_subscribe_time'}
-        values={{
-          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
-        }}
-        components={{
-          //span: <Typography variant="body2" color="text.secondary" />, 
-          b: <strong />
-        }}
-      />
-      }
-      severity="warning"
-    />)
+    return (<ExpiredComponent slot={slot} />);
   } else if (slot?.status === ClassSessionSlot.STATUS.FINISHED) {
-    return (<AlertComponent
-      subtitle={<Trans
-        t={t}
-        i18nKey={'errors.last_subscribe_time'}
-        values={{
-          date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
-        }}
-        components={{
-          //span: <Typography variant="body2" color="text.secondary" />, 
-          b: <strong />
-        }}
-      />
-      }
-      severity="warning"
-    />)
+    return (<FinishedComponent />)
+  } else if (slot?.status === ClassSessionSlot.STATUS.DRAFT) {
+    return (<DraftComponent session={session} slot={slot} />)
+  } else if (slot?.status === ClassSessionSlot.STATUS.FULL) {
+    return (<FullComponent slot={slot} />)
   }
   return (<>{slot?.status}</>);
+}
+function CertificationComponent() {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
+  const { session, slot } = useSession();
+  if (slot?.status === ClassSessionSlot.STATUS.OPEN) {
+    return (<>
+      <aside className="hero-right">
+        <div className="teacher-card">
+          <h2 className="teacher-label">{t('certification')}</h2>
+          {session?.lesson?.certified ? (
+            <>
+              <p className="cert-main">
+                {t('certification_block.title')}{" "}
+                <strong>{SCHOOL_NAME}</strong>.
+              </p>
+              <ul className="list small">
+                {
+                  t('certification_block.items', { returnObjects: true })?.map?.((text, i) => {
+                    return (<li key={`${text}-${i}`}>{text}</li>)
+                  })
+                }
+              </ul>
+              <p className="cert-badge">
+                {t('certification_official')}
+              </p>
+            </>
+          ) : (
+            <p className="cert-main">
+              {t('certification_not')}
+            </p>
+          )}
+        </div>
+      </aside>
+      <style jsx>
+        {`
+        .hero-right {
+          border-radius: 14px;
+          border: 1px solid #1f2937;
+          border: none;
+          background: #020617;
+          background: transparent;
+          padding: 14px 14px 16px;
+            padding: 0px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .teacher-card {
+          border-radius: 10px;
+          border: 1px solid #111827;
+          border: 0.1px solid var(--card-border);
+          padding: 10px 10px 12px;
+          padding: 15px;
+          padding: 14px 14px 16px;
+          background: radial-gradient(circle at top left, #111827, #020617);
+          background: transparent;
+          background : var(--card-color);
+          font-size: 0.85rem;              
+        }
+        .teacher-label {
+          margin: 0 0 6px;
+          font-size: 0.75rem;
+          font-size: 1.05rem;
+          color: #9ca3af;
+        }
+        .cert-main {
+          margin: 0 0 8px;
+          font-size: 0.9rem;
+          color: var(--font-color);
+        }
+        .list.small {
+          font-size: 0.8rem;
+        }
+        .cert-badge {
+          margin-top: 8px;
+          font-size: 0.8rem;
+          padding: 4px 8px;
+          border-radius: 8px;
+          background: #022c22;
+          color: #bbf7d0;
+          border: 1px solid #16a34a;
+        }        
+    `}
+      </style>
+    </>);
+  }
+  return (<></>);
 }
 function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
   return (<Stack direction={'row'} spacing={1} sx={{ width: '100%', px: 0.5, py: 0.25, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
@@ -448,7 +728,6 @@ function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
     </Stack>
   </Stack>)
 }
-
 export default function SessionComponent({ }) {
   const { theme } = useThemeMode();
   const { primary } = theme.palette;
@@ -544,69 +823,9 @@ export default function SessionComponent({ }) {
                       </Grid>
                     }
                   </Grid>
-                  <Grid container spacing={1}>
-                    <SubscribeComponent slot={slot} />
-                    {
-                      canSubscribe && [ONLINE, ONSITE].map((format) => {
-                        if (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format) {
-                          return (<CardFormat key={format} slot={slot} format={format} />)
-                        }
-
-                        return null;
-                      })
-                    }
-                    {
-                      !canSubscribe && <AlertComponent
-                        subtitle={<Trans
-                          t={t}
-                          i18nKey={'errors.last_subscribe_time'}
-                          values={{
-                            date: `${getFormattedDateNumeric(slot?.last_subscribe_time, lang)} - ${getFormattedHour(slot?.last_subscribe_time, lang)}`,
-                          }}
-                          components={{
-                            //span: <Typography variant="body2" color="text.secondary" />, 
-                            b: <strong />
-                          }}
-                        />
-                        }
-                        severity="warning"
-                      />
-                      /*
-                      last_subscribe_time
-                      */
-                    }
-                  </Grid>
+                  <SubscribeComponent session={session} slot={slot} />
                 </div>
-                {/* Bloc inscription intégré dans le hero */}
-                {
-                  canSubscribe && <aside className="hero-right">
-                    <div className="teacher-card">
-                      <h2 className="teacher-label">{t('certification')}</h2>
-                      {session?.lesson?.certified ? (
-                        <>
-                          <p className="cert-main">
-                            {t('certification_block.title')}{" "}
-                            <strong>{SCHOOL_NAME}</strong>.
-                          </p>
-                          <ul className="list small">
-                            {
-                              t('certification_block.items', { returnObjects: true })?.map?.((text, i) => {
-                                return (<li key={`${text}-${i}`}>{text}</li>)
-                              })
-                            }
-                          </ul>
-                          <p className="cert-badge">
-                            {t('certification_official')}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="cert-main">
-                          {t('certification_not')}
-                        </p>
-                      )}
-                    </div>
-                  </aside>
-                }
+
               </Stack>
             </Grid>
             <Grid size={'grow'} sx={{ background: '' }}>
@@ -629,9 +848,6 @@ export default function SessionComponent({ }) {
               </Box>
             </Grid>
           </Grid>
-
-
-
         </section>
       </main>
       <style jsx>{`
