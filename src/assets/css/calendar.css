@@ -8,12 +8,14 @@
   overflow: hidden;
   border: none;
   background: var(--card-color);
+  border-color: var(--card-border);
 }
 
 /* Ligne d’en-tête (la rangée avec les jours) */
 .fc-col-header {
   background: var(--blackColor);
   color: white;
+  border-color: var(--card-border);
   border-bottom-width: 0.1px;
   /* fond du header */
 }
@@ -41,7 +43,6 @@
 .fc .fc-scrollgrid td,
 .fc .fc-scrollgrid th {
   border: 0.1px solid var(--card-border) !important;
-  
 }
 
 .fc .fc-scrollgrid th {
@@ -80,7 +81,7 @@
 /* List view */
 .fc .fc-list-event {
   cursor: pointer;
-   border: none;
+  border: none;
 }
 
 .fc .fc-list-event-dot {
@@ -90,15 +91,19 @@
 .fc .fc-list-event.open .fc-list-event-dot {
   border-color: var(--session-status-open) !important;
 }
+
 .fc .fc-list-event.full .fc-list-event-dot {
   border-color: var(--session-status-full) !important;
 }
+
 .fc .fc-list-event.expired .fc-list-event-dot {
   border-color: var(--session-status-expired) !important;
 }
+
 .fc .fc-list-event.finished .fc-list-event-dot {
   border-color: var(--session-status-finished) !important;
 }
+
 .fc .fc-list-event.draft .fc-list-event-dot {
   border-color: var(--session-status-draft) !important;
 }
@@ -107,8 +112,6 @@
 .fc .fc-list-event-title {
   color: var(--font-color);
 }
-
-
 /* Bandeau de date dans la liste */
 .fc .fc-list-day-cushion {
   background: var(--blackColor);
@@ -117,6 +120,7 @@
   border-width: 0.1px;
   font-weight: 600;
   padding: 10px 12px;
+  border: none;
 }
 
 .fc-theme-standard .fc-list {
@@ -162,7 +166,6 @@
   white-space: nowrap;
   cursor: pointer;
   color: black;
-   border: none;
 }
 
 /* Week/Day view (timeGrid) */
@@ -176,21 +179,10 @@
   background: var(--session-status-open-glow);
   border: none;
   border-left: 2px solid var(--primary);
-   border: none;
+  border: none;
   white-space: nowrap;
   cursor: pointer;
-  color: black !important;
-}
-
-/* Texte interne (week/day) */
-.fc .fc-timegrid-event .fc-event-main,
-.fc .fc-v-event .fc-event-main {
-  color: black !important;
-}
-
-.fc-daygrid-event:hover {
-  background: var(--calendar-free);
-  border-left: 2px solid var(--primary);
+  color: black;
 }
 
 .fc-daygrid-event.open,
@@ -200,22 +192,36 @@
   border: 0.1px solid var(--session-status-open);
   border-left: 2px solid var(--session-status-open);
 }
+
+.fc .fc-timegrid-event.open .fc-event-main {
+  color: var(--session-status-open-text);
+}
+
 .fc-list-event.open {
   background: var(--session-status-open-glow);
 }
+
 .fc-list-event.open .fc-list-event-time,
 .fc-list-event.open .fc-list-event-title {
   color: var(--session-status-open-text);
 }
 
 .fc-daygrid-event.open:hover,
-.fc-timegrid-event.open:hover {
+.fc .fc-timegrid-event.open:hover {
   background: var(--session-status-open);
+  color: var(--session-status-open-text-hover);
   border-left: 2px solid var(--primary);
 }
+
+.fc .fc-timegrid-event.open:hover .fc-event-main {
+  color: var(--session-status-open-text-hover);
+}
+
 .fc .fc-list-event.open:hover td {
   background: var(--session-status-open);
+  color: var(--session-status-open-text-hover);
 }
+
 .fc .fc-list-event.open:hover .fc-list-event-dot {
   border-color: var(--primary) !important;
 }
@@ -227,9 +233,15 @@
   border: 0.1px solid var(--session-status-full);
   border-left: 2px solid var(--session-status-full);
 }
+
+.fc .fc-timegrid-event.full .fc-event-main {
+  color: var(--session-status-full-text);
+}
+
 .fc-list-event.full {
   background: var(--session-status-full-glow);
 }
+
 .fc-list-event.full .fc-list-event-time,
 .fc-list-event.full .fc-list-event-title {
   color: var(--session-status-full-text);
@@ -238,11 +250,19 @@
 .fc-daygrid-event.full:hover,
 .fc-timegrid-event.full:hover {
   background: var(--session-status-full);
+  color: var(--session-status-full-text-hover);
   border-left: 2px solid var(--primary);
 }
+
+.fc .fc-timegrid-event.full:hover .fc-event-main {
+  color: var(--session-status-full-text-hover);
+}
+
 .fc .fc-list-event.full:hover td {
   background: var(--session-status-full);
+  color: var(--session-status-full-text-hover);
 }
+
 .fc .fc-list-event.full:hover .fc-list-event-dot {
   border-color: var(--primary) !important;
 }
@@ -255,9 +275,15 @@
   border: 0.1px solid var(--session-status-finished);
   border-left: 2px solid var(--session-status-finished);
 }
-.fc-list-event.finished{
+
+.fc .fc-timegrid-event.finished .fc-event-main {
+  color: var(--session-status-finished-text);
+}
+
+.fc-list-event.finished {
   background: var(--session-status-finished-glow);
 }
+
 .fc-list-event.finished .fc-list-event-time,
 .fc-list-event.finished .fc-list-event-title {
   color: var(--session-status-finished-text);
@@ -266,11 +292,19 @@
 .fc-daygrid-event.finished:hover,
 .fc-timegrid-event.finished:hover {
   background: var(--session-status-finished);
+  color: var(--session-status-finished-text-hover);
   border-left: 2px solid var(--primary);
 }
+
+.fc .fc-timegrid-event.finished:hover .fc-event-main {
+  color: var(--session-status-finished-text-hover);
+}
+
 .fc .fc-list-event.finished:hover td {
   background: var(--session-status-finished);
+  color: var(--session-status-finished-text-hover);
 }
+
 .fc .fc-list-event.finished:hover .fc-list-event-dot {
   border-color: var(--primary) !important;
 }
@@ -283,10 +317,16 @@
   border: 0.1px solid var(--session-status-expired);
   border-left: 2px solid var(--session-status-expired);
 }
+
+.fc .fc-timegrid-event.expired .fc-event-main {
+  color: var(--session-status-expired-text);
+}
+
 .fc-list-event.expired {
   background: var(--session-status-expired-glow);
   color: var(--font-color);
 }
+
 .fc-list-event.expired .fc-list-event-time,
 .fc-list-event.expired .fc-list-event-title {
   color: var(--session-status-expired-text);
@@ -295,11 +335,19 @@
 .fc-daygrid-event.expired:hover,
 .fc-timegrid-event.expired:hover {
   background: var(--session-status-expired);
+  color: var(--session-status-expired-text-hover);
   border-left: 2px solid var(--primary);
 }
+
+.fc .fc-timegrid-event.expired:hover .fc-event-main {
+  color: var(--session-status-expired-text-hover);
+}
+
 .fc .fc-list-event.expired:hover td {
   background: var(--session-status-expired);
+  color: var(--session-status-expired-text-hover);
 }
+
 .fc .fc-list-event.expired:hover .fc-list-event-dot {
   border-color: var(--primary) !important;
 }
@@ -311,9 +359,15 @@
   border: 0.1px solid var(--session-status-draft);
   border-left: 2px solid var(--session-status-draft);
 }
+
+.fc .fc-timegrid-event.draft .fc-event-main {
+  color: var(--session-status-draft-text);
+}
+
 .fc-list-event.draft {
   background: var(--session-status-draft-glow);
 }
+
 .fc-list-event.draft .fc-list-event-time,
 .fc-list-event.draft .fc-list-event-title {
   color: var(--session-status-draft-text);
@@ -322,12 +376,19 @@
 .fc-daygrid-event.draft:hover,
 .fc-timegrid-event.draft:hover {
   background: var(--session-status-draft);
+  color: var(--session-status-draft-text-hover);
   border-left: 2px solid var(--primary);
-
 }
+
+.fc .fc-timegrid-event.draft:hover .fc-event-main {
+  color: var(--session-status-draft-text-hover);
+}
+
 .fc .fc-list-event.draft:hover td {
   background: var(--session-status-draft);
+  color: var(--session-status-draft-text-hover);
 }
+
 .fc .fc-list-event.draft:hover .fc-list-event-dot {
   border-color: var(--primary) !important;
 }
@@ -383,17 +444,51 @@
 
 /* Bouton "Aujourd'hui" normal */
 .fc .fc-today-button.fc-button-primary {
-  background-color: var(--primary);
+  background-color: var(--card-color);
   /* pas de fond */
-  color: var(--background);
-  /* texte bleu */
-  border: 1px solid var(--primary);
-  /* contour bleu */
-  box-shadow: none;
+  color: var(--primary);
 }
 
 /* Hover "Aujourd'hui" */
 .fc .fc-today-button.fc-button-primary:hover {
   /* léger bleu */
+  background-color: var(--primary);
   color: var(--background);
+}
+
+/* Hover "Aujourd'hui" */
+.fc .fc-today-button.fc-button-primary:disabled {
+  /* léger bleu */
+  background: var(--grey-light);
+  color: var(--font-color);
+}
+
+
+
+
+.fc .fc-toolbar .fc-calendar-button,
+.fc .fc-toolbar .fc-list-button {
+  background-color: var(--card-color);
+  /* bleu principal */
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  border-radius: 9999px;
+  /* pill / très arrondi */
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.fc .fc-toolbar .fc-calendar-button:hover,
+.fc .fc-toolbar .fc-list-button:hover {
+  background-color: var(--primary);
+  color: var(--background);
+  border: 1px solid var(--primary);
+}
+
+.fc .fc-toolbar .fc-calendar-button.is-active,
+.fc .fc-toolbar .fc-list-button.is-active {
+  background-color: var(--primary);
+  color: var(--background);
+  border: 1px solid var(--primary);
 }

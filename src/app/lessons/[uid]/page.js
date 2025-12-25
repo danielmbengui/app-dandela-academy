@@ -24,7 +24,7 @@ export default function DashboardOneLesson() {
     const [isOpen, setIsOpen] = useState(false);
     const [mode, setMode] = useState('read');
 
-    console.log("LESSSON", lesson, session);
+    console.log("LESSSON", lesson);
     useEffect(() => {
         if (uidLesson && !isLoadingLessons) {
             const _lesson = getOneLesson(uidLesson);

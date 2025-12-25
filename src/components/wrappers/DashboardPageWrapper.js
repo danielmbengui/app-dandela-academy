@@ -169,7 +169,8 @@ const isAllowed = useMemo(() => {
     if (!user) return false;
     const menus = user?.menuDashboard?.() || [];
     // Choisis la règle :
-    return menus.some(m => path === m.path || path.startsWith(m.path + "/") || path.startsWith(m.path));
+    //return menus.some(m => path === m.path || path.startsWith(m.path + "/") || path.startsWith(m.path));
+    return true;
   }, [user, path]);
 
   useEffect(() => {
@@ -198,7 +199,7 @@ const isAllowed = useMemo(() => {
                 elevation={0}
                 position="fixed"
                 sx={{
-                    background: cardColor.main,
+                    background: 'var(--background)',
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >

@@ -1,13 +1,15 @@
 {
-    "title-page": "Calendrier - App Dandela Academy",
-    "description-page": "Le calendrier de la plateforme Dandela Academy",
-    "title": "Calendrier",
-    "subtitle": "Tu as la vue sur tous les cours disponibles",
-    "calendar": {
-        "today": "Aujourd'hui",
-        "month": "Mois",
-        "week": "Semaine",
-        "day": "Jour",
-        "list": "Liste"
-    }
+  "title-page": "Calendrier - App Dandela Academy",
+  "description-page": "Le calendrier de la plateforme Dandela Academy",
+  "title": "Calendrier",
+  "subtitle": "Tu as la vue sur tous les cours disponibles",
+  "btn-create-session": "Créer une session",
+  "calendar": {
+    "today": "Aujourd'hui",
+    "year": "Année",
+    "month": "Mois",
+    "week": "Semaine",
+    "day": "Jour",
+    "list": "Liste"
+  }
 }

@@ -16,15 +16,15 @@
     "connexion": "Connexion",
     "actions": "Actions",
     "lang": "Langue",
-    "not-found": "Aucun utilisateur ne correspond à ces critères.",
-
-    
+    "not-found": "Aucun utilisateur ne correspond à ces critères.",    
     "password": "Mot de passe",
     "password_repeat": "Répéter le mot de passe",
     "password_placeholder": "Saisis un mot de passe",
     "password_repeat_placeholder": "Répète le mot de passe",
-
-
+    "teacher":{
+        "btn-see-profile":"Voir le profil",
+        "btn-contact":"Contacter"
+    },
     "errors":{
         "email-not-valid":"Veuiller entrer un email valide",
         "email-not-dandela-academy":"Veuiller entrer un email terminant par : @dandela-academy.com",

@@ -2,7 +2,9 @@
   "title-page": "Course - Dandela Academy App",
   "description-page": "A course available on the Dandela Academy platform",
   "title": "Course",
-  "subtitle": "Mastery of Excel basic concepts.",
+  "subtitle": "Mastering the basic concepts of Excel.",
   "next-sessions": "Upcoming sessions",
-  "previous-sessions": "Previous sessions"
+  "previous-sessions": "Previous sessions",
+  "next-sessions-not": "There are no upcoming sessions.",
+  "previous-sessions-not": "There are no past sessions."
 }

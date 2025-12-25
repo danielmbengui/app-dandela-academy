@@ -14,11 +14,10 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { ClassUserIntern } from "@/classes/users/ClassUser";
 import { SCHOOL_NAME } from "@/contexts/constants/constants";
 import { useSession } from "@/contexts/SessionProvider";
-import DialogSession from "../sessions/DialogSession";
+import DialogSession from "./sessions/DialogSession";
 import { ClassSessionSlot } from "@/classes/ClassSession";
 import Link from "next/link";
-import ButtonCancel from "../elements/ButtonCancel";
-import TeacherComponent from "../TeacherComponent";
+import ButtonCancel from "./elements/ButtonCancel";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -122,222 +121,9 @@ const FORMAT_CONFIG = {
     color: "#a855f7",
   },
 };
-function MetaChip({ label, value }) {
-  return (
-    <>
-      <div className="meta-chip">
-        <span className="meta-label">{label}</span>
-        <span className="meta-value">{value}</span>
-      </div>
 
-      <style jsx>{`
-        .meta-chip {
-          border-radius: 999px;
-          border: 0.1px solid var(--card-border);
-          background: #020617;
-          background: transparent;
-          padding: 4px 10px;
-          font-size: 0.78rem;
-          display: inline-flex;
-          gap: 6px;
-        }
 
-        .meta-label {
-          color: #9ca3af;
-          color: var(--font-color);
-        }
-
-        .meta-value {
-          color: var(--font-color);
-          color: #9ca3af;
-          font-weight: 500;
-        }
-      `}</style>
-    </>
-  );
-}
-/** Petit composant pour les lignes d'info à droite */
-function InfoRow({ label, value }) {
-  return (
-    <>
-      <div className="info-row">
-        <span className="info-label">{label}</span>
-        <span className="info-value">{value}</span>
-      </div>
-
-      <style jsx>{`
-        .info-row {
-          display: flex;
-          justify-content: space-between;
-          gap: 8px;
-          font-size: 0.85rem;
-          padding: 4px 0;
-          border-bottom: 0.1px solid var(--card-border);
-          width: 100%;
-        }
-
-        .info-row:last-child {
-          border-bottom: none;
-        }
-
-        .info-label {
-         color: var(--font-color);
-        }
-
-        .info-value {
-          text-align: right;
-           color: var(--grey-dark);
-            font-weigth: 100;
-        }
-      `}</style>
-    </>
-  );
-}
-
-function SlotRow({ slot = null }) {
-  const { sessions, setUidSession, setUidSlot, slots, getOneSession } = useSession();
-  //const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState('read');
-  const STATUS_CONFIG = ClassSessionSlot.STATUS_CONFIG || [];
-  const colorSlot = STATUS_CONFIG[slot?.status];
-  const session = getOneSession(slot?.uid_session);
-  return (<>
-    <DialogSession
-      mode={mode}
-      setMode={setMode}
-      isOpen={open}
-      setIsOpen={setOpen}
-    />
-    <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
-      <span style={{
-        width: '6px',
-        height: '6px',
-        borderRadius: '999px',
-        background: colorSlot?.color,
-        boxShadow: `0px 0px 8px ${colorSlot?.glow}`,
-      }} />
-      <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.code} (${session?.uid_intern})`}</Typography>
-      <Typography variant="caption">{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
-      <Box
-        onClick={() => {
-          setMode('read');
-          setUidSession(slot?.uid_session);
-          setUidSlot(slot?.uid_intern);
-          setOpen(true);
-
-        }}
-        sx={{
-          //color: 'red',
-          cursor: 'pointer',
-          "&:hover": { color: "var(--primary)" },
-        }}>
-        <IconVisible height={20} />
-      </Box>
-    </Stack>
-  </>)
-}
-
-function NextSessionsComponent() {
-  const { t } = useTranslation([NS_LESSONS_ONE]);
-  const { slots } = useSession();
-  const today = new Date();
-
-  return (<>
-    <div className="hero-right-top">
-      <Stack spacing={1}>
-        <p className="teacher-label">{t('next-sessions')}</p>
-        <Stack spacing={0.5}>
-          {
-            slots.filter(slot => slot.start_date.getTime() > today.getTime())
-              .sort((a, b) => a.start_date.getTime() - b.start_date.getTime())
-              .map((slot, i) => {
-                return (<div key={`${slot.uid_session}-${slot.uid_intern}-${i}`}>
-                  <SlotRow slot={slot} />
-                </div>)
-              })
-          }
-          {
-            slots.filter(slot => slot.start_date.getTime() > today.getTime()).length === 0 && <Stack>
-              {t('next-sessions-not')}
-            </Stack>
-
-          }
-        </Stack>
-      </Stack>
-    </div>
-    <style jsx>{`
-                  .hero-right-top {
-                  border-radius: 14px;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
-                }
-                                  .teacher-label {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                }
-                .teacher-label-text {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                  margin-bottom: 6px;
-                }
-  `}</style>
-  </>)
-}
-function PreviousSessionsComponent() {
-  const { t } = useTranslation([NS_LESSONS_ONE]);
-  const { slots } = useSession();
-  const today = new Date();
-
-  return (<>
-    <div className="hero-right-top">
-      <Stack spacing={1}>
-        <p className="teacher-label">{t('previous-sessions')}</p>
-        <Stack spacing={0.5}>
-          {
-            slots.filter(slot => slot.start_date.getTime() <= today.getTime())
-              .sort((a, b) => a.start_date.getTime() - b.start_date.getTime())
-              .map((slot, i) => {
-                return (<div key={`${slot.uid_session}-${slot.uid_intern}-${i}`}>
-                  <SlotRow slot={slot} />
-                </div>)
-              })
-          }
-          {
-            slots.filter(slot => slot.start_date.getTime() <= today.getTime()).length === 0 && <Stack>
-              {t('previous-sessions-not')}
-            </Stack>
-
-          }
-        </Stack>
-      </Stack>
-    </div>
-    <style jsx>{`
-                  .hero-right-top {
-                  border-radius: 14px;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
-                }
-                                  .teacher-label {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                }
-                .teacher-label-text {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                  margin-bottom: 6px;
-                }
-  `}</style>
-  </>)
-}
-
-export default function LessonComponent() {
+export default function TeacherComponent() {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
@@ -354,181 +140,30 @@ export default function LessonComponent() {
 
   return (<Stack>
     <div className="page">
-      <main className="container">
-        <section className="hero-card">
-          <div className="hero-left">
-
-            {
-              user instanceof ClassUserIntern && <div style={{ marginBottom: '10px' }}>
-                <BadgeStatusLesson status={lesson?.status} />
-              </div>
-            }
-            <p className="breadcrumb">{t(lesson?.category).toUpperCase()}</p>
-            <h1>{lesson?.translate?.title}</h1>
-            <p className="muted">
-              {t('subtitle', { ns: NS_LESSONS_ONE })}
+      <div className="teacher-card">
+        <p className="teacher-label-text">Professeur du cours</p>
+        <div className="teacher-main">
+          {lesson?.teacher?.showAvatar?.({})}
+          <div className="teacher-text">
+            <p className="teacher-name">
+              {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
             </p>
-
-            <div className="badges">
-              {lesson?.certified && (
-                <span className="badge-cert">
-                  🎓 {t('certified')}
-                </span>
-              )}
-            </div>
-            <p className="hero-description">
-              {lesson?.translate?.description}
-            </p>
-            {
-              lesson?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
-                <Image
-                  src={lesson?.photo_url || ''}
-                  alt={`lesson-${lesson?.uid}`}
-                  quality={100}
-                  width={300}
-                  height={150}
-                  //loading="lazy"
-                  priority
-                  style={{
-                    width: 'auto',
-                    height: '100%',
-                    borderRadius: '8px',
-                    objectFit: 'cover',
-                  }}
-                />
-              </Box>
-            }
+            <p className="teacher-role">{lesson?.teacher?.role_title}</p>
           </div>
-
-          {/* Bloc inscription intégré dans le hero */}
-          <aside className="hero-right">
-            {/* PROFESSEUR */}
-            <div className="teacher-card">
-              <p className="teacher-label-text">Professeur du cours</p>
-              <div className="teacher-main">
-                {lesson?.teacher?.showAvatar?.({})}
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{lesson?.teacher?.role_title}</p>
-                </div>
-              </div>
-              <p className="teacher-bio">{lesson?.teacher?.bio}</p>
-              <p className="teacher-email">
-                📧 <span>{lesson?.teacher?.email}</span>
-              </p>
-              <button className="btn ghost-btn">
-                Contacter le professeur
-              </button>
-              <Link href={`mailto:${lesson?.teacher?.email}`}>
-                <ButtonCancel
-                  label="Contacter le professeur"
-                />
-              </Link>
-            </div>
-            <TeacherComponent />
-            {
-              isLoadingSlots ? <Skeleton variant="rounded" width={'100%'} height={50} sx={{ bgcolor: 'var(--card-border)' }}>
-                <NextSessionsComponent />
-              </Skeleton> : <NextSessionsComponent />
-            }
-            {
-              isLoadingSlots ? <Skeleton variant="rounded" width={'100%'} height={50} sx={{ bgcolor: 'var(--card-border)' }}>
-                <PreviousSessionsComponent />
-              </Skeleton> : <PreviousSessionsComponent />
-            }
-          </aside>
-        </section>
-
-
-        {/* GRID PRINCIPALE */}
-        <section className="grid">
-          {/* COL GAUCHE : contenu du cours */}
-          <div className="main-col">
-            <div className="card">
-              <h2>{t('description')}</h2>
-              <p className="description">{lesson?.translate?.description}</p>
-            </div>
-            <div className="card">
-              <h2>{t('goals')}</h2>
-              <ul className="list">
-                {lesson?.translate?.goals?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="card">
-              <h2>{t('programs')}</h2>
-              <ol className="list ordered">
-                {lesson?.translate?.programs?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ol>
-            </div>
-            <div className="card">
-              <h2>{t('prerequisites')}</h2>
-              <ul className="list">
-                {lesson?.translate?.prerequisites?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="card">
-              <h2>{t('target_audiences')}</h2>
-              <ul className="list">
-                {lesson?.translate?.target_audiences?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* COL DROITE : infos pratiques & certification */}
-          <div className="side-col">
-            <div className="card">
-              <h2>{t('certification')}</h2>
-              {lesson?.certified ? (
-                <>
-                  <p className="cert-main">
-                    {t('certification_block.title')}{" "}
-                    <strong>{SCHOOL_NAME}</strong>.
-                  </p>
-                  <ul className="list small">
-                    {
-                      t('certification_block.items', { returnObjects: true })?.map((text, i) => {
-                        return (<li key={`${text}-${i}`}>{text}</li>)
-                      })
-                    }
-                  </ul>
-                  {course.isOfficialCertificate && (
-                    <p className="cert-badge">
-                      {t('certification_official')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="cert-main">
-                  {t('certification_block.no_certification')}
-                </p>
-              )}
-            </div>
-
-            <div className="card">
-              <h2>{t('notes')}</h2>
-              <ul className="list small">
-                {
-                  lesson?.translate?.notes?.map((note, index) => {
-                    return (<li key={`${note}-${index}`}>
-                      {note}
-                    </li>)
-                  })
-                }
-              </ul>
-            </div>
-          </div>
-        </section>
-      </main>
+        </div>
+        <p className="teacher-bio">{lesson?.teacher?.bio}</p>
+        <p className="teacher-email">
+          📧 <span>{lesson?.teacher?.email}</span>
+        </p>
+        <button className="btn ghost-btn">
+          Contacter le prof
+        </button>
+        <Link href={`mailto:${lesson?.teacher?.email}`}>
+          <ButtonCancel
+            label="Voir le profil du prof"
+          />
+        </Link>
+      </div>
       <style jsx>{`
                 .page {
                  

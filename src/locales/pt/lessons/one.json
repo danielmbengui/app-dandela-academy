@@ -4,5 +4,7 @@
   "title": "Curso",
   "subtitle": "Domínio dos conceitos básicos do Excel.",
   "next-sessions": "Próximas sessões",
-  "previous-sessions": "Sessões anteriores"
+  "previous-sessions": "Sessões anteriores",
+  "next-sessions-not": "Não há sessões futuras.",
+  "previous-sessions-not": "Não há sessões anteriores."
 }

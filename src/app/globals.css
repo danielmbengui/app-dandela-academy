@@ -73,19 +73,24 @@
   --session-status-open: #3ce0a2;
   --session-status-open-glow: #3ce0a254;
   --session-status-open-text: #124532;
+  --session-status-open-text-hover: #124532;
   --session-status-full: rgb(249, 115, 22);
   --session-status-full-glow: rgba(249, 115, 22, 0.33);
   --session-status-full-text: rgb(119, 55, 10);
+  --session-status-full-text-hover: rgb(119, 55, 10);
   --session-status-finished: #e70d0dff;
   --session-status-finished-glow: #e70d0d54;
-  --session-status-finished-text: rgb(30, 1, 1);
+  --session-status-finished-text: #e70d0dff;
+  --session-status-finished-text-hover: rgb(81, 2, 2);
   --session-status-expired: #eab308;
   --session-status-expired-glow: #eab30854;
---session-status-expired-text: #6d5305;
+  --session-status-expired-text: #6d5305;
+  --session-status-expired-text-hover: #6d5305;
 
   --session-status-draft: #a6a6a6;
   --session-status-draft-glow: rgba(166, 166, 166, 0.33);
---session-status-draft-text: #454545;
+  --session-status-draft-text: #454545;
+  --session-status-draft-text-hover: #454545;
   --test: #3b82f654;
   /*
   --session-status-open:#22c55e;
@@ -144,7 +149,9 @@
   --grey-dark: #A6A6A6;
 
   /* CALENDAR */
---session-status-open-text: #3ce0a2;
+  --session-status-open-text: #3ce0a2;
+  --session-status-full-text: rgb(249, 115, 22);
+  --session-status-expired-text: #eab308;
 
   /*
     --background: #1d1d1d;
@@ -168,14 +175,16 @@
 a {
   display: inline-block;
 }
+
 .link {
   font-size: 0.9rem;
   font-weight: 400;
-  color:var(--primary);
+  color: var(--primary);
   display: inline-block;
 }
+
 .link:hover {
-  color:var(--primary);
+  color: var(--primary);
 }
 
 a,

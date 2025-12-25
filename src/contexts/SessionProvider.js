@@ -37,6 +37,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
     const [filterStatus, setFilterStatus] = useState('all');
 
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingSlots, setIsLoadingSlots] = useState(true);
     // const errorsTranslate = t('errors', { returnObjects: true });
     //  const successTranslate = t('success', { returnObjects: true });
     const [success, setSuccess] = useState(false);
@@ -117,8 +118,9 @@ export function SessionProvider({ children, uidLesson = "" }) {
             _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
             _slots = _slots.sort((a, b) => a.uid_intern - b.uid_intern);
             setSessions(_sessions);
-            setSlots(_slots);
             setIsLoading(false);
+            setSlots(_slots);
+            setIsLoadingSlots(false);
         });
         return snapshotSessions;
     }, [uidLesson]);
@@ -307,6 +309,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
         filterStatus,
         setFilterStatus,
         isLoading,
+        isLoadingSlots,
         setUidSession,
         setUidSlot,
         slot,

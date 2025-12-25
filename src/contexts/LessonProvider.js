@@ -62,15 +62,18 @@ export function LessonProvider({ children }) {
                 const lesson = await snapshot.data();
 
                 const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
-                const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
+                const translate = lesson.translates?.find(a => a.lang === lang);
                 const lesson_new = new ClassLesson({
                     ...lesson.toJSON(),
-                    //translate: translate,
+                    translate: translate,
+                    teacher: teacher,
                 });
-                lesson_new.translate = translate;
-                lesson_new.teacher = teacher;
+                //lesson_new.translate = translate;
+                //lesson_new.teacher = teacher;
+                //console.log("lessons list provider", lesson_new)
                 _lessons.push(lesson_new);
             }
+
             /*
             var _lessons = snap.docs.map(async (doc) => {
                 const lesson = doc.data();
@@ -107,19 +110,21 @@ export function LessonProvider({ children }) {
             const _lesson = snap.data();
             //const lesson = _lesson.uid_lesson ? await ClassLesson.fetchFromFirestore(_lesson.uid_lesson, lang) : null;
             //const teacher = _lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_lesson.uid_teacher) : null;
-            const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
-            const translate = await ClassLessonTranslate.fetchFromFirestore(_lesson.uid, lang);
-            const translates = await ClassLessonTranslate.fetchListFromFirestore(_lesson.uid);
+            //const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
+            //const translate = _lesson.translates?.[lang] || null;
+            const translate = _lesson.translates?.find(a => a.lang === lang);
+            const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLesson({
                 ..._lesson.toJSON(),
-                // translate: translate,
+                translate: translate,
+                teacher:teacher,
             });
             //lesson_new.lesson = lesson;
             //lesson_new.teacher = teacher;
-            lesson_new.room = room;
-            lesson_new.translate = translate;
-            lesson_new.translates = translates;
+            //lesson_new.room = room;
+            //lesson_new.translate = translate;
+            //lesson_new.teacher = teacher;
             setLesson(prev => {
                 if (!prev || prev === null) return lesson_new;
                 prev.update(lesson_new.toJSON());

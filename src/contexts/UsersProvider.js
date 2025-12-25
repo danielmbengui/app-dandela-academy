@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClassUser } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserIntern } from '@/classes/users/ClassUser';
 import {
     doc,
     onSnapshot,
@@ -47,6 +47,20 @@ export function UsersProvider({ children}) {
     // écoute du doc utilisateur
     const listenToUsers = useCallback(() => {
         const colRef = ClassUser.colRef(); // par ex.
+        const constraints = [];        
+                if (!(user instanceof ClassUserIntern)) {
+                    //constraints.push(where("start_date", ">", new Date()));
+                    constraints.push(where("role", "in", [ClassUser.ROLE.TEACHER]));
+                }
+                /*
+                if (uidLesson) {
+                    constraints.push(where("uid_lesson", "==", uidLesson));
+                }                //const coll = this.colRef();
+                
+        */
+       const q = constraints.length
+                    ? query(colRef, ...constraints)
+                    : colRef;
         //console.log("Col ref provider", colRef);
         const snapshotUsers = onSnapshot(colRef, async (snap) => {
             // snap est un QuerySnapshot

@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { ClassUserTeacher } from "./users/ClassUser";
+import { ClassUser, ClassUserTeacher } from "./users/ClassUser";
 
 export class ClassLesson {
     static COLLECTION = "LESSONS";
@@ -345,7 +345,9 @@ export class ClassLesson {
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
         cleaned.teacher = null;
+        cleaned.translate = null;
         delete cleaned.teacher;
+        delete cleaned.translate;
         return cleaned;
     }
     update(props = {}) {
@@ -361,6 +363,7 @@ export class ClassLesson {
         return ClassLesson.makeLessonInstance(this._uid, {
             ...this.toJSON(),
             teacher: this._teacher,
+            translate: this._translate,
         });
         //return new ClassUser(this.toJSON());
     }
@@ -407,9 +410,9 @@ export class ClassLesson {
                 var end_date = ClassLesson._toJsDate(data.end_date);
                 var created_time = ClassLesson._toJsDate(data.created_time);
                 var last_edit_time = ClassLesson._toJsDate(data.last_edit_time);
-                const translates = data.translates?.map?.(trans=>new ClassLessonTranslate(trans));
+                const translates = Object.values(data.translates)?.map?.(trans=>new ClassLessonTranslate(trans));
                 //console.log("uid lesson",uid, )
-                //console.log("translate", translate)
+                //console.log("translate classLesson", Object.values(data.translates))
                 return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time, translates });
             },
         };
@@ -462,11 +465,13 @@ export class ClassLesson {
         if (snap.exists()) {
             //const data = await snap.data();
             const lesson = snap.data();
-            const translate = await ClassLessonTranslate.fetchFromFirestore(uid, lang);
-            const translates = await ClassLessonTranslate.fetchListFromFirestore(uid);
+            const translate = lesson.translates[lang];
+            //const translates = await ClassLessonTranslate.fetchListFromFirestore(uid);
+            const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
             //console.log("leson class translate firestore", translate);
             lesson.translate = translate;
-            lesson.translates = translates;
+            //lesson.translates = translates;
+            lesson.teacher = teacher;
             //console.log("leson class get firestore", lesson);
             return (lesson);
         }
@@ -493,8 +498,12 @@ export class ClassLesson {
         const qSnap = await getDocs(q);
         return qSnap.docs.map(async (item) => {
             const lesson = item.data();
-            const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
+            //const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
+            const translate = lesson.translates[lang];
+            const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
+            //const translate = await ClassLessonTranslate.fetchFromFirestore(lesson.uid, lang);
             lesson.translate = translate;
+            lesson.teacher = teacher;
             return (lesson);
         });
     }

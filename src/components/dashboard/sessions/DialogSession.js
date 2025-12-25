@@ -101,15 +101,17 @@ export default function DialogSession({
         setDisabledCreate(disabled);
     }, [sessionNew]);
     const handleClose = () => {
-        setSessionNew(null);
-        setUidSession(null);
-        setUidSlot(null);
         setIsOpen(false);
         setMode('');
-        setInitStartDate(null);
         setErrors({});
         setProcessing(false);
         setDisabledCreate(false);
+        setSessionNew(null);
+        setUidSession(null);
+        setUidSlot(null);
+        if(setInitStartDate) {
+            setInitStartDate(null);
+        }
     };
     const onCreateSession = async () => {
         setProcessing(true);
