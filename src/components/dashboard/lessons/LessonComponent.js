@@ -18,7 +18,7 @@ import DialogSession from "../sessions/DialogSession";
 import { ClassSessionSlot } from "@/classes/ClassSession";
 import Link from "next/link";
 import ButtonCancel from "../elements/ButtonCancel";
-import TeacherComponent from "../TeacherComponent";
+import TeacherComponent from "../../teacher/TeacherComponent";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -357,7 +357,6 @@ export default function LessonComponent() {
       <main className="container">
         <section className="hero-card">
           <div className="hero-left">
-
             {
               user instanceof ClassUserIntern && <div style={{ marginBottom: '10px' }}>
                 <BadgeStatusLesson status={lesson?.status} />

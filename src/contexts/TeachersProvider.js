@@ -68,12 +68,12 @@ export function TeachersProvider({ children }) {
             var _users = [];
             for (const doc of snap.docs) {
                 const userData = doc.data();
-                const lessons = await ClassLesson.fetchListFromFirestore(lang, [where("uid_teacher", "==", userData.uid)]);
+                //const lessons = await ClassLesson.fetchListFromFirestore(lang, [where("uid_teacher", "==", userData.uid)]);
                 //console.log("list lessons", lessons);
                 const teacher = new ClassUserTeacher({
                     ...userData.toJSON(),
-                    lessons_uid: lessons.map(lesson => lesson.uid),
-                    lessons: lessons,
+                    //lessons_uid: lessons.map(lesson => lesson.uid),
+                    //lessons: lessons,
                     // translate: translate,
                 });
                 _users.push(teacher);
@@ -101,7 +101,7 @@ export function TeachersProvider({ children }) {
             }
             const teacher = snap.data();
             const { email_verified, status } = teacher;
-            
+            /*
             const lessons = await ClassLesson.fetchListFromFirestore(lang, [where("uid_teacher", "==", teacher.uid)]);
             const sessions = await ClassSession.fetchListFromFirestore([where("uid_teacher", "==", teacher.uid)]);
             teacher.lessons_uid = lessons.map(item => item.uid);
@@ -111,6 +111,7 @@ export function TeachersProvider({ children }) {
                 session.lesson = lessons.find(lesson=>lesson.uid === session.uid_lesson);
                 return session;
             });
+            */
             //setUser(_user);
             setTeacher(prev => {
                 if (!prev || prev === null) return teacher.clone();

@@ -14,10 +14,12 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { ClassUserIntern } from "@/classes/users/ClassUser";
 import { SCHOOL_NAME } from "@/contexts/constants/constants";
 import { useSession } from "@/contexts/SessionProvider";
-import DialogSession from "./sessions/DialogSession";
+import DialogSession from "../dashboard/sessions/DialogSession";
 import { ClassSessionSlot } from "@/classes/ClassSession";
 import Link from "next/link";
-import ButtonCancel from "./elements/ButtonCancel";
+import ButtonCancel from "../dashboard/elements/ButtonCancel";
+import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
+import { PAGE_TEACHERS } from "@/contexts/constants/constants_pages";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -158,11 +160,18 @@ export default function TeacherComponent() {
         <button className="btn ghost-btn">
           Contacter le prof
         </button>
-        <Link href={`mailto:${lesson?.teacher?.email}`}>
+        <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
+        <Link href={`${PAGE_TEACHERS}/${lesson?.teacher?.uid}`} target="_blank">
           <ButtonCancel
-            label="Voir le profil du prof"
+            label="Profil"
           />
         </Link>
+        <Link href={`mailto:${lesson?.teacher?.email}`}>
+          <ButtonConfirm
+            label="Contacter"
+          />
+        </Link>
+        </Stack>
       </div>
       <style jsx>{`
                 .page {

@@ -47,6 +47,7 @@ import { useLanguage } from "@/contexts/LangProvider";
 import { ClassSession, ClassSessionSlot } from "@/classes/ClassSession";
 import { t } from "i18next";
 import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
+import DialogSession from "../dashboard/sessions/DialogSession";
 
 const ROYAL = "#2563EB";
 const NAVY = "#0B1B4D";
@@ -252,6 +253,10 @@ function ModernSessionRow({ slot = null, session = null, onOpen, onSubscribe }) 
   const startText = formatDate(slot.start_date);
   const endText = formatDate(slot.end_date);
   const { lang } = useLanguage();
+  const { setUidSession, setUidSlot } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState('');
+  const [initStartDate, setInitStartDate] = useState(null);
 
   const seatsLeftOnsite = Math.max(
     0,
@@ -274,6 +279,16 @@ function ModernSessionRow({ slot = null, session = null, onOpen, onSubscribe }) 
       }}
     >
       <Stack spacing={1}>
+        {
+          mode === 'read' && <DialogSession
+            mode={mode}
+            setMode={setMode}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            initStartDate={initStartDate}
+            setInitStartDate={setInitStartDate}
+          />
+        }
         <Stack direction={{ xs: 'column-reverse', sm: "row" }} justifyContent="space-between" alignItems="flex-start" spacing={1}>
           <Stack spacing={0.2} sx={{ minWidth: 0 }}>
             <Typography variant="body1" sx={{ fontWeight: 950, color: "var(--grey-light)" }} title={slot.lesson_title}>
@@ -288,13 +303,6 @@ function ModernSessionRow({ slot = null, session = null, onOpen, onSubscribe }) 
         <Stack direction={{ xs: 'column', sm: "row" }} justifyContent={'space-between'} spacing={1} flexWrap="wrap">
           {slot.location ? <Chip size="small" icon={<IconLocation height={18} />} label={slot.location} sx={softChipSx} /> : null}
           <Stack alignItems={'center'} direction={'row'} spacing={0.5}>
-            {slot.seats_availables_onsite > 0 ? (
-              <Chip
-                size="small"
-                label={`${t(ClassSessionSlot.FORMAT.ONSITE)}: ${slot?.countFree?.(ClassSessionSlot.FORMAT.ONSITE)}`}
-                sx={softChipGhostSx}
-              />
-            ) : null}
             {slot.seats_availables_online > 0 ? (
               <Chip
                 size="small"
@@ -302,26 +310,31 @@ function ModernSessionRow({ slot = null, session = null, onOpen, onSubscribe }) 
                 sx={softChipGhostSx}
               />
             ) : null}
+            {slot.seats_availables_onsite > 0 ? (
+              <Chip
+                size="small"
+                label={`${t(ClassSessionSlot.FORMAT.ONSITE)}: ${slot?.countFree?.(ClassSessionSlot.FORMAT.ONSITE)}`}
+                sx={softChipGhostSx}
+              />
+            ) : null}
           </Stack>
         </Stack>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={0.5}>
           <Link target="_blank" style={{ width: '100%' }} href={`${PAGE_LESSONS}/${session?.uid_lesson}`}>
             <ButtonCancel fullWidth={true} label={`Voir le cours`} />
           </Link>
 
           <ButtonConfirm
             fullWidth={true}
-            label={`S'inscrire`}
+            label={`Voir la session`}
+            disabled={slot?.status !== ClassSessionSlot.STATUS.OPEN}
+            onClick={() => {
+              setIsOpen(true);
+              setUidSession(slot.uid_session);
+              setUidSlot(slot.uid_intern);
+              setMode('read');
+            }}
           />
-          <Button
-            variant="contained"
-            onClick={onSubscribe}
-            fullWidth
-            sx={primaryBtnSxSolid}
-            disabled={slot.status !== "PUBLISHED"}
-          >
-            {`S'inscrire`}
-          </Button>
         </Stack>
       </Stack>
     </Paper>

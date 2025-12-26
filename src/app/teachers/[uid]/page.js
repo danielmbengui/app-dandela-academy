@@ -15,10 +15,10 @@ import { useTranslation } from "react-i18next"
 export default function OneTeacherPage() {
     const params = useParams();
     const { uid: uidTeacher } = params; // <- ici tu récupères l'uid
-    const { setUidTeacher, isLoading, getOneTeacher,teacher } = useTeachers();
+    const { setUidTeacher, isLoading, getOneTeacher, teacher } = useTeachers();
     const { t } = useTranslation([NS_TEACHERS]);
-    const {lessons} = useLesson();
-    const {sessions} = useSession();
+    const { lessons } = useLesson();
+    const { sessions } = useSession();
     useEffect(() => {
         if (uidTeacher && !isLoading) {
             //const _teacher = getOneTeacher(uidTeacher);
@@ -28,15 +28,15 @@ export default function OneTeacherPage() {
         }
         console.log("Lessons from lesson provider", lessons, sessions)
     }, [uidTeacher, isLoading]);
-    return (        <DashboardPageWrapper
-            titles={[
-                { name: t('title'), url: PAGE_TEACHERS },
-                { name: teacher?.getCompleteName?.(), url: '' }
-            ]}
-            //title={`Cours / ${lesson?.title}`}
-            //subtitle={lesson?.translate?.subtitle}
-            icon={<IconTeachers />}
-        >
-            <OneTeacherComponent />
-        </DashboardPageWrapper>)
+    return (<DashboardPageWrapper
+        titles={[
+            { name: t('title'), url: PAGE_TEACHERS },
+            { name: teacher?.getCompleteName?.(), url: '' }
+        ]}
+        //title={`Cours / ${lesson?.title}`}
+        //subtitle={lesson?.translate?.subtitle}
+        icon={<IconTeachers />}
+    >
+        <OneTeacherComponent />
+    </DashboardPageWrapper>)
 }
