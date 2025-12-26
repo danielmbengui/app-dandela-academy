@@ -15,6 +15,7 @@ import {
   Typography,
   Grid,
   LinearProgress,
+  Skeleton,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -28,6 +29,24 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import StarIcon from "@mui/icons-material/Star";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
+import { useTeachers } from "@/contexts/TeachersProvider";
+import { IconBio, IconEmail, IconLessons, IconLocation, IconPhone, IconTranslation } from "@/assets/icons/IconsComponent";
+import { NS_LANGS, NS_TEACHERS } from "@/contexts/i18n/settings";
+import { useTranslation } from "react-i18next";
+import ButtonCancel from "../dashboard/elements/ButtonCancel";
+import { ClassLesson } from "@/classes/ClassLesson";
+import Link from "next/link";
+import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import BadgeFormatLesson from "../dashboard/lessons/BadgeFormatLesson";
+import BadgeStatusLesson from "../dashboard/lessons/BadgeStatusLesson";
+import { useSession } from "@/contexts/SessionProvider";
+import { useLesson } from "@/contexts/LessonProvider";
+import BadgeStatusSlot from "../dashboard/sessions/BadgeStatusSlot";
+import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import { useLanguage } from "@/contexts/LangProvider";
+import { ClassSession, ClassSessionSlot } from "@/classes/ClassSession";
+import { t } from "i18next";
+import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 
 const ROYAL = "#2563EB";
 const NAVY = "#0B1B4D";
@@ -39,9 +58,10 @@ function CardSection({ title, subtitle, right, children, id }) {
       elevation={0}
       sx={{
         borderRadius: 5,
-        p: 2.4,
+        p: 1.5,
         border: "1px solid rgba(15, 23, 42, 0.10)",
         bgcolor: "#FFFFFF",
+        width: '100%'
       }}
     >
       <Stack spacing={1.2}>
@@ -72,6 +92,7 @@ function StatCard({ icon, title, value, sub, children }) {
         borderRadius: 4,
         bgcolor: "rgba(255,255,255,0.10)",
         border: "1px solid rgba(255,255,255,0.18)",
+        color: 'white'
       }}
     >
       <Stack spacing={0.8}>
@@ -103,7 +124,7 @@ function StatCard({ icon, title, value, sub, children }) {
     </Paper>
   );
 }
-function MiniInfoRow({ icon, label, value }) {
+function CardBio({ label, value }) {
   return (
     <Stack
       direction="row"
@@ -124,13 +145,47 @@ function MiniInfoRow({ icon, label, value }) {
           border: "1px solid rgba(255,255,255,0.18)",
         }}
       >
+        <IconBio />
+      </Avatar>
+      <Stack sx={{ minWidth: 0 }}>
+        <Typography variant="body2" sx={{ fontWeight: 900 }} >
+          {`Bio`}
+        </Typography>
+        <Typography variant="caption" sx={{ opacity: 0.85 }} noWrap title={value}>
+          {value || "—"}
+        </Typography>
+      </Stack>
+    </Stack>
+  );
+}
+function MiniInfoRow({ icon, label, value }) {
+  return (
+    <Stack
+      direction="row"
+      spacing={1}
+      alignItems="center"
+      sx={{
+        p: 1.1,
+        borderRadius: 2,
+        bgcolor: "rgba(255,255,255,0.10)",
+        border: "1px solid rgba(255,255,255,0.18)",
+      }}
+    >
+      <Avatar
+        sx={{
+          width: 32,
+          height: 32,
+          bgcolor: "rgba(255,255,255,0.14)",
+          border: "1px solid rgba(255,255,255,0.18)",
+        }}
+      >
         {icon}
       </Avatar>
       <Stack sx={{ minWidth: 0 }}>
-        <Typography variant="caption" sx={{ opacity: 0.85 }}>
+        <Typography variant="body2" sx={{ fontWeight: 900 }} noWrap title={value}>
           {label}
         </Typography>
-        <Typography variant="body2" sx={{ fontWeight: 900 }} noWrap title={value}>
+        <Typography variant="caption" sx={{ opacity: 0.85, color: 'white' }}>
           {value || "—"}
         </Typography>
       </Stack>
@@ -146,6 +201,7 @@ function ModernCourseTile({ course, onOpen }) {
         p: 1.6,
         borderRadius: 5,
         cursor: "pointer",
+        width: '100%',
         border: "1px solid rgba(15, 23, 42, 0.10)",
         "&:hover": {
           borderColor: "rgba(37,99,235,0.35)",
@@ -176,10 +232,11 @@ function ModernCourseTile({ course, onOpen }) {
             <Typography variant="caption" color="text.secondary">
               {course.code} • {course.level}
             </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 950, color: NAVY }}>
+              {formatMoney(course.price, course.currency)}
+            </Typography>
           </Stack>
-          <Typography variant="body2" sx={{ fontWeight: 950, color: NAVY }}>
-            {formatMoney(course.price, course.currency)}
-          </Typography>
+
         </Stack>
 
         <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -190,17 +247,19 @@ function ModernCourseTile({ course, onOpen }) {
     </Paper>
   );
 }
-function ModernSessionRow({ session, onOpen, onSubscribe }) {
-  const startText = formatDate(session.start_date);
-  const endText = formatDate(session.end_date);
+function ModernSessionRow({ slot = null, session = null, onOpen, onSubscribe }) {
+  const { t } = useTranslation(ClassSession.NS_COLLECTION);
+  const startText = formatDate(slot.start_date);
+  const endText = formatDate(slot.end_date);
+  const { lang } = useLanguage();
 
   const seatsLeftOnsite = Math.max(
     0,
-    Number(session.seats_availables_onsite || 0) - (session.subscribers_onsite?.length || 0)
+    Number(slot.seats_availables_onsite || 0) - (slot.subscribers_onsite?.length || 0)
   );
   const seatsLeftOnline = Math.max(
     0,
-    Number(session.seats_availables_online || 0) - (session.subscribers_online?.length || 0)
+    Number(slot.seats_availables_online || 0) - (slot.subscribers_online?.length || 0)
   );
 
   return (
@@ -210,62 +269,56 @@ function ModernSessionRow({ session, onOpen, onSubscribe }) {
         p: 1.6,
         borderRadius: 5,
         border: "1px solid rgba(15, 23, 42, 0.10)",
-        bgcolor: "#fff",
+        border: "0.1px solid var(--card-border)",
+        bgcolor: "var(--card-color)",
       }}
     >
       <Stack spacing={1}>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
+        <Stack direction={{ xs: 'column-reverse', sm: "row" }} justifyContent="space-between" alignItems="flex-start" spacing={1}>
           <Stack spacing={0.2} sx={{ minWidth: 0 }}>
-            <Typography variant="body1" sx={{ fontWeight: 950, color: NAVY }} noWrap title={session.lesson_title}>
-              {session.lesson_title}
+            <Typography variant="body1" sx={{ fontWeight: 950, color: "var(--grey-light)" }} title={slot.lesson_title}>
+              {slot?.lesson?.translate?.title || slot?.lesson?.title}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {startText} → {endText}
+              {`${getFormattedDateNumeric(slot?.start_date, lang)} → ${getFormattedHour(slot?.start_date, lang)}-${getFormattedHour(slot?.end_date, lang)}`}
             </Typography>
           </Stack>
-
-          <Chip
-            size="small"
-            label={session.status === "PUBLISHED" ? "Ouvert" : session.status}
-            sx={{
-              bgcolor: session.status === "PUBLISHED" ? "rgba(34,197,94,0.12)" : "rgba(15,23,42,0.06)",
-              color: session.status === "PUBLISHED" ? "#15803D" : NAVY,
-              border: "1px solid rgba(15,23,42,0.10)",
-              fontWeight: 900,
-            }}
-          />
+          <BadgeStatusSlot status={slot?.status} />
         </Stack>
-
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          <Chip size="small" icon={<EventIcon />} label={formatLabel(session.format)} sx={softChipSx} />
-          {session.location ? <Chip size="small" icon={<RoomIcon />} label={session.location} sx={softChipSx} /> : null}
-          {session.url ? <Chip size="small" icon={<LinkIcon />} label="Lien" sx={softChipSx} /> : null}
-          {session.seats_availables_onsite > 0 ? (
-            <Chip
-              size="small"
-              label={`Présentiel: ${seatsLeftOnsite}/${session.seats_availables_onsite}`}
-              sx={softChipGhostSx}
-            />
-          ) : null}
-          {session.seats_availables_online > 0 ? (
-            <Chip
-              size="small"
-              label={`En ligne: ${seatsLeftOnline}/${session.seats_availables_online}`}
-              sx={softChipGhostSx}
-            />
-          ) : null}
+        <Stack direction={{ xs: 'column', sm: "row" }} justifyContent={'space-between'} spacing={1} flexWrap="wrap">
+          {slot.location ? <Chip size="small" icon={<IconLocation height={18} />} label={slot.location} sx={softChipSx} /> : null}
+          <Stack alignItems={'center'} direction={'row'} spacing={0.5}>
+            {slot.seats_availables_onsite > 0 ? (
+              <Chip
+                size="small"
+                label={`${t(ClassSessionSlot.FORMAT.ONSITE)}: ${slot?.countFree?.(ClassSessionSlot.FORMAT.ONSITE)}`}
+                sx={softChipGhostSx}
+              />
+            ) : null}
+            {slot.seats_availables_online > 0 ? (
+              <Chip
+                size="small"
+                label={`${t(ClassSessionSlot.FORMAT.ONLINE)}: ${slot?.countFree?.(ClassSessionSlot.FORMAT.ONLINE)}`}
+                sx={softChipGhostSx}
+              />
+            ) : null}
+          </Stack>
         </Stack>
-
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-          <Button variant="outlined" onClick={onOpen} fullWidth sx={outlineBtnSx}>
-            Voir la session
-          </Button>
+          <Link target="_blank" style={{ width: '100%' }} href={`${PAGE_LESSONS}/${session?.uid_lesson}`}>
+            <ButtonCancel fullWidth={true} label={`Voir le cours`} />
+          </Link>
+
+          <ButtonConfirm
+            fullWidth={true}
+            label={`S'inscrire`}
+          />
           <Button
             variant="contained"
             onClick={onSubscribe}
             fullWidth
             sx={primaryBtnSxSolid}
-            disabled={session.status !== "PUBLISHED"}
+            disabled={slot.status !== "PUBLISHED"}
           >
             {`S'inscrire`}
           </Button>
@@ -335,16 +388,25 @@ const outlineBtnSxWhite = {
 };
 const softChipSx = {
   bgcolor: "rgba(37,99,235,0.08)",
-  color: NAVY,
-  border: "1px solid rgba(37,99,235,0.18)",
+  bgcolor: "var(--primary-shadow)",
+  color: "var(--primary)",
+  border: "0.1px solid var(--primary)",
   fontWeight: 800,
-  "& .MuiChip-icon": { color: ROYAL },
+  "& .MuiChip-icon": { color: "var(--primary)" },
+  height: 'auto',
+  '& .MuiChip-label': {
+    display: 'flex',
+    whiteSpace: 'normal',
+  },
 };
 const softChipGhostSx = {
   bgcolor: "rgba(15,23,42,0.04)",
-  color: NAVY,
+  bgcolor: "var(--card-border)",
+  //bgcolor: "var(--primary-shadow)",
+  color: "var(--font-color)",
   border: "1px solid rgba(15,23,42,0.10)",
-  fontWeight: 800,
+  border: "1px solid var(--card-border)",
+  fontWeight: 400,
 };
 /* -------------------- Formatters -------------------- */
 function formatLabel(format) {
@@ -386,14 +448,194 @@ function formatMoney(amount, currency) {
     return `${n} ${currency || ""}`.trim();
   }
 }
+
+function CardLessonsComponent({ courses = [] }) {
+  const { t } = useTranslation([NS_TEACHERS, ClassLesson.NS_COLLECTION]);
+  const { lessons } = useLesson();
+  //const { slots } = useSession();
+  //const today = new Date();
+
+  return (<>
+    <div className="hero-right-top">
+      <Stack spacing={1} sx={{ width: '100%' }}>
+        <Stack sx={{ width: '100%' }}>
+          <p className="teacher-title">{t('Cours proposés')}</p>
+        </Stack>
+        <Divider sx={{ borderColor: 'var(--card-border)', borderWidth: '0.1px', opacity: 0.6 }} />
+        <Grid container spacing={1} sx={{ display: 'flex' }}>
+          {lessons.map((c) => (<Grid key={c.uid} size={{ xs: 12, sm: 12 }}>
+            <Stack alignItems={'end'} spacing={0.5} sx={{ width: '100%', p: 1.5, borderRadius: '10px', border: `0.1px solid var(--card-border)`, background: '' }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={'center'} sx={{ width: '100%', background: '' }}>
+                <Stack sx={{ p: 1, borderRadius: '10px', background: 'var(--primary-shadow)' }}>
+                  <IconLessons color="var(--primary)" width={30} height={30} />
+                </Stack>
+                <Stack>
+                  <p className="teacher-title">{c.translate?.title}</p>
+                  <Typography variant="caption">{t(c.category, { ns: ClassLesson.NS_COLLECTION }) || '---'}</Typography>
+                  {
+                    c.certified && <div className="badges">
+                      <span className="badge-cert">
+                        🎓 {t('certified', { ns: ClassLesson.NS_COLLECTION })}
+                      </span>
+                    </div>
+                  }
+                </Stack>
+              </Stack>
+              <Link href={`${PAGE_LESSONS}/${c.uid}`} target="_blank">
+                <ButtonCancel label="Voir le cours" />
+              </Link>
+            </Stack>
+          </Grid>))}
+        </Grid>
+
+
+      </Stack>
+    </div>
+    <style jsx>{`
+                .badges {
+                  margin-top: 5px;
+                  display: flex;
+                  gap: 5px;
+                  flex-wrap: wrap;
+                }
+                .badge-cert {
+                  border-radius: 999px;
+                  padding: 2px 10px;
+                  font-size: 0.8rem;
+                  background: #022c22;
+                  background: transparent;
+                  color: #bbf7d0;
+                  color: var(--font-color);
+                  border: 0.1px solid #16a34a;
+                   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+                }
+                .hero-right-top {
+                width: 100%;
+                  border-radius: 14px;
+                  border: 0.1px solid var(--card-border);
+                  padding: 10px 10px 12px;
+                  padding: 15px;
+                  background: var(--card-color);
+                }
+                .teacher-title {
+                  font-size: 0.75rem;
+                  font-size: 1.05rem;
+                  color: var(--font-color);
+                  line-height: 1.05rem;
+                }
+                .teacher-subtitle {
+                  font-size: 0.75rem;
+                  font-size: 0.85rem;
+                  font-weight: 300;
+                  color: var(--grey-light);
+                  line-height: 1rem;
+                }
+                .teacher-title-text {
+                  font-size: 0.75rem;
+                  font-size: 1.05rem;
+                  color: #9ca3af;
+                  margin-bottom: 6px;
+                }
+  `}</style>
+  </>)
+}
+function CardSessionsComponent({ courses = [] }) {
+  const { t } = useTranslation([NS_TEACHERS, ClassLesson.NS_COLLECTION]);
+  const { teacher } = useTeachers();
+  const { sessions, slots, getOneSession, isLoading } = useSession();
+  //const { slots } = useSession();
+  //const today = new Date();
+  //console.log("sessions ", sessions)
+
+  return (<>
+    <div className="hero-right-top">
+      <Stack spacing={1} sx={{ width: '100%' }}>
+        <Stack sx={{ width: '100%' }}>
+          <p className="teacher-title">{t('Sessions à venir')}</p>
+          <p className="teacher-subtitle">{t('Inscris-toi rapidement à une ou plusieurs sessions')}</p>
+        </Stack>
+        <Divider sx={{ borderColor: 'var(--card-border)', borderWidth: '0.1px', opacity: 0.6 }} />
+        {
+          isLoading && <Skeleton variant="rounded" width={'100%'} height={'20px'} sx={{ bgcolor: 'var(--card-border)' }} />
+        }
+        {
+          !isLoading && slots?.length === 0 && <Typography>{`Il n'y a aucune session à venir`}</Typography>
+        }
+        {
+          slots?.length > 0 && <Grid container spacing={1} sx={{ display: 'flex' }}>
+            {slots.map((slot) => {
+              const session = getOneSession(slot.uid_session);
+              return (<Grid key={`${slot.uid_session}-${slot.uid_intern}`} size={{ xs: 12, sm: 12 }}>
+                <ModernSessionRow slot={slot} session={session} />
+              </Grid>)
+            })}
+          </Grid>
+        }
+      </Stack>
+    </div>
+    <style jsx>{`
+                .badges {
+                  margin-top: 5px;
+                  display: flex;
+                  gap: 5px;
+                  flex-wrap: wrap;
+                }
+                .badge-cert {
+                  border-radius: 999px;
+                  padding: 2px 10px;
+                  font-size: 0.8rem;
+                  background: #022c22;
+                  background: transparent;
+                  color: #bbf7d0;
+                  color: var(--font-color);
+                  border: 0.1px solid #16a34a;
+                   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+                }
+                .hero-right-top {
+                width: 100%;
+                  border-radius: 14px;
+                  border: 0.1px solid var(--card-border);
+                  padding: 10px 10px 12px;
+                  padding: 15px;
+                  background: var(--card-color);
+                }
+                .teacher-title {
+                  font-size: 0.75rem;
+                  font-size: 1.05rem;
+                  color: var(--font-color);
+                  line-height: 1.05rem;
+                }
+                .teacher-subtitle {
+                  font-size: 0.75rem;
+                  font-size: 0.85rem;
+                  font-weight: 300;
+                  color: var(--grey-light);
+                  line-height: 1rem;
+                }
+                .teacher-title-text {
+                  font-size: 0.75rem;
+                  font-size: 1.05rem;
+                  color: #9ca3af;
+                  margin-bottom: 6px;
+                }
+  `}</style>
+  </>)
+}
 export default function OneTeacherComponent() {
   const router = useRouter();
+  const { teacher: myTeacher } = useTeachers();
+
+  //console.log("TEACHER", myTeacher)
   // ---- MOCK (remplace par Firestore) ----
   const teacher = useMemo(
     () => ({
       uid: "teacher_01",
-      first_name: "Maria",
-      last_name: "Cruz",
+      first_name: "Afonso José",
+      last_name: "Gila Nhanga ohofhgofdohfd",
       headline: "Formatrice Excel • Bureautique • Productivité",
       verified: true,
       photo_url:
@@ -422,6 +664,7 @@ Mon approche : claire, efficace, basée sur des exercices concrets.`,
         sessions: 64,
         completion: 96, // %
       },
+      ...myTeacher?.toJSON()
     }),
     []
   );
@@ -518,303 +761,178 @@ Mon approche : claire, efficace, basée sur des exercices concrets.`,
     }
   };
   return (
-    <Box sx={{ bgcolor: "#fff", minHeight: "100vh", width:'100%' }}>
-      {/* Top bar + subtle gradient */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, rgba(11,27,77,1) 0%, rgba(37,99,235,1) 55%, rgba(96,165,250,1) 100%)`,
-          color: "white",
-        }}
-      >
-        <Stack sx={{ maxWidth: 1200, mx: "auto", px: { xs: 2, md: 3 }, pt: 2.2, pb: 9 }} spacing={2}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Stack direction="row" spacing={1.2} alignItems="center">
-              <Tooltip title="Retour">
-                <IconButton
-                  onClick={handleBack}
-                  sx={{
-                    color: "white",
-                    bgcolor: "rgba(255,255,255,0.14)",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.20)" },
-                    borderRadius: 2,
-                  }}
-                >
-                  <ArrowBackIcon />
-                </IconButton>
-              </Tooltip>
-              <Stack spacing={0.2}>
-                <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
-                  Professeur
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Profil moderne • inscription rapide
-                </Typography>
-              </Stack>
-            </Stack>
-
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Chip
-                icon={<StarIcon />}
-                label={`${teacher.rating_avg.toFixed(1)} • ${teacher.rating_count}`}
-                sx={{
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.12)",
-                  borderColor: "rgba(255,255,255,0.22)",
-                  "& .MuiChip-icon": { color: "white" },
-                  fontWeight: 800,
-                }}
-                variant="outlined"
-              />
-              <Chip
-                icon={teacher.verified ? <VerifiedIcon /> : undefined}
-                label={teacher.verified ? "Vérifié" : "Non vérifié"}
-                sx={{
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.12)",
-                  borderColor: "rgba(255,255,255,0.22)",
-                  "& .MuiChip-icon": { color: "white" },
-                  fontWeight: 800,
-                }}
-                variant="outlined"
-              />
-            </Stack>
-          </Stack>
-
-          {/* HERO v2: Avatar + name left, Quick actions right, stats below */}
-          <Paper
-            elevation={0}
+    <Box sx={{ bgcolor: "", minHeight: "100vh", width: '100%' }}>
+      <Stack sx={{ background: '', width: '100%', mx: "auto" }} spacing={1}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Chip
+            size={'small'}
+            icon={teacher.verified_by_team ? <VerifiedIcon /> : undefined}
+            label={teacher.verified_by_team ? "Vérifié" : "Non vérifié"}
             sx={{
-              borderRadius: 5,
-              overflow: "hidden",
-              bgcolor: "rgba(255,255,255,0.10)",
-              border: "1px solid rgba(255,255,255,0.18)",
-              backdropFilter: "blur(10px)",
+              color: "var(--font-color)",
+              //bgcolor: "rgba(255,255,255,0.12)",
+              borderColor: "var(--font-color)",
+              "& .MuiChip-icon": { color: "green", fontSize: 14 },
+              fontWeight: 500,
+              px: 1
+              //background: `linear-gradient(135deg, rgba(11,27,77,1) 0%, rgba(37,99,235,1) 55%, rgba(96,165,250,1) 100%)`,
+              //color: "white",
             }}
-          >
-            <Stack sx={{ p: { xs: 2, md: 2.6 } }} spacing={2}>
-              <Stack
-                direction={{ xs: "column", md: "row" }}
-                justifyContent="space-between"
-                alignItems={{ xs: "flex-start", md: "center" }}
-                spacing={2}
-              >
-                <Stack direction="row" spacing={1.6} alignItems="center" sx={{ minWidth: 0 }}>
-                  <Avatar
-                    src={teacher.photo_url}
-                    sx={{
-                      width: 88,
-                      height: 88,
-                      border: "2px solid rgba(255,255,255,0.6)",
-                      boxShadow: "0 14px 40px rgba(2,6,23,0.35)",
-                    }}
-                  />
-                  <Stack spacing={0.3} sx={{ minWidth: 0 }}>
-                    <Typography variant="h3" sx={{ fontWeight: 950, lineHeight: 1.05 }} noWrap title={fullName}>
-                      {fullName}
-                    </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.92 }}>
-                      {teacher.headline}
-                    </Typography>
-
-                    <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 0.3 }}>
-                      {teacher.tags.slice(0, 5).map((t) => (
-                        <Chip
-                          key={t}
-                          size="small"
-                          label={t}
-                          sx={{
-                            bgcolor: "rgba(255,255,255,0.14)",
-                            color: "white",
-                            borderColor: "rgba(255,255,255,0.22)",
-                            fontWeight: 800,
-                          }}
-                          variant="outlined"
-                        />
-                      ))}
-                    </Stack>
-                  </Stack>
-                </Stack>
-
-                {/* Quick actions */}
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ width: { xs: "100%", md: "auto" } }}>
-                  {teacher.socials?.linkedin && (
-                    <Button
-                      size="large"
-                      variant="contained"
-                      startIcon={<LinkIcon />}
-                      onClick={() => handleOpenExternal(teacher.socials.linkedin)}
-                      sx={primaryBtnSx}
-                      fullWidth
-                    >
-                      LinkedIn
-                    </Button>
-                  )}
-                  <Button
-                    size="large"
-                    variant="outlined"
-                    startIcon={<EmailIcon />}
-                    sx={outlineBtnSxWhite}
-                    onClick={() => {
-                      const el = document.getElementById("contact-section");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
-                    fullWidth
-                  >
-                    Contacter
-                  </Button>
-                </Stack>
-              </Stack>
-
-              <Typography variant="body2" sx={{ opacity: 0.92 }}>
-                {teacher.about_short}
-              </Typography>
-
-              {/* Stats bar */}
-              <Grid container spacing={1.4}>
-                <Grid item xs={12} md={6}>
-                  <StatCard
-                    icon={<WorkspacePremiumIcon fontSize="small" />}
-                    title="Taux de réussite"
-                    value={`${teacher.stats.completion}%`}
-                    sub={`${teacher.stats.students}+ étudiants formés`}
-                  >
-                    <LinearProgress
-                      variant="determinate"
-                      value={teacher.stats.completion}
-                      sx={{
-                        height: 8,
-                        borderRadius: 999,
-                        bgcolor: "rgba(255,255,255,0.18)",
-                        "& .MuiLinearProgress-bar": {
-                          bgcolor: "rgba(255,255,255,0.82)",
-                        },
-                      }}
-                    />
-                  </StatCard>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <Stack spacing={1.4}>
-                    <MiniInfoRow icon={<LanguageIcon fontSize="small" />} label="Langues" value={teacher.languages.join(" • ")} />
-                    <MiniInfoRow icon={<RoomIcon fontSize="small" />} label="Zone" value={teacher.location} />
-                    <MiniInfoRow icon={<PhoneIcon fontSize="small" />} label="Téléphone" value={teacher.phone} />
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Stack>
-          </Paper>
+            variant="outlined"
+          />
         </Stack>
-      </Box>
+        {/* HERO v2: Avatar + name left, Quick actions right, stats below */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 5,
+            overflow: "hidden",
+            bgcolor: "rgba(255,255,255,0.10)",
+            //border: "1px solid rgba(255,255,255,0.18)",
+            backdropFilter: "blur(10px)",
+            background: `linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 55%, var(--primary) 100%)`,
+            color: "white",
+            width: '100%',
+          }}
+        >
+          <Stack sx={{ p: { xs: 1.5, md: 2.6 } }} spacing={2}>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              justifyContent="space-between"
+              alignItems={{ xs: "flex-start", md: "center" }}
+              spacing={2}
+            >
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}
+                //justifyContent="center" 
+                alignItems="center"
+                sx={{ minWidth: 0, maxWidth: '100%' }}>
+                <Avatar
+                  src={teacher.photo_url}
+                  sx={{
+                    width: 70,
+                    height: 70,
+                    border: "2px solid rgba(255,255,255,0.6)",
+                    boxShadow: "0 14px 40px rgba(2,6,23,0.35)",
+                  }}
+                />
+                <Stack spacing={0.3} alignItems={{ xs: 'center', sm: 'start' }} sx={{ minWidth: 0, textAlign: 'center' }}>
+                  <Typography variant="h3" sx={{ fontWeight: 950, lineHeight: 1.05 }} title={fullName}>
+                    {fullName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.92 }}>
+                    {teacher.role_title}
+                  </Typography>
 
-      {/* Content */}
-      <Stack
-        sx={{
-          maxWidth: 1200,
-          mx: "auto",
-          px: { xs: 2, md: 3 },
-          mt: -7,
-          pb: 4,
-        }}
-        spacing={2}
-      >
-        <Grid container spacing={2}>
-          {/* MAIN (courses + sessions) */}
-          <Grid item xs={12} md={8}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <CardSection title="Cours proposés" subtitle="Choisis un cours, puis une session pour t’inscrire">
-                  <Grid container spacing={1.4}>
-                    {courses.map((c) => (
-                      <Grid key={c.uid} item xs={12} sm={6}>
-                        <ModernCourseTile course={c} onOpen={() => handleGoToCourse(c.uid)} />
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardSection>
-              </Grid>
-
-              <Grid item xs={12}>
-                <CardSection title="Sessions à venir" subtitle="Inscription rapide (1 clic)">
-                  <Stack spacing={1.2}>
-                    {upcomingSessions.map((s) => (
-                      <ModernSessionRow
-                        key={s.uid}
-                        session={s}
-                        onOpen={() => handleGoToSession(s.uid)}
-                        onSubscribe={() => handleSubscribeSession(s)}
+                  <Stack direction="row" justifyContent={{ xs: 'center', sm: 'start' }} spacing={1} flexWrap="wrap" sx={{ mt: 0.3 }}>
+                    {teacher.tags.slice(0, 5).map((t) => (
+                      <Chip
+                        key={t}
+                        size="small"
+                        label={t}
+                        sx={{
+                          bgcolor: "rgba(255,255,255,0.14)",
+                          color: "white",
+                          borderColor: "rgba(255,255,255,0.22)",
+                          fontWeight: 800,
+                        }}
+                        variant="outlined"
                       />
                     ))}
                   </Stack>
-                </CardSection>
-              </Grid>
+                </Stack>
+              </Stack>
 
-              <Grid item xs={12}>
-                <CardSection title="Bio" subtitle="Approche & parcours">
-                  <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-line" }}>
-                    {teacher.bio}
-                  </Typography>
-                </CardSection>
+              {/* Quick actions */}
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ width: { xs: "100%", md: "auto" } }}>
+                {teacher.socials?.linkedin && (
+                  <Button
+                    size="large"
+                    variant="contained"
+                    startIcon={<LinkIcon />}
+                    onClick={() => handleOpenExternal(teacher.socials.linkedin)}
+                    sx={primaryBtnSx}
+                    fullWidth
+                  >
+                    LinkedIn
+                  </Button>
+                )}
+                <Button
+                  size="large"
+                  variant="outlined"
+                  startIcon={<EmailIcon />}
+                  sx={outlineBtnSxWhite}
+                  onClick={() => {
+                    const el = document.getElementById("contact-section");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  fullWidth
+                >
+                  Contacter
+                </Button>
+              </Stack>
+            </Stack>
+
+            <Typography variant="body2" sx={{ opacity: 0.92 }}>
+              {teacher.bio}
+            </Typography>
+
+            {/* Stats bar */}
+            <Grid container spacing={1} sx={{ background: '' }}>
+              <Grid size={{ xs: 12, sm: 'grow' }}>
+                <Grid container spacing={1}>
+                  <Grid size={{ xs: 12, sm: 'auto' }}>
+                    <MiniInfoRow icon={<IconEmail />} label="Email" value={<Link href={`mailto:${teacher?.email}`}>{teacher?.email}</Link>} />
+                  </Grid>
+                  {
+                    teacher?.phone_number && <Grid size={{ xs: 12, sm: 'auto' }}>
+                      <MiniInfoRow icon={<IconPhone />} label="Phone" value={<Link href={`tel:${teacher?.phone_number}`}>{teacher?.phone_number}</Link>} />
+                    </Grid>
+                  }
+
+                  <Grid size={{ xs: 12, sm: 'auto' }}>
+                    <MiniInfoRow icon={<IconTranslation fontSize="small" />} label="Langues" value={teacher?.langs?.map(lang => t(lang, { ns: NS_LANGS })).join(" • ")} />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 3 }}>
+                <StatCard
+                  icon={<WorkspacePremiumIcon fontSize="small" />}
+                  title="Taux de réussite"
+                  value={`${teacher.stats.completion}%`}
+                  sub={`${teacher.stats.students}+ étudiants formés`}
+                >
+                  <LinearProgress
+                    variant="determinate"
+                    value={teacher.stats.completion}
+                    sx={{
+                      height: 8,
+                      borderRadius: 999,
+                      bgcolor: "rgba(255,255,255,0.18)",
+                      "& .MuiLinearProgress-bar": {
+                        bgcolor: "rgba(255,255,255,0.82)",
+                      },
+                    }}
+                  />
+                </StatCard>
               </Grid>
             </Grid>
+          </Stack>
+        </Paper>
+
+
+
+        <Grid container spacing={1}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <CardLessonsComponent lessons={myTeacher?.lessons} courses={courses} />
           </Grid>
-
-          {/* SIDE (reviews + contact) */}
-          <Grid item xs={12} md={4}>
-            <CardSection
-              title="Avis"
-              subtitle="Ce que les étudiants disent"
-              right={
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Rating value={teacher.rating_avg} precision={0.1} readOnly size="small" />
-                  <Typography variant="body2" sx={{ fontWeight: 900, color: NAVY }}>
-                    {teacher.rating_avg.toFixed(1)}
-                  </Typography>
-                </Stack>
-              }
-            >
-              <Stack spacing={1.1}>
-                {reviews.map((r) => (
-                  <ModernReviewCompact key={r.uid} review={r} />
-                ))}
-              </Stack>
-            </CardSection>
-
-            <CardSection title="Contact direct" subtitle="Message privé au professeur" id="contact-section">
-              <Stack spacing={1.2}>
-                <TextField
-                  label="Sujet"
-                  value={contactForm.subject}
-                  onChange={(e) => setContactForm((p) => ({ ...p, subject: e.target.value }))}
-                  fullWidth
-                />
-                <TextField
-                  label="Message"
-                  value={contactForm.message}
-                  onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
-                  fullWidth
-                  multiline
-                  minRows={4}
-                />
-                <Button
-                  variant="contained"
-                  startIcon={<SendIcon />}
-                  onClick={handleSendMessage}
-                  disabled={!canSend || sending}
-                  sx={primaryBtnSxSolid}
-                >
-                  {sending ? "Envoi..." : "Envoyer"}
-                </Button>
-
-                <Divider sx={{ borderColor: "rgba(15,23,42,0.10)" }} />
-
-                <Stack direction="row" spacing={1} flexWrap="wrap">
-                  <Chip size="small" icon={<EmailIcon />} label={teacher.email} sx={softChipSx} />
-                  <Chip size="small" icon={<PhoneIcon />} label={teacher.phone} sx={softChipSx} />
-                </Stack>
-              </Stack>
-            </CardSection>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <CardSessionsComponent sessions={myTeacher?.sessions} courses={courses} />
           </Grid>
+          <Grid size={'auto'}></Grid>
+          <Grid size={'auto'}></Grid>
         </Grid>
+
+
       </Stack>
     </Box>
   );

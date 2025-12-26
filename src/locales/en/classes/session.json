@@ -22,6 +22,7 @@
   "draft": "Draft",
   "open": "Registrations open",
   "finished": "Finished",
+  "expired": "Registrations closed",
   "sessions_type": "Pace",
   "format": "Format",
   "hybrid": "Hybrid",

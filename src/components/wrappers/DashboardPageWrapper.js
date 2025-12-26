@@ -199,7 +199,7 @@ const isAllowed = useMemo(() => {
                 elevation={0}
                 position="fixed"
                 sx={{
-                    background: 'var(--background)',
+                    background: {xs:'var(--card-color)', sm:'var(--background)'},
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
@@ -266,11 +266,11 @@ const isAllowed = useMemo(() => {
             </Box>
             <Box
                 component="main"
-                sx={{ flexGrow: 1, p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                sx={{background:'', p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
-                <Toolbar />
-                <Container maxWidth={'xl'} sx={{ pb: 2, background: '', }}>
-                    <Stack spacing={1.5} maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
+                <Toolbar disableGutters variant="dense" sx={{ height: {xs:'50px',sm:'30px'}}} />
+                <Container disableGutters maxWidth={'xl'} sx={{ py: 1,px:{xs:1,sm:2}, background: '',mt:0 }}>
+                    <Stack spacing={1} maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
                         <Stack justifyContent={'center'} sx={{ background: '', width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {

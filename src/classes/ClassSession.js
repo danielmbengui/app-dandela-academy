@@ -837,7 +837,7 @@ export class ClassSessionSlot {
         if (format === ClassSessionSlot.FORMAT.ONSITE) {
             return this._subscribers_onsite.length;
         }
-        return 0;
+        return this._subscribers_online.length + this._subscribers_onsite.length;
     }
     isSubscribe(uid = "", format = "") {
         if (!uid) return;
@@ -866,7 +866,6 @@ export class ClassSessionSlot {
         }
         return (total > 0 ? filled / total : 0) * 100;
     }
-
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
@@ -896,7 +895,10 @@ export class ClassSessionSlot {
         if (format === ClassSessionSlot.FORMAT.ONSITE) {
             return this._seats_availables_onsite - this._subscribers_onsite.length;
         }
-        return 0;
+        return this.countAvailablesTotal() - this.countSubscribers();
+    }
+    countAvailablesTotal() {
+        return this._seats_availables_online + this._seats_availables_onsite;
     }
     isFull(format = "") {
         if (format === ClassSession.FORMAT.ONLINE) {

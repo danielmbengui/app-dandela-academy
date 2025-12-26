@@ -1039,13 +1039,61 @@ export class ClassUserTeacher extends ClassUserExtern {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
         this._role_title = props.role_title;
         this._bio = props.bio;
+        this._lessons_uid = props.lessons_uid || [];
+        this._lessons = props.lessons || [];
+        this._sessions_uid = props.sessions_uid || [];
+        this._sessions = props.sessions || [];
+        this._langs = props.langs || [];
+        this._tags = props.tags || [];
     }
     get role_title() { return this._role_title; }
     set role_title(val) { this._role_title = val; }
     get bio() { return this._bio; }
     set bio(val) { this._bio = val; }
+    get lessons_uid() { return this._lessons_uid; }
+    set lessons_uid(val) { this._lessons_uid = val; }
+    get lessons() { return this._lessons; }
+    set lessons(val) { this._lessons = val; }
+
+    get sessions_uid() { return this._sessions_uid; }
+    set sessions_uid(val) { this._sessions_uid = val; }
+    get sessions() { return this._sessions; }
+    set sessions(val) { this._sessions = val; }
+
+    get langs() { return this._langs; }
+    set langs(val) { this._langs = val; }
+    get tags() { return this._tags; }
+    set tags(val) { this._tags = val; }
+    // --- Serialization ---
+    toJSON() {
+        const out = { ...this };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+        );
+        //console.log("oooook", cleaned)
+        cleaned.lessons_uid = null;
+        cleaned.lessons = null;
+        cleaned.sessions_uid = null;
+        cleaned.sessions = null;
+        delete cleaned.lessons_uid;
+        delete cleaned.lessons;
+        delete cleaned.sessions_uid;
+        delete cleaned.sessions;
+        return cleaned;
+
+        //return entries;
+    }
     clone() {
-        return new ClassUserTeacher(this.toJSON());
+        //return new ClassUserTeacher(this.toJSON());
+        return ClassUserTeacher.makeUserInstance(this._uid, {
+            ...this.toJSON(),
+            lessons_uid: this._lessons_uid,
+            lessons: this._lessons,
+            sessions_uid: this._sessions_uid,
+            sessions: this._sessions,
+        });
     }
     static async count(constraints = []) {
         constraints.push(where('role', '==', this.ROLE.TEACHER));

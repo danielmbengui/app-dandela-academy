@@ -22,6 +22,7 @@
   "draft": "Brouillon",
   "open": "Inscriptions ouvertes",
   "finished": "Terminé",
+  "expired": "Inscriptions fermées",
   "sessions_type": "Rythme",
   "format": "Format",
   "hybrid": "Hybride",

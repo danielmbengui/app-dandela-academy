@@ -20,13 +20,14 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonConfirm({ label = 'Confirmer',color='primary', loading = false, disabled = false, onClick = null, size = 'small',
-  variant='contained', ...props }) {
+export default function ButtonConfirm({ label = 'Confirmer', color = 'primary', loading = false, disabled = false, onClick = null, fullWidth = false, size = 'small',
+  variant = 'contained', ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight } = theme.palette;
   return (<Button
-  {...props}
+
     variant={variant}
+    fullWidth={fullWidth}
     loading={loading}
     //elevation={0}
     color={color}
@@ -47,8 +48,8 @@ export default function ButtonConfirm({ label = 'Confirmer',color='primary', loa
       //color: background.main,
       color: "var(--card-color)",
       fontSize: '0.9rem',
-      height: size==='small' ? '35px' : size==='medium' ? '38px' : '40px',
-      maxHeight: size==='small' ? '35px' : size==='medium' ? '45px' : '55px',
+      height: size === 'small' ? '30px' : size === 'medium' ? '35px' : '40px',
+      maxHeight: size === 'small' ? '30px' : size === 'medium' ? '40px' : '50px',
       //cursor: 'pointer',
       '&:hover': {
         //bgcolor: 'primary.dark',
@@ -59,7 +60,8 @@ export default function ButtonConfirm({ label = 'Confirmer',color='primary', loa
         bgcolor: greyLight.main,
         color: background.main,
       },
-    }}>
+    }}
+    {...props}>
     {label}
   </Button>)
 }

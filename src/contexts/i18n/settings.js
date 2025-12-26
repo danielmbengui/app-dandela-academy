@@ -19,6 +19,8 @@ export const NS_LANGS = `langs`;
 export const NS_BUTTONS = `buttons`;
 
 export const NS_DAYS = `days`;
+export const NS_TEACHERS = `dashboard/teachers`;
+
 
 export const NS_DASHBOARD_HOME = `dashboard/home`;
 export const NS_DASHBOARD_CALENDAR = `dashboard/calendar`;

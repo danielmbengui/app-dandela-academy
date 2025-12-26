@@ -295,6 +295,13 @@ export const IconName = ({ width = 24, height = 24, color = '' }) => {
 export const IconWorld = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="circum:globe" width={width} height={height} color={color} />)
 }
+export const IconBio = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="mdi:biography" width={width} height={height} color={color} />)
+}
+export const IconPhone = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="line-md:phone" width={width} height={height} color={color} />)
+}
+
 export function IconTranslation({ width = 24, height = 24, color = '' }) {
     return (<Icon icon="iconoir:translate" width={width} height={height} color={color} />)
 }

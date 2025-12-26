@@ -20,11 +20,12 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({ label = 'Annuler', loading = false, disabled = false, onClick = null, size = 'small', ...props }) {
+export default function ButtonCancel({ label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small', ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight, text } = theme.palette;
   return (<Button
     variant="contained"
+    fullWidth={fullWidth}
     disableElevation
     loading={loading}
     disabled={disabled}
@@ -38,13 +39,13 @@ export default function ButtonCancel({ label = 'Annuler', loading = false, disab
       border: `1px solid ${greyLight.main}`,
       textTransform: 'none',
       borderRadius: '999px',
-      padding: '8px 14px',
+      padding: '5px 14px',
       //border: '1px solid #374151',
       background: ClassColor.TRANSPARENT,
       color: text.main,
       fontSize: '0.9rem',
-      height: size === 'small' ? '35px' : size === 'medium' ? '38px' : '40px',
-      maxHeight: size === 'small' ? '35px' : size === 'medium' ? '45px' : '55px',
+      height: size === 'small' ? '30px' : size === 'medium' ? '35px' : '40px',
+      maxHeight: size === 'small' ? '30px' : size === 'medium' ? '40px' : '50px',
       //cursor: 'pointer',
       '&:hover': {
         //bgcolor: 'primary.dark',

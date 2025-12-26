@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { IconDashboard, IconUsers, } from "@/assets/icons/IconsComponent";
+import { IconDashboard, IconTeachers, IconUsers, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_HOME, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, NS_TEACHERS, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -29,6 +29,7 @@ import DialogNewUser from '@/components/dashboard/users/DialogNewUser';
 import BadgeStatusUser from '@/components/dashboard/users/BadgeStatusUser';
 import BadgeRoleUser from '@/components/dashboard/users/BadgeRoleUser';
 import { useUsers } from '@/contexts/UsersProvider';
+import { useTeachers } from '@/contexts/TeachersProvider';
 
 const USERS_MOCK = [
   {
@@ -140,7 +141,7 @@ const STATUS_CONFIG = {
 
 function UsersPage({ userDialog = null, setUserDialog = null }) {
   const { theme } = useThemeMode();
-  const {users} = useUsers();
+  const {teachers} = useTeachers();
   const { text, cardColor, greyLight, blueDark } = theme.palette;
   const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION]);
   const [search, setSearch] = useState("");
@@ -152,10 +153,11 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
   const [wantCreate, setWantCreate] = useState(false);
 
   useEffect(() => {
-    setFilteredUsers(users);
-  }, [users]);
+    setFilteredUsers(teachers);
+    console.log("teeeachers", teachers)
+  }, [teachers]);
   useEffect(() => {
-    let list = [...users];
+    let list = [...teachers];
 
     if (roleFilter !== "all") {
       list = list.filter((u) => u.role === roleFilter);
@@ -193,7 +195,7 @@ function UsersPage({ userDialog = null, setUserDialog = null }) {
     } else if (sortBy === "role") {
       list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
     }
-    setFilteredUsers(list);
+    //setFilteredUsers(list);
   }, [search, roleFilter, statusFilter, sortBy]);
 
 
@@ -726,10 +728,10 @@ function Avatar({ user }) {
   );
 }
 
-export default function DashboardUsersHome() {
+export default function TeachersPage() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
-  const { t } = useTranslation([NS_DASHBOARD_USERS]);
+  const { t } = useTranslation([NS_TEACHERS]);
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const [user, setUser] = useState(null);
@@ -737,6 +739,7 @@ export default function DashboardUsersHome() {
   const [password, setPassword] = useState('');
   //const { user, login, logout } = useAuth();
   //static async create(data = {})
+  
 
   const [processing, setProcessing] = useState(false);
   const [search, setSearch] = useState("");
@@ -753,7 +756,7 @@ export default function DashboardUsersHome() {
     //title={'Cours'} 
     titles={[{ name: t('title'), url: '' }]}
     //subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} 
-    icon={<IconUsers width={22} height={22} />}
+    icon={<IconTeachers width={22} height={22} />}
   >
     <DialogUser userDialog={user} setUserDialog={setUser} />
     <Stack sx={{ width: '100%', height: '100%' }}>

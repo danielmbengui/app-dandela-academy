@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
     onSnapshot,
+    query,
     where,
 } from 'firebase/firestore';
 //import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
@@ -17,7 +18,7 @@ import { ClassRoom } from '@/classes/ClassRoom';
 const LessonContext = createContext(null);
 export const useLesson = () => useContext(LessonContext);
 
-export function LessonProvider({ children }) {
+export function LessonProvider({ children, uidTeacher=null }) {
     const { lang } = useLanguage();
     const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
@@ -33,9 +34,9 @@ export function LessonProvider({ children }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-        const listener = listenToLessons();
+        const listener = listenToLessons(uidTeacher);
         return () => listener?.();
-    }, [lang]);
+    }, [lang, uidTeacher]);
     useEffect(() => {
         if (uidLesson) {
             const _lesson = getOneLesson(uidLesson);
@@ -47,9 +48,16 @@ export function LessonProvider({ children }) {
         }
     }, [uidLesson]);
     // écoute du doc utilisateur
-    const listenToLessons = useCallback(() => {
+    const listenToLessons = useCallback((uidTeacher) => {
         const colRef = ClassLesson.colRef(); // par ex.
-        const snapshotLessons = onSnapshot(colRef, async (snap) => {
+        const constraints = [];
+        if(uidTeacher) {
+            constraints.push(where("uid_teacher", "==", uidTeacher));
+        }
+        const q = constraints.length
+                    ? query(colRef, ...constraints)
+                    : colRef;
+        const snapshotLessons = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
             if (snap.empty) {
                 setLessons([]);

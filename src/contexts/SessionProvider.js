@@ -21,7 +21,7 @@ import { useAuth } from './AuthProvider';
 const SessionContext = createContext(null);
 export const useSession = () => useContext(SessionContext);
 
-export function SessionProvider({ children, uidLesson = "" }) {
+export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
     const { t } = useTranslation([ClassSession.NS_COLLECTION]);
@@ -44,10 +44,10 @@ export function SessionProvider({ children, uidLesson = "" }) {
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
         if (user) {
-            const listener = listenToSessions(user);
+            const listener = listenToSessions(user, uidTeacher);
             return () => listener?.();
         }
-    }, [user]);
+    }, [user, uidTeacher]);
     useEffect(() => {
         if (uidSession) {
             const _session = getOneSession(uidSession);
@@ -69,7 +69,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
     }, [uidSlot, session]);
 
     // écoute du doc utilisateur
-    const listenToSessions = useCallback((user) => {
+    const listenToSessions = useCallback((user, uidTeacher) => {
         if(!user || user === null) return;
         const colRef = ClassSession.colRef(); // par ex.
         const constraints = [];
@@ -80,6 +80,9 @@ export function SessionProvider({ children, uidLesson = "" }) {
         if (uidLesson) {
             constraints.push(where("uid_lesson", "==", uidLesson));
         }                //const coll = this.colRef();
+        if(uidTeacher) {
+            constraints.push(where("uid_teacher", "==", uidTeacher));
+        }
         const q = constraints.length
             ? query(colRef, ...constraints)
             : colRef;
@@ -123,7 +126,7 @@ export function SessionProvider({ children, uidLesson = "" }) {
             setIsLoadingSlots(false);
         });
         return snapshotSessions;
-    }, [uidLesson]);
+    }, [uidLesson, uidTeacher]);
     const listenToOneSession = useCallback((uidSession) => {
         if (!uidSession) {
             setSession(null);
