@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import {
   Container,
@@ -27,6 +27,7 @@ import QuizIcon from "@mui/icons-material/Quiz";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import { ClassLessonChapter } from "@/classes/lessons/ClassLessonChapter";
 
 const quizQuestions = [
   {
@@ -117,6 +118,13 @@ const quizQuestions = [
 ];
 
 export default function ExcelBeginnerCoursePage() {
+  useEffect(() => {
+    async function init() {
+      const chapter = await ClassLessonChapter.fetchFromFirestore("IA6ofDlGK8Rna2esFsc8");
+      console.log("CHAPTER", chapter)
+    }
+    init()
+  })
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* HEADER / HERO */}
