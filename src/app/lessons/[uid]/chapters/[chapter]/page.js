@@ -342,7 +342,7 @@ export default function ExcelBeginnerCoursePage() {
                                         sx={{
                                             position: "relative",
                                             width: "100%",
-                                            height: 220,
+                                            //height: 220,
                                             borderRadius: 2,
                                             overflow: "hidden",
                                             border: "1px solid",
@@ -350,10 +350,12 @@ export default function ExcelBeginnerCoursePage() {
                                         }}
                                     >
                                         <Image
-                                            src="/excel-interface.png"
+                                            src={`/images/lessons/excel/beginner/chapter_1/explaination_${lang}.png`}
                                             alt="Interface Excel - grille et ruban"
-                                            fill
-                                            style={{ objectFit: "cover" }}
+                                            //fill
+                                            height={100}
+                                            width={200}
+                                            style={{ objectFit: "cover", width:'100%', height:'auto' }}
                                             sizes="(max-width: 768px) 100vw, 50vw"
                                         />
                                     </Box>
