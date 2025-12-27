@@ -198,7 +198,7 @@ export class ClassLessonSubchapterTranslation {
         return this._goals;
     }
     set goals(value) {
-        this._goals = Array.isArray(value) ? value : [];
+        this._goals = value || [];
     }
     // subtitle
     get keys() {

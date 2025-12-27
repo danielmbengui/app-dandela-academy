@@ -6,7 +6,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const lang_source = searchParams.get("lang") || defaultLanguage;
-    const translations= searchParams.get("translations") || "";
+    const translations = searchParams.get("translations") || "";
 
     //const translations_source = JSON.parse(translations);
     const text = JSON.parse(translations);
@@ -21,14 +21,33 @@ Texte source (${sourceLang}) :
 ${JSON.stringify(text, null, 2)}
 
 Traduis ce texte dans les langues suivantes : ${_languages.join(", ")}.
-Corrige les fautes d'orthographes de la langue entrée : ${sourceLang} avant de traduire le reste.
+Corrige d’abord les fautes d’orthographe du texte en langue source (${sourceLang}), puis traduis.
 
-Tu dois renvoyer STRICTEMENT un JSON de la forme si c'est un objet :
+Règle absolue : tu dois renvoyer STRICTEMENT un JSON valide (pas de markdown, pas de texte autour, pas de guillemets qui encapsulent tout le JSON).
+
+Structure attendue :
 {
-    "<langue>": {
-      "<clé de l'objet d'entrée>": "<traduction dans la langue cible>"
-    }
+  "<langue_cible>": <résultat_traduit>
 }
+
+Où <résultat_traduit> doit conserver EXACTEMENT la même structure que l’entrée :
+- Si l’entrée est un OBJET, retourne un objet avec les mêmes clés.
+- Si l’entrée est un TABLEAU, retourne un tableau de même longueur, dans le même ordre.
+- Si une valeur est une string, traduis-la.
+- Si une valeur est un objet/array, applique récursivement les mêmes règles.
+- Ne modifie jamais les clés.
+
+Exemples :
+
+Entrée (objet) :
+{ "title": "Bonjour", "subtitle": "Ça va ?" }
+Sortie :
+{ "<langue_cible>": { "title": "...", "subtitle": "..." } }
+
+Entrée (tableau) :
+["Bonjour", "Ça va ?"]
+Sortie :
+{ "<langue_cible>": ["...", "..."] }
 
 Règles :
 - Garde EXACTEMENT les mêmes clés que dans l'objet d'entrée.

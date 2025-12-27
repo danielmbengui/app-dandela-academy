@@ -38,7 +38,7 @@ import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconLessons, IconObjective } from "@/assets/icons/IconsComponent";
-import { NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
+import { NS_BUTTONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 
@@ -197,24 +197,45 @@ const CardSubChapters = ({ lesson = null, chapter = null }) => {
         </List>
     </Stack>)
 }
-const CardSubChaptersContent = ({ subChapter = null, setSubChapter = null, subchapters = [], lesson = null, chapter = null }) => {
+const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = null }) => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    const [index, setIndex] = useState(0);
+    const [subChapter, setSubChapter] = useState(null);
+    useEffect(() => {
+        if (index >= 0 && subChapters.length>0) {
+            setSubChapter(subChapters[index]);
+        } else {
+            setSubChapter(null);
+        }
+    }, [index,subChapters]);
+    const goBack = ()=> {
+        setIndex(prev => prev - 1);
+    }
+    const goNext = ()=> {
+        setIndex(prev => prev + 1);
+    }
 
     return (<Stack sx={{ background: 'yellow', width: '100%' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 12 }}>
                 <Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
                     <Stack direction={'row'} spacing={1} alignItems={'center'}>
-                        <IconButton>
-                            <IconArrowLeft color="var(--primary)" />
+                        <IconButton
+                            onClick={() => setIndex(prev => prev - 1)}
+                            disabled={index === 0}
+                            sx={{ color: index === 0 ? 'var(--grey-light)' : 'var(--primary)' }}>
+                            <IconArrowLeft />
                         </IconButton>
                         <Typography>{`${subChapter?.uid_intern}. `}{subChapter?.translate?.title}</Typography>
-                        <IconButton>
-                            <IconArrowRight color="var(--primary)" />
+                        <IconButton
+                            onClick={() => setIndex(prev => prev + 1)}
+                            disabled={index === subChapters.length - 1}
+                            sx={{ color: index === subChapters.length - 1 ? 'var(--grey-light)' : 'var(--primary)' }}>
+                            <IconArrowRight />
                         </IconButton>
                     </Stack>
                     <Grid container spacing={1}>
-                        <Grid size={{xs:12,sm:6}}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
                                 {
                                     subChapter?.translate?.goals?.map?.((goal, i) => {
@@ -241,12 +262,12 @@ const CardSubChaptersContent = ({ subChapter = null, setSubChapter = null, subch
                                         }
                                     </Stack>
                                 </Stack>
-                                <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                                    <ButtonCancel label="précédent" />
-                                    <ButtonConfirm label="suivant" />
+                                <Stack direction={'row'} sx={{pt:3}} spacing={0.5} alignItems={'center'}>
+                                    <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', {ns:NS_BUTTONS})} />
+                                    <ButtonConfirm onClick={goNext} disabled={index === subChapters.length - 1} label={t('next', {ns:NS_BUTTONS})} />
                                 </Stack>
                             </Stack></Grid>
-                        <Grid size={{xs:12,sm:6}}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <Stack
                                 sx={{
                                     position: "relative",
@@ -262,14 +283,14 @@ const CardSubChaptersContent = ({ subChapter = null, setSubChapter = null, subch
                             >
                                 {
                                     subChapter?.translate?.photo_url && <Image
-                                    src={subChapter?.translate?.photo_url || ""}
-                                    alt="Interface Excel - grille et ruban"
-                                    //fill
-                                    height={100}
-                                    width={200}
-                                    style={{ objectFit: "cover", width: '100%', height: 'auto' }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
+                                        src={subChapter?.translate?.photo_url || ""}
+                                        alt="Interface Excel - grille et ruban"
+                                        //fill
+                                        height={100}
+                                        width={200}
+                                        style={{ objectFit: "cover", width: '100%', height: 'auto' }}
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                    />
                                 }
                             </Stack>
                         </Grid>
@@ -289,6 +310,10 @@ export default function ExcelBeginnerCoursePage() {
     const [subChapters, setSubChapters] = useState([]);
     const [subChapter, setSubChapter] = useState(null);
     const [process, setProcess] = useState(false);
+    const [indexSub, setIndexSub] = useState(0);
+    useEffect(() => {
+        console.log("indddex", indexSub)
+    }, [indexSub])
     useEffect(() => {
         async function init() {
             const _chapter = await ClassLessonChapter.fetchFromFirestore(uidChapter, lang);
@@ -328,7 +353,11 @@ export default function ExcelBeginnerCoursePage() {
                     <CardSubChapters lesson={lesson} chapter={chapter} />
                 </Grid>
                 <Grid size={12}>
-                    <CardSubChaptersContent subChapter={subChapter} setSubChapter={setSubChapter} subchapters={subChapters} lesson={lesson} chapter={chapter} />
+                    <CardSubChaptersContent
+                        index={indexSub}
+                        setIndex={setIndexSub}
+                        subChapters={subChapters}
+                        subChapter={subChapter} setSubChapter={setSubChapter} lesson={lesson} chapter={chapter} />
                 </Grid>
             </Grid>
             {/* HEADER / HERO */}
@@ -340,17 +369,26 @@ export default function ExcelBeginnerCoursePage() {
                         try {
                             setProcess(true);
                             //console.log("CHAPTER", chapter.getTranslate('fr'));
-                            const INDEX_SUB = 1;
+                            const INDEX_SUB = 2;
                             const subchapters = chapter.subchapters || [];
                             const trans = subchapters?.[INDEX_SUB].getTranslate('fr');
                             const qs = encodeURIComponent(JSON.stringify(trans));
                             const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
                             const result = await fetchTranslate.json();
-                            //const translates = Object.values(result)?.map?.(trans => new ClassLessonSubchapterTranslation(trans));
-                           // subchapters[INDEX_SUB].translates=result;
-                            //const _patch = await chapter?.updateFirestore({subchapters:subchapters.map(sub=>sub.toJSON())});
-                           // setChapter(_patch?.clone());
-                            console.log("RESUULT", subchapters,subchapters[INDEX_SUB],)
+                            const translates = Object.values(result)?.map?.(trans => new ClassLessonSubchapterTranslation(trans));
+                            subchapters[INDEX_SUB].translates = translates;
+                            
+                            const _patch = await chapter?.updateFirestore({
+                                subchapters: subchapters.map(sub => {
+                                    const final = sub.toJSON();
+                                    const trans = sub._convertTranslatesToFirestore(sub.translates);
+                                    final.translates = trans;
+                                    return final;
+                                })
+                            });
+                            
+                            setChapter(_patch?.clone());
+                            console.log("RESUULT", trans, result)
                         } catch (error) {
                             console.log("ERRROR", error);
                         } finally {
@@ -552,14 +590,14 @@ export default function ExcelBeginnerCoursePage() {
                                     >
                                         {
                                             sub.translate?.photo_url && <Image
-                                            src={sub.translate?.photo_url || ""}
-                                            alt="Interface Excel - grille et ruban"
-                                            //fill
-                                            height={100}
-                                            width={200}
-                                            style={{ objectFit: "cover", width: '100%', height: 'auto' }}
-                                            sizes="(max-width: 768px) 100vw, 50vw"
-                                        />
+                                                src={sub.translate?.photo_url || ""}
+                                                alt="Interface Excel - grille et ruban"
+                                                //fill
+                                                height={100}
+                                                width={200}
+                                                style={{ objectFit: "cover", width: '100%', height: 'auto' }}
+                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                            />
                                         }
                                     </Stack>
                                 </Grid>
