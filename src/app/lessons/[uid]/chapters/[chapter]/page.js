@@ -365,7 +365,7 @@ export default function ExcelBeginnerCoursePage() {
                         try {
                             setProcess(true);
                             //console.log("CHAPTER", chapter.getTranslate('fr'));
-                            const INDEX_SUB = 7;
+                            const INDEX_SUB = 8;
                             const subchapters = chapter.subchapters || [];
                             const trans = subchapters?.[INDEX_SUB].getTranslate('fr');
                             const qs = encodeURIComponent(JSON.stringify(trans));
