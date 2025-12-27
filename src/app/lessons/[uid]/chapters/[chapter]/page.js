@@ -311,9 +311,7 @@ export default function ExcelBeginnerCoursePage() {
     const [subChapter, setSubChapter] = useState(null);
     const [process, setProcess] = useState(false);
     const [indexSub, setIndexSub] = useState(0);
-    useEffect(() => {
-        console.log("indddex", indexSub)
-    }, [indexSub])
+
     useEffect(() => {
         async function init() {
             const _chapter = await ClassLessonChapter.fetchFromFirestore(uidChapter, lang);
@@ -354,8 +352,6 @@ export default function ExcelBeginnerCoursePage() {
                 </Grid>
                 <Grid size={12}>
                     <CardSubChaptersContent
-                        index={indexSub}
-                        setIndex={setIndexSub}
                         subChapters={subChapters}
                         subChapter={subChapter} setSubChapter={setSubChapter} lesson={lesson} chapter={chapter} />
                 </Grid>
@@ -369,7 +365,7 @@ export default function ExcelBeginnerCoursePage() {
                         try {
                             setProcess(true);
                             //console.log("CHAPTER", chapter.getTranslate('fr'));
-                            const INDEX_SUB = 4;
+                            const INDEX_SUB = 5;
                             const subchapters = chapter.subchapters || [];
                             const trans = subchapters?.[INDEX_SUB].getTranslate('fr');
                             const qs = encodeURIComponent(JSON.stringify(trans));
