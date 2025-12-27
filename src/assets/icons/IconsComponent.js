@@ -301,6 +301,12 @@ export const IconBio = ({ width = 24, height = 24, color = '' }) => {
 export const IconPhone = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="line-md:phone" width={width} height={height} color={color} />)
 }
+export const IconObjective = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="pajamas:issue-type-objective" width={width} height={height} color={color} />)
+}
+export const IconBookOpen = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="si:book-line" width={width} height={height} color={color} />)
+}
 
 export function IconTranslation({ width = 24, height = 24, color = '' }) {
     return (<Icon icon="iconoir:translate" width={width} height={height} color={color} />)
@@ -371,4 +377,10 @@ export const IconIdea = ({ width = 24, height = 24, color = '' }) => {
 }
 export const IconArrowBack = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="material-symbols:arrow-back-rounded" width={width} height={height} color={color} />)
+}
+export const IconArrowLeft = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="material-symbols:arrow-back-rounded" width={width} height={height} color={color} />)
+}
+export const IconArrowRight = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="formkit:arrowright" width={width} height={height} color={color} />)
 }

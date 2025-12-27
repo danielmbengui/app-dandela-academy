@@ -3,6 +3,8 @@ const nextConfig = {
   reactStrictMode: false,
   images: {
     remotePatterns: [
+      { protocol: 'https', hostname: 'academy.dandela.com' },
+      { protocol: 'https', hostname: 'app.academy.dandela.com' },
       { protocol: 'https', hostname: 'flagcdn.com' },
       { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
       { protocol: 'https', hostname: 'storage.googleapis.com' },

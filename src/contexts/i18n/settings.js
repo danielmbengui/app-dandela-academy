@@ -27,6 +27,8 @@ export const NS_DASHBOARD_CALENDAR = `dashboard/calendar`;
 export const NS_DASHBOARD_PROFILE = `dashboard/profile`;
 export const NS_LESSONS = `dashboard/lessons`;
 export const NS_LESSONS_ONE = `lessons/one`;
+export const NS_CHAPTERS = `chapters`;
+export const NS_CHAPTER_ONE = `chapters/one`;
 export const NS_DASHBOARD_COMPUTERS = `dashboard/computers`;
 export const NS_DASHBOARD_USERS = `dashboard/users`;
 

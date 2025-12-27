@@ -13,6 +13,7 @@ export const PAGE_DASHBOARD_USERS = "/users";
 export const PAGE_TEACHERS = "/teachers";
 export const PAGE_DASHBOARD_PROFILE = "/profile";
 export const PAGE_LESSONS = "/lessons";
+export const PAGE_CHAPTERS = "/chapters";
 
 export const PAGE_CONTACT = "/contact";
 

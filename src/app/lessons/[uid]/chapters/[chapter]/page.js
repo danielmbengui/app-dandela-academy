@@ -20,6 +20,7 @@ import {
     Grid,
     Card,
     CardContent,
+    IconButton,
 } from "@mui/material";
 
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -35,6 +36,11 @@ import { useTranslation } from "react-i18next";
 import { ClassLesson } from "@/classes/ClassLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
+import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
+import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconLessons, IconObjective } from "@/assets/icons/IconsComponent";
+import { NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
+import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 
 const quizQuestions = [
     {
@@ -124,12 +130,162 @@ const quizQuestions = [
     },
 ];
 
+const CardHeader = ({ lesson = null, chapter = null }) => {
+    const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    return (<Stack sx={{ background: 'yellow', width: '100%' }}>
+        <Grid container>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <Box>
+                    <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
+                        <Chip label={t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })} size="small" variant="outlined" />
+                        <Chip label={chapter?.level} size="small" variant="outlined" />
+                    </Stack>
+                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+                        {chapter?.translate?.title}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: "text.secondary" }}>
+                        {chapter?.translate?.description}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, mt: 1 }}>
+                        {`Durée estimée :`} {chapter?.estimated_start_duration} à {chapter?.estimated_end_duration} heures
+                    </Typography>
+                </Box>
+            </Grid>
+        </Grid>
+    </Stack>)
+}
+const CardGoals = ({ lesson = null, chapter = null }) => {
+    const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
+            <IconObjective height={18} width={18} color="var(--primary)" />
+            <Typography variant="h4" sx={{ fontWeight: '500' }}>{`Objectifs pédagogiques`}</Typography>
+        </Stack>
+        <Typography variant="caption" sx={{ mb: 0.5 }}>{`À la fin de ce cours tu seras capable de :`}</Typography>
+        <List dense disablePadding>
+            {
+                chapter?.translate?.goals?.map((goal, i) => {
+                    return (<ListItem key={`${goal}-${i}`} disableGutters sx={{ px: 1 }}>
+                        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                            <CheckCircleIcon color="success" fontSize="small" />
+                            <Typography sx={{ fontSize: '0.85rem' }} >{goal}</Typography>
+                        </Stack>
+                    </ListItem>)
+                })
+            }
+        </List>
+    </Stack>)
+}
+const CardSubChapters = ({ lesson = null, chapter = null }) => {
+    const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
+            <IconBookOpen height={18} width={18} color="var(--primary)" />
+            <Typography variant="h4" sx={{ fontWeight: '500' }}>{`Structure du cours`}</Typography>
+        </Stack>
+        <Typography variant="caption" sx={{ mb: 0.5 }}>{`Le cours est organisé en leçons courtes, chacune avec une partie théorique et un exercice pratique.`}</Typography>
+        <List dense disablePadding>
+            {
+                chapter?.subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
+                    return (<ListItem key={`${sub.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
+                        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                            <Typography sx={{ fontSize: '0.85rem' }} >{`${sub.uid_intern}. `}{sub.translate?.title}</Typography>
+                        </Stack>
+                    </ListItem>)
+                })
+            }
+        </List>
+    </Stack>)
+}
+const CardSubChaptersContent = ({ subChapter = null, setSubChapter = null, subchapters = [], lesson = null, chapter = null }) => {
+    const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+
+    return (<Stack sx={{ background: 'yellow', width: '100%' }}>
+        <Grid container>
+            <Grid size={{ xs: 12, sm: 12 }}>
+                <Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+                    <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                        <IconButton>
+                            <IconArrowLeft color="var(--primary)" />
+                        </IconButton>
+                        <Typography>{`${subChapter?.uid_intern}. `}{subChapter?.translate?.title}</Typography>
+                        <IconButton>
+                            <IconArrowRight color="var(--primary)" />
+                        </IconButton>
+                    </Stack>
+                    <Grid container spacing={1}>
+                        <Grid size={{xs:12,sm:6}}>
+                            <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
+                                {
+                                    subChapter?.translate?.goals?.map?.((goal, i) => {
+                                        return (<Typography sx={{ fontWeight: 600 }} key={`${goal}-${i}`}>{goal}</Typography>)
+                                    })
+                                }
+                                <Stack alignItems={'start'} spacing={1}>
+                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={`Points clés`} size="small" variant="outlined" />
+                                    <Stack spacing={0.5} sx={{ px: 1.5 }}>
+                                        {
+                                            subChapter?.translate?.keys?.map?.((key, i) => {
+                                                return (<Typography key={`${key}-${i}`} sx={{ fontSize: '0.85rem' }} >{`- `}{key}</Typography>)
+                                            })
+                                        }
+                                    </Stack>
+                                </Stack>
+                                <Stack alignItems={'start'} spacing={1}>
+                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={`Exercice pratique`} size="small" variant="outlined" />
+                                    <Stack spacing={0.5} sx={{ px: 1.5 }}>
+                                        {
+                                            subChapter?.translate?.exercises?.map?.((exercise, i) => {
+                                                return (<Typography key={`${exercise}-${i}`} sx={{ fontSize: '0.85rem' }} >{`- `}{exercise}</Typography>)
+                                            })
+                                        }
+                                    </Stack>
+                                </Stack>
+                                <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                                    <ButtonCancel label="précédent" />
+                                    <ButtonConfirm label="suivant" />
+                                </Stack>
+                            </Stack></Grid>
+                        <Grid size={{xs:12,sm:6}}>
+                            <Stack
+                                sx={{
+                                    position: "relative",
+                                    width: "100%",
+                                    //height: 220,
+                                    //borderRadius: 2,
+                                    overflow: "hidden",
+                                    border: "1px solid",
+                                    border: "0.1px solid transparent",
+                                    //background:'red',
+
+                                }}
+                            >
+                                <Image
+                                    src={subChapter?.translate?.photo_url || ""}
+                                    alt="Interface Excel - grille et ruban"
+                                    //fill
+                                    height={100}
+                                    width={200}
+                                    style={{ objectFit: "cover", width: '100%', height: 'auto' }}
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                />
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                </Stack>
+            </Grid>
+        </Grid>
+    </Stack>)
+}
+
 export default function ExcelBeginnerCoursePage() {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     const { lang } = useLanguage();
     const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
     const { chapter: uidChapter } = useParams();
     const [chapter, setChapter] = useState();
+    const [subChapters, setSubChapters] = useState([]);
+    const [subChapter, setSubChapter] = useState(null);
     const [process, setProcess] = useState(false);
     useEffect(() => {
         async function init() {
@@ -139,14 +295,40 @@ export default function ExcelBeginnerCoursePage() {
             //const finalResult = new ClassLessonChapter({..._chapter.toJSON(), lesson:_lesson});
             console.log("CHAPTER", _chapter.getTranslate('fr'));
             setChapter(_chapter);
+            setSubChapters(_chapter.subchapters);
+            setSubChapter(_chapter.subchapters?.[0] || null);
             setUidLesson(_chapter.uid_lesson);
         }
         if (!isLoadingLesson && uidChapter) {
             init();
         }
     }, [uidChapter, isLoadingLesson])
-    return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+    return (<DashboardPageWrapper
+        titles={[
+            { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_LESSONS },
+            { name: lesson?.translate?.title, url: `${PAGE_LESSONS}/${lesson?.uid}` },
+            { name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
+            { name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
+        ]}
+        //title={`Cours / ${lesson?.title}`}
+        //subtitle={lesson?.translate?.subtitle}
+        icon={<IconLessons />}
+    >
+        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: 'red' }}>
+            <Grid container spacing={1}>
+                <Grid size={12}>
+                    <CardHeader lesson={lesson} chapter={chapter} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <CardGoals lesson={lesson} chapter={chapter} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <CardSubChapters lesson={lesson} chapter={chapter} />
+                </Grid>
+                <Grid size={12}>
+                    <CardSubChaptersContent subChapter={subChapter} setSubChapter={setSubChapter} subchapters={subChapters} lesson={lesson} chapter={chapter} />
+                </Grid>
+            </Grid>
             {/* HEADER / HERO */}
             <Box component={Paper} elevation={2} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
                 <ButtonConfirm
@@ -310,6 +492,13 @@ export default function ExcelBeginnerCoursePage() {
                                         Points clés :
                                     </Typography>
                                     <List dense>
+                                        {
+                                            sub.translate?.keys?.map?.((key, i) => {
+                                                return (<ListItem key={`${key}-${i}`}>
+                                                    <ListItemText primary={key} />
+                                                </ListItem>)
+                                            })
+                                        }
                                         <ListItem>
                                             <ListItemText primary="Excel est un tableur : il sert à manipuler des données sous forme de tableau et à faire des calculs." />
                                         </ListItem>
@@ -325,6 +514,13 @@ export default function ExcelBeginnerCoursePage() {
                                         Exercice pratique :
                                     </Typography>
                                     <List dense>
+                                        {
+                                            sub.translate?.exercises?.map?.((exercise, i) => {
+                                                return (<ListItem key={`${exercise}-${i}`}>
+                                                    <ListItemText primary={exercise} />
+                                                </ListItem>)
+                                            })
+                                        }
                                         <ListItem>
                                             <ListItemText primary="Ouvrir Excel et créer un classeur vierge." />
                                         </ListItem>
@@ -338,7 +534,7 @@ export default function ExcelBeginnerCoursePage() {
                                 </Grid>
 
                                 <Grid item xs={12} md={5}>
-                                    <Box
+                                    <Stack
                                         sx={{
                                             position: "relative",
                                             width: "100%",
@@ -347,18 +543,20 @@ export default function ExcelBeginnerCoursePage() {
                                             overflow: "hidden",
                                             border: "1px solid",
                                             borderColor: "divider",
+                                            //background:'red',
+
                                         }}
                                     >
                                         <Image
-                                            src={`/images/lessons/excel/beginner/chapter_1/explaination_${lang}.png`}
+                                            src={sub.translate?.photo_url || ""}
                                             alt="Interface Excel - grille et ruban"
                                             //fill
                                             height={100}
                                             width={200}
-                                            style={{ objectFit: "cover", width:'100%', height:'auto' }}
+                                            style={{ objectFit: "cover", width: '100%', height: 'auto' }}
                                             sizes="(max-width: 768px) 100vw, 50vw"
                                         />
-                                    </Box>
+                                    </Stack>
                                 </Grid>
                             </Grid>
                         </AccordionDetails>
@@ -928,5 +1126,5 @@ export default function ExcelBeginnerCoursePage() {
                 </Grid>
             </Box>
         </Container>
-    );
+    </DashboardPageWrapper>);
 }
