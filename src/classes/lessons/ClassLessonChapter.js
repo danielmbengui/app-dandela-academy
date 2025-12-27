@@ -484,19 +484,9 @@ export class ClassLessonChapter {
         try {
             const ref = this.constructor.docRef(this._uid_lesson, this._uid);
             const data = { ...patch, last_edit_time: new Date() };
-            /*
-            var translates = {};
-            for (const trans of patch.translates) {
-                translates[trans.lang] = trans.toJSON?.() || {};
-            }
-            data.translates = translates;
-            */
-            /*
-            if(Object.values(data.translates).length) {
-                data.translates = data.translates.map(trans=>trans.toJSON());
-            }
-            */
+          
             await updateDoc(ref, data, { merge: true });
+              console.log("weshtest", await this.constructor.fetchFromFirestore(this._uid))
             //console.log("UPDATE COMPLETED")
             return await this.constructor.fetchFromFirestore(this._uid); // -> ClassModule
         } catch (e) {

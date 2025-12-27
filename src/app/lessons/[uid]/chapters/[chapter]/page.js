@@ -260,7 +260,8 @@ const CardSubChaptersContent = ({ subChapter = null, setSubChapter = null, subch
 
                                 }}
                             >
-                                <Image
+                                {
+                                    subChapter?.translate?.photo_url && <Image
                                     src={subChapter?.translate?.photo_url || ""}
                                     alt="Interface Excel - grille et ruban"
                                     //fill
@@ -269,6 +270,7 @@ const CardSubChaptersContent = ({ subChapter = null, setSubChapter = null, subch
                                     style={{ objectFit: "cover", width: '100%', height: 'auto' }}
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                 />
+                                }
                             </Stack>
                         </Grid>
                     </Grid>
@@ -338,16 +340,17 @@ export default function ExcelBeginnerCoursePage() {
                         try {
                             setProcess(true);
                             //console.log("CHAPTER", chapter.getTranslate('fr'));
+                            const INDEX_SUB = 1;
                             const subchapters = chapter.subchapters || [];
-                            const trans = subchapters?.[0].getTranslate('fr');
+                            const trans = subchapters?.[INDEX_SUB].getTranslate('fr');
                             const qs = encodeURIComponent(JSON.stringify(trans));
-                            //const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
-                            //const result = await fetchTranslate.json();
+                            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
+                            const result = await fetchTranslate.json();
                             //const translates = Object.values(result)?.map?.(trans => new ClassLessonSubchapterTranslation(trans));
-                            //subchapters[0].translates=result;
+                           // subchapters[INDEX_SUB].translates=result;
                             //const _patch = await chapter?.updateFirestore({subchapters:subchapters.map(sub=>sub.toJSON())});
-                            //setChapter(_patch?.clone());
-                            //console.log("RESUULT", result)
+                           // setChapter(_patch?.clone());
+                            console.log("RESUULT", subchapters,subchapters[INDEX_SUB],)
                         } catch (error) {
                             console.log("ERRROR", error);
                         } finally {
@@ -547,7 +550,8 @@ export default function ExcelBeginnerCoursePage() {
 
                                         }}
                                     >
-                                        <Image
+                                        {
+                                            sub.translate?.photo_url && <Image
                                             src={sub.translate?.photo_url || ""}
                                             alt="Interface Excel - grille et ruban"
                                             //fill
@@ -556,6 +560,7 @@ export default function ExcelBeginnerCoursePage() {
                                             style={{ objectFit: "cover", width: '100%', height: 'auto' }}
                                             sizes="(max-width: 768px) 100vw, 50vw"
                                         />
+                                        }
                                     </Stack>
                                 </Grid>
                             </Grid>
