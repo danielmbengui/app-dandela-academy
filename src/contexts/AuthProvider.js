@@ -54,6 +54,7 @@ import { usePageActivity } from './hooks/usePageActivity';
  * - écrit online quand connecté
  * - écrit offline automatiquement quand la connexion tombe (onDisconnect)
  */
+/*
 function usePresenceRTDB(uid) {
     useEffect(() => {
         if (!uid) return;
@@ -78,6 +79,7 @@ function usePresenceRTDB(uid) {
         return () => unsubscribe();
     }, [uid]);
 }
+
 async function setPresence(uid, status = '') {
     if (!uid || !status) return;
     const userStatusRef = ref(database, `/status/${uid}`);
@@ -91,7 +93,7 @@ async function setPresence(uid, status = '') {
     // RTDB write (ok, pas cher)
     await set(userStatusRef, userData);
 }
-
+*/
 const COLLECTION_USERS = ClassUser.COLLECTION;
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -113,7 +115,7 @@ export function AuthProvider({ children }) {
     const [provider, setProvider] = useState('');
 
     // ✅ presence
-    usePresenceRTDB(user?.uid);
+   // usePresenceRTDB(user?.uid);
 
     useEffect(() => {
         if (user) {
@@ -132,6 +134,7 @@ export function AuthProvider({ children }) {
             // la page redevient visible → on repart un chrono
             //startTimeRef.current = Date.now();
             if (!user) return;
+            /*
             setUser(prev => {
                 if (!prev || prev === null) return null;
                 prev.update({
@@ -140,7 +143,8 @@ export function AuthProvider({ children }) {
                 });
                 return prev.clone();
             });
-            await setPresence(user.uid, ClassUser.STATUS.ONLINE);
+            */
+           // await setPresence(user.uid, ClassUser.STATUS.ONLINE);
         },
         onHidden: async () => {
             // la page n'est plus visible → on arrête le chrono

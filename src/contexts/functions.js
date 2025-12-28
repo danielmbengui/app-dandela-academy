@@ -21,8 +21,39 @@ export const formatPrice = (amount, currency = "CHF") => {
     currency,
   }).format(amount);
 }
+export function mixArray(a = []) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+export function formatChrono(seconds = 0) {
+  //const STEP_SECONDS = 60;
+  const STEP_MINUTES = 60;
+  const STEP_HOUR = STEP_MINUTES * 60;
+  const STEP_DAY = STEP_HOUR * 24;
+  if (seconds < STEP_MINUTES) return `${seconds}s`;
+  if (seconds < STEP_HOUR) {
+    const _minutes = parseInt(seconds / STEP_MINUTES);
+    const _seconds = seconds % STEP_MINUTES;
+    return `${_minutes}min${_seconds > 0 ? ` ${_seconds}s` : ''}`;
+  }
+  if (seconds < STEP_DAY) {
+    const _hours = parseInt(seconds / STEP_HOUR);
+    const _minutes = parseInt((seconds % STEP_HOUR) / STEP_MINUTES);
+    const _seconds = (seconds % STEP_HOUR) % STEP_MINUTES;
+    return `${_hours}h ${_minutes}min ${_seconds}s`;
+  }
+  const _days = parseInt(seconds / STEP_DAY);
+  const _hours = parseInt((seconds % STEP_DAY) / STEP_HOUR);
+  const _minutes = parseInt(((seconds % STEP_DAY) % STEP_HOUR) / STEP_MINUTES);
+  const _seconds = ((seconds % STEP_DAY) % STEP_HOUR) % STEP_MINUTES;
+  return `${_days}j ${_hours}h ${_minutes}min ${_seconds}s`;
+}
 export function formatDuration(duration = 0) {
-  if(duration===0) return `00 minutes`;
+  if (duration === 0) return `00 minutes`;
   const hour = parseInt(duration);
   const minutes = (duration - hour) * 60;
   if (hour < 1 && minutes > 0) {

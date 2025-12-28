@@ -32,15 +32,19 @@ import { ClassLessonChapter, ClassLessonChapterTranslation } from "@/classes/les
 import { useLanguage } from "@/contexts/LangProvider";
 import { useParams } from "next/navigation";
 import { useLesson } from "@/contexts/LessonProvider";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { ClassLesson } from "@/classes/ClassLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconLessons, IconObjective } from "@/assets/icons/IconsComponent";
+import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconLessons, IconObjective, IconQuizz } from "@/assets/icons/IconsComponent";
 import { NS_BUTTONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
+import { ClassLessonChapterQuestion, ClassLessonChapterQuestionTranslation } from "@/classes/lessons/ClassLessonChapterQuiz";
+import CheckboxComponent from "@/components/elements/CheckboxComponent";
+import { addDaysToDate, formatChrono, getFormattedDateCompleteNumeric, mixArray } from "@/contexts/functions";
+import AlertComponent from "@/components/elements/AlertComponent";
 
 const quizQuestions = [
     {
@@ -132,23 +136,31 @@ const quizQuestions = [
 
 const CardHeader = ({ lesson = null, chapter = null }) => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
-    return (<Stack sx={{ background: 'yellow', width: '100%' }}>
+    return (<Stack sx={{ background: '', width: '100%' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 6 }}>
                 <Box>
                     <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
                         <Chip label={t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })} size="small" variant="outlined" />
-                        <Chip label={chapter?.level} size="small" variant="outlined" />
+                        <Chip label={t(chapter?.level)} size="small" variant="outlined" />
                     </Stack>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, my: 1 }}>
+                        <Trans
+                            t={t}
+                            i18nKey={'duration'}
+                            values={{
+                                start: chapter?.estimated_start_duration,
+                                end: chapter?.estimated_end_duration
+                            }}
+                        />
+                    </Typography>
                     <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
                         {chapter?.translate?.title}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "text.secondary" }}>
                         {chapter?.translate?.description}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, mt: 1 }}>
-                        {`Durée estimée :`} {chapter?.estimated_start_duration} à {chapter?.estimated_end_duration} heures
-                    </Typography>
+
                 </Box>
             </Grid>
         </Grid>
@@ -159,9 +171,9 @@ const CardGoals = ({ lesson = null, chapter = null }) => {
     return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
         <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
             <IconObjective height={18} width={18} color="var(--primary)" />
-            <Typography variant="h4" sx={{ fontWeight: '500' }}>{`Objectifs pédagogiques`}</Typography>
+            <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('goals')}</Typography>
         </Stack>
-        <Typography variant="caption" sx={{ mb: 0.5 }}>{`À la fin de ce cours tu seras capable de :`}</Typography>
+        <Typography variant="caption" sx={{ mb: 0.5 }}>{t('goals-subtitle')}</Typography>
         <List dense disablePadding>
             {
                 chapter?.translate?.goals?.map((goal, i) => {
@@ -176,46 +188,67 @@ const CardGoals = ({ lesson = null, chapter = null }) => {
         </List>
     </Stack>)
 }
-const CardSubChapters = ({ lesson = null, chapter = null }) => {
+const CardSubChapters = ({ lesson = null, chapter = null, index = -1, setIndex = null, subChapters = [], }) => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
         <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
             <IconBookOpen height={18} width={18} color="var(--primary)" />
-            <Typography variant="h4" sx={{ fontWeight: '500' }}>{`Structure du cours`}</Typography>
+            <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('subchapters')}</Typography>
         </Stack>
-        <Typography variant="caption" sx={{ mb: 0.5 }}>{`Le cours est organisé en leçons courtes, chacune avec une partie théorique et un exercice pratique.`}</Typography>
+        <Typography variant="caption" sx={{ mb: 0.5 }}>{t('subchapters-subtitle')}</Typography>
         <List dense disablePadding>
             {
-                chapter?.subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
+                subChapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
                     return (<ListItem key={`${sub.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                        <Stack direction={'row'} alignItems={'center'} spacing={1}
+                            onClick={() => setIndex(i)}
+                            sx={{
+                                color: index === i ? 'var(--primary)' : '',
+                                ":hover": {
+                                    color: 'var(--primary)',
+                                    cursor: index === i ? 'text' : 'pointer',
+                                }
+                            }}>
                             <Typography sx={{ fontSize: '0.85rem' }} >{`${sub.uid_intern}. `}{sub.translate?.title}</Typography>
                         </Stack>
                     </ListItem>)
                 })
             }
+            <ListItem disableGutters sx={{ px: 1 }}>
+                <Stack direction={'row'} alignItems={'center'} spacing={1}
+                    onClick={() => setIndex(subChapters.length)}
+                    sx={{
+                        color: index === subChapters.length ? 'var(--primary)' : '',
+                        ":hover": {
+                            color: 'var(--primary)',
+                            cursor: index === subChapters.length ? 'text' : 'pointer',
+                        }
+                    }}>
+                    <Typography sx={{ fontSize: '0.85rem' }} >{`${subChapters.length + 1}. `}{t('quiz')}</Typography>
+                </Stack>
+            </ListItem>
         </List>
     </Stack>)
 }
-const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = null }) => {
+const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [], lesson = null, chapter = null }) => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
-    const [index, setIndex] = useState(0);
+
     const [subChapter, setSubChapter] = useState(null);
     useEffect(() => {
-        if (index >= 0 && subChapters.length>0) {
+        if (index >= 0 && subChapters.length > 0) {
             setSubChapter(subChapters[index]);
         } else {
             setSubChapter(null);
         }
-    }, [index,subChapters]);
-    const goBack = ()=> {
+    }, [index, subChapters]);
+    const goBack = () => {
         setIndex(prev => prev - 1);
     }
-    const goNext = ()=> {
+    const goNext = () => {
         setIndex(prev => prev + 1);
     }
 
-    return (<Stack sx={{ background: 'yellow', width: '100%' }}>
+    return (<Stack sx={{ background: '', width: '100%' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 12 }}>
                 <Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
@@ -243,7 +276,7 @@ const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = nul
                                     })
                                 }
                                 <Stack alignItems={'start'} spacing={1}>
-                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={`Points clés`} size="small" variant="outlined" />
+                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={t('keys')} size="small" variant="outlined" />
                                     <Stack spacing={0.5} sx={{ px: 1.5 }}>
                                         {
                                             subChapter?.translate?.keys?.map?.((key, i) => {
@@ -253,7 +286,7 @@ const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = nul
                                     </Stack>
                                 </Stack>
                                 <Stack alignItems={'start'} spacing={1}>
-                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={`Exercice pratique`} size="small" variant="outlined" />
+                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={t('exercises')} size="small" variant="outlined" />
                                     <Stack spacing={0.5} sx={{ px: 1.5 }}>
                                         {
                                             subChapter?.translate?.exercises?.map?.((exercise, i) => {
@@ -262,11 +295,35 @@ const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = nul
                                         }
                                     </Stack>
                                 </Stack>
-                                <Stack direction={'row'} sx={{pt:3}} spacing={0.5} alignItems={'center'}>
-                                    <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', {ns:NS_BUTTONS})} />
-                                    <ButtonConfirm onClick={goNext} disabled={index === subChapters.length - 1} label={t('next', {ns:NS_BUTTONS})} />
+
+                                <Typography variant="body2" sx={{ fontWeight: 400, mt: 1.5 }}>
+                                    <Trans
+                                        t={t}
+                                        i18nKey={'subchapters-last'}
+                                        values={{
+                                            start: chapter?.estimated_start_duration,
+                                            end: chapter?.estimated_end_duration
+                                        }}
+                                        components={{
+                                            b: <strong />,
+                                            br: <br />
+                                        }}
+                                    />
+                                </Typography>
+
+                                <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
+                                    {
+                                        index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
+                                    }
+                                    {
+                                        index < subChapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index === subChapters.length - 1} label={t('next', { ns: NS_BUTTONS })} />
+                                    }
+                                    {
+                                        index === subChapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index < subChapters.length - 1} label={t('quiz-btn')} />
+                                    }
                                 </Stack>
-                            </Stack></Grid>
+                            </Stack>
+                        </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Stack
                                 sx={{
@@ -284,7 +341,7 @@ const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = nul
                                 {
                                     subChapter?.translate?.photo_url && <Image
                                         src={subChapter?.translate?.photo_url || ""}
-                                        alt="Interface Excel - grille et ruban"
+                                        alt={subChapter?.translate.title}
                                         //fill
                                         height={100}
                                         width={200}
@@ -300,6 +357,202 @@ const CardSubChaptersContent = ({ subChapters = [], lesson = null, chapter = nul
         </Grid>
     </Stack>)
 }
+const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters = [], lesson = null, chapter = null }) => {
+    const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    const [index, setIndex] = useState(-1);
+    const [subChapter, setSubChapter] = useState(null);
+    const [question, setQuestion] = useState(null);
+    const [questions, setQuestions] = useState([]);
+    const [proposals, setProposals] = useState([]);
+    const [answers, setAnswers] = useState([]);
+    const [duration, setDuration] = useState(0);
+    const [finished, setFinished] = useState(false);
+    const [score, setScore] = useState(0);
+    const [nextDate, setNextDate] = useState(null);
+    useEffect(() => {
+        if (chapter?.quiz?.questions?.length > 0) {
+            setQuestions(chapter.quiz.questions);
+            const arr = Array(chapter.quiz.questions.length).fill('');
+            setAnswers(arr);
+        } else {
+            setQuestions([]);
+            setAnswers([]);
+        }
+        // console.log("quiiiiiz", chapter)
+    }, [chapter]);
+    useEffect(() => {
+        if (indexSub < subChapters.length - 1) {
+            setDuration(0);
+        }
+    }, [indexSub]);
+    useEffect(() => {
+        if (index < 0) return;
+        if (finished) return;
+
+        const time = 1000;
+        const intervalId = setInterval(() => {
+            setDuration(prev => prev + 1);
+        }, time);
+
+        return () => clearInterval(intervalId);
+    }, [index, finished]);
+    useEffect(() => {
+        if (index >= 0 && questions?.length > 0) {
+            setQuestion(questions[index]);
+            setProposals(questions[index].translate?.proposals);
+        } else {
+            setQuestion(null);
+            setProposals([]);
+        }
+        // console.log("WUESTTTTIONS", questions)
+    }, [index, questions]);
+    const goBackSub = () => {
+        setIndexSub(prev => prev - 1);
+    }
+    const goBack = () => {
+        setIndex(prev => prev - 1);
+    }
+    const goNext = () => {
+        setIndex(prev => prev + 1);
+    }
+    const submitQuiz = () => {
+        var _score = 0;
+        for (var i = 0; i < questions.length; i++) {
+            const question = questions[i];
+            if (question.translate.answer?.uid_intern === answers[i]) {
+                _score = _score + 1;
+            }
+            console.log("ANSWER", question.translate.answer);
+        }
+        console.log("SCORE", _score, questions.length, answers)
+        setScore(_score);
+        setNextDate(addDaysToDate(new Date(),30));
+        setFinished(true);
+    }
+
+    return (<Stack alignItems={'start'} spacing={1.5} sx={{ background: '', width: '100%' }}>
+        <Grid container spacing={1.5} sx={{ width: '100%' }}>
+            <Grid size={{ xs: 12, sm: 8 }}>
+                <Stack spacing={1} sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+                    <Stack maxWidth={'sm'} spacing={0.5}>
+                        <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                            <IconQuizz color={'var(--primary)'} />
+                            <Typography>{t('quiz')}</Typography>
+                        </Stack>
+                        <Typography variant="caption" sx={{ color: 'red', fontWeight: 300 }}>{t('quiz-subtitle')}</Typography>
+                    </Stack>
+                    <AlertComponent
+                        severity="warning"
+                        subtitle={<Trans
+                            t={t}
+                            i18nKey={'quiz-warning'}
+                            components={{
+                                b: <strong />
+                            }}
+                        />
+                        }
+                    />
+                    <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
+                        {
+                            index < 0 && <ButtonCancel label={t('quiz-btn-back')} onClick={goBackSub} />
+                        }
+                        <ButtonConfirm label={t('quiz-btn-start')} onClick={() => {
+                            if (index === 0) {
+                                submitQuiz();
+                            }
+                            setIndex(0);
+
+                        }} />
+                    </Stack>
+                    <Typography>{`${t('quiz-duration')} : ${formatChrono(duration)}`}</Typography>
+                    <AlertComponent
+                        severity="success"
+                        subtitle={<Trans
+                            t={t}
+                            i18nKey={'quiz-finished'}
+                            values={{
+                                score:`${score}/${questions?.length}`,
+                                nextDate:getFormattedDateCompleteNumeric(nextDate),
+                                percentage:(score/questions?.length * 100).toFixed(2),
+                                duration:formatChrono(duration),
+                            }}
+                            components={{
+                                b: <strong />,
+                                br:<br />,
+                            }}
+                        />
+                        }
+                    />
+                    <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
+                        {
+                            <Typography sx={{ fontWeight: 500 }}>{question?.uid_intern}. {question?.translate?.question}</Typography>
+                        }
+                        {
+                            proposals?.map?.((proposal, i) => {
+                                //console.log("PROP", proposal)
+                                return (<CheckboxComponent
+                                    checked={answers[index] === proposal.uid_intern}
+                                    onChange={(e) => {
+                                        const _answers = [...answers];
+                                        _answers[index] = proposal.uid_intern;
+                                        setAnswers(_answers)
+                                    }}
+                                    //name={`proposal${i}`} 
+                                    key={`${proposal.uid_intern}-${i}`}
+                                    label={proposal.value}
+                                />)
+                            })
+                        }
+                        <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
+                            {
+                                index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
+                            }
+                            {
+                                index < questions?.length - 1 && <ButtonConfirm
+                                    onClick={goNext}
+                                    disabled={index === questions?.length - 1 || !answers[index]}
+                                    label={t('next', { ns: NS_BUTTONS })} />
+                            }
+                            {
+                                index === questions?.length - 1 && <ButtonConfirm
+                                    onClick={submitQuiz}
+                                    disabled={index < questions?.length - 1 || !answers[questions?.length - 1]}
+                                    label={t('save', { ns: NS_BUTTONS })} />
+                            }
+                        </Stack>
+                    </Stack>
+                </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 'grow' }}>
+                <Stack
+                    sx={{
+                        position: "relative",
+                        width: "100%",
+                        //height: 220,
+                        //borderRadius: 2,
+                        overflow: "hidden",
+                        border: "1px solid",
+                        border: "0.1px solid transparent",
+                        //background:'red',
+
+                    }}
+                >
+                    {
+                        <Image
+                            src={lesson?.photo_url}
+                            alt="Interface Excel - grille et ruban"
+                            //fill
+                            height={100}
+                            width={200}
+                            style={{ objectFit: "cover", width: '100%', height: 'auto' }}
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                    }
+                </Stack>
+            </Grid>
+        </Grid>
+    </Stack>)
+}
 
 export default function ExcelBeginnerCoursePage() {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
@@ -310,8 +563,61 @@ export default function ExcelBeginnerCoursePage() {
     const [subChapters, setSubChapters] = useState([]);
     const [subChapter, setSubChapter] = useState(null);
     const [process, setProcess] = useState(false);
-    const [indexSub, setIndexSub] = useState(0);
+    const [indexSub, setIndexSub] = useState(9);
+    const onTranslate = async () => {
+        try {
+            setProcess(true);
+            const INDEX_SUB = 8;
+            const quiz = chapter.quiz || [];
+            var questions = quiz?.questions || [];
+            const trans = questions?.[INDEX_SUB].getTranslate('fr');
+            const qs = encodeURIComponent(JSON.stringify(trans));
+            //console.log("fect", qs);
+            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
+            const result = await fetchTranslate.json();
+            const translates = Object.values(result)?.map?.(trans => new ClassLessonChapterQuestionTranslation(trans));
+            questions[INDEX_SUB].translates = translates;
+            questions = questions.map((q, i) => {
+                const final = q;
+                const qTrans = q.translates.map(_trans => {
+                    var answer = _trans.answer;
+                    const proposals = _trans.proposals.map((prop, i) => {
+                        var propReturn = {};
+                        if (prop.uid_intern) {
+                            propReturn = prop;
+                        } else {
+                            propReturn = { value: prop, uid_intern: i + 1 };
+                        }
 
+                        if (!answer.uid_intern && propReturn.value === answer) {
+                            answer = { uid_intern: i + 1, value: propReturn.value }
+                        }
+                        return propReturn;
+                    });
+                    _trans.proposals = proposals;
+                    _trans.answer = answer;
+                    return (_trans);
+                });
+
+                const trans = q._convertTranslatesToFirestore(qTrans);
+                final.translates = trans;
+                //final.translates
+                return final.toJSON();
+            });
+            quiz.questions = questions;
+
+            const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
+
+
+            //setChapter(_patch?.clone());
+
+            console.log("RESUULT", quiz)
+        } catch (error) {
+            console.log("ERRROR", error);
+        } finally {
+            setProcess(false);
+        }
+    }
     useEffect(() => {
         async function init() {
             const _chapter = await ClassLessonChapter.fetchFromFirestore(uidChapter, lang);
@@ -339,21 +645,44 @@ export default function ExcelBeginnerCoursePage() {
         //subtitle={lesson?.translate?.subtitle}
         icon={<IconLessons />}
     >
-        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: 'red' }}>
+        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
             <Grid container spacing={1}>
                 <Grid size={12}>
                     <CardHeader lesson={lesson} chapter={chapter} />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <CardGoals lesson={lesson} chapter={chapter} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <CardSubChapters lesson={lesson} chapter={chapter} />
-                </Grid>
-                <Grid size={12}>
-                    <CardSubChaptersContent
-                        subChapters={subChapters}
-                        subChapter={subChapter} setSubChapter={setSubChapter} lesson={lesson} chapter={chapter} />
+                {
+                    indexSub < subChapters.length && <>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <CardGoals lesson={lesson} chapter={chapter} />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <CardSubChapters
+                                index={indexSub}
+                                setIndex={setIndexSub}
+                                subChapters={subChapters}
+                                lesson={lesson} chapter={chapter} />
+                        </Grid>
+                        <Grid size={12}>
+                            <CardSubChaptersContent
+                                index={indexSub}
+                                setIndex={setIndexSub}
+                                subChapters={subChapters}
+                                subChapter={subChapter} setSubChapter={setSubChapter} lesson={lesson} chapter={chapter} />
+                        </Grid>
+                    </>
+                }
+
+                <Grid size={{ xs: 12, sm: 12 }}>
+                    {
+                        indexSub === subChapters.length && <CardQuizz
+                            indexSub={indexSub}
+                            setIndexSub={setIndexSub}
+                            quiz={chapter?.quizz}
+                            subChapters={subChapters}
+                            subChapter={subChapter} setSubChapter={setSubChapter}
+                            lesson={lesson}
+                            chapter={chapter} />
+                    }
                 </Grid>
             </Grid>
             {/* HEADER / HERO */}
@@ -361,36 +690,7 @@ export default function ExcelBeginnerCoursePage() {
                 <ButtonConfirm
                     label="Translate"
                     loading={process}
-                    onClick={async () => {
-                        try {
-                            setProcess(true);
-                            //console.log("CHAPTER", chapter.getTranslate('fr'));
-                            const INDEX_SUB = 8;
-                            const subchapters = chapter.subchapters || [];
-                            const trans = subchapters?.[INDEX_SUB].getTranslate('fr');
-                            const qs = encodeURIComponent(JSON.stringify(trans));
-                            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
-                            const result = await fetchTranslate.json();
-                            const translates = Object.values(result)?.map?.(trans => new ClassLessonSubchapterTranslation(trans));
-                            subchapters[INDEX_SUB].translates = translates;
-                            
-                            const _patch = await chapter?.updateFirestore({
-                                subchapters: subchapters.map(sub => {
-                                    const final = sub.toJSON();
-                                    const trans = sub._convertTranslatesToFirestore(sub.translates);
-                                    final.translates = trans;
-                                    return final;
-                                })
-                            });
-                            
-                            setChapter(_patch?.clone());
-                            console.log("RESUULT", trans, result)
-                        } catch (error) {
-                            console.log("ERRROR", error);
-                        } finally {
-                            setProcess(false);
-                        }
-                    }}
+                    onClick={onTranslate}
                 />
                 <Stack
                     direction={{ xs: "column", md: "row" }}
@@ -424,745 +724,6 @@ export default function ExcelBeginnerCoursePage() {
                         </Typography>
                     </Stack>
                 </Stack>
-            </Box>
-
-            {/* OBJECTIFS & STRUCTURE */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} md={7}>
-                    <Paper elevation={1} sx={{ p: 3, borderRadius: 3, height: "100%" }}>
-                        <Typography variant="h6" sx={{ mb: 1.5 }}>
-                            Objectifs pédagogiques
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1, color: "text.secondary" }}>
-                            À la fin de ce cours, l&apos;apprenant sera capable de :
-                        </Typography>
-                        <List dense>
-                            {
-                                chapter?.translate?.goals?.map((goal, i) => {
-                                    return (<ListItem key={`${goal}-${i}`}>
-                                        <ListItemIcon>
-                                            <CheckCircleIcon color="success" fontSize="small" />
-                                        </ListItemIcon>
-                                        <ListItemText primary={goal} />
-                                    </ListItem>)
-                                })
-                            }
-                        </List>
-                    </Paper>
-                </Grid>
-
-                <Grid item xs={12} md={5}>
-                    <Paper elevation={1} sx={{ p: 3, borderRadius: 3, height: "100%" }}>
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-                            <MenuBookIcon color="primary" />
-                            <Typography variant="h6">Structure du cours</Typography>
-                        </Stack>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            Le cours est organisé en leçons courtes, chacune avec une partie
-                            théorique et un exercice pratique.
-                        </Typography>
-                        <List dense>
-                            {
-                                chapter?.subchapters?.map((sub, i) => {
-                                    return (<ListItem key={`${sub.uid_intern}-${i}`} sx={{ py: 0.3 }}>
-                                        <ListItemText
-                                            primaryTypographyProps={{ variant: "body2" }}
-                                            primary={`${i}. ${sub.translate?.title}`}
-                                        />
-                                    </ListItem>)
-                                })
-                            }
-                            {[
-                                //...,
-                                "Introduction à Excel & interface",
-                                "Classeur, feuilles, lignes, colonnes et cellules",
-                                "Saisie et types de données (texte, nombre, date)",
-                                "Mise en forme de base (police, bordures, formats de nombre)",
-                                "Formules et fonction SOMME",
-                                "Copier les formules & références de cellules",
-                                "Tableaux simples, tri & filtres",
-                                "Graphiques de base",
-                                "Exporter en PDF & mini-projet",
-                            ].map((title, index) => (
-                                <ListItem key={title} sx={{ py: 0.3 }}>
-                                    <ListItemText
-                                        primaryTypographyProps={{ variant: "body2" }}
-                                        primary={`${index}. ${title}`}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Paper>
-                </Grid>
-            </Grid>
-
-            <Divider sx={{ mb: 3 }} />
-
-            {/* LEÇONS (ACCORDIONS) */}
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Contenu détaillé du cours
-            </Typography>
-            {
-                chapter?.subchapters?.map?.((sub, i) => {
-                    return (<Accordion key={`${sub.uid_intern}-${i}`}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography variant="subtitle1">
-                                {i}. {sub.translate?.title}
-                            </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} md={7}>
-                                    {
-                                        sub.translate?.goals?.map?.((goal, i) => {
-                                            return (<Typography key={`${goal}-${i}`} variant="body2" sx={{ mb: 1.5 }}>
-                                                {goal}
-                                            </Typography>)
-                                        })
-                                    }
-                                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                        Dans cette leçon, l&apos;apprenant découvre à quoi sert Excel et
-                                        l&apos;organisation générale de l&apos;interface : ruban, onglets, zone
-                                        de cellules, barre de formule.
-                                    </Typography>
-                                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                                        Points clés :
-                                    </Typography>
-                                    <List dense>
-                                        {
-                                            sub.translate?.keys?.map?.((key, i) => {
-                                                return (<ListItem key={`${key}-${i}`}>
-                                                    <ListItemText primary={key} />
-                                                </ListItem>)
-                                            })
-                                        }
-                                        <ListItem>
-                                            <ListItemText primary="Excel est un tableur : il sert à manipuler des données sous forme de tableau et à faire des calculs." />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText primary="Comprendre la grille de cellules : colonnes (A, B, C...) et lignes (1, 2, 3...). " />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText primary="Identifier le ruban, les onglets (Accueil, Insertion, Mise en page...) et la barre de formule." />
-                                        </ListItem>
-                                    </List>
-
-                                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                                        Exercice pratique :
-                                    </Typography>
-                                    <List dense>
-                                        {
-                                            sub.translate?.exercises?.map?.((exercise, i) => {
-                                                return (<ListItem key={`${exercise}-${i}`}>
-                                                    <ListItemText primary={exercise} />
-                                                </ListItem>)
-                                            })
-                                        }
-                                        <ListItem>
-                                            <ListItemText primary="Ouvrir Excel et créer un classeur vierge." />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText primary="Cliquer sur quelques cellules et observer leur référence (ex: A1, B3, C5)." />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText primary="Repérer la barre de formule et les onglets principaux." />
-                                        </ListItem>
-                                    </List>
-                                </Grid>
-
-                                <Grid item xs={12} md={5}>
-                                    <Stack
-                                        sx={{
-                                            position: "relative",
-                                            width: "100%",
-                                            //height: 220,
-                                            borderRadius: 2,
-                                            overflow: "hidden",
-                                            border: "1px solid",
-                                            borderColor: "divider",
-                                            //background:'red',
-
-                                        }}
-                                    >
-                                        {
-                                            sub.translate?.photo_url && <Image
-                                                src={sub.translate?.photo_url || ""}
-                                                alt="Interface Excel - grille et ruban"
-                                                //fill
-                                                height={100}
-                                                width={200}
-                                                style={{ objectFit: "cover", width: '100%', height: 'auto' }}
-                                                sizes="(max-width: 768px) 100vw, 50vw"
-                                            />
-                                        }
-                                    </Stack>
-                                </Grid>
-                            </Grid>
-                        </AccordionDetails>
-                    </Accordion>)
-                })
-            }
-
-            {/* 0. INTRO + INTERFACE */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        0. Introduction à Excel & interface
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={7}>
-                            <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                Dans cette leçon, l&apos;apprenant découvre à quoi sert Excel et
-                                l&apos;organisation générale de l&apos;interface : ruban, onglets, zone
-                                de cellules, barre de formule.
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                                Points clés :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Excel est un tableur : il sert à manipuler des données sous forme de tableau et à faire des calculs." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Comprendre la grille de cellules : colonnes (A, B, C...) et lignes (1, 2, 3...). " />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Identifier le ruban, les onglets (Accueil, Insertion, Mise en page...) et la barre de formule." />
-                                </ListItem>
-                            </List>
-
-                            <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                                Exercice pratique :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Ouvrir Excel et créer un classeur vierge." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Cliquer sur quelques cellules et observer leur référence (ex: A1, B3, C5)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Repérer la barre de formule et les onglets principaux." />
-                                </ListItem>
-                            </List>
-                        </Grid>
-
-                        <Grid item xs={12} md={5}>
-                            <Box
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    height: 220,
-                                    borderRadius: 2,
-                                    overflow: "hidden",
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                }}
-                            >
-                                <Image
-                                    src="/excel-interface.png"
-                                    alt="Interface Excel - grille et ruban"
-                                    fill
-                                    style={{ objectFit: "cover" }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 1. CLASSEUR / FEUILLES / CELLULES */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        1. Classeur, feuilles, lignes, colonnes et cellules
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={7}>
-                            <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                Cette leçon explique la structure d&apos;un fichier Excel : un
-                                classeur contient une ou plusieurs feuilles, composées de lignes
-                                et de colonnes.
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                                Points clés :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Un fichier Excel = un classeur (.xlsx)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Un classeur contient des feuilles (Feuil1, Feuil2, etc.)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Une cellule est l'intersection d'une ligne et d'une colonne (ex: B3)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Renommer une feuille (double clic sur l'onglet de la feuille)." />
-                                </ListItem>
-                            </List>
-
-                            <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                                Exercice pratique :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Renommer la feuille active en « Données »." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Ajouter une nouvelle feuille et la nommer « Calculs »." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Sélectionner la cellule C3 et vérifier que la barre de nom indique bien C3." />
-                                </ListItem>
-                            </List>
-                        </Grid>
-
-                        <Grid item xs={12} md={5}>
-                            <Box
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    height: 220,
-                                    borderRadius: 2,
-                                    overflow: "hidden",
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                }}
-                            >
-                                <Image
-                                    src="/excel-new-workbook.png"
-                                    alt="Nouveau classeur Excel avec feuilles"
-                                    fill
-                                    style={{ objectFit: "cover" }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 2. SAISIE / TYPES DE DONNEES */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        2. Saisir des données : texte, nombres, dates
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                        Dans cette leçon, l&apos;apprenant apprend à saisir correctement différents
-                        types de données dans les cellules.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Points clés :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Saisir du texte simple (noms, intitulés)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Saisir des nombres (quantités, montants)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Saisir des dates (par ex: 01/01/2025) et voir l'affichage automatique." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Valider une cellule (Entrée) et se déplacer avec les flèches." />
-                        </ListItem>
-                    </List>
-
-                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                        Exercice pratique :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="En A1, saisir « Produit », en B1 « Quantité », en C1 « Prix »." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Remplir 3 lignes de produits factices (texte + nombres)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="En D1, saisir « Date » et saisir une date en D2." />
-                        </ListItem>
-                    </List>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 3. MISE EN FORME DE BASE */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        3. Mise en forme de base : police, bordures, formats de nombre
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                        Cette leçon se concentre sur la présentation : rendre le tableau plus
-                        lisible grâce à la mise en forme.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Points clés :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Mettre en gras les en-têtes (ligne 1)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Ajouter des bordures autour du tableau." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Ajuster la largeur des colonnes (double clic sur la séparation)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Appliquer un format monétaire sur une colonne de prix." />
-                        </ListItem>
-                    </List>
-
-                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                        Exercice pratique :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Mettre la ligne des en-têtes en gras et centrer le texte." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Appliquer un format monétaire à la colonne des prix." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Ajouter des bordures au tableau de données." />
-                        </ListItem>
-                    </List>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 4. FORMULES & SOMME + IMAGE FORMULE */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        4. Formules de base & fonction SOMME
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={7}>
-                            <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                On aborde ici le cœur d&apos;Excel : les formules. Comment écrire une
-                                formule simple et utiliser la fonction SOMME.
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                                Points clés :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Une formule commence toujours par un signe égal (=)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Formule simple : =2+3, ou =A2*B2." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Fonction SOMME : =SOMME(C2:C4) pour additionner plusieurs cellules." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Utiliser l'assistant Somme automatique (Σ) dans le ruban." />
-                                </ListItem>
-                            </List>
-
-                            <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                                Exercice pratique :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="En D2, saisir une formule =B2*C2 pour calculer le total d’un produit." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Recopier la formule vers le bas (D3, D4...)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="En D5, utiliser =SOMME(D2:D4) pour calculer le total général." />
-                                </ListItem>
-                            </List>
-                        </Grid>
-
-                        <Grid item xs={12} md={5}>
-                            <Box
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    height: 220,
-                                    borderRadius: 2,
-                                    overflow: "hidden",
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                }}
-                            >
-                                <Image
-                                    src="/excel-basic-formula.png"
-                                    alt="Exemple de formules de base dans Excel"
-                                    fill
-                                    style={{ objectFit: "cover" }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 5. COPIER FORMULES & REFERENCES */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        5. Copier les formules & références de cellules
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                        Cette leçon montre comment Excel recopie les formules en adaptant les
-                        références de cellules (relatives).
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Points clés :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Recopie de formule avec la poignée de recopie (coin inférieur droit de la cellule)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Comprendre que A2 devient A3, A4... lors de la recopie." />
-                        </ListItem>
-                    </List>
-
-                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                        Exercice pratique :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Recopier une formule de D2 jusqu'à D4 et vérifier les références (B3*C3, B4*C4...)." />
-                        </ListItem>
-                    </List>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 6. TABLEAU / TRI / FILTRES */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        6. Tableaux simples : tri & filtres
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                        Ici, l&apos;apprenant découvre comment traiter un petit tableau de
-                        données : tri et filtres automatiques.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Points clés :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Sélectionner le tableau de données (en-têtes compris)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Activer le filtre automatique (Onglet Données → Filtrer)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Trier par ordre croissant/décroissant une colonne numérique." />
-                        </ListItem>
-                    </List>
-
-                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                        Exercice pratique :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Activer le filtre sur ton tableau Produit / Quantité / Prix." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Trier les produits par prix, du moins cher au plus cher." />
-                        </ListItem>
-                    </List>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 7. GRAPHIQUES + IMAGE GRAPHIQUE */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        7. Créer un graphique simple
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={7}>
-                            <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                Cette leçon apprend à transformer un petit tableau de données en
-                                graphique visuel (histogramme ou camembert).
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                                Points clés :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Sélectionner les données (ex: A1:A4 et D1:D4 : Produits + Total)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Onglet Insertion → Graphiques (colonnes, secteurs, etc.)." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Modifier le titre du graphique." />
-                                </ListItem>
-                            </List>
-
-                            <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                                Exercice pratique :
-                            </Typography>
-                            <List dense>
-                                <ListItem>
-                                    <ListItemText primary="Créer un graphique en colonnes des totaux par produit." />
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary="Renommer le titre du graphique en « Ventes par produit »." />
-                                </ListItem>
-                            </List>
-                        </Grid>
-
-                        <Grid item xs={12} md={5}>
-                            <Box
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    height: 220,
-                                    borderRadius: 2,
-                                    overflow: "hidden",
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                }}
-                            >
-                                <Image
-                                    src="/excel-chart-example.png"
-                                    alt="Graphique simple dans Excel"
-                                    fill
-                                    style={{ objectFit: "cover" }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
-
-            {/* 8. EXPORT PDF & MINI PROJET */}
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">
-                        8. Exporter en PDF & mini-projet
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                        Dernière étape : sauvegarder correctement le classeur et l&apos;exporter
-                        en PDF. Puis réaliser un mini-projet qui récapitule toutes les
-                        notions vues.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Exporter en PDF :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="Fichier → Enregistrer sous → choisir le type « PDF »." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Vérifier les paramètres de zone d'impression si nécessaire." />
-                        </ListItem>
-                    </List>
-
-                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 0.5 }}>
-                        Mini-projet de fin de module :
-                    </Typography>
-                    <Typography variant="body2">
-                        Créer un tableau de ventes simples :
-                    </Typography>
-                    <List dense>
-                        <ListItem>
-                            <ListItemText primary="En-têtes : Produit, Quantité, Prix unitaire, Total." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Remplir au moins 4 lignes de produits." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Créer une formule Total = Quantité × Prix unitaire et la recopier." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Calculer le total général avec =SOMME." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Mettre en forme le tableau (gras, bordures, format monétaire)." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Créer un graphique en colonnes des totaux par produit." />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Enregistrer le classeur et l’exporter en PDF." />
-                        </ListItem>
-                    </List>
-                </AccordionDetails>
-            </Accordion>
-
-            <Divider sx={{ my: 4 }} />
-
-            {/* QUIZ FINAL */}
-            <Box sx={{ mb: 4 }}>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-                    <QuizIcon color="primary" />
-                    <Typography variant="h5">Quiz de fin de cours</Typography>
-                </Stack>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Ce quiz permet de valider la compréhension des notions de base abordées
-                    dans le cours Excel débutant.
-                </Typography>
-
-                <Grid container spacing={2}>
-                    {quizQuestions.map((q) => (
-                        <Grid item xs={12} md={6} key={q.id}>
-                            <Card variant="outlined" sx={{ height: "100%" }}>
-                                <CardContent>
-                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                        Question {q.id}
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                        {q.question}
-                                    </Typography>
-                                    <List dense>
-                                        {q.options.map((opt, idx) => (
-                                            <ListItem key={idx} sx={{ py: 0 }}>
-                                                <ListItemIcon>
-                                                    <AssignmentTurnedInIcon
-                                                        fontSize="small"
-                                                        color={idx === q.correctIndex ? "success" : "disabled"}
-                                                    />
-                                                </ListItemIcon>
-                                                <ListItemText
-                                                    primaryTypographyProps={{
-                                                        variant: "body2",
-                                                        color: idx === q.correctIndex ? "success.main" : "text.primary",
-                                                    }}
-                                                    primary={opt}
-                                                />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
             </Box>
         </Container>
     </DashboardPageWrapper>);

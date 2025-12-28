@@ -151,7 +151,6 @@ export class ClassLessonSubchapter {
         return translate;
     }
 }
-
 export class ClassLessonSubchapterTranslation {
     static COLLECTION = "i18n";
     static NS_COLLECTION = `classes/lesson`;

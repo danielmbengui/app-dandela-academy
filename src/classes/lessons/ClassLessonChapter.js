@@ -18,10 +18,11 @@ import { firestore } from "@/contexts/firebase/config";
 import { ClassLesson } from "../ClassLesson";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { ClassLessonSubchapter } from "./ClassLessonSubchapter";
+import { ClassLessonChapterQuiz } from "./ClassLessonChapterQuiz";
 
 export class ClassLessonChapter {
     static COLLECTION = "CHAPTERS";
-    static NS_COLLECTION = `classes/chapters`;
+    static NS_COLLECTION = `classes/chapter`;
 
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
@@ -53,6 +54,7 @@ export class ClassLessonChapter {
         uid_intern = "",
         uid_lesson = "",
         lesson = null,
+        quiz = null,
         title = "",
         subtitle = "",
         description = "",
@@ -71,6 +73,7 @@ export class ClassLessonChapter {
         this._uid_lesson = uid_lesson;
 
         this._lesson = lesson;
+        this._quiz = quiz;
 
         this._title = title;
         this._subtitle = subtitle;
@@ -120,6 +123,12 @@ export class ClassLessonChapter {
     }
     set lesson(value) {
         this._lesson = value ?? null;
+    }
+    get quiz() {
+        return this._quiz;
+    }
+    set quiz(value) {
+        this._quiz = value ?? null;
     }
 
     // title
@@ -326,13 +335,14 @@ export class ClassLessonChapter {
                 var created_time = ClassLessonChapter._toJsDate(data.created_time);
                 var last_edit_time = ClassLessonChapter._toJsDate(data.last_edit_time);
                 const translates = Object.values(data.translates)?.map?.(trans => new ClassLessonChapterTranslation(trans));
-                const subchapters = data.subchapters?.map?.((sub)=>{
+                const subchapters = data.subchapters?.map?.((sub) => {
                     const subClass = new ClassLessonSubchapter(sub);
                     const translates = subClass._convertTranslatesFromFirestore(sub.translates);
                     subClass.translates = translates;
                     return subClass;
                 });
-                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates,subchapters });
+                const quiz = new ClassLessonChapterQuiz(data.quiz);
+                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates, subchapters, quiz });
             },
         };
     }
@@ -365,12 +375,17 @@ export class ClassLessonChapter {
         return doc(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION, id).withConverter(this.converter);
     }
 
-    static async count(constraints = []) {
-        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
-        //const coll = collection(firestore, ClassUser.COLLECTION);
-        //const coll = this.colRef();
-        const snap = await getCountFromServer(q);
-        return snap.data().count; // -> nombre total
+    static async count(uidLesson = "", constraints = []) {
+        try {
+            const q = query(this.colRef(uidLesson), [where("uid_lesson", "==", uidLesson), ...constraints]);        //const qSnap = await getDocs(q);
+            //const coll = collection(firestore, ClassUser.COLLECTION);
+            //const coll = this.colRef();
+            console.log("waaaa", q)
+            const snap = await getCountFromServer(q);
+            return snap.data().count; // -> nombre total
+        } catch (error) {
+            console.log("Errror", error)
+        }
     }
     /*
     static async countByDates(start_date = null, end_date = null) {
@@ -429,11 +444,16 @@ export class ClassLessonChapter {
         const chapter = docSnap.data();
         const translate = chapter.translates?.find(item => item.lang === lang);
         chapter.translate = translate;
-        chapter.subchapters = chapter.subchapters?.map(sub=>{
+        chapter.subchapters = chapter.subchapters?.map(sub => {
             const translate = sub.translates?.find(item => item.lang === lang);
             sub.translate = translate;
-            return(sub);
-        })
+            return (sub);
+        });
+        chapter.quiz.questions = chapter.quiz.questions?.map(q => {
+            const translate = q.translates?.find(item => item.lang === lang);
+            q.translate = translate;
+            return (q);
+        });
         console.log("chapter get class", chapter)
         return chapter;
     }
@@ -465,28 +485,28 @@ export class ClassLessonChapter {
     }
     // Créer un user (avec option timestamps serveur)
     async createFirestore() {
-        const newRef = doc(this.constructor.colRef()); // id auto
-        const count = await this.constructor.count() || 0;
+        const newRef = doc(this.constructor.colRef(this._uid_lesson)); // id auto
+        const count = await this.constructor.count(this._uid_lesson) || 0;
         //const countRoom = await ClassRoom.count() || 0;
         const idRoom = count + 1;
         this._uid = newRef.id;
         this._uid_intern = idRoom;
-        this._name = this.createRoomName(idRoom);
-        this._name_normalized = this.createRoomName(idRoom, true);
+        //this._name = this.createRoomName(idRoom);
+        //this._name_normalized = this.createRoomName(idRoom, true);
         //this._enabled = true;
         this._created_time = new Date();
         this._last_edit_time = new Date();
         await setDoc(newRef, this.toJSON());
-        return this.constructor.makeRoomInstance(this._uid, this.toJSON()); // -> ClassModule
+        return this.constructor.makeChapterInstance(this._uid, this.toJSON()); // -> ClassModule
     }
     // Mettre à jour un module
     async updateFirestore(patch = {}) {
         try {
             const ref = this.constructor.docRef(this._uid_lesson, this._uid);
             const data = { ...patch, last_edit_time: new Date() };
-          
+
             await updateDoc(ref, data, { merge: true });
-              console.log("weshtest", await this.constructor.fetchFromFirestore(this._uid))
+            console.log("weshtest", await this.constructor.fetchFromFirestore(this._uid))
             //console.log("UPDATE COMPLETED")
             return await this.constructor.fetchFromFirestore(this._uid); // -> ClassModule
         } catch (e) {
@@ -620,7 +640,7 @@ export class ClassLessonChapterTranslation {
         this._title = title;
         this._description = description;
         this._goals = goals;
-}
+    }
 
     // lang
     get lang() {

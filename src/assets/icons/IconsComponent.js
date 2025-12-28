@@ -384,3 +384,7 @@ export const IconArrowLeft = ({ width = 24, height = 24, color = '' }) => {
 export const IconArrowRight = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="formkit:arrowright" width={width} height={height} color={color} />)
 }
+export const IconQuizz = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="material-symbols:quiz-rounded" width={width} height={height} color={color} />)
+}
+
