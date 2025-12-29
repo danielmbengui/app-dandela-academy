@@ -37,19 +37,19 @@ export function formatChrono(seconds = 0) {
   if (seconds < STEP_MINUTES) return `${seconds}s`;
   if (seconds < STEP_HOUR) {
     const _minutes = parseInt(seconds / STEP_MINUTES);
-    const _seconds = seconds % STEP_MINUTES;
+    const _seconds = parseInt(seconds % STEP_MINUTES);
     return `${_minutes}min${_seconds > 0 ? ` ${_seconds}s` : ''}`;
   }
   if (seconds < STEP_DAY) {
     const _hours = parseInt(seconds / STEP_HOUR);
     const _minutes = parseInt((seconds % STEP_HOUR) / STEP_MINUTES);
-    const _seconds = (seconds % STEP_HOUR) % STEP_MINUTES;
+    const _seconds = parseInt((seconds % STEP_HOUR) % STEP_MINUTES);
     return `${_hours}h ${_minutes}min ${_seconds}s`;
   }
   const _days = parseInt(seconds / STEP_DAY);
   const _hours = parseInt((seconds % STEP_DAY) / STEP_HOUR);
   const _minutes = parseInt(((seconds % STEP_DAY) % STEP_HOUR) / STEP_MINUTES);
-  const _seconds = ((seconds % STEP_DAY) % STEP_HOUR) % STEP_MINUTES;
+  const _seconds = parseInt(((seconds % STEP_DAY) % STEP_HOUR) % STEP_MINUTES);
   return `${_days}j ${_hours}h ${_minutes}min ${_seconds}s`;
 }
 export function formatDuration(duration = 0) {

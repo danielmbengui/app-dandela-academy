@@ -44,18 +44,19 @@ const AccordionSummary = styled((props) => (
   backgroundColor: 'rgba(0, 0, 0, .03)',
   backgroundColor: 'var(--grey-light)',
   backgroundColor: 'none',
-  border: '0.1px solid var(--grey-light)',
+  border: '0.1px solid var(--card-border)',
   flexDirection: 'row',
   color: "var(--font-color)",
   borderRadius: '5px',
+  maxWidth: '100%',
   //  borderTopLeftRadius: '5px',
-
+  py: 1,
   minHeight: 25,                 // hauteur fermée
-  maxHeight: 30,                 // hauteur fermée
+  maxHeight: 60,                 // hauteur fermée
   '&.Mui-expanded': {
     minHeight: 30,               // hauteur ouverte
     //background:'yellow',
-    backgroundColor: 'var(--grey-hyper-light)',
+    //backgroundColor: 'var(--grey-hyper-light)',
     borderBottomLeftRadius: '0px',
     borderBottomRightRadius: '0px',
   },
@@ -63,12 +64,13 @@ const AccordionSummary = styled((props) => (
     //margin: 0,                   // enlève le gros padding vertical
   },
 
-  /*
+
   [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]:
   {
-    transform: 'rotate(90deg)',
+    //transform: 'rotate(90deg)',
+    color: 'var(--primary)'
   },
-  */
+
   [`& .${accordionSummaryClasses.content}`]: {
     //marginLeft: theme.spacing(1),
     borderRadius: '0px',
@@ -83,15 +85,18 @@ const AccordionDetails = styled((props) => (
   <MuiAccordionDetails
     sx={{
       //background: 'red',
-      border: '0.1px solid var(--grey-light)',
+      border: '0.1px solid var(--card-border)',
       borderTop: 'none',
       background: '',
-      p: 0,
+p:0,
+width:'100%',
       borderBottomLeftRadius: '5px',
       borderBottomRightRadius: '5px',
       '&.Mui-expanded': {
         minHeight: 30,               // hauteur ouverte
         //background:'yellow',
+              width:'100%',
+     // p: '10px',
         borderBottomLeftRadius: '5px',
         borderBottomRightRadius: '5px',
       },

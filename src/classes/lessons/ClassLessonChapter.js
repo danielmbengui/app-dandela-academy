@@ -436,6 +436,7 @@ export class ClassLessonChapter {
             where("uid", "==", id),
             limit(1)
         );
+        
 
         const snaps = await getDocs(q);
         if (snaps.empty) return null;

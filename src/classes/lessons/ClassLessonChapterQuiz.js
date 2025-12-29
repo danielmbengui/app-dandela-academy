@@ -20,8 +20,8 @@ import { defaultLanguage } from "@/contexts/i18n/settings";
 import { mixArray } from "@/contexts/functions";
 
 export class ClassLessonChapterQuiz {
-    static COLLECTION = "SUBCHAPTERS";
-    static NS_COLLECTION = `classes/subchapters`;
+    static COLLECTION = "QUIZ";
+    static NS_COLLECTION = `classes/quiz`;
 
     constructor({
         uid_intern = "",
@@ -233,8 +233,8 @@ export class ClassLessonChapterQuizTranslation {
     }
 }
 export class ClassLessonChapterQuestion {
-    static COLLECTION = "SUBCHAPTERS";
-    static NS_COLLECTION = `classes/subchapters`;
+    static COLLECTION = "QUESTION";
+    static NS_COLLECTION = `classes/quiz`;
 
     constructor({
         uid_intern = "",
