@@ -387,4 +387,12 @@ export const IconArrowRight = ({ width = 24, height = 24, color = '' }) => {
 export const IconQuizz = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="material-symbols:quiz-rounded" width={width} height={height} color={color} />)
 }
-
+export const IconStats = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="fluent-mdl2:poll-results" width={width} height={height} color={color} />)
+}
+export const IconProgressUp = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ph:chart-line-up-bold" width={width} height={height} color={color} />)
+}
+export const IconProgressDown = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ph:chart-line-down-bold" width={width} height={height} color={color} />)
+}

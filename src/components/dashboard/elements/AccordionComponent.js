@@ -12,14 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { NS_DASHBOARD_COMPUTERS } from '@/contexts/i18n/settings';
 import { ClassRoom } from '@/classes/ClassRoom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ButtonConfirm from './ButtonConfirm';
-
-const TypographyComponent = ({ title = "", value = "" }) => {
-  return (<Stack direction={'row'} spacing={1.5} alignItems={'center'} sx={{ background: '' }}>
-    <Typography fontWeight={'600'}>{title}</Typography>
-    <Typography sx={{ lineHeight: 1.15 }} noWrap>{value}</Typography>
-  </Stack>)
-}
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square={true} {...props} />
@@ -88,15 +80,15 @@ const AccordionDetails = styled((props) => (
       border: '0.1px solid var(--card-border)',
       borderTop: 'none',
       background: '',
-p:0,
-width:'100%',
+      p: 0,
+      width: '100%',
       borderBottomLeftRadius: '5px',
       borderBottomRightRadius: '5px',
       '&.Mui-expanded': {
         minHeight: 30,               // hauteur ouverte
         //background:'yellow',
-              width:'100%',
-     // p: '10px',
+        width: '100%',
+        // p: '10px',
         borderBottomLeftRadius: '5px',
         borderBottomRightRadius: '5px',
       },
@@ -109,14 +101,16 @@ width:'100%',
   //borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-export default function AccordionComponent({ children, title = "", expanded = false }) {
-  const { t } = useTranslation([ClassRoom.NS_COLLECTION, NS_DASHBOARD_COMPUTERS])
+export default function AccordionComponent({ children, title = "", expanded = false,onChange=null }) {
   const { theme } = useThemeMode();
-  const { blueDark } = theme.palette;
   const [isExpanded, setIsExpanded] = useState(expanded);
 
   const handleChange = (panel) => (_, newExpanded) => {
     setIsExpanded(newExpanded ? panel : false);
+    //console.log("Prooosps change", onClick)
+    if(onChange) {
+      onChange();
+    }
   };
   useEffect(() => {
     setIsExpanded(expanded);
@@ -126,15 +120,14 @@ export default function AccordionComponent({ children, title = "", expanded = fa
     expanded={isExpanded}
     onChange={handleChange(!isExpanded)}
     sx={{ borderRadius: '5px', }}>
-    <AccordionSummary sx={{
+    <AccordionSummary     
+    sx={{
       //background:'red', 
       //color: ClassColor.WHITE,
       // borderRadiusTopLeft: '5px',
 
     }} aria-controls="panel1d-content" id="panel1d-header">
-      <Typography component="span">
-        {title}
-      </Typography>
+      {title}
     </AccordionSummary>
     <AccordionDetails>
       {children}

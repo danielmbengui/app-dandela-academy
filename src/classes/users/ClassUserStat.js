@@ -52,6 +52,7 @@ export class ClassUserStat {
         questions_length = 0,
         start_date = null,
         end_date = null,
+        duration = 0,
         next_trying_date = null,
         created_time = new Date(),
         last_edit_time = new Date(),
@@ -66,6 +67,8 @@ export class ClassUserStat {
         this._user = user;
         this._lesson = lesson;
         this._chapter = chapter;
+
+        this._duration = duration;
 
         // data
         this._answers = Array.isArray(answers) ? answers : [];
@@ -175,6 +178,12 @@ export class ClassUserStat {
     set end_date(v) {
         this._end_date = ClassUserStat._toJsDate(v);
     }
+    get duration() {
+        return this._duration;
+    }
+    set duration(v) {
+        this._duration = value || 0;
+    }
     get next_trying_date() {
         return this._next_trying_date;
     }
@@ -207,9 +216,13 @@ export class ClassUserStat {
         cleaned.user = null;
         cleaned.lesson = null;
         cleaned.chapter = null;
+        cleaned.score = null;
+        cleaned.duration = null;
         delete cleaned.user;
         delete cleaned.lesson;
         delete cleaned.chapter;
+        delete cleaned.score;
+        delete cleaned.duration;
         //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
         //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
         return cleaned;
@@ -227,6 +240,8 @@ export class ClassUserStat {
             user: this._user,
             lesson: this._lesson,
             chapter: this._chapter,
+            score:this._score,
+            duration:this._duration,
         });
     }
 
@@ -256,8 +271,11 @@ export class ClassUserStat {
                 var next_trying_date = ClassUserStat._toJsDate(data.next_trying_date);
                 var created_time = ClassUserStat._toJsDate(data.created_time);
                 var last_edit_time = ClassUserStat._toJsDate(data.last_edit_time);
-                //console.log("fromFirestore", ClassUserStat.makeUserStat(uid, { ...data, created_time, last_edit_time }))
-                return ClassUserStat.makeUserStat(uid, { ...data, start_date, end_date, next_trying_date, created_time, last_edit_time });
+                
+                const score = data.answers.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
+                const duration = parseInt((end_date.getTime() - start_date.getTime()) / 1000);
+                //console.log("fromFirestore", score)
+                return ClassUserStat.makeUserStat(uid, { ...data,score, start_date, end_date, duration,next_trying_date, created_time, last_edit_time });
             },
         };
     }
@@ -348,7 +366,7 @@ export class ClassUserStat {
             if (snaps.empty) return null;
             const docSnap = snaps.docs[0];
             const stat = docSnap.data();
-            stat.score = stat.answers.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
+            
             return stat;
         } catch (error) {
             console.log("ERRRROR", error);
@@ -371,10 +389,10 @@ export class ClassUserStat {
             const stats = [];
             for (const doc of docs) {
                 const stat = doc.data();
-                const score = stat.answers.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
-                stats.push(new ClassUserStat({ ...stat.toJSON(), score }));
+                //const score = stat.answers.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
+                stats.push(stat);
             }
-            console.log("all stats class", stats)
+            //console.log("all stats class", stats)
             return stats;
         } catch (error) {
             console.log("ERRRROR", error);
@@ -420,11 +438,11 @@ export class ClassUserStat {
         //this._name = this.createRoomName(idStat);
         //this._name_normalized = this.createRoomName(idStat, true);
         //this._enabled = true;
-        this._next_trying_date = addDaysToDate(new Date(), 30);
+        this._next_trying_date = this._next_trying_date ? this._next_trying_date : addDaysToDate(new Date(), this._chapter.quiz_delay_days || 30);
         this._created_time = new Date();
         this._last_edit_time = new Date();
         await setDoc(newRef, this.toJSON());
-        return this.constructor.makeUserStat(this._uid, this.toJSON()); // -> ClassModule
+        return await this.constructor.get(newRef.id); // -> ClassModule
     }
 
     // Mettre à jour un module

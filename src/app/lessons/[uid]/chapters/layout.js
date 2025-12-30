@@ -2,7 +2,7 @@ import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_LESSONS, } from "@/contexts/constants/constants_pages";
 import { NS_LESSONS_ONE, } from "@/contexts/i18n/settings";
 import { SessionProvider } from "@/contexts/SessionProvider";
-import { StatProvider } from "@/contexts/StatProvider";
+import { ChapterProvider } from "@/contexts/ChapterProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +13,9 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function OneLessonLayout({ children, params }) {
-  const {uid:uidLesson, chapter:uidChapter} = await params;
-  return (<StatProvider uidLesson={uidLesson} uidChapter={uidChapter}>
+export default async function ChaptersLayout({ children, params }) {
+  const {uid:uidLesson} = await params;
+  return (<ChapterProvider uidLesson={uidLesson}>
     {children}
-  </StatProvider>);
+  </ChapterProvider>);
 }

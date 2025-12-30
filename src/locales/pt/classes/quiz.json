@@ -3,7 +3,7 @@
   "subtitle": "*Este teste só pode ser realizado uma única vez. A tua pontuação será guardada para te permitir acompanhar a tua progressão ao longo do tempo.",
   "uid_intern": "Número",
   "uid_chapter": "Secção",
-  "warning": "O quiz é cronometrado e só pode ser realizado uma vez a cada 30 dias.<br/>Clica em <b>\"Iniciar o quiz\"</b> quando estiveres pronto(a).",
+  "warning": "O quiz é cronometrado e só pode ser realizado uma vez a cada {{quiz_delay_days}} dias.<br/>Clica em <b>\"Iniciar o quiz\"</b> quando estiveres pronto(a).",
   "duration": "Tempo: {{duration}}",
   "level": "Nível",
   "beginner": "Iniciante",
@@ -20,7 +20,7 @@
     "time": "Duração do teste: <caption>{{duration}}</caption>",
     "next-trying-date": "Próxima tentativa: <caption>{{nextDate}}</caption>",
     "congrats": "Parabéns!",
-    "max-score": "Obtiveste a pontuação máxima neste questionário!.",
+    "max-score": "Obtiveste a pontuação máxima neste questionário!",
     "max-answer": "{{score}} / {{total}}"
   }
 }

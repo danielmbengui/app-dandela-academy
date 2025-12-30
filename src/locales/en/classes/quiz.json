@@ -3,7 +3,7 @@
   "subtitle": "*This test can only be taken once. Your score will be saved so you can track your progress over time.",
   "uid_intern": "Number",
   "uid_chapter": "Section",
-  "warning": "The quiz is timed and can only be taken once every 30 days.<br/>Click <b>\"Start the quiz\"</b> when you are ready.",
+  "warning": "The quiz is timed and can only be taken once every {{quiz_delay_days}} days.<br/>Click <b>\"Start the quiz\"</b> when you are ready.",
   "duration": "Time: {{duration}}",
   "level": "Level",
   "beginner": "Beginner",
@@ -20,7 +20,7 @@
     "time": "Test duration: <caption>{{duration}}</caption>",
     "next-trying-date": "Next attempt: <caption>{{nextDate}}</caption>",
     "congrats": "Congratulations!",
-    "max-score": "You achieved the maximum score for this quiz!.",
+    "max-score": "You achieved the maximum score for this quiz!",
     "max-answer": "{{score}} / {{total}}"
   }
 }

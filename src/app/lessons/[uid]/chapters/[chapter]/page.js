@@ -50,6 +50,8 @@ import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useAuth } from "@/contexts/AuthProvider";
 import CircularProgressWithLabelComponent from "@/components/elements/CircularProgressWithLabelComponent";
 import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
+import { useChapter } from "@/contexts/ChapterProvider";
+import { useStat } from "@/contexts/StatProvider";
 
 const CongratulationsComponent = ({ stat = null }) => {
     const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
@@ -87,6 +89,9 @@ const CongratulationsComponent = ({ stat = null }) => {
                     </div>
                     <p className="result">
                         {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
+                    </p>
+                    <p className="time">
+                        {`${formatChrono(stat?.duration)}`}
                     </p>
                 </div>
                 <div className="result-text-box">
@@ -202,12 +207,18 @@ const CongratulationsComponent = ({ stat = null }) => {
     
    }
 
-.result {
-  margin-top: -8px;
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--success-shadow);
-}
+    .result {
+    margin-top: -8px;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--font-color);
+    }
+    .time {
+    margin-top: 5px;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--grey-light);
+    }
 }
 
 .btn {
@@ -446,8 +457,10 @@ const CongratulationsComponent = ({ stat = null }) => {
     `}</style>
     </>)
 }
-const CardHeader = ({ lesson = null, chapter = null }) => {
+const CardHeader = () => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    const { chapter } = useChapter();
+    const { lesson } = useLesson();
     return (<Stack sx={{ background: '', width: '100%' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -478,8 +491,9 @@ const CardHeader = ({ lesson = null, chapter = null }) => {
         </Grid>
     </Stack>)
 }
-const CardGoals = ({ lesson = null, chapter = null }) => {
+const CardGoals = () => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    const { chapter } = useChapter();
     return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
         <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
             <IconObjective height={18} width={18} color="var(--primary)" />
@@ -500,8 +514,16 @@ const CardGoals = ({ lesson = null, chapter = null }) => {
         </List>
     </Stack>)
 }
-const CardSubChapters = ({ lesson = null, chapter = null, index = -1, setIndex = null, subChapters = [], }) => {
+const CardSubChapters = ({
+    index = -1,
+    setIndex = null,
+    //subchapters = [] 
+}) => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+    const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
+
+    // const { subchapters } = useChapter();
     return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
         <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
             <IconBookOpen height={18} width={18} color="var(--primary)" />
@@ -510,7 +532,7 @@ const CardSubChapters = ({ lesson = null, chapter = null, index = -1, setIndex =
         <Typography variant="caption" sx={{ mb: 0.5 }}>{t('subchapters-subtitle')}</Typography>
         <List dense disablePadding>
             {
-                subChapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
+                subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
                     return (<ListItem key={`${sub.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
                         <Stack direction={'row'} alignItems={'center'} spacing={1}
                             onClick={() => setIndex(i)}
@@ -528,31 +550,41 @@ const CardSubChapters = ({ lesson = null, chapter = null, index = -1, setIndex =
             }
             <ListItem disableGutters sx={{ px: 1 }}>
                 <Stack direction={'row'} alignItems={'center'} spacing={1}
-                    onClick={() => setIndex(subChapters.length)}
+                    onClick={() => setIndex(subchapters.length)}
                     sx={{
-                        color: index === subChapters.length ? 'var(--primary)' : '',
+                        color: index === subchapters.length ? 'var(--primary)' : '',
                         ":hover": {
                             color: 'var(--primary)',
-                            cursor: index === subChapters.length ? 'text' : 'pointer',
+                            cursor: index === subchapters.length ? 'text' : 'pointer',
                         }
                     }}>
-                    <Typography sx={{ fontSize: '0.85rem' }} >{`${subChapters.length + 1}. `}{t('quiz')}</Typography>
+                    <Typography sx={{ fontSize: '0.85rem' }} >{`${subchapters.length + 1}. `}{t('quiz')}</Typography>
                 </Stack>
             </ListItem>
         </List>
     </Stack>)
 }
-const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [], lesson = null, chapter = null }) => {
+const CardSubChaptersContent = ({
+    index = -1,
+    setIndex = null,
+    //chapter = null,
+    //subchapters = [],
+    //subchapter = null,
+    //setSubchapter = null,
+}) => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
+    const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+    const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
 
-    const [subChapter, setSubChapter] = useState(null);
+    //const { chapter, subchapters, subchapter, setSubchapter } = useChapter();
+    //const [subchapter, setSubchapter] = useState(null);
     useEffect(() => {
-        if (index >= 0 && subChapters.length > 0) {
-            setSubChapter(subChapters[index]);
+        if (index >= 0 && subchapters.length > 0) {
+            setSubchapter(subchapters[index]);
         } else {
-            setSubChapter(null);
+            setSubchapter(null);
         }
-    }, [index, subChapters]);
+    }, [index, subchapters]);
     const goBack = () => {
         setIndex(prev => prev - 1);
     }
@@ -571,11 +603,11 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
                             sx={{ color: index === 0 ? 'var(--grey-light)' : 'var(--primary)' }}>
                             <IconArrowLeft />
                         </IconButton>
-                        <Typography>{`${subChapter?.uid_intern}. `}{subChapter?.translate?.title}</Typography>
+                        <Typography>{`${subchapter?.uid_intern}. `}{subchapter?.translate?.title}</Typography>
                         <IconButton
                             onClick={() => setIndex(prev => prev + 1)}
-                            disabled={index === subChapters.length - 1}
-                            sx={{ color: index === subChapters.length - 1 ? 'var(--grey-light)' : 'var(--primary)' }}>
+                            disabled={index === subchapters.length - 1}
+                            sx={{ color: index === subchapters.length - 1 ? 'var(--grey-light)' : 'var(--primary)' }}>
                             <IconArrowRight />
                         </IconButton>
                     </Stack>
@@ -583,7 +615,7 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
                                 {
-                                    subChapter?.translate?.goals?.map?.((goal, i) => {
+                                    subchapter?.translate?.goals?.map?.((goal, i) => {
                                         return (<Typography sx={{ fontWeight: 600 }} key={`${goal}-${i}`}>{goal}</Typography>)
                                     })
                                 }
@@ -591,7 +623,7 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
                                     <Chip sx={{ border: '0.1px solid var(--primary)' }} label={t('keys')} size="small" variant="outlined" />
                                     <Stack spacing={0.5} sx={{ px: 1.5 }}>
                                         {
-                                            subChapter?.translate?.keys?.map?.((key, i) => {
+                                            subchapter?.translate?.keys?.map?.((key, i) => {
                                                 return (<Typography key={`${key}-${i}`} sx={{ fontSize: '0.85rem' }} >{`- `}{key}</Typography>)
                                             })
                                         }
@@ -601,7 +633,7 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
                                     <Chip sx={{ border: '0.1px solid var(--primary)' }} label={t('exercises')} size="small" variant="outlined" />
                                     <Stack spacing={0.5} sx={{ px: 1.5 }}>
                                         {
-                                            subChapter?.translate?.exercises?.map?.((exercise, i) => {
+                                            subchapter?.translate?.exercises?.map?.((exercise, i) => {
                                                 return (<Typography key={`${exercise}-${i}`} sx={{ fontSize: '0.85rem' }} >{`- `}{exercise}</Typography>)
                                             })
                                         }
@@ -628,10 +660,10 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
                                         index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
                                     }
                                     {
-                                        index < subChapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index === subChapters.length - 1} label={t('next', { ns: NS_BUTTONS })} />
+                                        index < subchapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index === subchapters.length - 1} label={t('next', { ns: NS_BUTTONS })} />
                                     }
                                     {
-                                        index === subChapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index < subChapters.length - 1} label={t('quiz-btn')} />
+                                        index === subchapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index < subchapters.length - 1} label={t('quiz-btn')} />
                                     }
                                 </Stack>
                             </Stack>
@@ -651,9 +683,9 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
                                 }}
                             >
                                 {
-                                    subChapter?.translate?.photo_url && <Image
-                                        src={subChapter?.translate?.photo_url || ""}
-                                        alt={subChapter?.translate.title}
+                                    subchapter?.translate?.photo_url && <Image
+                                        src={subchapter?.translate?.photo_url || ""}
+                                        alt={subchapter?.translate.title}
                                         //fill
                                         height={100}
                                         width={200}
@@ -669,11 +701,390 @@ const CardSubChaptersContent = ({ index = -1, setIndex = null, subChapters = [],
         </Grid>
     </Stack>)
 }
-const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters = [], lesson = null, chapter = null }) => {
+const StatsListComponent = () => {
     const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
+    const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+    // const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
+    const { stats, stat, setUidStat } = useStat();
+    const [openStat, setOpenStat] = useState(null);
+    return (<Grid size={{ xs: 12, sm: 8 }}>
+        <Grid container spacing={{ xs: 0.5, sm: 1 }}>
+            <Stack spacing={1} sx={{ py: 1 }}>
+                <Typography>{`Résultats (${stats.length})`}</Typography>
+                {
+                    stats.map((_stat, i) => {
+                        return (<Grid key={`${_stat.uid_user}-${_stat.uid_chapter}-${_stat.uid}`} size={{ xs: 12, sm: 12 }}>
+                            <AccordionComponent
+                                expanded={_stat.uid === openStat?.uid}
+                                onChange={() => {
+                                    //alert(stat.uid);
+                                    setOpenStat(_stat);
+                                    //setUidStat(_stat.uid);
+                                }}
+                                title={<Stack direction={'row'}
+                                    spacing={0.5}>
+                                    <Typography sx={{ fontSize: '0.9rem' }}>{`Score`}</Typography>
+                                    <Typography sx={{ fontSize: '0.9rem', color: 'var(--grey-light)' }}>{`/`}</Typography>
+                                    <Typography sx={{ fontSize: '0.9rem', color: 'var(--grey-light)' }}>{getFormattedDateComplete(_stat.end_date) || ""}</Typography>
+                                </Stack>}>
+                                <Stack maxWidth={'xl'} sx={{ width: '100%', background: '' }}>
+                                    {
+                                        _stat?.score < _stat?.answers?.length && <>
+                                            <Stack spacing={1} sx={{ background: '', px: 1.5, py: { xs: 1.5, sm: 1 } }} direction={{ xs: 'column-reverse', sm: 'row' }} alignItems={'center'}>
+                                                <Stack sx={{ background: '', width: '100%', }}>
+                                                    <Typography>
+                                                        <Trans
+                                                            t={t}
+                                                            i18nKey={'finished.score'}
+                                                            values={{
+                                                                score: `${_stat?.score}/${_stat?.answers?.length}`,
+                                                                //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                                                //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                                                //duration: formatChrono(duration),
+                                                            }}
+                                                            components={{
+                                                                //    div:<Stack direction={'row'} alignItems={'center'} spacing={1} />,
+                                                                caption: <Typography variant="caption" />,
+                                                            }}
+                                                        />
+                                                    </Typography>
+                                                    <Typography>
+                                                        <Trans
+                                                            t={t}
+                                                            i18nKey={'finished.percentage'}
+                                                            values={{
+                                                                //score: `${stat?.score}/${stat?.answers?.length}`,
+                                                                //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                                                percentage: (_stat?.score / _stat?.answers?.length * 100).toFixed(2),
+                                                                //duration: formatChrono(duration),
+                                                            }}
+                                                            components={{
+                                                                //    div:<Stack direction={'row'} alignItems={'center'} spacing={1} />,
+                                                                caption: <Typography variant="caption" />,
+                                                            }}
+                                                        />
+                                                    </Typography>
+                                                    <Typography>
+                                                        <Trans
+                                                            t={t}
+                                                            i18nKey={'finished.time'}
+                                                            values={{
+                                                                //score: `${stat?.score}/${stat?.answers?.length}`,
+                                                                //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                                                //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                                                duration: formatChrono(_stat.duration),
+                                                            }}
+                                                            components={{
+                                                                //    div:<Stack direction={'row'} alignItems={'center'} spacing={1} />,
+                                                                caption: <Typography variant="caption" />,
+                                                            }}
+                                                        />
+                                                    </Typography>
+                                                    <Trans
+                                                        t={t}
+                                                        i18nKey={'quiz-finished'}
+                                                        values={{
+                                                            score: `${_stat?.score}/${_stat?.answers?.length}`,
+                                                            nextDate: getFormattedDateCompleteNumeric(_stat?.next_trying_date),
+                                                            percentage: (_stat?.score / _stat?.answers?.length * 100).toFixed(2),
+                                                            duration: formatChrono(_stat.duration),
+                                                        }}
+                                                        components={{
+                                                            b: <strong />,
+                                                            br: <br />,
+                                                        }}
+                                                    />
+                                                </Stack>
+                                                <Stack alignItems={'center'} justifyContent={'center'} sx={{ p: 1, background: '', height: '100%' }} spacing={0.5}>
+                                                    <CircularProgressWithLabelComponent progress={_stat?.score / _stat?.answers?.length * 100} />
+                                                </Stack>
+                                            </Stack>
+                                            {
+                                                i === 0 && <Stack sx={{ width: '100%', background: '', py: 1, px: { xs: 0.5, sm: 1.5 } }}>
+                                                    <Chip
+                                                        sx={{
+                                                            border: `0.1px solid ${stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() ? 'var(--success)' : 'var(--font-color)'}`,
+                                                            background: 'var(--card-color)',
+                                                            color: stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() ? 'var(--success)' : 'var(--font-color)'
+                                                        }}
+                                                        icon={<IconCertificate width={16}
+                                                            height={16}
+                                                            color={stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() ? 'var(--success)' : 'var(--primary)'} />}
+                                                        size={'small'}
+                                                        //label={`⏱ Temps : ${formatChrono(duration)}`} variant="outlined"
+                                                        label={<Trans
+                                                            t={t}
+                                                            i18nKey={'finished.next-trying-date'}
+                                                            values={{
+                                                                //score: `${stat?.score}/${stat?.answers?.length}`,
+                                                                nextDate: getFormattedDateCompleteNumeric(_stat?.next_trying_date),
+                                                                //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                                                //duration: formatChrono(duration),
+                                                            }}
+                                                            components={{
+                                                                caption: <label variant="caption" />,
+                                                                //b: <strong />,
+                                                                //br: <br />,
+                                                            }}
+                                                        />}
+                                                    />
+                                                </Stack>
+                                            }
+                                        </>
+                                    }
+                                    {
+                                        _stat?.score === _stat?.answers?.length && <Stack alignItems={'center'}>
+                                            <CongratulationsComponent stat={_stat} />
+                                        </Stack>
+                                    }
+                                </Stack>
+                            </AccordionComponent>
+                        </Grid>)
+                    })
+                }
+            </Stack>
+        </Grid>
+    </Grid>)
+}
+const NewQuizComponent = () => {
+    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION, NS_BUTTONS]);
+    const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter } = useChapter();
+    const { stats } = useStat();
+    const { lesson } = useLesson();
+    //const { stats, setUidStat } = useStat();
+    const { user } = useAuth();
+    const [index, setIndex] = useState(0);
+    const [question, setQuestion] = useState(null);
+    const [questions, setQuestions] = useState([]);
+    const [proposals, setProposals] = useState([]);
+    const [answers, setAnswers] = useState([]);
+    const [stat, setStat] = useState(null);
+    const [duration, setDuration] = useState(0);
+    const [finished, setFinished] = useState(false);
+    useEffect(() => {
+        if (user && chapter && chapter?.quiz?.questions?.length > 0) {
+            const _questions = chapter.quiz.questions;
+            setQuestions(_questions);
+            setStat(new ClassUserStat({
+                //uid_user: user.uid,
+                //uid_lesson: chapter?.uid_lesson,
+                //uid_chapter: chapter?.uid,
+                start_date: new Date(),
+            }))
+            //const arr = Array(chapter.quiz.questions.length).fill({});
+            setAnswers(_questions.map(q => ({
+                uid_question: q.uid_intern,
+                uid_answer: q.translate?.answer?.uid_intern,
+                uid_proposal: '',
+            })));
+        } else {
+            setQuestions([]);
+            setAnswers([]);
+        }
+    }, [user, chapter]);
+    useEffect(() => {
+        if (index < 0) return;
+        if (finished) return;
+
+        const time = 1000;
+        const intervalId = setInterval(() => {
+            setDuration(prev => prev + 1);
+        }, time);
+
+        return () => clearInterval(intervalId);
+    }, [index, finished]);
+    useEffect(() => {
+        if (index >= 0 && questions?.length > 0) {
+            setQuestion(questions[index]);
+            setProposals(questions[index].translate?.proposals);
+        } else {
+            setQuestion(null);
+            setProposals([]);
+        }
+        // console.log("WUESTTTTIONS", questions)
+    }, [index, questions]);
+    const goBack = () => {
+        setIndex(prev => prev - 1);
+    }
+    const goNext = () => {
+        setIndex(prev => prev + 1);
+    }
+    const submitQuiz = async () => {
+        var _score = answers.filter(item => item.uid_proposal === item.uid_answer).length || 0;
+        //const _user_stat_object = new ClassUserStat(stat.toJSON());
+        stat.update({
+            end_date: new Date(),
+            answers: answers,
+            uid_user:user.uid,
+            user: user,
+            uid_lesson: chapter?.uid_lesson,
+            lesson: lesson,
+            uid_chapter: chapter?.uid,
+            chapter: chapter,
+            next_trying_date: _score === answers.length ? new Date() : null,
+            score: _score,
+        });
+        console.log("STAT", "SCORE", _score, questions.length, answers);
+
+        const user_stat = await stat.createFirestore();
+        setStat(user_stat.clone());
+        /*
+        setStats(prev => {
+            prev.unshift(user_stat);
+            return prev;
+        });
+        */
+        //const _stat = await _user_stat_object.getStat();
+        //setScore(_score);
+        //setNextDate(addDaysToDate(new Date(), 30));
+        setFinished(true);
+    }
+    return (<Grid size={{ xs: 12, sm: 10 }}>
+        <Typography>{`${t('quiz-duration')} : ${formatChrono(duration)}`}</Typography>
+        <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
+            {
+                <Typography sx={{ fontWeight: 500 }}>{question?.uid_intern}. {question?.translate?.question}</Typography>
+            }
+            {
+                proposals?.map?.((proposal, i) => {
+                    //console.log("PROP", proposal)
+                    return (<CheckboxComponent
+                        checked={answers[index].uid_proposal === proposal.uid_intern}
+                        onChange={(e) => {
+                            const _answers = [...answers];
+                            _answers[index] = { ..._answers[index], uid_proposal: proposal.uid_intern };
+                            setAnswers(_answers)
+                        }}
+                        //name={`proposal${i}`} 
+                        key={`${proposal.uid_intern}-${i}`}
+                        label={proposal.value}
+                    />)
+                })
+            }
+            {
+                <AlertComponent
+                    severity="success"
+                    title={<Trans
+                        t={t}
+                        i18nKey={'finished.title'}
+
+                        components={{
+                            b: <strong />,
+                            br: <br />,
+                        }}
+                    />}
+                    subtitle={<>
+                        <Typography sx={{ color: 'inherit' }} variant="caption">
+                            <Trans
+                                t={t}
+                                i18nKey={'finished.score'}
+                                values={{
+                                    score: `${stat?.score}/${stat?.answers?.length}`,
+                                    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                    //duration: formatChrono(duration),
+                                }}
+                                components={{
+                                    caption: <span />,
+                                    br: <br />,
+                                }}
+                            />
+                        </Typography>
+                        <br />
+                        <Typography sx={{ color: 'inherit' }} variant="caption">
+                            <Trans
+                                t={t}
+                                i18nKey={'finished.percentage'}
+                                values={{
+                                    //score: `${stat?.score}/${stat?.answers?.length}`,
+                                    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                    percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                    //duration: formatChrono(duration),
+                                }}
+                                components={{
+                                    caption: <label />,
+                                    //br: <br />,
+                                }}
+                            />
+                        </Typography>
+                        <br />
+                        <Typography sx={{ color: 'inherit' }} variant="caption">
+                            <Trans
+                                t={t}
+                                i18nKey={'finished.time'}
+                                values={{
+                                    //score: `${stat?.score}/${stat?.answers?.length}`,
+                                    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                    duration: formatChrono(stat?.duration),
+                                }}
+                                components={{
+                                    caption: <label />,
+                                    //br: <br />,
+                                }}
+                            />
+                        </Typography>
+                        <br />
+                        <Typography sx={{ color: 'inherit' }} variant="caption">
+                            <Trans
+                                t={t}
+                                i18nKey={stat?.score === stats?.answers?.length ? 'finished.max-score' : 'finished.next-trying-date'}
+                                values={{
+                                    //score: `${stat?.score}/${stat?.answers?.length}`,
+                                    nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                    //duration: formatChrono(duration),
+                                }}
+                                components={{
+                                    caption: <label />,
+                                    //br: <br />,
+                                }}
+                            />
+                        </Typography>
+                    </>
+                    }
+                />
+            }
+            <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
+                {
+                    index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
+                }
+                {
+                    index < questions?.length - 1 && <ButtonConfirm
+                        onClick={goNext}
+                        disabled={index === questions?.length - 1 || !answers[index].uid_proposal}
+                        label={t('next', { ns: NS_BUTTONS })} />
+                }
+                {
+                    index === questions?.length - 1 && <ButtonConfirm
+                        onClick={submitQuiz}
+                        disabled={index < questions?.length - 1 || !answers[questions?.length - 1].uid_proposal}
+                        label={t('save', { ns: NS_BUTTONS })} />
+                }
+            </Stack>
+        </Stack>
+    </Grid>)
+}
+const CardQuizz = ({
+    indexSub = -1,
+    setIndexSub = null,
+    //quiz = null, 
+    //subChapters: subchapters = [], 
+    //lesson = null,
+    //chapter = null 
+    //chapter = null,
+    //subchapters = [],
+    //subchapter, setSubchapter
+}) => {
+    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
+    const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+    const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter } = useChapter();
+    const { stats, setUidStat } = useStat();
+    //const { lesson, } = useLesson();
+    //const { stats, chapters, lastStat, setUidChapter, subchapter, setSubchapter } = useChapter();
     const [index, setIndex] = useState(-1);
     const { user } = useAuth();
-    const [subChapter, setSubChapter] = useState(null);
+    //const [subChapter, setSubChapter] = useState(null);
     const [question, setQuestion] = useState(null);
     const [questions, setQuestions] = useState([]);
     const [proposals, setProposals] = useState([]);
@@ -683,16 +1094,10 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
     const [score, setScore] = useState(0);
     const [nextDate, setNextDate] = useState(null);
     const [stat, setStat] = useState(null);
-    const [stats, setStats] = useState([]);
+    //const [stats, setStats] = useState([]);
     const [isLoadingStats, setIsLoadingStats] = useState(true);
-
-    const [state, setState] = useState({
-        isLoading: true,
-        stats: [],
-    });
     useEffect(() => {
         async function init() {
-
             const _user_stat_object = new ClassUserStat({
                 uid_user: user.uid,
                 uid_lesson: lesson.uid,
@@ -702,9 +1107,9 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
             var _stats = await _user_stat_object.getStats();
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime())
             console.log("statsss", _stats);
-            setStats(_stats);
+            //setStats(_stats);
             setIsLoadingStats(false);
-            setState(prev => ({ ...prev, isLoading: false, stats: _stats }))
+            //setState(prev => ({ ...prev, isLoading: false, stats: _stats }))
             if (_stat) {
                 const diff = _stat.end_date?.getTime() - _stat.start_date?.getTime();
                 setDuration(diff / 1_000);
@@ -735,7 +1140,7 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
         }
     }, [chapter]);
     useEffect(() => {
-        if (indexSub < subChapters.length - 1) {
+        if (indexSub < subchapters.length - 1) {
             setDuration(0);
         }
     }, [indexSub]);
@@ -763,12 +1168,6 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
     const goBackSub = () => {
         setIndexSub(prev => prev - 1);
     }
-    const goBack = () => {
-        setIndex(prev => prev - 1);
-    }
-    const goNext = () => {
-        setIndex(prev => prev + 1);
-    }
     const startQuiz = () => {
         setIndex(0);
         const _user_stat_object = new ClassUserStat({
@@ -785,37 +1184,15 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
             return prev;
         });
     }
-    const submitQuiz = async () => {
-        var _score = answers.filter(item => item.uid_proposal === item.uid_answer).length || 0;
-        const _user_stat_object = new ClassUserStat(stat.toJSON());
-        _user_stat_object.update({
-            end_date: new Date(),
-            answers: answers,
-            next_trying_date: _score === answers.length ? new Date() : addDaysToDate(new Date(), 7),
-            score: _score,
-        });
-        console.log("STAT", _user_stat_object, "SCORE", _score, questions.length, answers);
 
-        const user_stat = await _user_stat_object.createFirestore();
-        setStat(prev => {
-            if (!prev || prev === null) return user_stat;
-            prev.update(user_stat.toJSON());
-            return prev;
-        });
-        setStats(prev => {
-            prev.unshift(user_stat);
-            return prev;
-        })
-        //const _stat = await _user_stat_object.getStat();
-        setScore(_score);
-        setNextDate(addDaysToDate(new Date(), 30));
-        setFinished(true);
-    }
 
     return (<Stack alignItems={'start'} spacing={1.5} sx={{ background: '', width: '100%' }}>
         <Grid container spacing={1.5} sx={{ width: '100%' }}>
             <Grid size={{ xs: 12, sm: 8 }}>
                 <Stack spacing={1} sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+                    {
+                        isLoadingStats && <CircularProgress />
+                    }
                     <Stack maxWidth={'sm'} spacing={0.5}>
                         <Stack direction={'row'} spacing={1} alignItems={'center'}>
                             <IconQuizz color={'var(--primary)'} />
@@ -831,6 +1208,9 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
                                     subtitle={<Trans
                                         t={t}
                                         i18nKey={'warning'}
+                                        values={{
+                                            quiz_delay_days: chapter?.quiz_delay_days
+                                        }}
                                         components={{
                                             b: <strong />
                                         }}
@@ -861,272 +1241,21 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
                             index < 0 && <ButtonCancel label={t('btn-back')} onClick={goBackSub} />
                         }
                         {
-                            index < 0 && stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && <ButtonConfirm label={t('btn-start')} onClick={startQuiz} />
+                            //index < 0 && stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
+                            <ButtonConfirm label={t('btn-start')} onClick={startQuiz} />
                         }
                     </Stack>
                     <Grid container spacing={{ xs: 0.5, sm: 1 }} alignItems={'start'} sx={{ background: '', width: '100%', maxWidth: '100vw', }}>
                         {
-                            index >= 0 && <Grid size={{ xs: 12, sm: 10 }}>
-                                <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
-                                    {
-                                        <Typography sx={{ fontWeight: 500 }}>{question?.uid_intern}. {question?.translate?.question}</Typography>
-                                    }
-                                    {
-                                        proposals?.map?.((proposal, i) => {
-                                            //console.log("PROP", proposal)
-                                            return (<CheckboxComponent
-                                                checked={answers[index].uid_proposal === proposal.uid_intern}
-                                                onChange={(e) => {
-                                                    const _answers = [...answers];
-                                                    _answers[index] = { ..._answers[index], uid_proposal: proposal.uid_intern };
-                                                    setAnswers(_answers)
-                                                }}
-                                                //name={`proposal${i}`} 
-                                                key={`${proposal.uid_intern}-${i}`}
-                                                label={proposal.value}
-                                            />)
-                                        })
-                                    }
-                                    <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
-                                        {
-                                            index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
-                                        }
-                                        {
-                                            index < questions?.length - 1 && <ButtonConfirm
-                                                onClick={goNext}
-                                                disabled={index === questions?.length - 1 || !answers[index]}
-                                                label={t('next', { ns: NS_BUTTONS })} />
-                                        }
-                                        {
-                                            index === questions?.length - 1 && <ButtonConfirm
-                                                onClick={submitQuiz}
-                                                disabled={index < questions?.length - 1 || !answers[questions?.length - 1]}
-                                                label={t('save', { ns: NS_BUTTONS })} />
-                                        }
-                                    </Stack>
-                                </Stack>
-                            </Grid>
+                            index>= 0 && <NewQuizComponent />
                         }
                         {
-                            stats.length > 0 && <Grid size={{ xs: 12, sm: 8 }}>
-                                <Grid container spacing={{ xs: 0.5, sm: 1 }}>
-                                    <Stack spacing={1} sx={{ py: 1 }}>
-                                        <Typography>{`Résultats (${stats?.length})`}</Typography>
-                                        {
-                                            stats.map((stat, i) => {
-                                                return (<Grid key={`${stat.uid_user}-${stat.uid}`} size={{ xs: 12, sm: 12 }}>
-                                                    <AccordionComponent title={<Stack direction={'row'} spacing={0.5} >
-                                                        <Typography sx={{ fontSize: '0.9rem' }}>{`Score`}</Typography>
-                                                        <Typography sx={{ fontSize: '0.9rem', color: 'var(--grey-light)' }}>{`/`}</Typography>
-                                                        <Typography sx={{ fontSize: '0.9rem', color: 'var(--grey-light)' }}>{getFormattedDateComplete(stat.end_date)}</Typography>
-                                                    </Stack>}>
-                                                        <Stack maxWidth={'xl'} sx={{ width: '100%', background: '' }}>
-                                                            {
-                                                                stat?.score < stat?.answers?.length && <>
-                                                                    <Stack spacing={1} sx={{ background: '', px: 1.5, py: { xs: 1.5, sm: 1 } }} direction={{ xs: 'column-reverse', sm: 'row' }} alignItems={'center'}>
-                                                                        <Stack sx={{ background: '', width: '100%', }}>
-                                                                            <Typography>
-                                                                                <Trans
-                                                                                    t={t}
-                                                                                    i18nKey={'finished.score'}
-                                                                                    values={{
-                                                                                        score: `${stat?.score}/${stat?.answers?.length}`,
-                                                                                        //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                                                                        //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                                                                        //duration: formatChrono(duration),
-                                                                                    }}
-                                                                                    components={{
-                                                                                        //    div:<Stack direction={'row'} alignItems={'center'} spacing={1} />,
-                                                                                        caption: <Typography variant="caption" />,
-                                                                                    }}
-                                                                                />
-                                                                            </Typography>
-                                                                            <Typography>
-                                                                                <Trans
-                                                                                    t={t}
-                                                                                    i18nKey={'finished.percentage'}
-                                                                                    values={{
-                                                                                        //score: `${stat?.score}/${stat?.answers?.length}`,
-                                                                                        //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                                                                        percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                                                                        //duration: formatChrono(duration),
-                                                                                    }}
-                                                                                    components={{
-                                                                                        //    div:<Stack direction={'row'} alignItems={'center'} spacing={1} />,
-                                                                                        caption: <Typography variant="caption" />,
-                                                                                    }}
-                                                                                />
-                                                                            </Typography>
-                                                                            <Typography>
-                                                                                <Trans
-                                                                                    t={t}
-                                                                                    i18nKey={'finished.time'}
-                                                                                    values={{
-                                                                                        //score: `${stat?.score}/${stat?.answers?.length}`,
-                                                                                        //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                                                                        //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                                                                        duration: formatChrono(duration),
-                                                                                    }}
-                                                                                    components={{
-                                                                                        //    div:<Stack direction={'row'} alignItems={'center'} spacing={1} />,
-                                                                                        caption: <Typography variant="caption" />,
-                                                                                    }}
-                                                                                />
-                                                                            </Typography>
-                                                                            <Trans
-                                                                                t={t}
-                                                                                i18nKey={'quiz-finished'}
-                                                                                values={{
-                                                                                    score: `${stat?.score}/${stat?.answers?.length}`,
-                                                                                    nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                                                                    percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                                                                    duration: formatChrono(duration),
-                                                                                }}
-                                                                                components={{
-                                                                                    b: <strong />,
-                                                                                    br: <br />,
-                                                                                }}
-                                                                            />
-                                                                        </Stack>
-                                                                        <Stack alignItems={'center'} justifyContent={'center'} sx={{ p: 1, background: '', height: '100%' }} spacing={0.5}>
-                                                                            <CircularProgressWithLabelComponent progress={stat?.score / stat?.answers?.length * 100} />
-                                                                        </Stack>
-                                                                    </Stack>
-                                                                    {
-                                                                        i === 0 && <Stack sx={{ width: '100%', background: '', py: 1, px: { xs: 0.5, sm: 1.5 } }}>
-                                                                            <Chip
-                                                                                sx={{
-                                                                                    border: `0.1px solid ${stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() ? 'var(--success)' : 'var(--font-color)'}`,
-                                                                                    background: 'var(--card-color)',
-                                                                                    color: stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() ? 'var(--success)' : 'var(--font-color)'
-                                                                                }}
-                                                                                icon={<IconCertificate width={16}
-                                                                                    height={16}
-                                                                                    color={stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() ? 'var(--success)' : 'var(--primary)'} />}
-                                                                                size={'small'}
-                                                                                //label={`⏱ Temps : ${formatChrono(duration)}`} variant="outlined"
-                                                                                label={<Trans
-                                                                                    t={t}
-                                                                                    i18nKey={'finished.next-trying-date'}
-                                                                                    values={{
-                                                                                        //score: `${stat?.score}/${stat?.answers?.length}`,
-                                                                                        nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                                                                        //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                                                                        //duration: formatChrono(duration),
-                                                                                    }}
-                                                                                    components={{
-                                                                                        caption: <label variant="caption" />,
-                                                                                        //b: <strong />,
-                                                                                        //br: <br />,
-                                                                                    }}
-                                                                                />}
-                                                                            />
-                                                                        </Stack>
-                                                                    }
-                                                                </>
-                                                            }
-                                                            {
-                                                                stat?.score === stat?.answers?.length && <Stack alignItems={'center'}>
-                                                                    <CongratulationsComponent stat={stat} />
-                                                                </Stack>
-                                                            }
-                                                        </Stack>
-                                                    </AccordionComponent>
-                                                </Grid>)
-                                            })
-                                        }
-                                    </Stack>
-                                </Grid>
-                            </Grid>
+                            !isLoadingStats && stats.length > 0 && <StatsListComponent />
                         }
-
-
                     </Grid>
-                    {
-                        isLoadingStats && <CircularProgress />
-                    }
-
 
                     <Typography>{`${t('quiz-duration')} : ${formatChrono(duration)}`}</Typography>
-                    <AlertComponent
-                        severity="success"
-                        title={<Trans
-                            t={t}
-                            i18nKey={'finished.title'}
 
-                            components={{
-                                b: <strong />,
-                                br: <br />,
-                            }}
-                        />}
-                        subtitle={<Stack>
-                            <Typography sx={{ color: 'inherit' }} variant="caption">
-                                <Trans
-                                    t={t}
-                                    i18nKey={'finished.score'}
-                                    values={{
-                                        score: `${stat?.score}/${stat?.answers?.length}`,
-                                        //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                        //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                        //duration: formatChrono(duration),
-                                    }}
-                                    components={{
-                                        caption: <span />,
-                                        //br: <br />,
-                                    }}
-                                />
-                            </Typography>
-                            <Typography sx={{ color: 'inherit' }} variant="caption">
-                                <Trans
-                                    t={t}
-                                    i18nKey={'finished.percentage'}
-                                    values={{
-                                        //score: `${stat?.score}/${stat?.answers?.length}`,
-                                        //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                        percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                        //duration: formatChrono(duration),
-                                    }}
-                                    components={{
-                                        caption: <label />,
-                                        //br: <br />,
-                                    }}
-                                />
-                            </Typography>
-                            <Typography sx={{ color: 'inherit' }} variant="caption">
-                                <Trans
-                                    t={t}
-                                    i18nKey={'finished.time'}
-                                    values={{
-                                        //score: `${stat?.score}/${stat?.answers?.length}`,
-                                        //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                        //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                        duration: formatChrono(duration),
-                                    }}
-                                    components={{
-                                        caption: <label />,
-                                        //br: <br />,
-                                    }}
-                                />
-                            </Typography>
-                            <Typography sx={{ color: 'inherit' }} variant="caption">
-                                <Trans
-                                    t={t}
-                                    i18nKey={stat?.score === stats?.answers?.length ? 'finished.max-score' : 'finished.next-trying-date'}
-                                    values={{
-                                        //score: `${stat?.score}/${stat?.answers?.length}`,
-                                        nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                        //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                        //duration: formatChrono(duration),
-                                    }}
-                                    components={{
-                                        caption: <label />,
-                                        //br: <br />,
-                                    }}
-                                />
-                            </Typography>
-                        </Stack>
-                        }
-                    />
 
                 </Stack>
             </Grid>
@@ -1148,6 +1277,7 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
                                 src={lesson?.photo_url}
                                 alt="Interface Excel - grille et ruban"
                                 //fill
+                                priority
                                 height={100}
                                 width={200}
                                 style={{ objectFit: "cover", width: '100%', height: 'auto' }}
@@ -1161,43 +1291,16 @@ const CardQuizz = ({ indexSub = -1, setIndexSub = null, quiz = null, subChapters
     </Stack>)
 }
 
-function QuizProgress({ correct = 3, total = 9, size = 160 }) {
-    const safeTotal = Math.max(0, Number(total) || 0);
-    const safeCorrect = Math.max(0, Math.min(Number(correct) || 0, safeTotal));
-    const percent = safeTotal ? Math.round((safeCorrect / safeTotal) * 100) : 0;
-
-    return (
-        <Box sx={{ position: "relative", display: "inline-flex" }}>
-            <CircularProgress variant="determinate" value={percent} size={size} thickness={4} />
-            <Box
-                sx={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                }}
-            >
-                <Typography sx={{ fontSize: 28, fontWeight: 800 }}>
-                    {percent}%
-                </Typography>
-                <Typography sx={{ fontSize: 12, opacity: 0.8 }}>
-                    {safeCorrect} / {safeTotal}
-                </Typography>
-            </Box>
-        </Box>
-    );
-}
 export default function ExcelBeginnerCoursePage() {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
-    const { lang } = useLanguage();
-    const { user } = useAuth();
+    //const { lang } = useLanguage();
+    const { uid: uidLess, chapter: uidChapter } = useParams();
+    //const { user } = useAuth();
     const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-    const { chapter: uidChapter } = useParams();
-    const [chapter, setChapter] = useState();
-    const [subChapters, setSubChapters] = useState([]);
-    const [subChapter, setSubChapter] = useState(null);
+    const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter } = useChapter();
+    //const [chapter, setChapter] = useState();
+    //const [subchapters, setSubChapters] = useState([]);
+    //const [subchapter, setSubchapter] = useState(null);
 
     const [process, setProcess] = useState(false);
     const [indexSub, setIndexSub] = useState(9);
@@ -1244,10 +1347,6 @@ export default function ExcelBeginnerCoursePage() {
             quiz.questions = questions;
 
             const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
-
-
-            //setChapter(_patch?.clone());
-
             console.log("RESUULT", quiz)
         } catch (error) {
             console.log("ERRROR", error);
@@ -1255,25 +1354,18 @@ export default function ExcelBeginnerCoursePage() {
             setProcess(false);
         }
     }
+    useEffect(() => {
+        console.log("CHapters", subchapters);
+        if (chapter && indexSub >= 0 && indexSub < subchapters.length) {
+            setSubchapter(chapter.subchapters?.[indexSub] || null);
+        }
+    }, [indexSub]);
 
     useEffect(() => {
-        async function init() {
-            // const _user_stat_object = new ClassUserStat();
-            // const _stat = await ClassUserStat
-            const _chapter = await ClassLessonChapter.fetchFromFirestore(uidChapter, lang);
-            const _lesson = getOneLesson(_chapter.uid_lesson);
-            _chapter.lesson = _lesson;
-            //const finalResult = new ClassLessonChapter({..._chapter.toJSON(), lesson:_lesson});
-            //console.log("CHAPTER", _chapter.getTranslate('fr'));
-            setChapter(_chapter);
-            setSubChapters(_chapter.subchapters);
-            setSubChapter(_chapter.subchapters?.[0] || null);
-            setUidLesson(_chapter.uid_lesson);
-        }
-        if (!isLoadingLesson && uidChapter) {
-            init();
-        }
-    }, [uidChapter, isLoadingLesson])
+        //console.log("laaaaast stat", uidLess);
+        setUidLesson(uidLess);
+        setUidChapter(uidChapter);
+    }, [uidLess, uidChapter])
     return (<DashboardPageWrapper
         titles={[
             { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_LESSONS },
@@ -1291,37 +1383,48 @@ export default function ExcelBeginnerCoursePage() {
                     <CardHeader lesson={lesson} chapter={chapter} />
                 </Grid>
                 {
-                    indexSub < subChapters.length && <>
+                    indexSub < subchapters.length && <>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                            <CardGoals lesson={lesson} chapter={chapter} />
+                            <CardGoals
+                            //chapter={chapter} 
+                            />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <CardSubChapters
                                 index={indexSub}
                                 setIndex={setIndexSub}
-                                subChapters={subChapters}
-                                lesson={lesson} chapter={chapter} />
+                            //subchapters={subchapters}
+                            //lesson={lesson}
+                            //chapter={chapter}
+                            />
                         </Grid>
                         <Grid size={12}>
                             <CardSubChaptersContent
                                 index={indexSub}
                                 setIndex={setIndexSub}
-                                subChapters={subChapters}
-                                subChapter={subChapter} setSubChapter={setSubChapter} lesson={lesson} chapter={chapter} />
+                            //chapter={chapter}
+                            //subchapters={subchapters}
+                            //subchapter={subchapter}
+                            //setSubchapter={setSubchapter}
+                            //lesson={lesson}
+                            />
                         </Grid>
                     </>
                 }
 
                 <Grid size={{ xs: 12, sm: 12 }}>
                     {
-                        indexSub === subChapters.length && <CardQuizz
+                        indexSub === subchapters.length && <CardQuizz
                             indexSub={indexSub}
                             setIndexSub={setIndexSub}
-                            quiz={chapter?.quizz}
-                            subChapters={subChapters}
-                            subChapter={subChapter} setSubChapter={setSubChapter}
-                            lesson={lesson}
-                            chapter={chapter}
+                        //lesson={lesson}
+                        //chapter={chapter}
+                        //subChapter={subchapter}
+                        //quiz={chapter?.quizz}
+                        //subChapters={subchapters}
+                        //setSubChapter={setSubchapter}
+
+
                         />
                     }
                 </Grid>
@@ -1333,38 +1436,6 @@ export default function ExcelBeginnerCoursePage() {
                     loading={process}
                     onClick={onTranslate}
                 />
-                <Stack
-                    direction={{ xs: "column", md: "row" }}
-                    spacing={2}
-                    alignItems={{ xs: "flex-start", md: "center" }}
-                    justifyContent="space-between"
-                >
-                    <Box>
-                        <Typography
-                            variant="overline"
-                            sx={{ letterSpacing: 0.12, color: "text.secondary" }}
-                        >
-                            {chapter?.translate?.subtitle}
-                        </Typography>
-                        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 0.5 }}>
-                            {chapter?.translate?.title}
-                        </Typography>
-                        <Typography variant="body1" sx={{ mt: 1.5, color: "text.secondary" }}>
-                            {chapter?.translate?.description}
-                        </Typography>
-                    </Box>
-
-                    <Stack direction="column" spacing={1} alignItems={{ xs: "flex-start", md: "flex-end" }}>
-                        <Stack direction="row" spacing={1} flexWrap="wrap">
-                            <Chip label={t(chapter?.level)} color="primary" size="small" />
-                            <Chip label={t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })} size="small" variant="outlined" />
-                            <Chip label="Excel" size="small" variant="outlined" />
-                        </Stack>
-                        <Typography variant="body2" color="text.secondary">
-                            Durée estimée : {chapter?.estimated_start_duration} à {chapter?.estimated_end_duration} heures
-                        </Typography>
-                    </Stack>
-                </Stack>
             </Box>
         </Container>
     </DashboardPageWrapper>);

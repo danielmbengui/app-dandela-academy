@@ -3,7 +3,7 @@
   "subtitle": "*Ce test ne peut être passé qu’une seule fois. Ton score sera sauvegardé pour te permettre de suivre ta progression dans le temps.",
   "uid_intern": "Numéro",
   "uid_chapter": "Section",
-  "warning": "Le quiz est chronométré et ne peut être passé qu’une fois tous les 30 jours.<br/>Clique sur <b>\"Démarrer le quiz\"</b> lorsque tu es prêt(e).",
+  "warning": "Le quiz est chronométré et ne peut être passé qu’une fois tous les {{quiz_delay_days}} jours.<br/>Clique sur <b>\"Démarrer le quiz\"</b> lorsque tu es prêt(e).",
   "duration": "Temps : {{duration}}",
   "level": "Niveau",
   "beginner": "Débutant",
@@ -20,7 +20,7 @@
     "time": "Durée du test : <caption>{{duration}}</caption>",
     "next-trying-date": "Prochaine tentative : <caption>{{nextDate}}</caption>",
     "congrats": "Bravo !",
-    "max-score": "Tu as obtenu le maximum de points pour ce questionnaire !.",
+    "max-score": "Tu as obtenu le maximum de points pour ce questionnaire !",
     "max-answer": "{{score}} / {{total}}"
   }
 }

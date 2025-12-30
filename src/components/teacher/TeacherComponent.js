@@ -157,9 +157,7 @@ export default function TeacherComponent() {
         <p className="teacher-email">
           📧 <span>{lesson?.teacher?.email}</span>
         </p>
-        <button className="btn ghost-btn">
-          Contacter le prof
-        </button>
+
         <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
         <Link href={`${PAGE_TEACHERS}/${lesson?.teacher?.uid}`} target="_blank">
           <ButtonCancel

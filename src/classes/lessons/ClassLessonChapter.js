@@ -55,11 +55,13 @@ export class ClassLessonChapter {
         uid_lesson = "",
         lesson = null,
         quiz = null,
+        quiz_delay_days = 7,
         title = "",
         subtitle = "",
         description = "",
         estimated_start_duration = 0,
         estimated_end_duration = 0,
+        
         level = "",
         goals = [],
         subchapters = [],
@@ -82,6 +84,7 @@ export class ClassLessonChapter {
 
         this._estimated_start_duration = estimated_start_duration;
         this._estimated_end_duration = estimated_end_duration;
+        this._quiz_delay_days = quiz_delay_days;
 
         this._goals = goals;
         this._subchapters = subchapters;
@@ -130,7 +133,6 @@ export class ClassLessonChapter {
     set quiz(value) {
         this._quiz = value ?? null;
     }
-
     // title
     get title() {
         return this._title;
@@ -138,7 +140,6 @@ export class ClassLessonChapter {
     set title(value) {
         this._title = String(value ?? "");
     }
-
     // subtitle
     get subtitle() {
         return this._subtitle;
@@ -146,7 +147,6 @@ export class ClassLessonChapter {
     set subtitle(value) {
         this._subtitle = String(value ?? "");
     }
-
     // description
     get description() {
         return this._description;
@@ -154,7 +154,6 @@ export class ClassLessonChapter {
     set description(value) {
         this._description = String(value ?? "");
     }
-
     // estimated_start_duration
     get estimated_start_duration() {
         return this._estimated_start_duration;
@@ -162,12 +161,19 @@ export class ClassLessonChapter {
     set estimated_start_duration(value) {
         this._estimated_start_duration = value;
     }
-    // description
+    // estimated_end_duration
     get estimated_end_duration() {
         return this._estimated_end_duration;
     }
     set estimated_end_duration(value) {
         this._estimated_end_duration = value;
+    }
+    // quiz_delay_days
+    get quiz_delay_days() {
+        return this._quiz_delay_days;
+    }
+    set quiz_delay_days(value) {
+        this._quiz_delay_days = value;
     }
 
     // level
@@ -436,7 +442,7 @@ export class ClassLessonChapter {
             where("uid", "==", id),
             limit(1)
         );
-        
+
 
         const snaps = await getDocs(q);
         if (snaps.empty) return null;

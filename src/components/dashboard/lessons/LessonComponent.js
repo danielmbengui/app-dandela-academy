@@ -3,7 +3,7 @@ import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, CircularProgress, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -19,6 +19,9 @@ import { ClassSessionSlot } from "@/classes/ClassSession";
 import Link from "next/link";
 import ButtonCancel from "../elements/ButtonCancel";
 import TeacherComponent from "../../teacher/TeacherComponent";
+import { useChapter } from "@/contexts/ChapterProvider";
+import { PAGE_CHAPTERS, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { usePathname } from "next/navigation";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -341,8 +344,10 @@ export default function LessonComponent() {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
+  const {path} = usePathname();
   //const [lesson, setLesson] = useState(null);
   const { lesson } = useLesson();
+  const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
   const { sessions, isLoading: isLoadingSessions, isLoadingSlots } = useSession();
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -389,8 +394,9 @@ export default function LessonComponent() {
                   //loading="lazy"
                   priority
                   style={{
-                    width: 'auto',
-                    height: '100%',
+                    width: '100%',
+                    height: 'auto',
+                    //maxHeight:'400px',
                     borderRadius: '8px',
                     objectFit: 'cover',
                   }}
@@ -403,28 +409,28 @@ export default function LessonComponent() {
           <aside className="hero-right">
             {/* PROFESSEUR */}
             <div className="teacher-card">
-              <p className="teacher-label-text">Professeur du cours</p>
-              <div className="teacher-main">
-                {lesson?.teacher?.showAvatar?.({})}
-                <div className="teacher-text">
-                  <p className="teacher-name">
-                    {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
-                  </p>
-                  <p className="teacher-role">{lesson?.teacher?.role_title}</p>
-                </div>
-              </div>
-              <p className="teacher-bio">{lesson?.teacher?.bio}</p>
-              <p className="teacher-email">
-                📧 <span>{lesson?.teacher?.email}</span>
-              </p>
-              <button className="btn ghost-btn">
-                Contacter le professeur
-              </button>
-              <Link href={`mailto:${lesson?.teacher?.email}`}>
-                <ButtonCancel
-                  label="Contacter le professeur"
-                />
-              </Link>
+              <p className="teacher-label-text">Suivre le cours en ligne</p>
+              <List dense disablePadding>
+                {
+                  chapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((chapter, i) => {
+                    return (<ListItem key={`${chapter.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
+                      <Link target="_blank" href={`${PAGE_LESSONS}/${lesson.uid}${PAGE_CHAPTERS}/${chapter.uid}`}>
+                      <Stack direction={'row'} alignItems={'center'} spacing={1}
+                        //onClick={() => setIndex(i)}
+                        sx={{
+                          //color: index === i ? 'var(--primary)' : '',
+                          ":hover": {
+                            color: 'var(--primary)',
+                            cursor: 'pointer',
+                          }
+                        }}>
+                        <Typography sx={{ fontSize: '0.85rem' }} >{`${chapter.uid_intern}. `}{chapter.translate?.title}</Typography>
+                      </Stack>
+                      </Link>
+                    </ListItem>)
+                  })
+                }
+              </List>
             </div>
             <TeacherComponent />
             {
