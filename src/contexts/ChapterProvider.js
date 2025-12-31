@@ -78,10 +78,6 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         if (!uidLesson || uidLesson === null || !user || user === null) return;
         const colRef = ClassLessonChapter.colRef(uidLesson); // par ex.
         const constraints = [];
-        if (!(uidLesson instanceof ClassUserIntern)) {
-            //constraints.push(where("start_date", ">", new Date()));
-            //constraints.push(where("status", "in", [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED]));
-        }
         if (uidLesson) {
             //constraints.push(where("uid_lesson", "==", uidLesson));
         }                //const coll = this.colRef();
@@ -121,7 +117,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             }
             _chapters = _chapters.sort((a, b) => a.uid_intern - b.uid_intern);
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-            console.log("stats providers", _stats)
+            console.log("stats providers CHAPTER", _chapters)
             setChapters(_chapters);
             setStats(_stats);
             setLastStat(_stats.length > 0 ? _stats[0] : null);

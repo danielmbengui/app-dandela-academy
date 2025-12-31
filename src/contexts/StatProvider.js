@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
+    collectionGroup,
     onSnapshot,
     query,
     where,
@@ -20,6 +21,7 @@ import { ClassLessonChapter } from '@/classes/lessons/ClassLessonChapter';
 import { ClassUserStat } from '@/classes/users/ClassUserStat';
 import { useLesson } from './LessonProvider';
 import { useChapter } from './ChapterProvider';
+import { firestore } from './firebase/config';
 
 
 const StatContext = createContext(null);
@@ -28,22 +30,22 @@ export const useStat = () => useContext(StatContext);
 export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
-    const { lesson } = useLesson();
-    const { chapter } = useChapter();
+    const { lesson, lessons } = useLesson();
+    const { chapter, chapters } = useChapter();
     //if(!lesson || !chapter) return;
-    useEffect(()=>{
+    useEffect(() => {
         async function init() {
             const _duration = await getLessonsEstimatedTime();
             setCountHourTotalLessons(_duration);
         }
         init();
     }, []);
-    const [countHourTotalLessons,setCountHourTotalLessons] = useState(0);
+    const [countHourTotalLessons, setCountHourTotalLessons] = useState(0);
     //const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     //const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
     //const [chapter, setChapter] = useState(null);           // ton user métier (ou snapshot)
-    const [chapters, setChapters] = useState([]);           // ton user métier (ou snapshot)
+    //const [chapters, setChapters] = useState([]);           // ton user métier (ou snapshot)
     const [subchapters, setSubchapters] = useState([]);           // ton user métier (ou snapshot)
     const [subchapter, setSubchapter] = useState([]);           // ton user métier (ou snapshot)
     const [uidStat, setUidStat] = useState(null);           // ton user métier (ou snapshot)
@@ -82,6 +84,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const listenToStats = useCallback((uidLesson = "", uidChapter = "") => {
         if (!user || user === null) return;
         const colRef = ClassUserStat.colRef(user.uid); // par ex.
+        //const colRef = collection(firestore, ClassUser.COLLECTION, uid_user, this.COLLECTION).withConverter(this.converter);
         const constraints = [];
         if (uidLesson) {
             constraints.push(where("uid_lesson", "==", uidLesson));
@@ -90,9 +93,18 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         if (uidChapter) {
             constraints.push(where("uid_chapter", "==", uidChapter));
         }                //const coll = this.colRef();
+        /*
         const q = constraints.length
             ? query(colRef, ...constraints)
             : colRef;
+            */
+        const q = query(
+            collectionGroup(firestore, ClassUserStat.COLLECTION).withConverter(ClassUserStat.converter),
+            //where("uid_user", "==", this._uid_user),
+            //where("uid_lesson", "==", this._uid_lesson),
+            //where("uid_chapter", "==", this._uid_chapter),
+            //limit(1)
+        );
         const snapshotStats = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
             if (snap.empty) {
@@ -106,9 +118,11 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
 
             for (const snapshot of snap.docs) {
                 const stat = snapshot.data();
-                //const lesson = await ClassLesson.fetchFromFirestore(uidLesson,lang);
-                //const chapter = await ClassLessonChapter.fetchFromFirestore(uidChapter,lang);
-                stat.update({ user: user });
+                const lesson = lessons.find(l=>l.uid === stat.uid_lesson);
+                //const lesson = await ClassLesson.fetchFromFirestore(stat.uid_lesson, lang);
+                const chapter = chapters.find(c=>c.uid === stat.uid_chapter);
+                //const chapter = await ClassLessonChapter.fetchFromFirestore(stat.uid_chapter, lang);
+                //stat.update({ user: user });
                 stat.update({ lesson: lesson });
                 stat.update({ chapter: chapter });
                 //console.log("staaats", stats)
@@ -161,9 +175,13 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
                 uid_lesson: uidLesson,
                 uid_chapter: _stat.uid,
             }).getStats();
+
             setStat(prev => {
                 if (!prev || prev === null) return _stat.clone();
                 prev.update(_stat.toJSON());
+                prev.update({ user: user });
+                prev.update({ lesson: lesson });
+                prev.update({ chapter: chapter });
                 //prev.update({quiz:_quiz});
                 //console.log("QUESTIONS", _questions)
                 //const session_new = new ClassSession(session_new.toJSON());
@@ -207,7 +225,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
 
         _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
-        setChapters(_sessions);
+        //setChapters(_sessions);
     }
 
     function getOneStat(uid = '') {
@@ -217,25 +235,45 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         const _stat = stats.find(item => item.uid === uid);
         return _stat;
     }
-    function getGlobalScore() {
+    function getGlobalScore(uidLesson = "") {
         var total = 0;
         var scoreTotal = 0;
-        for (const stat of stats) {
-            //const score = (stat.score / stat.answers.length) * 100;
-            scoreTotal += stat.score;
-            total++;
+        if (uidLesson) {
+            for (const stat of stats) {
+                //const score = (stat.score / stat.answers.length) * 100;
+                if (uidLesson && uidLesson === stat.uid_lesson) {
+                    scoreTotal += stat.score;
+                }
+                total++;
+            }
+        } else {
+            for (const stat of stats) {
+                scoreTotal += stat.score;
+                total++;
+            }
         }
         return scoreTotal;
     }
-    function getGlobalDuration() {
+    function getGlobalDuration(uidLesson = "") {
         var total = 0;
-        var scoreTotal = 0;
-        for (const stat of stats) {
-            //const score = (stat.score / stat.answers.length) * 100;
-            scoreTotal += stat.duration;
-            total++;
+        var durationTotal = 0;
+        if (uidLesson) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson) {
+                    //const score = (stat.score / stat.answers.length) * 100;
+                    durationTotal += stat.duration;
+                    total++;
+                }
+            }
+        } else {
+            for (const stat of stats) {
+                //const score = (stat.score / stat.answers.length) * 100;
+                durationTotal += stat.duration;
+                total++;
+            }
         }
-        return scoreTotal;
+
+        return durationTotal;
     }
     function getGlobalCountQuestions() {
         var total = 0;
@@ -247,15 +285,52 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return questionsTotal;
     }
-    function getGlobalPercent() {
+    function getGlobalPercent(uidLesson = "", uidChapter = "") {
         var total = 0;
         var percentTotal = 0;
-        for (const stat of stats) {
-            const percent = (stat.score / stat.answers.length) * 100;
-            percentTotal += percent;
-            total++;
+        if (uidLesson && uidChapter) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
+                    const percent = (stat.score / stat.answers.length) * 100;
+                    percentTotal += percent;
+                    total++;
+                }
+            }
+        } else if (uidLesson) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson) {
+                    const percent = (stat.score / stat.answers.length) * 100;
+                    percentTotal += percent;
+                    total++;
+                }
+            }
+        } else if (uidChapter) {
+            for (const stat of stats) {
+                if (uidChapter === stat.uid_chapter) {
+                    const percent = (stat.score / stat.answers.length) * 100;
+                    percentTotal += percent;
+                    total++;
+                }
+            }
+        } else {
+            for (const stat of stats) {
+                const percent = (stat.score / stat.answers.length) * 100;
+                percentTotal += percent;
+                total++;
+            }
         }
         return (percentTotal / total);
+    }
+    function getGlobalCountQuiz(uidLesson = "", uidChapter = "") {
+        if (uidLesson && uidChapter) {
+            return stats.filter(stat => stat.uid_lesson === uidLesson && stat.uid_chapter === uidChapter).length || 0;
+        } else if (uidLesson) {
+            return stats.filter(stat => stat.uid_lesson === uidLesson).length || 0;
+        } else if (uidChapter) {
+            return stats.filter(stat => stat.uid_chapter === uidChapter).length || 0;
+        } else {
+            return stats.length;
+        }
     }
     function getGlobalCountLesson() {
         var total = 0;
@@ -275,13 +350,98 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         var timeTotal = 0;
         const lessons = await ClassLesson.fetchListFromFirestore(lang);
         for (const lesson of lessons) {
-            const chapters = await ClassLessonChapter.fetchListFromFirestore(lesson.uid,lang);
-            for(const chapter of chapters) {
+            const chapters = await ClassLessonChapter.fetchListFromFirestore(lesson.uid, lang);
+            for (const chapter of chapters) {
                 timeTotal += chapter.estimated_end_duration;
             }
             //console.log("calculat time", lesson)
         }
         return timeTotal;
+    }
+
+    function getBestStat(uidLesson = "", uidChapter = "") {
+        var total = 0;
+        var percentTotal = 0;
+        var maxScore = 0;
+        var maxStat = null;
+        if (uidLesson && uidChapter) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
+                    if (stat.score > maxScore) {
+                        maxScore = stat.score;
+                        maxStat = stat;
+                    }
+                }
+            }
+        } else if (uidLesson) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson) {
+                    if (stat.score > maxScore) {
+                        maxScore = stat.score;
+                        maxStat = stat;
+                    }
+                }
+            }
+        } else if (uidChapter) {
+            for (const stat of stats) {
+                if (uidChapter === stat.uid_chapter) {
+                    if (stat.score > maxScore) {
+                        maxScore = stat.score;
+                        maxStat = stat;
+                    }
+                }
+            }
+        } else {
+            for (const stat of stats) {
+                if (stat.score > maxScore) {
+                    maxScore = stat.score;
+                    maxStat = stat;
+                }
+            }
+        }
+        return maxStat;
+    }
+    function getWorstStat(uidLesson = "", uidChapter = "") {
+        var total = 0;
+        var percentTotal = 0;
+        var maxScore = 1_000_000_000;
+        var maxStat = null;
+        if (uidLesson && uidChapter) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
+                    if (stat.score < maxScore) {
+                        maxScore = stat.score;
+                        maxStat = stat;
+                    }
+                }
+            }
+        } else if (uidLesson) {
+            for (const stat of stats) {
+                if (uidLesson === stat.uid_lesson) {
+                    if (stat.score < maxScore) {
+                        maxScore = stat.score;
+                        maxStat = stat;
+                    }
+                }
+            }
+        } else if (uidChapter) {
+            for (const stat of stats) {
+                if (uidChapter === stat.uid_chapter) {
+                    if (stat.score < maxScore) {
+                        maxScore = stat.score;
+                        maxStat = stat;
+                    }
+                }
+            }
+        } else {
+            for (const stat of stats) {
+                if (stat.score < maxScore) {
+                    maxScore = stat.score;
+                    maxStat = stat;
+                }
+            }
+        }
+        return maxStat;
     }
 
 
@@ -325,6 +485,9 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         getGlobalPercent,
         getGlobalCountLesson,
         getGlobalCountChapters,
+        getGlobalCountQuiz,
+        getBestStat,
+        getWorstStat,
         countHourTotalLessons,
         //,
         //filterType,

@@ -546,7 +546,7 @@ export class ClassLessonChapter {
     // (Legacy) méthode de fetch directe
     static async fetchFromFirestore(uid, lang = defaultLanguage) {
         try {
-            if (!uid) throw new Error("UID is required to get school.");
+            if (!uid) throw new Error("UID is required to get CHAPTER.");
             return await ClassLessonChapter.get(uid, lang);
         } catch (error) {
             console.log("ERROR", error?.message || error);
@@ -555,7 +555,7 @@ export class ClassLessonChapter {
     }
     static async fetchFromFirestoreNeme(_name) {
         try {
-            if (!uid) throw new Error("UID is required to get school.");
+            if (!uid) throw new Error("UID is required to get CHAPTER.");
             return await ClassLessonChapter.getByName(_name);
         } catch (error) {
             console.log("ERROR", error?.message || error);

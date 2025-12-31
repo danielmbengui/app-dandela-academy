@@ -5,6 +5,7 @@ import { LessonProvider } from "@/contexts/LessonProvider";
 import { ChapterProvider } from "@/contexts/ChapterProvider";
 import { StatProvider } from "@/contexts/StatProvider";
 import ProviderStats from "@/contexts/providers/providerstats";
+import { SessionProvider } from "@/contexts/SessionProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,13 @@ export const generateMetadata = generatePageMetadata({
 });
 
 export default async function StatsLayout({ children }) {
-  return (<ProviderStats>
-    {children}
-  </ProviderStats>);
+  return (<LessonProvider>
+    <SessionProvider>
+    <ChapterProvider>
+    <StatProvider>
+      {children}
+      </StatProvider>
+    </ChapterProvider>
+    </SessionProvider>
+  </LessonProvider>);
 }

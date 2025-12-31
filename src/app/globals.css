@@ -53,7 +53,12 @@
   --font-color: #000000;
   --font-reverse-color: #FFFFFF;
   --primary: #1160e5;
-  --primary-shadow: rgba(17, 96, 229, 0.33);
+  --primary-shadow: rgba(17, 96, 229, 0.05);
+  --primary-shadow-xs: rgba(17, 96, 229, 0.15);
+  --primary-shadow-sm: rgba(17, 96, 229, 0.25);
+  --primary-shadow-md: rgba(17, 96, 229, 0.35);
+  --primary-shadow-lg: rgba(17, 96, 229, 0.45);
+  --primary-shadow-xl: rgba(17, 96, 229, 0.55);
 
   --warning: #ffa600;
   --calendar-free: #3ce0a2;
@@ -201,6 +206,12 @@
 .dark {
   --blackColor: #1c1c1c;
   --primary: #2676ff;
+  --primary-shadow: rgba(38, 118, 255, 0.45);
+  --primary-shadow-xs: rgba(38, 118, 255, 0.55);
+  --primary-shadow-sm: rgba(38, 118, 255, 0.65);
+  --primary-shadow-md: rgba(38, 118, 255, 0.75);
+  --primary-shadow-lg: rgba(38, 118, 255, 0.85);
+  --primary-shadow-xl: rgba(38, 118, 255, 0.95);
   --background: #0f0f0f;
   --card-color: #000000;
   --font-color: #FFFFFF;

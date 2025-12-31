@@ -22,5 +22,6 @@
   "good": "Good result",
   "to-improve": "Needs improvement",
   "not-good": "Poor result",
-  "unknown": "Unknown"
+  "unknown": "Unknown",
+  "office": "Office automation"
 }

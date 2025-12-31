@@ -17,7 +17,7 @@ const {blueDark, text, cardColor} = theme.palette;
     return (
         <div style={{display:display ? 'block' : 'none',}}>
             {
-                label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block" style={{ fontSize: '0.9rem' }}>
+                label && <label className="text-contentColor dark:text-contentColor-dark mb-5px block" style={{ fontSize: '0.9rem', color:"var(--grey-light)" }}>
                     {label}{required && <b style={{ color: 'red' }}>*</b>}
                 </label>
             }

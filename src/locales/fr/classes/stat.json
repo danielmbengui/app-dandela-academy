@@ -22,5 +22,12 @@
   "good": "Bon résultat",
   "to-improve": "À améliorer",
   "not-good": "Mauvais résultat",
-  "unknown": "Inconnu"
+  "unknown": "Inconnu",
+  "office": "Bureautique",
+  "average":"Moyenne",
+  "best":"Meilleur",
+  "worst":"Moins bien",
+  "btn-see-lesson":"Voir le cours",
+  "btn-reset":"Réinitialiser",
+  "btn-see-details":"Clique pour voir les détails →"
 }

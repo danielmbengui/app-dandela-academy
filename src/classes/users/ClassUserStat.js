@@ -57,56 +57,56 @@ export class ClassUserStat {
             background_bubble: "var(--gold-shadow-xs)",
             color_icon: "var(--gold)",
             border_icon: "var(--gold-shadow)",
-            background_bar:"var(--gold)",
+            background_bar: "var(--gold)",
             glow: "var(--gold-shadow)",
 
         },
         excellent: {
             label: "excellent", // "Inscriptions ouvertes",
             color: "var(--success)",
-            border: "var(--success-shadow)",
+            border: "var(--success)",
             background: "var(--success-shadow-xs)",
             background_icon: "var(--success-shadow)",
             background_bubble: "var(--success-shadow-xs)",
             color_icon: "var(--success)",
             border_icon: "var(--success-shadow-sm)",
-            background_bar:"var(--success)",
+            background_bar: "var(--success)",
             glow: "var(--success-shadow)",
         },
         good: {
             label: "good", // "Inscriptions ouvertes",
             color: "var(--info)",
-            border: "var(--info-shadow)",
+            border: "var(--info)",
             background: "var(--info-shadow-xs)",
             background_icon: "var(--info-shadow)",
             background_bubble: "var(--info-shadow-xs)",
             color_icon: "var(--info)",
             border_icon: "var(--info-shadow-sm)",
-            background_bar:"var(--info)",
+            background_bar: "var(--info)",
             glow: "var(--info-shadow)",
         },
         ['to-improve']: {
             label: "to-improve", // "Inscriptions ouvertes",
             color: "var(--warning)",
-            border: "var(--warning-shadow)",
+            border: "var(--warning)",
             background: "var(--warning-shadow-xs)",
             background_icon: "var(--warning-shadow)",
             background_bubble: "var(--warning-shadow-xs)",
             color_icon: "var(--warning)",
             border_icon: "var(--warning-shadow-sm)",
-            background_bar:"var(--warning)",
+            background_bar: "var(--warning)",
             glow: "var(--warning-shadow)",
         },
         ['not-good']: {
             label: "not-good", // "Inscriptions ouvertes",
-                        color: "var(--error)",
-            border: "var(--error-shadow)",
+            color: "var(--font-color)",
+            border: "var(--error)",
             background: "var(--error-shadow-xs)",
             background_icon: "var(--error-shadow)",
             background_bubble: "var(--error-shadow-xs)",
             color_icon: "var(--error)",
             border_icon: "var(--error-shadow-sm)",
-            background_bar:"var(--error)",
+            background_bar: "var(--error)",
             glow: "var(--error-shadow)",
         },
     });
@@ -326,6 +326,33 @@ export class ClassUserStat {
         });
     }
 
+    static getStatusFromPercentage(percentage) {
+        if (percentage === 1) {
+            return ClassUserStat.STATUS.MAX;
+        } else if (percentage >= 0.8) {
+            return ClassUserStat.STATUS.EXCELLENT;
+        } else if (percentage >= 0.6) {
+            return ClassUserStat.STATUS.GOOD;
+        } else if (percentage >= 0.25) {
+            return ClassUserStat.STATUS.TO_IMPROVE;
+        } else {
+            return ClassUserStat.STATUS.NOT_GOOD;
+        }
+    }
+    static getPercentageColor(percentage) {
+        if (percentage === 1) {
+            return this.STATUS_CONFIG[ClassUserStat.STATUS.MAX];
+        } else if (percentage >= 0.8) {
+            return this.STATUS_CONFIG[ClassUserStat.STATUS.EXCELLENT];
+        } else if (percentage >= 0.6) {
+            return this.STATUS_CONFIG[ClassUserStat.STATUS.GOOD];
+        } else if (percentage >= 0.25) {
+            return this.STATUS_CONFIG[ClassUserStat.STATUS.TO_IMPROVE];
+        } else {
+            return this.STATUS_CONFIG[ClassUserStat.STATUS.NOT_GOOD];
+        }
+    }
+
 
     // ---------- Converter intégré ----------
     static _toJsDate(v) {
@@ -357,16 +384,8 @@ export class ClassUserStat {
                 const score = data.answers?.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
                 const duration = parseInt((end_date.getTime() - start_date.getTime()) / 1000);
                 const percentage = (score / data.answers?.length);
-                var status = "";
-                if (percentage >= 0.8) {
-                    status = ClassUserStat.STATUS.EXCELLENT;
-                } else if (percentage >= 0.6) {
-                    status = ClassUserStat.STATUS.GOOD;
-                } else if (percentage >= 0.25) {
-                    status = ClassUserStat.STATUS.TO_IMPROVE;
-                } else {
-                    status = ClassUserStat.STATUS.NOT_GOOD;
-                }
+                const status = ClassUserStat.getStatusFromPercentage(percentage);
+                
                 /*
                     EXCELLENT: 'excellent', // bureautique
         GOOD: 'good',
