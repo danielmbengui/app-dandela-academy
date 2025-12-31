@@ -39,6 +39,78 @@ export class ClassUserStat {
         CAFETERIA: 'cafeteria',
         UNKNOWN: 'unknown',
     });
+    static STATUS = Object.freeze({
+        MAX: 'max', // bureautique
+        EXCELLENT: 'excellent', // bureautique
+        GOOD: 'good',
+        TO_IMPROVE: 'to-improve',
+        NOT_GOOD: 'not-good',
+        UNKNOWN: 'unknown',
+    });
+    static STATUS_CONFIG = Object.freeze({
+        max: {
+            label: "max", // "Inscriptions ouvertes",
+            color: "var(--gold)",
+            border: "var(--gold)",
+            background: "var(--gold-shadow-xs)",
+            background_icon: "var(--gold-shadow)",
+            background_bubble: "var(--gold-shadow-xs)",
+            color_icon: "var(--gold)",
+            border_icon: "var(--gold-shadow)",
+            background_bar:"var(--gold)",
+            glow: "var(--gold-shadow)",
+
+        },
+        excellent: {
+            label: "excellent", // "Inscriptions ouvertes",
+            color: "var(--success)",
+            border: "var(--success-shadow)",
+            background: "var(--success-shadow-xs)",
+            background_icon: "var(--success-shadow)",
+            background_bubble: "var(--success-shadow-xs)",
+            color_icon: "var(--success)",
+            border_icon: "var(--success-shadow-sm)",
+            background_bar:"var(--success)",
+            glow: "var(--success-shadow)",
+        },
+        good: {
+            label: "good", // "Inscriptions ouvertes",
+            color: "var(--info)",
+            border: "var(--info-shadow)",
+            background: "var(--info-shadow-xs)",
+            background_icon: "var(--info-shadow)",
+            background_bubble: "var(--info-shadow-xs)",
+            color_icon: "var(--info)",
+            border_icon: "var(--info-shadow-sm)",
+            background_bar:"var(--info)",
+            glow: "var(--info-shadow)",
+        },
+        ['to-improve']: {
+            label: "to-improve", // "Inscriptions ouvertes",
+            color: "var(--warning)",
+            border: "var(--warning-shadow)",
+            background: "var(--warning-shadow-xs)",
+            background_icon: "var(--warning-shadow)",
+            background_bubble: "var(--warning-shadow-xs)",
+            color_icon: "var(--warning)",
+            border_icon: "var(--warning-shadow-sm)",
+            background_bar:"var(--warning)",
+            glow: "var(--warning-shadow)",
+        },
+        ['not-good']: {
+            label: "not-good", // "Inscriptions ouvertes",
+                        color: "var(--error)",
+            border: "var(--error-shadow)",
+            background: "var(--error-shadow-xs)",
+            background_icon: "var(--error-shadow)",
+            background_bubble: "var(--error-shadow-xs)",
+            color_icon: "var(--error)",
+            border_icon: "var(--error-shadow-sm)",
+            background_bar:"var(--error)",
+            glow: "var(--error-shadow)",
+        },
+    });
+    static ALL_STATUS = Object.values(ClassUserStat.STATUS).filter(v => v !== ClassUserStat.STATUS.UNKNOWN);
     constructor({
         uid = "",
         uid_user = "",
@@ -53,6 +125,7 @@ export class ClassUserStat {
         start_date = null,
         end_date = null,
         duration = 0,
+        status = ClassUserStat.STATUS.UNKNOWN,
         next_trying_date = null,
         created_time = new Date(),
         last_edit_time = new Date(),
@@ -69,6 +142,7 @@ export class ClassUserStat {
         this._chapter = chapter;
 
         this._duration = duration;
+        this._status = status;
 
         // data
         this._answers = Array.isArray(answers) ? answers : [];
@@ -182,8 +256,15 @@ export class ClassUserStat {
         return this._duration;
     }
     set duration(v) {
-        this._duration = value || 0;
+        this._duration = v || 0;
     }
+    get status() {
+        return this._status;
+    }
+    set status(v) {
+        this._status = v || ClassUserStat.STATUS.UNKNOWN;
+    }
+
     get next_trying_date() {
         return this._next_trying_date;
     }
@@ -240,10 +321,11 @@ export class ClassUserStat {
             user: this._user,
             lesson: this._lesson,
             chapter: this._chapter,
-            score:this._score,
-            duration:this._duration,
+            score: this._score,
+            duration: this._duration,
         });
     }
+
 
     // ---------- Converter intégré ----------
     static _toJsDate(v) {
@@ -271,11 +353,28 @@ export class ClassUserStat {
                 var next_trying_date = ClassUserStat._toJsDate(data.next_trying_date);
                 var created_time = ClassUserStat._toJsDate(data.created_time);
                 var last_edit_time = ClassUserStat._toJsDate(data.last_edit_time);
-                
-                const score = data.answers.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
+
+                const score = data.answers?.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
                 const duration = parseInt((end_date.getTime() - start_date.getTime()) / 1000);
+                const percentage = (score / data.answers?.length);
+                var status = "";
+                if (percentage >= 0.8) {
+                    status = ClassUserStat.STATUS.EXCELLENT;
+                } else if (percentage >= 0.6) {
+                    status = ClassUserStat.STATUS.GOOD;
+                } else if (percentage >= 0.25) {
+                    status = ClassUserStat.STATUS.TO_IMPROVE;
+                } else {
+                    status = ClassUserStat.STATUS.NOT_GOOD;
+                }
+                /*
+                    EXCELLENT: 'excellent', // bureautique
+        GOOD: 'good',
+        TO_IMPROVE: 'to-improve',
+        NOT_GOOD: 'not-good',
+                */
                 //console.log("fromFirestore", score)
-                return ClassUserStat.makeUserStat(uid, { ...data,score, start_date, end_date, duration,next_trying_date, created_time, last_edit_time });
+                return ClassUserStat.makeUserStat(uid, { ...data, score, start_date, end_date, duration, status, next_trying_date, created_time, last_edit_time });
             },
         };
     }
@@ -366,7 +465,7 @@ export class ClassUserStat {
             if (snaps.empty) return null;
             const docSnap = snaps.docs[0];
             const stat = docSnap.data();
-            
+
             return stat;
         } catch (error) {
             console.log("ERRRROR", error);

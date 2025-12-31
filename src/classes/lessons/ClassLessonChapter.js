@@ -61,7 +61,7 @@ export class ClassLessonChapter {
         description = "",
         estimated_start_duration = 0,
         estimated_end_duration = 0,
-        
+
         level = "",
         goals = [],
         subchapters = [],
@@ -479,10 +479,26 @@ export class ClassLessonChapter {
         return null; // -> ClassModule | null
     }
     // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
-    static async list(constraints = []) {
-        const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
+    static async list(uidLesson="",lang=defaultLanguage, constraints = []) {
+        if(!uidLesson)return;
+        const q = constraints.length ? query(this.colRef(uidLesson), ...constraints) : query(this.colRef(uidLesson));
         const qSnap = await getDocs(q);
-        return qSnap.docs.map(item => item.data());
+        return qSnap.docs.map(docSnap => {
+            const chapter = docSnap.data();
+            const translate = chapter.translates?.find(item => item.lang === lang);
+            chapter.translate = translate;
+            chapter.subchapters = chapter.subchapters?.map(sub => {
+                const translate = sub.translates?.find(item => item.lang === lang);
+                sub.translate = translate;
+                return (sub);
+            });
+            chapter.quiz.questions = chapter.quiz.questions?.map(q => {
+                const translate = q.translates?.find(item => item.lang === lang);
+                q.translate = translate;
+                return (q);
+            });
+            return chapter;
+        });
     }
     // Créer un user (avec option timestamps serveur)
     createRoomName(idRoom = '', isNormalized = false) {
@@ -546,10 +562,10 @@ export class ClassLessonChapter {
             return null;
         }
     }
-    static async fetchListFromFirestore(constraints = []) {
+    static async fetchListFromFirestore(uidLesson="",lang=defaultLanguage, constraints = []) {
         try {
             //if (!uid) throw new Error("UID is required to get module.");
-            return await this.list(constraints);
+            return await this.list(uidLesson,lang,constraints);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;

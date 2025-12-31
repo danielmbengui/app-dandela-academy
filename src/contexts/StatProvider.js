@@ -25,12 +25,20 @@ import { useChapter } from './ChapterProvider';
 const StatContext = createContext(null);
 export const useStat = () => useContext(StatContext);
 
-export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
+export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
-    const {lesson} = useLesson();
-    const {chapter}= useChapter();
+    const { lesson } = useLesson();
+    const { chapter } = useChapter();
     //if(!lesson || !chapter) return;
+    useEffect(()=>{
+        async function init() {
+            const _duration = await getLessonsEstimatedTime();
+            setCountHourTotalLessons(_duration);
+        }
+        init();
+    }, []);
+    const [countHourTotalLessons,setCountHourTotalLessons] = useState(0);
     //const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     //const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
@@ -53,17 +61,17 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-        if (user && uidLesson && uidChapter) {
-            const listener = listenToStats(uidLesson,uidChapter);
+        if (user) {
+            const listener = listenToStats(uidLesson, uidChapter);
             return () => listener?.();
         }
-    }, [user, uidLesson,uidChapter]);
+    }, [user, uidLesson, uidChapter]);
     useEffect(() => {
         if (user && uidLesson && uidChapter && uidStat) {
             const _stat = getOneStat(uidStat);
             console.log("change uid stat", _stat.uid)
             setStat(_stat);
-            const listener = listenToOneStat(uidLesson, uidChapter,uidStat);
+            const listener = listenToOneStat(uidLesson, uidChapter, uidStat);
             return () => listener?.();
         } else {
             setStat(null);
@@ -71,7 +79,7 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
     }, [user, uidLesson, uidChapter, uidStat]);
 
     // écoute du doc utilisateur
-    const listenToStats = useCallback((uidLesson = "",uidChapter="") => {
+    const listenToStats = useCallback((uidLesson = "", uidChapter = "") => {
         if (!user || user === null) return;
         const colRef = ClassUserStat.colRef(user.uid); // par ex.
         const constraints = [];
@@ -100,9 +108,9 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
                 const stat = snapshot.data();
                 //const lesson = await ClassLesson.fetchFromFirestore(uidLesson,lang);
                 //const chapter = await ClassLessonChapter.fetchFromFirestore(uidChapter,lang);
-                stat.update({user:user});
-                stat.update({lesson:lesson});
-                stat.update({chapter:chapter});
+                stat.update({ user: user });
+                stat.update({ lesson: lesson });
+                stat.update({ chapter: chapter });
                 //console.log("staaats", stats)
                 _stats.push(stat);
             }
@@ -118,7 +126,7 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
         });
         return snapshotStats;
     }, [user, uidLesson, uidChapter]);
-    const listenToOneStat = useCallback((uidStat="") => {
+    const listenToOneStat = useCallback((uidStat = "") => {
         if (!user || !uidStat) {
             setStat(null);
             //setIsConnected(false);
@@ -142,7 +150,7 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
             const translate = _stat.translates?.find(trans => trans.lang === lang);
             _stat.translate = translate;
             const _quiz = _stat.quiz;
-            const _questions = _quiz.questions?.map(sub=>{
+            const _questions = _quiz.questions?.map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             });
@@ -164,7 +172,7 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
                 //prev.room = room;
                 return prev.clone();
             });
-            setSubchapters(_stat.subchapters.map(sub=>{
+            setSubchapters(_stat.subchapters.map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             }));
@@ -209,6 +217,73 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
         const _stat = stats.find(item => item.uid === uid);
         return _stat;
     }
+    function getGlobalScore() {
+        var total = 0;
+        var scoreTotal = 0;
+        for (const stat of stats) {
+            //const score = (stat.score / stat.answers.length) * 100;
+            scoreTotal += stat.score;
+            total++;
+        }
+        return scoreTotal;
+    }
+    function getGlobalDuration() {
+        var total = 0;
+        var scoreTotal = 0;
+        for (const stat of stats) {
+            //const score = (stat.score / stat.answers.length) * 100;
+            scoreTotal += stat.duration;
+            total++;
+        }
+        return scoreTotal;
+    }
+    function getGlobalCountQuestions() {
+        var total = 0;
+        var questionsTotal = 0;
+        for (const stat of stats) {
+            //const score = (stat.score / stat.answers.length) * 100;
+            questionsTotal += stat.answers.length;
+            total++;
+        }
+        return questionsTotal;
+    }
+    function getGlobalPercent() {
+        var total = 0;
+        var percentTotal = 0;
+        for (const stat of stats) {
+            const percent = (stat.score / stat.answers.length) * 100;
+            percentTotal += percent;
+            total++;
+        }
+        return (percentTotal / total);
+    }
+    function getGlobalCountLesson() {
+        var total = 0;
+        var percentTotal = 0;
+        for (const stat of stats) {
+            const percent = (stat.score / stat.answers.length) * 100;
+            percentTotal += percent;
+            total++;
+        }
+        return new Set(stats.map(stat => stat.uid_lesson)).size || 0;
+    }
+    function getGlobalCountChapters() {
+        return new Set(stats.map(stat => stat.uid_chapter)).size || 0;
+    }
+    async function getLessonsEstimatedTime() {
+        var total = 0;
+        var timeTotal = 0;
+        const lessons = await ClassLesson.fetchListFromFirestore(lang);
+        for (const lesson of lessons) {
+            const chapters = await ClassLessonChapter.fetchListFromFirestore(lesson.uid,lang);
+            for(const chapter of chapters) {
+                timeTotal += chapter.estimated_end_duration;
+            }
+            //console.log("calculat time", lesson)
+        }
+        return timeTotal;
+    }
+
 
     // session
     function changeSession(uid = '', mode = '') {
@@ -217,7 +292,7 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
         }
         var _lesson = chapters.find(item => item.uid === uid) || null;
         if (_lesson) {
-            setChapter(prev => {
+            setStat(prev => {
                 if (!prev) return _lesson.clone();
                 prev.update(_lesson.toJSON());
                 return prev.clone();
@@ -244,6 +319,13 @@ export function StatProvider({ children, uidLesson = "",uidChapter="" }) {
         changeSession,
         //refreshList,
         getOneStat,
+        getGlobalScore,
+        getGlobalDuration,
+        getGlobalCountQuestions,
+        getGlobalPercent,
+        getGlobalCountLesson,
+        getGlobalCountChapters,
+        countHourTotalLessons,
         //,
         //filterType,
         //setFilterType,
