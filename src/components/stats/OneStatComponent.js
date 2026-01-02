@@ -29,9 +29,9 @@ import SelectComponentDark from "../elements/SelectComponentDark";
 import { useTranslation } from "react-i18next";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useChapter } from "@/contexts/ChapterProvider";
-import { IconStats } from "@/assets/icons/IconsComponent";
-import { cutString, formatChrono } from "@/contexts/functions";
-
+import { IconCalendar, IconDuration, IconStats } from "@/assets/icons/IconsComponent";
+import { cutString, formatChrono, getFormattedDateNumeric } from "@/contexts/functions";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 /**
  * Page Détail d'un résultat (1 tentative / 1 quiz)
  * ✅ Résumé: score, %, durée, date
@@ -63,7 +63,7 @@ export default function OneStatComponent() {
             course_title: "Excel Débutant",
             course_code: "EXCEL-101",
             chapter_title: "Formules (SOMME, MOYENNE)",
-            date: "2025-12-20",
+            date: getFormattedDateNumeric(stat?.end_date),
             duration_sec: stat?.duration,
             score: stat?.score || 0,
             total: stat?.answers?.length || 0,
@@ -134,29 +134,23 @@ export default function OneStatComponent() {
                 />
             </Stack>
 
-            <Box sx={{ bgcolor: "yellow", minHeight: "100vh" }}>
-                <Stack sx={{ background: 'red', }} spacing={2}>
-                    <Stack sx={{ background: 'cyan' }} alignItems={'start'} maxWidth={'sm'} spacing={1.5}>
-                        <Chip
-                            label={`${percent}%`}
-                            sx={{
-                                fontWeight: 950,
-                                color: "var(--font-color)",
-                                bgcolor: "rgba(255,255,255,0.14)",
-                                border: "1px solid var(--font-color)",
-                            }}
-                            variant="outlined"
-                        />
+            <Box sx={{ bgcolor: "", minHeight: "100vh" }}>
+                <Stack sx={{ background: '', }} spacing={2}>
+                    <Stack sx={{ background: '' }} alignItems={'start'} maxWidth={'sm'} spacing={1.5}>
                         {/* Quick stats */}
-                        <Grid container spacing={1} sx={{ width: '100%', background: 'orange' }}>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                                <MiniStat label="Score" value={`${attempt.score}/${attempt.total}`} icon={<IconStats height={15} fontSize="small" color="var(--primary)" />} />
+                        <Grid container spacing={1} sx={{ width: '100%', background: '' }}>
+                             <Grid size={{ xs: 6, sm: 3 }}>
+                                <MiniStat label="Score" value={`${attempt.score}/${attempt.total}`} icon={<EmojiEventsIcon height={15} fontSize="small" sx={{color:"var(--primary)"}} />} />
                             </Grid>
                             <Grid size={{ xs: 6, sm: 3 }}>
-                                <MiniStat label="Durée" value={formatChrono(attempt.duration_sec)} icon={<AccessTimeIcon fontSize="small" />} />
+                                <MiniStat label="Moyenne" value={`${percent}%`} icon={<IconStats height={15} fontSize="small" color="var(--primary)" />} />
+                            </Grid>
+                           
+                            <Grid size={{ xs: 6, sm: 3 }}>
+                                <MiniStat label="Durée" value={formatChrono(attempt.duration_sec)} icon={<IconDuration color="var(--primary)" fontSize="small" />} />
                             </Grid>
                             <Grid size={{ xs: 6, sm: 3 }}>
-                                <MiniStat label="Date" value={attempt.date} icon={<SchoolIcon fontSize="small" />} />
+                                <MiniStat label="Date" value={attempt.date} icon={<IconCalendar color="var(--primary)" fontSize="small" />} />
                             </Grid>
                         </Grid>
                     </Stack>
@@ -395,7 +389,7 @@ function QuestionCard({ stat = null, q, index, isCorrect = false }) {
                             const isRight = (isUser && c.uid_intern === q.answer.uid_answer) || stat?.status === ClassUserStat.STATUS.MAX;
                             //isRight || stat?.status === ClassUserStat.STATUS.MAX
                             return (
-                                <Grid size={{ xs: 12 }} key={c.uid_intern} sx={{ display: "flex", }}>
+                                <Grid size={'auto'} key={c.uid_intern}>
                                     <Chip
                                         label={c.value}
                                         icon={isRight ? <CheckCircleIcon /> : isUser ? <HelpOutlineIcon /> : undefined}
