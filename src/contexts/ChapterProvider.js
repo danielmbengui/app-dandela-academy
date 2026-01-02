@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
+    collectionGroup,
     onSnapshot,
     query,
     where,
@@ -18,6 +19,7 @@ import Preloader from '@/components/shared/Preloader';
 import { useAuth } from './AuthProvider';
 import { ClassLessonChapter } from '@/classes/lessons/ClassLessonChapter';
 import { ClassUserStat } from '@/classes/users/ClassUserStat';
+import { firestore } from './firebase/config';
 
 
 const ChapterContext = createContext(null);
@@ -48,42 +50,46 @@ export function ChapterProvider({ children, uidLesson = "" }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-        if (user && uidLesson) {
+        if (user) {
+            /*
+            async function init() {
+                const _chapters = await ClassLessonChapter.fetchListFromFirestore(lang);
+                setChapters(_chapters);
+                //console.log("LISTEN chapters init", _chapters)
+            }
+            init();
+            */
             const listener = listenToChapters(uidLesson);
             return () => listener?.();
         }
     }, [user, uidLesson]);
+
     useEffect(() => {
-        if (uidLesson && uidChapter) {
-            const _session = getOneChapter(uidChapter);
-            setChapter(_session);
+        if (uidChapter) {
+            const _chapter = getOneChapter(uidChapter);
+            setChapter(_chapter);
             const listener = listenToOneChapter(uidLesson, uidChapter);
             return () => listener?.();
         } else {
             setChapter(null);
         }
     }, [uidLesson, uidChapter]);
-    useEffect(() => {
-        if (uidStat && chapter) {
-            //const _session = getOneSession(uidSession);
-            const _stat = stats?.find?.(a => a.uid === uidStat);
-            setStat(_stat);
-        } else {
-            setStat(null);
-        }
-    }, [uidStat, chapter]);
 
     // écoute du doc utilisateur
     const listenToChapters = useCallback((uidLesson = "") => {
-        if (!uidLesson || uidLesson === null || !user || user === null) return;
-        const colRef = ClassLessonChapter.colRef(uidLesson); // par ex.
+        //if (!user || user === null) return;
+        //const colRef = ClassLessonChapter.colRef(uidLesson); // par ex.
+        const ref = ClassLessonChapter.colRef(); // par ex.;
         const constraints = [];
         if (uidLesson) {
-            //constraints.push(where("uid_lesson", "==", uidLesson));
-        }                //const coll = this.colRef();
+            constraints.push(where("uid_lesson", "==", uidLesson));
+        }
+        /*           //const coll = this.colRef();
         const q = constraints.length
             ? query(colRef, ...constraints)
             : colRef;
+            */
+        const q = query(ref, ...constraints);
         const snapshotChapters = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
             if (snap.empty) {
@@ -99,7 +105,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 const chapter = snapshot.data();
                 chapter.translate = chapter.translates?.find(trans => trans.lang === lang);
                 const _quiz = chapter.quiz;
-                const _questions = _quiz.questions?.map(sub=>{
+                const _questions = _quiz.questions?.map(sub => {
                     sub.translate = sub.getTranslate(lang);
                     return sub;
                 });
@@ -107,26 +113,28 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 chapter.quiz = _quiz;
                 //console.log("chap", chapter, uidLesson)
                 _chapters.push(chapter);
+                /*
                 const stats = await new ClassUserStat({
                     uid_user: user.uid,
                     uid_lesson: uidLesson,
                     uid_chapter: chapter.uid,
                 }).getStats();
+                */
                 //console.log("staaats", stats)
-                _stats.push(...stats);
+                //_stats.push(...stats);
             }
             _chapters = _chapters.sort((a, b) => a.uid_intern - b.uid_intern);
-            _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-            console.log("stats providers CHAPTER", _chapters)
+            //_stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
+            console.log("providers CHAPTER", _chapters)
             setChapters(_chapters);
-            setStats(_stats);
-            setLastStat(_stats.length > 0 ? _stats[0] : null);
+            //setStats(_stats);
+            //setLastStat(_stats.length > 0 ? _stats[0] : null);
             setIsLoading(false);
-            setStats(_stats);
+            //setStats(_stats);
             setIsLoadingSlots(false);
         });
         return snapshotChapters;
-    }, [user, uidLesson]);
+    }, [uidLesson]);
     const listenToOneChapter = useCallback((uidLesson = "", uidChapter = "") => {
         if (!uidLesson || !uidChapter) {
             setChapter(null);
@@ -150,17 +158,19 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             const translate = _chapter.translates?.find(trans => trans.lang === lang);
             _chapter.translate = translate;
             const _quiz = _chapter.quiz;
-            const _questions = _quiz.questions?.map(sub=>{
+            const _questions = _quiz.questions?.map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             });
             _quiz.questions = _questions;
             _chapter.quiz = _quiz;
+            /*
             const _stats = await new ClassUserStat({
                 uid_user: user?.uid,
                 uid_lesson: uidLesson,
                 uid_chapter: _chapter.uid,
             }).getStats();
+            */
             setChapter(prev => {
                 if (!prev || prev === null) return _chapter.clone();
                 prev.update(_chapter.toJSON());
@@ -172,7 +182,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 //prev.room = room;
                 return prev.clone();
             });
-            setSubchapters(_chapter.subchapters.map(sub=>{
+            setSubchapters(_chapter.subchapters.map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             }));

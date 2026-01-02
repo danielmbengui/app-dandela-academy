@@ -371,9 +371,10 @@ export class ClassLessonChapter {
         return countSnap.data().count > 0;
     }
 
-    static colRef(uidLesson = "") {
-        if (!uidLesson) return;
-        return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
+    static colRef() {
+        // if (!uidLesson) return;
+        return collectionGroup(firestore, ClassLessonChapter.COLLECTION).withConverter(this.converter);
+        //return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
     }
 
     static docRef(uidLesson = "", id = "") {
@@ -479,10 +480,26 @@ export class ClassLessonChapter {
         return null; // -> ClassModule | null
     }
     // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
-    static async list(uidLesson="",lang=defaultLanguage, constraints = []) {
-        if(!uidLesson)return;
-        const q = constraints.length ? query(this.colRef(uidLesson), ...constraints) : query(this.colRef(uidLesson));
+    static async list(lang = defaultLanguage, constraints = []) {
+        const ref = ClassLessonChapter.colRef(); // par ex.;
+        //const constraints = [];
+        /*
+        if (uidLesson) {
+            constraints.push(where("uid_lesson", "==", uidLesson));
+        }
+        */
+        /*           //const coll = this.colRef();
+        const q = constraints.length
+            ? query(colRef, ...constraints)
+            : colRef;
+            */
+        const q = constraints.length ? query(ref, constraints) : query(ref);
+        //const finalConstraints = [...constraints];
+        //if(!uidLesson)return;
+        //const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
+        //console.log("REEEF", ref)
+        
         return qSnap.docs.map(docSnap => {
             const chapter = docSnap.data();
             const translate = chapter.translates?.find(item => item.lang === lang);
@@ -499,6 +516,8 @@ export class ClassLessonChapter {
             });
             return chapter;
         });
+        
+        //return [];
     }
     // Créer un user (avec option timestamps serveur)
     createRoomName(idRoom = '', isNormalized = false) {
@@ -562,10 +581,10 @@ export class ClassLessonChapter {
             return null;
         }
     }
-    static async fetchListFromFirestore(uidLesson="",lang=defaultLanguage, constraints = []) {
+    static async fetchListFromFirestore(lang = defaultLanguage, constraints = []) {
         try {
             //if (!uid) throw new Error("UID is required to get module.");
-            return await this.list(uidLesson,lang,constraints);
+            return await this.list(lang, constraints);
         } catch (error) {
             console.log("ERROR", error?.message || error);
             return null;

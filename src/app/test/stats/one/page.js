@@ -332,7 +332,6 @@ function MiniStat({ label, value, icon }) {
     </Paper>
   );
 }
-
 function QuestionCard({ q, index }) {
   const isCorrect = !!q.is_correct;
 
@@ -441,7 +440,6 @@ function QuestionCard({ q, index }) {
     </Paper>
   );
 }
-
 function InfoBox({ label, value, tone }) {
   const isGood = tone === "good";
   const isBad = tone === "bad";
@@ -467,9 +465,7 @@ function InfoBox({ label, value, tone }) {
     </Paper>
   );
 }
-
 /* -------------------- Helpers -------------------- */
-
 function formatDuration(sec) {
   const s = Math.max(0, Number(sec || 0));
   const m = Math.floor(s / 60);
@@ -479,9 +475,7 @@ function formatDuration(sec) {
   const mm = m % 60;
   return `${h}h ${String(mm).padStart(2, "0")}m`;
 }
-
 /* -------------------- Styles -------------------- */
-
 const chipGood = {
   fontWeight: 950,
   borderRadius: 3,
@@ -490,7 +484,6 @@ const chipGood = {
   borderColor: "rgba(34,197,94,0.25)",
   "& .MuiChip-icon": { color: "#22C55E" },
 };
-
 const chipBad = {
   fontWeight: 950,
   borderRadius: 3,

@@ -17,11 +17,17 @@
   "attempts": "tentativas",
   "no-result": "Ainda não há resultados.",
   "status": "Estado",
-  "max": "Máximo",
+  "max": "Máx",
   "excellent": "Excelente resultado",
   "good": "Bom resultado",
   "to-improve": "A melhorar",
   "not-good": "Mau resultado",
   "unknown": "Desconhecido",
-  "office": "Burocrática / Informática"
+  "office": "Informática",
+  "average": "Média",
+  "best": "Melhor",
+  "worst": "Pior",
+  "btn-see-lesson": "Ver o curso",
+  "btn-reset": "Reiniciar",
+  "btn-see-details": "Clica para ver os detalhes →"
 }

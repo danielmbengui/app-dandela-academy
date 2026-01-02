@@ -30,16 +30,29 @@ export const useStat = () => useContext(StatContext);
 export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
-    const { lesson, lessons } = useLesson();
-    const { chapter, chapters } = useChapter();
+    const { lesson, lessons, setUidLesson, getOneLesson } = useLesson();
+    const { chapter, chapters, setUidChapter, getOneChapter } = useChapter();
     //if(!lesson || !chapter) return;
     useEffect(() => {
         async function init() {
             const _duration = await getLessonsEstimatedTime();
             setCountHourTotalLessons(_duration);
+            console.log("chapters stat provider", chapters)
         }
         init();
     }, []);
+    useEffect(()=>{
+        if(uidLesson) {
+            setUidLesson(uidLesson);
+        } else {
+            setUidLesson('')
+        }
+        if(uidChapter) {
+            setUidChapter(uidChapter);
+        } else {
+            setUidChapter('');
+        }
+    }, [uidLesson, uidChapter])
     const [countHourTotalLessons, setCountHourTotalLessons] = useState(0);
     //const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
@@ -63,27 +76,29 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-        if (user) {
+        if (user && lessons.length>0 && chapters.length>0) {
             const listener = listenToStats(uidLesson, uidChapter);
             return () => listener?.();
         }
-    }, [user, uidLesson, uidChapter]);
+    }, [user, uidLesson, uidChapter,lessons, chapters]);
     useEffect(() => {
-        if (user && uidLesson && uidChapter && uidStat) {
+        if (user && uidStat) {
             const _stat = getOneStat(uidStat);
-            console.log("change uid stat", _stat.uid)
+            //console.log("change uid stat", _stat.uid)
             setStat(_stat);
-            const listener = listenToOneStat(uidLesson, uidChapter, uidStat);
+            const listener = listenToOneStat(uidStat);
             return () => listener?.();
         } else {
             setStat(null);
         }
-    }, [user, uidLesson, uidChapter, uidStat]);
+    }, [user, uidStat]);
 
     // écoute du doc utilisateur
     const listenToStats = useCallback((uidLesson = "", uidChapter = "") => {
         if (!user || user === null) return;
         const colRef = ClassUserStat.colRef(user.uid); // par ex.
+        const ref = collectionGroup(firestore, ClassUserStat.COLLECTION)
+            .withConverter(ClassUserStat.converter);
         //const colRef = collection(firestore, ClassUser.COLLECTION, uid_user, this.COLLECTION).withConverter(this.converter);
         const constraints = [];
         if (uidLesson) {
@@ -98,13 +113,8 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             ? query(colRef, ...constraints)
             : colRef;
             */
-        const q = query(
-            collectionGroup(firestore, ClassUserStat.COLLECTION).withConverter(ClassUserStat.converter),
-            //where("uid_user", "==", this._uid_user),
-            //where("uid_lesson", "==", this._uid_lesson),
-            //where("uid_chapter", "==", this._uid_chapter),
-            //limit(1)
-        );
+        const q = query(ref, ...constraints);
+        //q.limit(1);
         const snapshotStats = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
             if (snap.empty) {
@@ -118,9 +128,9 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
 
             for (const snapshot of snap.docs) {
                 const stat = snapshot.data();
-                const lesson = lessons.find(l=>l.uid === stat.uid_lesson);
+                const lesson = lessons.find(l => l.uid === stat.uid_lesson);
                 //const lesson = await ClassLesson.fetchFromFirestore(stat.uid_lesson, lang);
-                const chapter = chapters.find(c=>c.uid === stat.uid_chapter);
+                const chapter = chapters.find(c => c.uid === stat.uid_chapter);
                 //const chapter = await ClassLessonChapter.fetchFromFirestore(stat.uid_chapter, lang);
                 //stat.update({ user: user });
                 stat.update({ lesson: lesson });
@@ -130,7 +140,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             }
             //_chapters = _chapters.sort((a, b) => a.uid_intern - b.uid_intern);
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-            console.log("stats provider STAT", _stats)
+            console.log("stats provider STAT",lessons, chapters)
             //setChapters(_chapters);
             setStats(_stats);
             //setLastStat(_stats.length > 0 ? _stats[0] : null);
@@ -139,7 +149,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             //setIsLoadingSlots(false);
         });
         return snapshotStats;
-    }, [user, uidLesson, uidChapter]);
+    }, [user, uidLesson, uidChapter,lessons, chapters]);
     const listenToOneStat = useCallback((uidStat = "") => {
         if (!user || !uidStat) {
             setStat(null);
@@ -147,7 +157,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             setIsLoading(false);
             return;
         }
-        const uid = uidChapter;
+        const uid = uidStat;
         const ref = ClassUserStat.docRef(user?.uid, uid);
         const unsubscribe = onSnapshot(ref, async (snap) => {
             if (!snap.exists()) {
@@ -157,43 +167,40 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
                 return;
             }
             const _stat = snap.data();
-            console.log("ONE STAT", _stat)
+            setUidLesson(_stat.uid_lesson);
+            setUidChapter(_stat.uid_chapter);
+            _stat.lesson = getOneLesson(_stat.uid_lesson);
+            _stat.chapter = getOneChapter(_stat.uid_chapter);
+            console.log("ONE STAT", _stat, chapters);
             //const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
             //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
-            const translate = _stat.translates?.find(trans => trans.lang === lang);
-            _stat.translate = translate;
+            //const translate = _stat.translates?.find(trans => trans.lang === lang);
+            //_stat.translate = translate;
+            /*
             const _quiz = _stat.quiz;
-            const _questions = _quiz.questions?.map(sub => {
+            const _questions = _quiz?.questions?.map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             });
-            _quiz.questions = _questions;
+            _quiz.questions = _questions || [];
             _stat.quiz = _quiz;
+            */
+            /*
             const _stats = await new ClassUserStat({
                 uid_user: user?.uid,
                 uid_lesson: uidLesson,
                 uid_chapter: _stat.uid,
             }).getStats();
+            */
 
-            setStat(prev => {
-                if (!prev || prev === null) return _stat.clone();
-                prev.update(_stat.toJSON());
-                prev.update({ user: user });
-                prev.update({ lesson: lesson });
-                prev.update({ chapter: chapter });
-                //prev.update({quiz:_quiz});
-                //console.log("QUESTIONS", _questions)
-                //const session_new = new ClassSession(session_new.toJSON());
-                //prev.lesson = lesson;
-                //prev.teacher = teacher;
-                //prev.room = room;
-                return prev.clone();
-            });
+            setStat(_stat);
+            /*
             setSubchapters(_stat.subchapters.map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             }));
+            */
             //setIsConnected(true);
             setIsLoading(false);
             //setUser(fbUser);
@@ -234,6 +241,13 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         const _stat = stats.find(item => item.uid === uid);
         return _stat;
+    }
+    function getOneStatIndex(uid = '') {
+        if (!uid || uid === '' || uid === null) {
+            return -1;
+        }
+        //const _stat = ;
+        return stats.findIndex(item => item.uid === uid);
     }
     function getGlobalScore(uidLesson = "") {
         var total = 0;
@@ -350,7 +364,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         var timeTotal = 0;
         const lessons = await ClassLesson.fetchListFromFirestore(lang);
         for (const lesson of lessons) {
-            const chapters = await ClassLessonChapter.fetchListFromFirestore(lesson.uid, lang);
+            const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", lesson.uid)]);
             for (const chapter of chapters) {
                 timeTotal += chapter.estimated_end_duration;
             }
@@ -443,8 +457,6 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return maxStat;
     }
-
-
     // session
     function changeSession(uid = '', mode = '') {
         if (mode === 'create') {
@@ -479,6 +491,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         changeSession,
         //refreshList,
         getOneStat,
+        getOneStatIndex,
         getGlobalScore,
         getGlobalDuration,
         getGlobalCountQuestions,

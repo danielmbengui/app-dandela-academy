@@ -39,8 +39,8 @@ import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconQuizz } from "@/assets/icons/IconsComponent";
-import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS } from "@/contexts/i18n/settings";
-import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_STATS_ONE } from "@/contexts/i18n/settings";
+import { PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import { ClassLessonChapterQuestion, ClassLessonChapterQuestionTranslation, ClassLessonChapterQuiz } from "@/classes/lessons/ClassLessonChapterQuiz";
 import CheckboxComponent from "@/components/elements/CheckboxComponent";
@@ -52,6 +52,7 @@ import CircularProgressWithLabelComponent from "@/components/elements/CircularPr
 import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
 import StatsListComponent from "@/components/stats/StatsListComponent";
 import { useStat } from "@/contexts/StatProvider";
+import OneStatComponent from "@/components/stats/OneStatComponent";
 
 const CongratulationsComponent = ({ stat = null }) => {
     const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
@@ -449,8 +450,8 @@ const CongratulationsComponent = ({ stat = null }) => {
     </>)
 }
 const CardHeader = ({ lesson = null, chapter = null }) => {
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { stats } = useStat();
+    const { t } = useTranslation([NS_STATS_ONE]);
+    const { stats,stat,getOneStatIndex } = useStat();
     useEffect(() => {
         console.log("STATTTTS", stats)
     })
@@ -462,17 +463,7 @@ const CardHeader = ({ lesson = null, chapter = null }) => {
                         {t('title')}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                        {t('subtitle')}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, my: 1 }}>
-                        <Trans
-                            t={t}
-                            i18nKey={`count-stats`}
-                            values={{
-                                countLesson: new Set(stats.map(stat => stat.uid_lesson)).size,
-                                countQuiz: stats.length
-                            }}
-                        />
+                        {t('quiz')} {'n°'}{getOneStatIndex(stat?.uid) + 1}
                     </Typography>
                 </Box>
             </Grid>
@@ -1192,15 +1183,28 @@ function QuizProgress({ correct = 3, total = 9, size = 160 }) {
 }
 export default function ExcelBeginnerCoursePage() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-   // const { lang } = useLanguage();
+    const { uid: uidStat } = useParams();
+    console.log("uid", uidStat)
+    // const { lang } = useLanguage();
     //const { user } = useAuth();
     //const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-    const { isLoading: isLoadingStats } = useStat();
+    const { stat, setUidStat, isLoading: isLoadingStats } = useStat();
+    useEffect(() => {
+        if (uidStat) {
+            setUidStat(uidStat);
+        } else {
+            setUidStat('');
+        }
+    }, [uidStat])
+
+    useEffect(()=>{
+        console.log("STAT", stat)
+    }, [stat])
 
     return (<DashboardPageWrapper
         titles={[
-            { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: '' },
-            //{ name: lesson?.translate?.title, url: `${PAGE_LESSONS}/${lesson?.uid}` },
+            { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
+            { name: stat?.lesson?.translate?.title, url: `` },
             //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
             //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
         ]}
@@ -1211,13 +1215,13 @@ export default function ExcelBeginnerCoursePage() {
         <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
             {
                 isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
-                <Grid size={12}>
-                    <CardHeader />
+                    <Grid size={12}>
+                        <CardHeader />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 12 }}>
+                        <OneStatComponent stat={stat} />
+                    </Grid>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12 }}>
-                    <StatsListComponent />
-                </Grid>
-            </Grid>
             }
         </Container>
     </DashboardPageWrapper>);

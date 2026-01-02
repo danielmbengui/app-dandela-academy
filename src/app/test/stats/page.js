@@ -101,9 +101,7 @@ export default function ResultsDashboardPage() {
     }),
     []
   );
-
   const [courseFilter, setCourseFilter] = useState("ALL"); // ALL ou uid du cours
-
   const allChaptersAttempts = useMemo(() => {
     const out = [];
     for (const c of data.courses) {
@@ -122,17 +120,14 @@ export default function ResultsDashboardPage() {
     }
     return out;
   }, [data]);
-
   const filteredCourses = useMemo(() => {
     if (courseFilter === "ALL") return data.courses;
     return data.courses.filter((c) => c.uid === courseFilter);
   }, [data.courses, courseFilter]);
-
   const filteredAttempts = useMemo(() => {
     if (courseFilter === "ALL") return allChaptersAttempts;
     return allChaptersAttempts.filter((a) => a.course_uid === courseFilter);
   }, [allChaptersAttempts, courseFilter]);
-
   const globalStats = useMemo(() => {
     if (!allChaptersAttempts.length) return emptyStats();
 
@@ -162,7 +157,6 @@ export default function ResultsDashboardPage() {
       worst,
     };
   }, [allChaptersAttempts]);
-
   const filteredStats = useMemo(() => {
     if (!filteredAttempts.length) return emptyStats();
 
@@ -191,7 +185,6 @@ export default function ResultsDashboardPage() {
       worst,
     };
   }, [filteredAttempts]);
-
   return (
     <Box sx={{ bgcolor: "#fff", minHeight: "100vh", py: 3 }}>
       <Stack sx={{ maxWidth: 1200, mx: "auto", px: { xs: 2, md: 3 } }} spacing={2}>

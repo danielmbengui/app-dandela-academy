@@ -50,7 +50,7 @@ export class ClassUserStat {
     static STATUS_CONFIG = Object.freeze({
         max: {
             label: "max", // "Inscriptions ouvertes",
-            color: "var(--gold)",
+            color: "var(--gold-dark)",
             border: "var(--gold)",
             background: "var(--gold-shadow-xs)",
             background_icon: "var(--gold-shadow)",
@@ -63,7 +63,7 @@ export class ClassUserStat {
         },
         excellent: {
             label: "excellent", // "Inscriptions ouvertes",
-            color: "var(--success)",
+            color: "var(--success-dark)",
             border: "var(--success)",
             background: "var(--success-shadow-xs)",
             background_icon: "var(--success-shadow)",
@@ -75,7 +75,7 @@ export class ClassUserStat {
         },
         good: {
             label: "good", // "Inscriptions ouvertes",
-            color: "var(--info)",
+            color: "var(--info-dark)",
             border: "var(--info)",
             background: "var(--info-shadow-xs)",
             background_icon: "var(--info-shadow)",
@@ -87,7 +87,7 @@ export class ClassUserStat {
         },
         ['to-improve']: {
             label: "to-improve", // "Inscriptions ouvertes",
-            color: "var(--warning)",
+            color: "var(--warning-dark)",
             border: "var(--warning)",
             background: "var(--warning-shadow-xs)",
             background_icon: "var(--warning-shadow)",
@@ -99,7 +99,7 @@ export class ClassUserStat {
         },
         ['not-good']: {
             label: "not-good", // "Inscriptions ouvertes",
-            color: "var(--font-color)",
+            color: "var(--error-dark)",
             border: "var(--error)",
             background: "var(--error-shadow-xs)",
             background_icon: "var(--error-shadow)",

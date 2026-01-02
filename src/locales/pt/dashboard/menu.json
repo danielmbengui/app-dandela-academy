@@ -1,14 +1,15 @@
 {
-  "dashboard": "Painel",
+  "dashboard": "Painel de controlo",
   "computers": "Computadores",
   "calendar": "Calendário",
   "lessons": "Cursos",
   "profile": "Meu perfil",
   "users": "Utilizadores",
-  "super-admins": "Super Admin",
-  "admins": "Admins",
+  "super-admins": "Super Administradores",
+  "admins": "Administradores",
   "teams": "Equipa",
   "students": "Estudantes",
   "tutors": "Professores",
-  "settings": "Configurações"
+  "settings": "Definições",
+  "stats": "Resultados"
 }

@@ -5,10 +5,11 @@
   "lessons": "Courses",
   "profile": "My profile",
   "users": "Users",
-  "super-admins": "Super Admin",
+  "super-admins": "Super Admins",
   "admins": "Admins",
   "teams": "Team",
   "students": "Students",
   "tutors": "Teachers",
-  "settings": "Settings"
+  "settings": "Settings",
+  "stats": "Results"
 }

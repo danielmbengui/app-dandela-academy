@@ -16,6 +16,8 @@ import {
     Grid,
     LinearProgress,
     Rating,
+    CircularProgress,
+    Container,
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
@@ -32,7 +34,9 @@ import { cutString, formatChrono, formatDuration, getFormattedDateNumeric } from
 import { ChapterProvider, useChapter } from "@/contexts/ChapterProvider";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
 import Link from "next/link";
-import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
+import { useRouter } from "next/navigation";
+
 
 /**
  * Page "Résultats" (tests/quiz)
@@ -45,11 +49,40 @@ import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
  * - fetch des résultats (Firestore) : par course_uid -> chapters -> attempts
  * - calculs : moyenne, % réussite, best/worst, progression, etc.
  */
+function ChaptersList() {
+    const { chapters } = useChapter();
+    const { getBestStat } = useStat();
+    return (<Grid container spacing={1} sx={{background:'', width:'100%',}}>
+        {
+            chapters.map((chapter, i) => {
+                const bestStat = getBestStat(chapter.uid_lesson, chapter.uid);
+                console.log("beeest ststa", bestStat)
+                return (<Grid key={`${chapter.uid}-${i}`} size={{ xs: 12, sm: 'auto' }}>
+                    <Link href={`${PAGE_STATS}/${bestStat?.uid}`}>
+                    <HighlightCard
+                        uidLesson={chapter.uid_lesson}
+                        uidChapter={chapter.uid}
+                        title="Meilleur résultat"
+                        icon={<EmojiEventsIcon />}
+                        //attempt={filteredStats.best}
+                        tone="good"
+                        status={bestStat?.status}
+                        stat={bestStat}
+                    />
+                    </Link>
+                </Grid>)
+            })
+        }
+    </Grid>)
+}
 export default function StatsListComponent() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const STATUS = Object.values(ClassUserStat.STATUS) || [];
     const { lessons, lesson, setUidLesson } = useLesson();
-    const { stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+    const { stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+    //const { getGlobalCountQuiz, getGlobalPercent, getBestStat, getWorstStat } = useStat();
+    //const countQuiz = getGlobalCountQuiz(chapter.uid_lesson, chapter.uid);
+    //const percent = getGlobalPercent(chapter.uid_lesson, chapter.uid);
 
     //const [uidLesson, setUidLesson] = useState('');
     // ---- MOCK DATA (remplace par Firestore) ----
@@ -211,12 +244,12 @@ export default function StatsListComponent() {
 
     return (
         <Stack spacing={2}>
-            <Stack direction={'row'} spacing={1} alignItems={'end'}>
+            <Stack direction={{xs:'column',sm:'row'}} spacing={1} alignItems={{xs:'start',sm:'end'}}>
                 <SelectComponentDark
                     label={t('uid_lesson')}
                     name={'uid_lesson'}
                     value={lesson?.uid || ''}
-                    values={[{ id: '', value: t('all') }, ...lessons].map(lesson => ({ id: lesson.uid, value: lesson.translate?.title }))}
+                    values={[{ id: '', value: t('all') }, ...lessons.map(lesson => ({ id: lesson.uid, value: cutString(lesson.translate?.title,20) }))]}
                     hasNull={false}
                     onChange={(e) => {
                         const { value } = e.target;
@@ -228,87 +261,14 @@ export default function StatsListComponent() {
                     disabled={!lesson?.uid}
                     onClick={() => setUidLesson('')}
                 />
-                {getGlobalCountQuestions()} /
-                {getGlobalScore()} /
-                {getGlobalPercent()} /
-                {getGlobalCountLesson()} /
-                {countHourTotalLessons}
             </Stack>
-            <Box sx={{ bgcolor: "var(--card-color)", borderRadius: '20px', minHeight: "100vh", py: 2 }}>
-                <Stack maxWidth={'xl'} sx={{ mx: "auto", px: { xs: 1.5, sm: 2 } }} spacing={2}>
-
-                    {/* Header */}
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            borderRadius: 5,
-                            p: 2.6,
-                            border: "1px solid rgba(15, 23, 42, 0.10)",
-                            background: "linear-gradient(135deg, rgba(11,27,77,1) 0%, rgba(37,99,235,1) 55%, rgba(96,165,250,1) 100%)",
-                            color: "white",
-                        }}
-                    >
-                        <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" spacing={2} alignItems={{ xs: "flex-start", md: "center" }}>
-                            <Stack spacing={0.6}>
-                                <Typography variant="h4" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
-                                    Résultats & progression
-                                </Typography>
-                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                    Résultats par chapitre, par cours, et performance globale.
-                                </Typography>
-                            </Stack>
-
-                            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2} sx={{ width: { xs: "100%", md: "auto" } }}>
-                                <FormControl
-                                    size="small"
-                                    sx={{
-                                        minWidth: 240,
-                                        bgcolor: "rgba(255,255,255,0.12)",
-                                        borderRadius: 3,
-                                        "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.9)" },
-                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.25)" },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.55)" },
-                                        "& .MuiSvgIcon-root": { color: "white" },
-                                        "& .MuiOutlinedInput-input": { color: "white", fontWeight: 800 },
-                                    }}
-                                >
-                                    <InputLabel id="course-filter">Cours</InputLabel>
-                                    <Select
-                                        labelId="course-filter"
-                                        label="Cours"
-                                        value={courseFilter}
-                                        onChange={(e) => setCourseFilter(e.target.value)}
-                                    >
-                                        <MenuItem value="ALL">Tous les cours</MenuItem>
-                                        {data.courses.map((c) => (
-                                            <MenuItem key={c.uid} value={c.uid}>
-                                                {c.title}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-
-                                <Button
-                                    variant="outlined"
-                                    sx={{
-                                        borderRadius: 3,
-                                        fontWeight: 950,
-                                        textTransform: "none",
-                                        borderColor: "rgba(255,255,255,0.35)",
-                                        color: "white",
-                                        "&:hover": { borderColor: "rgba(255,255,255,0.8)", bgcolor: "rgba(255,255,255,0.12)" },
-                                    }}
-                                    onClick={() => setCourseFilter("ALL")}
-                                >
-                                    Réinitialiser
-                                </Button>
-                            </Stack>
-                        </Stack>
-                    </Paper>
-
+            
+            <Box sx={{ minHeight: "100vh", width:'100%',bgcolor: "var(--card-color)", borderRadius: '20px',py: 2,px:{xs:1.5,sm:2} }}>
+                
+                <Stack maxWidth={'xl'} spacing={2}>
                     {/* Top KPI cards */}
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs:12,sm:3}}>
                             <KpiCard
                                 icon={<InsightsIcon />}
                                 title={t('global-rating')}
@@ -317,7 +277,7 @@ export default function StatsListComponent() {
                                 progress={getGlobalPercent()}
                             />
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs:12,sm:3}}>
                             <KpiCard
                                 icon={<SchoolIcon />}
                                 title={t('global-cover')}
@@ -326,7 +286,7 @@ export default function StatsListComponent() {
                                 progress={Math.min(100, (filteredStats.chaptersCount / Math.max(1, globalStats.chaptersCount)) * 100)}
                             />
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs:12,sm:3}}>
                             <KpiCard
                                 icon={<TrendingUpIcon />}
                                 title={t('global-duration')}
@@ -337,81 +297,31 @@ export default function StatsListComponent() {
                             />
                         </Grid>
                     </Grid>
-
+                     <ChaptersList />  
                     {/* Best/Worst */}
-                    <Grid container spacing={2}>
-                        {
-                            stats.map((stat, i) => {
-                                return (<Grid key={`${stat.uid}-${i}`} item xs={12} md={'auto'}>
-                                    <ChapterProvider uidLesson={lesson?.uid}>
-                                        <HighlightCard
-                                            uidLesson={lesson?.uid}
-                                            uidChapter={stat.uid_chapter}
-                                            title="Meilleur résultat"
-                                            icon={<EmojiEventsIcon />}
-                                            attempt={filteredStats.best}
-                                            tone="good"
-                                            status={stat.status}
-                                            stat={stat}
-                                        />
-                                    </ChapterProvider>
-                                </Grid>)
-                            })
-                        }
-                        {
-                            ClassUserStat.ALL_STATUS.map((status, i) => {
-                                return (<Grid key={`${status}-${i}`} item xs={12} md={'auto'}>
-                                    <HighlightCard
-                                        title="Meilleur résultat"
-                                        icon={<EmojiEventsIcon />}
-                                        attempt={filteredStats.best}
-                                        tone="good"
-                                        status={status}
-                                    />
-                                </Grid>)
-                            })
-                        }
-
-                        <Grid item xs={12} md={6}>
-                            <HighlightCard
-                                title="Meilleur résultat"
-                                icon={<EmojiEventsIcon />}
-                                attempt={filteredStats.best}
-                                tone="good"
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <HighlightCard
-                                title="À améliorer"
-                                icon={<QuizIcon />}
-                                attempt={filteredStats.worst}
-                                tone="warn"
-                            />
-                        </Grid>
-                    </Grid>
-
+                    {
+                         
+                    }               
                     {/* Per course blocks */}
-                    <Stack spacing={2}>
+                   {
+                    
+                     <Grid container spacing={2}>
                         {
                             lessons.map((lesson, i) => {
-                                return (<CourseResultsBlock
-                                    key={lesson?.uid}
+                                return (<Grid size={{xs:12,sm:12}} key={lesson?.uid}>
+                                    <CourseResultsBlock
+                                    
                                     lesson={lesson}
                                     course={lesson}
                                     onOpenCourse={() => console.log("open course page", course.uid)}
                                     onOpenChapter={(ch) => console.log("open chapter page", ch.uid)}
-                                />)
+                                />
+                                </Grid>)
                             })
                         }
-                        {filteredCourses.map((course) => (
-                            <CourseResultsBlock
-                                key={course.uid}
-                                course={course}
-                                onOpenCourse={() => console.log("open course page", course.uid)}
-                                onOpenChapter={(ch) => console.log("open chapter page", ch.uid)}
-                            />
-                        ))}
-                    </Stack>
+                    </Grid>
+                    
+                   }
                 </Stack>
             </Box>
         </Stack>
@@ -473,7 +383,7 @@ function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
     );
 }
 
-function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, uidLesson = "",uidChapter="" }) {
+function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, uidLesson = "", uidChapter = "" }) {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { getOneLesson } = useLesson();
     const { getOneChapter, chapters } = useChapter();
@@ -503,8 +413,8 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
             setLesson(null);
             setChapter(null);
         }
-    }, [uidLesson, uidChapter,stat?.uid_lesson, stat?.uid_chapter]);
-    if (!attempt) {
+    }, [uidLesson, uidChapter, stat?.uid_lesson, stat?.uid_chapter]);
+    if (!stat) {
         return (
             <Paper
                 elevation={0}
@@ -514,7 +424,7 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
                     border: "1px solid rgba(15, 23, 42, 0.10)",
                 }}
             >
-                <Typography variant="h5" sx={{ fontWeight: 950 }}>
+                <Typography variant="h5" noWrap sx={{ fontWeight: 950 }}>
                     {title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -523,19 +433,19 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
             </Paper>
         );
     }
-    const p = percent(attempt);
+    //const p = percent(attempt);
     return (
         <Paper
             elevation={0}
             sx={{
                 borderRadius: 5,
-                p: 2.2,
+                p: 2,
                 border: `0.1px solid ${color?.border}`,
                 bgcolor: color?.background,
                 maxWidth: '300px'
             }}
         >
-            <Stack spacing={1.1}>
+            <Stack spacing={1} sx={{width:'100%'}}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ color: color?.color }}>
                         <AvatarIcon
@@ -548,7 +458,7 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
                             {icon}
                         </AvatarIcon>
                         <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
-                            {t(status)}
+                            {t(stat?.status)}
                         </Typography>
                     </Stack>
                     <Chip
@@ -563,10 +473,10 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
                     />
                 </Stack>
 
-                <Typography noWrap variant="body2" color={color?.color}>
+                <Typography variant="body2" color={color?.color}>
                     <b>{lesson?.translate?.title}</b>
                 </Typography>
-                <Typography noWrap variant="body2" color={color?.color}>
+                <Typography variant="body2" color={color?.color}>
                     {chapter?.translate?.title}
                 </Typography>
 
@@ -600,7 +510,7 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
                         height: 10,
                         borderRadius: 999,
                         bgcolor: color?.background_bubble,
-                        border: `0.1px solid ${color?.color}`,
+                        border: `0.1px solid ${color?.border}`,
                         "& .MuiLinearProgress-bar": {
                             borderRadius: 999,
                             bgcolor: color?.background_bar,
@@ -613,9 +523,10 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
 }
 
 function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter }) {
+    const router = useRouter();
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION])
     const { chapters } = useChapter();
-    const { getGlobalScore, getGlobalDuration, getGlobalCountQuiz, getGlobalPercent } = useStat();
+    const { getGlobalScore, getGlobalDuration, getGlobalCountQuiz, getGlobalPercent,stats } = useStat();
     const courseStats = []; /*useMemo(() => {
         const allAttempts = [];
         for (const ch of course?.chapters) {
@@ -644,14 +555,15 @@ function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter
             sx={{
                 borderRadius: 5,
                 border: "0.1px solid var(--card-border)",
+                //background: "0.1px solid var(--card-border)",
                 overflow: "hidden",
             }}
         >
             <Stack sx={{ py: 2, px: 2 }} spacing={1}>
                 <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={1.2}>
                     <Stack spacing={0.5}>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography noWrap variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{width:'100%'}}>
+                            <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
                                 {lesson?.translate?.title || course?.title}
                             </Typography>
                             <Chip size="small" label={t(lesson?.category) || course?.code} sx={softChip()} />
@@ -665,7 +577,6 @@ function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter
                         <Link href={`${PAGE_LESSONS}/${lesson?.uid}`} target={"_blank"}>
                             <ButtonCancel
                                 label={t('btn-see-lesson')}
-
                             />
                         </Link>
                     </Stack>
@@ -690,15 +601,10 @@ function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter
 
                 <Grid container spacing={1}>
                     {chapters?.filter(c => c.uid_lesson === lesson?.uid).map((ch) => (
-                        <Grid key={ch.uid} item xs={12} md={6}>
-                            <ChapterResultCard chapter={ch} onOpen={() => onOpenChapter(ch)} />
-                        </Grid>
-                    ))}
-                </Grid>
-                <Grid container spacing={1.2}>
-                    {course?.chapters?.map((ch) => (
-                        <Grid key={ch.uid} item xs={12} md={6}>
-                            <ChapterResultCard chapter={ch} onOpen={() => onOpenChapter(ch)} />
+                        <Grid key={ch.uid} size={{xs:12,sm:4}}>
+                            <Link href={`${PAGE_STATS}/${stats?.[0]?.uid}`}>
+                            <ChapterResultCard chapter={ch} />
+                            </Link>
                         </Grid>
                     ))}
                 </Grid>
@@ -730,8 +636,8 @@ function ChapterResultCard({ chapter, onOpen }) {
                 border: `0.1px solid var(--card-border)`,
                 cursor: "pointer",
                 "&:hover": {
-                    borderColor: colorBest?.background,
-                    boxShadow: `0 0px 5px ${colorBest?.color}`,
+                    borderColor: colorBest?.border,
+                    boxShadow: `0 0px 5px ${colorBest?.background}`,
                     transform: "translateY(-1px)",
                 },
                 transition: "all .18s ease",
@@ -739,22 +645,34 @@ function ChapterResultCard({ chapter, onOpen }) {
         >
             <Stack spacing={1.1}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-                    <Typography variant="body1" sx={{ fontWeight: 950, lineHeight: 1.1 }} noWrap title={chapter.title}>
+                    <Typography variant="body1" sx={{ fontWeight: 500, lineHeight: 1.15 }} title={chapter.title}>
                         {chapter?.translate?.title || chapter?.title}
                     </Typography>
                     <Chip size="small" label={`${countQuiz} ${t('quizs')}`} sx={softChip()} />
                 </Stack>
 
-                <Stack direction="row" spacing={0} flexWrap="wrap">
+                <Stack direction={{xs:'column',sm:'row'}} alignItems={'center'} spacing={0} flexWrap="wrap">
                     <Chip size="small"
                         label={`${t('average').substring(0, 3)}. ${percent.toFixed(2)}%`}
-                        sx={chapterChip({ background: colorPercent.background, borderColor: colorPercent.color, color: colorPercent.color })} />
-                    {bestStat && <Chip size="small"
+                        sx={chapterChip({
+                            background: colorPercent.background,
+                            borderColor: colorPercent.background_bar,
+                            color: colorPercent.background_bar
+                        })} />
+                    <Stack direction={'row'} alignItems={'center'}>
+                        {bestStat && <Chip size="small"
                         label={`${t('best')} ${bestStat.score}/${bestStat.answers.length}`}
-                        sx={chapterChip({ background: "var(--card-color)", borderColor: "transparent", color: colorBest.color })} />}
+                        sx={chapterChip({
+                            background: "var(--card-color)", borderColor: "transparent",
+                            color: colorBest.background_bar
+                        })} />}
                     {countQuiz > 1 && worstStat && <Chip size="small"
                         label={`${t('worst')} ${worstStat.score}/${worstStat.answers.length}`}
-                        sx={chapterChip({ background: "var(--card-color)", borderColor: "transparent", color: colorWorst.color })} />}
+                        sx={chapterChip({
+                            background: "var(--card-color)", borderColor: "transparent",
+                            color: colorWorst.background_bar
+                        })} />}
+                    </Stack>
                 </Stack>
 
                 <LinearProgress
@@ -763,11 +681,11 @@ function ChapterResultCard({ chapter, onOpen }) {
                     sx={{
                         height: 10,
                         borderRadius: 999,
-                        bgcolor: colorBest?.background,
-                        border: `0.1px solid ${colorBest?.color}`,
+                        bgcolor: colorBest?.background_bubble,
+                        border: `0.1px solid ${colorBest?.border}`,
                         "& .MuiLinearProgress-bar": {
                             borderRadius: 999,
-                            bgcolor: colorBest?.color,
+                            bgcolor: colorBest?.background_bar,
                         },
                     }}
                 />
@@ -830,7 +748,6 @@ function emptyStats() {
         worst: null,
     };
 }
-
 function chapterChip({ background = "", color = "", borderColor = "" }) {
     return {
         bgcolor: background,
@@ -847,7 +764,6 @@ function softChip() {
         fontWeight: 800,
     };
 }
-
 const outlineBtnSx = {
     borderRadius: 3,
     fontWeight: 950,

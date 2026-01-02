@@ -23,5 +23,11 @@
   "to-improve": "Needs improvement",
   "not-good": "Poor result",
   "unknown": "Unknown",
-  "office": "Office automation"
+  "office": "Office skills",
+  "average": "Average",
+  "best": "Best",
+  "worst": "Worst",
+  "btn-see-lesson": "View course",
+  "btn-reset": "Reset",
+  "btn-see-details": "Click to see details →"
 }
