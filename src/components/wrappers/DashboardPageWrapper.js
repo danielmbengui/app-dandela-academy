@@ -65,18 +65,19 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             sx={{
                 height: '100vh',
                 width: '100%',
-                backgroundImage: 'url("/images/login/back.png")',
-                backgroundSize: 'cover',        // l'image couvre tout l'écran
-                backgroundPosition: 'center',   // centrée
-                backgroundRepeat: 'no-repeat',  // pas de répétition
-                background: 'black'
-
+                background: 'var(--background-menu)', 
+                //backgroundImage: 'url("/images/login/back.png")',
+                //backgroundSize: 'cover',        // l'image couvre tout l'écran
+                //backgroundPosition: 'center',   // centrée
+                //backgroundRepeat: 'no-repeat',  // pas de répétition
+                //background: 'black',
+                //border: '3px solid red',
             }}>
-            <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, background: 'rgba(0,0,0,0.1)', width: '100%', height: '100%' }}>
+            <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, width: '100%', height: '100%' }}>
                 <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
                     <Toolbar disableGutters variant="dense" sx={{ width: '100%', maxHeight: '30px', p: 2 }}>
                         <Stack sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
-                            <IconLogo color={ClassColor.WHITE} width={'50%'} />
+                            <IconLogo color={"var(--primary)"} width={'50%'} />
                         </Stack>
                     </Toolbar>
                     <Divider />
@@ -85,15 +86,25 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             user?.menuDashboard().map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
                                 const isPath = path.includes(menuItem.path);
-                                return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: ClassColor.WHITE, background: '' }} disablePadding>
+                                return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
-                                        <Stack sx={{ px: 1, py: 1, background: isPath ? ClassColor.WHITE : '', borderRadius: isPath ? '5px' : '0px' }}>
+                                        <Stack sx={{
+                                            px: 1.5, py: 1, cursor: 'pointer',
+                                            background: isPath ? "var(--primary)" : 'var(--background-menu-item)',
+                                            borderRadius: '20px',
+                                            color: isPath ? "var(--card-color)" : "var(--primary)",
+                                            "&:hover": {
+                                                background: 'var(--primary)',
+                                                color: 'var(--card-color)',
+                                            }
+                                        }}>
                                             <Link href={menuItem.path}>
                                                 <Grid container spacing={0.5} sx={{
                                                     justifyContent: "start",
                                                     alignItems: "stretch",
                                                     width: '100%',
-                                                    color: isPath ? blueDark.main : ClassColor.WHITE,
+
+
                                                 }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
                                                     <Grid size={'auto'}>
                                                         <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
@@ -124,7 +135,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                             hasSubs && <Stack spacing={1} sx={{ pl: 3, pt: 1, pb: 2, background: '' }}>
                                                 {
                                                     menuItem.subs?.map((item, i) => {
-                                                        return (<ListItemButton key={`${item.name}-${i}`} disableGutters sx={{ background: 'red' }}>
+                                                        return (<ListItemButton key={`${item.name}-${i}`} disableGutters sx={{ background: '' }}>
                                                             <Grid container spacing={0.5} sx={{
                                                                 justifyContent: "start",
                                                                 alignItems: "stretch",
@@ -165,19 +176,19 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             </Stack>
         </Stack>
     );
-const isAllowed = useMemo(() => {
-    if (!user) return false;
-    const menus = user?.menuDashboard?.() || [];
-    // Choisis la règle :
-    //return menus.some(m => path === m.path || path.startsWith(m.path + "/") || path.startsWith(m.path));
-    return true;
-  }, [user, path]);
+    const isAllowed = useMemo(() => {
+        if (!user) return false;
+        const menus = user?.menuDashboard?.() || [];
+        // Choisis la règle :
+        //return menus.some(m => path === m.path || path.startsWith(m.path + "/") || path.startsWith(m.path));
+        return true;
+    }, [user, path]);
 
-  useEffect(() => {
-    if (!isLoading && user && !isAllowed) {
-      router.push(PAGE_NOT_AUTHORIZED);
-    }
-  }, [isLoading, user, isAllowed, router]);
+    useEffect(() => {
+        if (!isLoading && user && !isAllowed) {
+            router.push(PAGE_NOT_AUTHORIZED);
+        }
+    }, [isLoading, user, isAllowed, router]);
     //console.log("PATH", path,user?.menuDashboard(),user?.menuDashboard().includes(path));
 
 
@@ -193,17 +204,17 @@ const isAllowed = useMemo(() => {
     }
     if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
     return (
-        <Box sx={{ display: 'flex', }}>
-            <CssBaseline />
+        <Box sx={{ display: 'flex', background: 'green', overflow: 'hidden', height: '100vh' }}>
+
             <AppBar
                 elevation={0}
                 position="fixed"
                 sx={{
-                    background: {xs:'var(--card-color)', sm:'var(--background)'},
+                    background: 'var(--background-menu)'
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
-                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '50px', py: 1, px: 2, }}>
+                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>
                         <IconButton
                             color="inherit"
@@ -215,7 +226,7 @@ const isAllowed = useMemo(() => {
                             <MenuIcon />
                         </IconButton>
 
-                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{ py: 0.25, px: 0.5, height: '100%', color: text.main, border: `0.1px solid var(--grey-light)`, borderRadius: '20px' }}>
+                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{fontWeight:600, py: 0.25, px: 0.5, height: '100%', color: "var(--primary)", border: `1px solid var(--primary-shadow-md)`, borderRadius: '20px', background:"var(--primary-shadow-sm)" }}>
                             {
                                 user?.showAvatar({ size: 20, fontSize: '5px' })
                             }
@@ -230,7 +241,7 @@ const isAllowed = useMemo(() => {
                 </Toolbar>
             </AppBar>
             <Box
-                component="nav"
+                //component="nav"
                 sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
                 aria-label="mailbox folders"
             >
@@ -256,22 +267,63 @@ const isAllowed = useMemo(() => {
                 <Drawer
                     variant="permanent"
                     sx={{
-                        display: { xs: 'none', sm: 'block' },
+                        display: { xs: 'none', sm: 'flex' },
+                        border: 'none',
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
                     }}
                     open
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                width: drawerWidth,
+                                boxSizing: "border-box",
+                                borderRight: "none",
+                                boxShadow: "none",
+                                backgroundImage: "none",
+                            },
+                        },
+                    }}
                 >
                     {drawer}
                 </Drawer>
             </Box>
             <Box
                 component="main"
-                sx={{background:'', p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                sx={{ background: 'yellow', width: { sm: `calc(100%-${drawerWidth}px)`},position:'relstive' }}
             >
-                <Toolbar disableGutters variant="dense" sx={{ height: {xs:'50px',sm:'30px'}}} />
-                <Container disableGutters maxWidth={'xl'} sx={{ py: 1,px:{xs:1,sm:2}, background: '',mt:0 }}>
-                    <Stack spacing={1} maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ background: '', width: '100%', height: '100%' }}>
-                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%' }} spacing={{ xs: 1, sm: 0.5 }}>
+                <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }} />
+                <Container disableGutters maxWidth={'xl'} sx={{ 
+                    position:'absolute',
+                    left:drawerWidth,
+                    right:0,
+                    height: "100vh", 
+                    py: 1, 
+                    px: { xs: 1, sm: 2 }, 
+                    background: 'red', mt: 0, 
+                    borderTopLeftRadius: { xs: 0, sm: '20px' } }}>
+                    <Stack
+                        //spacing={1}
+                        position={'relative'}
+                        maxWidth="lg"
+                        alignItems="start"
+                        justifyContent="start"
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                            pb: 5,
+                            // ✅ layout colonne qui remplit
+                            display: "flex",
+                            flexDirection: "column",
+                            overflowY:'hidden',
+
+                            // ✅ clé pour permettre le scroll enfant
+                            minHeight: 0,
+
+                            // (debug)
+                            // background: "yellow",
+                        }}
+                    >
+                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%',py:1 }} spacing={{ xs: 1, sm: 0.5 }}>
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
@@ -298,10 +350,19 @@ const isAllowed = useMemo(() => {
                             <Typography sx={{ color: 'var(--grey-light)' }}>{subtitle}</Typography>
 
                         </Stack>
-                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{ width: '100%', height: '100%', background: '' }}>
+                        <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{
+                            overflowY: 'auto', background: '', minHeight: 0, 
+                            width: '100%', height: '100vh', py: 1,
+                            width: "100%",
+                            flex: 1,          // prend le reste
+                            minHeight: 0,     // ✅ clé
+                            overflowY: "auto",// ✅ scroll ici
+                            //pr: 1,            // optionnel pour éviter que le scrollbar colle au bord
+                        }}>
                             {children}
                         </Stack>
                     </Stack>
+
                 </Container>
             </Box>
         </Box>

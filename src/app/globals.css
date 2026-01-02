@@ -48,12 +48,14 @@
 /* Variables */
 :root {
   --blackColor: #000000;
-  --background: #F5F4F4;
+  --background: #FFFFFF;
+  --background-menu: #03112a;
+  --background-menu-item: rgba(17, 96, 229, 0.25);
   --card-color: #FFFFFF;
   --font-color: #000000;
   --font-reverse-color: #FFFFFF;
   --primary: #1160e5;
-  --primary-dark: #072862;
+  --primary-dark: #06204d;
   --primary-shadow: rgba(17, 96, 229, 0.05);
   --primary-shadow-xs: rgba(17, 96, 229, 0.15);
   --primary-shadow-sm: rgba(17, 96, 229, 0.25);
@@ -69,7 +71,6 @@
   --blue-dark: #020617;
 
 
-  --background-menu: #FFFFFF;
   --background-footer: #0C0E2B;
 
   --grey-hyper-light: #e4e4e4;
@@ -213,7 +214,9 @@
 
 .dark {
   --blackColor: #1c1c1c;
+  --background-menu:#000000;
   --primary: #2676ff;
+  --primary-dark: #000000;
   --primary-shadow: rgba(38, 118, 255, 0.45);
   --primary-shadow-xs: rgba(38, 118, 255, 0.55);
   --primary-shadow-sm: rgba(38, 118, 255, 0.65);
@@ -228,6 +231,7 @@
   --grey-hyper-light: #1c1c1c;
   --grey-hyper-dark: #e4e4e4;
   --grey-dark: #A6A6A6;
+  --card-border: var(--grey-hyper-light);
 
   --success: rgba(76, 175, 80, 1);
   --success-shadow: rgba(76, 175, 80, 0.33);
@@ -251,7 +255,7 @@
   --blue-cyan: #26d3e2;
   --blue-cyan-1: #24c1d3;
   */
-  --background-menu: #0C0E2B;
+
   --blueLight1: #0c0e2b;
   --borderColor: #312a57;
   --borderColor2: #fff;

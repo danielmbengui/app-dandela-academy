@@ -479,7 +479,7 @@ const CardHeader = () => {
                             }}
                         />
                     </Typography>
-                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+                    <Typography variant="h4" component="h1" sx={{color:"var(--font-color)", fontWeight: 700, my: 0.5 }}>
                         {chapter?.translate?.title}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "text.secondary" }}>
@@ -1196,7 +1196,7 @@ const CardQuizz = ({
                     <Stack maxWidth={'sm'} spacing={0.5}>
                         <Stack direction={'row'} spacing={1} alignItems={'center'}>
                             <IconQuizz color={'var(--primary)'} />
-                            <Typography>{t('title')}</Typography>
+                            <Typography sx={{color:'var(--font-color)'}}>{t('title')}</Typography>
                         </Stack>
                         {
                             index < 0 && <Typography variant="caption" sx={{ color: 'red', fontWeight: 300 }}>{t('subtitle')}</Typography>

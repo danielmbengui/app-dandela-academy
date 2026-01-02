@@ -357,7 +357,7 @@ export default function LessonComponent() {
   const isFull = seatsLeft <= 0 && !isEnrolled;
   const formatCfg = FORMAT_CONFIG[lesson?.format];
 
-  return (<Stack>
+  return (<Stack sx={{color:"var(--font-color)"}}>
     <div className="page">
       <main className="container">
         <section className="hero-card">
@@ -368,7 +368,7 @@ export default function LessonComponent() {
               </div>
             }
             <p className="breadcrumb">{t(lesson?.category).toUpperCase()}</p>
-            <h1>{lesson?.translate?.title}</h1>
+            <h1 style={{color:"var(--font-color)"}}>{lesson?.translate?.title}</h1>
             <p className="muted">
               {t('subtitle', { ns: NS_LESSONS_ONE })}
             </p>
@@ -698,13 +698,14 @@ export default function LessonComponent() {
                 .breadcrumb {
                   margin: 0 0 4px;
                   font-size: 0.75rem;
-                  color: #6b7280;
+                  color: var(--font-color);
                 }
         
                 h1 {
                   margin: 0;
                   font-size: 1.5rem;
                   line-height: 1.5rem;
+                  color: var(--font-color);
                 }
         
                 .muted {
