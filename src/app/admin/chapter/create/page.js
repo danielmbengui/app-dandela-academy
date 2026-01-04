@@ -488,7 +488,6 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
     return (<Stack spacing={2} sx={{ minWidth: '500px', py: 2, px: 3, background: 'var(--card-color)', borderRadius: '15px', }}>
         <Typography>{`Les objectifs du chapitre`}</Typography>
         <Stack spacing={1}>
-
             {
 
                 goals.map((goal, i) => {
@@ -844,7 +843,9 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
 
             {
                 subchapters.map((subchapter, i) => {
-                    return (<NewSubchapterComponent mode="list" subchapter={subchapter} />)
+                    return (<div key={i}>
+                        <NewSubchapterComponent mode="list" subchapter={subchapter} />
+                    </div>)
                 })
 
             }

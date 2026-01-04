@@ -808,7 +808,9 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
 
             {
                 subchapters.map((subchapter, i) => {
-                    return (<NewSubchapterComponent mode="list" subchapter={subchapter} />)
+                    return (<div key={i}>
+                        <NewSubchapterComponent mode="list" subchapter={subchapter} />
+                    </div>)
                 })
 
             }
