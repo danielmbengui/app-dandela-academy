@@ -235,7 +235,9 @@ export default function OneStatComponent() {
                                         </Typography>
                                     </Stack>
                                 </Paper>
-                                <CongratulationsComponent stat={stat} />
+                                <Stack>
+                                    <CongratulationsComponent stat={stat} />
+                                </Stack>
                                 </Stack>
                             </Grid>
                             <Grid size={{ xs: 12, sm: 9 }}>
@@ -367,6 +369,7 @@ const CongratulationsComponent = ({ stat = null }) => {
   box-shadow: 10px 20px 20px rgba(120, 87, 255, 0.3);
   box-shadow: none;
   border:1px solid var(--card-border);
+  height: 100%;
 }
 @media (min-width: 600px) {
   .results-summary-container {

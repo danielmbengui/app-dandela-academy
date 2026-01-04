@@ -41,7 +41,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                     {label}{required && <b style={{ color: 'red' }}>*</b>}
                 </label>
             }
-            <Stack direction={'row'} spacing={1} alignItems={'center'}>
+            <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{width:'100%'}}>
                 {
                     type !== 'text' && <>
                         {
@@ -92,6 +92,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 onClear={onClear}
                                 error={error}
                                 disabled={disabled}
+                                {...props}
                             />
                         }
 
@@ -214,6 +215,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         {
                             resetable && <IconButton
                                 loading={processing}
+                                
                                 onClick={() => {
                                     if (onCancel) {
                                         setProcessing(true);
@@ -264,6 +266,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         {
                             editable && <IconButton
                                 loading={processing}
+                                disabled={!value || processing}
                                 onClick={() => {
                                     setProcessing(true);
                                     if (onSubmit) {

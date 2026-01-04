@@ -48,6 +48,7 @@ export class ClassLessonChapter {
         EXPERT: 'expert', // expert
         UNKNOWN: 'unknown',
     });
+    static DEFAULT_QUIZ_DELAY_DAYS = 7;
 
     constructor({
         uid = "",
@@ -213,7 +214,7 @@ export class ClassLessonChapter {
         return this._translates;
     }
     set translates(value) {
-        this._translates = value;
+        this._translates = Array.isArray(value) ? value : [];;
     }
 
     // created_time
@@ -267,12 +268,22 @@ export class ClassLessonChapter {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
+        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
         cleaned.lesson = null;
         cleaned.translate = null;
+        cleaned.title = null;
+        cleaned.subtitle = null;
+        cleaned.description = null;
+        cleaned.goals = null;
         //cleaned.translates = null;
         //cleaned.computers = null;
         delete cleaned.lesson;
         delete cleaned.translate;
+        delete cleaned.title;
+        delete cleaned.subtitle;
+        delete cleaned.description;
+        delete cleaned.goals;
+
         //delete cleaned.translates;
         //delete cleaned.computers;
         //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
@@ -291,7 +302,11 @@ export class ClassLessonChapter {
             ...this.toJSON(),
             lesson: this._lesson,
             translate: this._translate,
-            //translates: this._translates,
+            translates: this._translates,
+            title: this._title,
+            subtitle: this._subtitle,
+            description: this._description,
+            goals: this._goals,
             //computers: this._computers,
         });
     }
@@ -327,12 +342,17 @@ export class ClassLessonChapter {
         return {
             toFirestore(chapterInstance) {
                 // chaque classe a un .toJSON() propre
+                /*
                 var translates = {};
                 for (const trans of chapterInstance?.translates) {
                     translates[trans.lang] = trans;
                 }
+                */
+                //const translates = chapterInstance?.translates?._convertTranslatesToFirestore();
+                //const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates);
+                //console.log("TRANSLATES", translates)
                 // chaque classe a un .toJSON() propre
-                return chapterInstance?.toJSON ? { ...chapterInstance.toJSON(), translates } : { ...chapterInstance, translates };
+                return chapterInstance?.toJSON ? chapterInstance.toJSON() : chapterInstance;
                 //return chapterInstance?.toJSON ? chapterInstance.toJSON() : chapterInstance;
             },
             fromFirestore(snapshot, options) {
@@ -352,6 +372,17 @@ export class ClassLessonChapter {
             },
         };
     }
+    _convertTranslatesToFirestore(translates = []) {
+        var translatesObj = {};
+        for (const trans of translates) {
+            translatesObj[trans.lang] = trans.toJSON?.() || trans || {};
+        }
+        return translatesObj;
+    }
+    _convertTranslatesFromFirestore(translatesObj = {}) {
+        const translates = Object.values(translatesObj)?.map?.(trans => new ClassLessonChapterTranslation(trans)) || [];
+        return translates;
+    }
 
     // ---------- Helpers Firestore ----------
     static async alreadyExist(_uid) {
@@ -370,24 +401,21 @@ export class ClassLessonChapter {
         const countSnap = await getCountFromServer(q);
         return countSnap.data().count > 0;
     }
-
     static colRef() {
         // if (!uidLesson) return;
-        return collectionGroup(firestore, ClassLessonChapter.COLLECTION).withConverter(this.converter);
+        return collectionGroup(firestore, this.COLLECTION).withConverter(this.converter);
         //return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
     }
-
     static docRef(uidLesson = "", id = "") {
         if (!uidLesson || !id) return;
         return doc(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION, id).withConverter(this.converter);
     }
-
     static async count(uidLesson = "", constraints = []) {
         try {
-            const q = query(this.colRef(uidLesson), [where("uid_lesson", "==", uidLesson), ...constraints]);        //const qSnap = await getDocs(q);
+            const q = query(this.colRef(), [where("uid_lesson", "==", uidLesson), ...constraints]);        //const qSnap = await getDocs(q);
             //const coll = collection(firestore, ClassUser.COLLECTION);
             //const coll = this.colRef();
-            console.log("waaaa", q)
+            //console.log("waaaa", q)
             const snap = await getCountFromServer(q);
             return snap.data().count; // -> nombre total
         } catch (error) {
@@ -499,7 +527,7 @@ export class ClassLessonChapter {
         //const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
         //console.log("REEEF", ref)
-        
+
         return qSnap.docs.map(docSnap => {
             const chapter = docSnap.data();
             const translate = chapter.translates?.find(item => item.lang === lang);
@@ -516,7 +544,7 @@ export class ClassLessonChapter {
             });
             return chapter;
         });
-        
+
         //return [];
     }
     // Créer un user (avec option timestamps serveur)
@@ -526,20 +554,58 @@ export class ClassLessonChapter {
         return `${prefix}-${(idRoom).toString().padStart(2, '0')}`;;
     }
     // Créer un user (avec option timestamps serveur)
+    createFirestoreDocUid() {
+        try {
+            const colRef = collection(
+                firestore,
+                ClassLesson.COLLECTION,
+                this._uid_lesson,
+                this.constructor.COLLECTION
+            );
+            const newRef = doc(colRef);
+            //const newRef = doc(this.constructor.colRef()); // id auto
+            console.log("errorrrrrr after")
+            return newRef.id;
+        } catch (error) {
+            console.log("ERRRRROROOOORO", error);
+            return null;
+        }
+    }
     async createFirestore() {
-        const newRef = doc(this.constructor.colRef(this._uid_lesson)); // id auto
-        const count = await this.constructor.count(this._uid_lesson) || 0;
-        //const countRoom = await ClassRoom.count() || 0;
-        const idRoom = count + 1;
-        this._uid = newRef.id;
-        this._uid_intern = idRoom;
-        //this._name = this.createRoomName(idRoom);
-        //this._name_normalized = this.createRoomName(idRoom, true);
-        //this._enabled = true;
-        this._created_time = new Date();
-        this._last_edit_time = new Date();
-        await setDoc(newRef, this.toJSON());
-        return this.constructor.makeChapterInstance(this._uid, this.toJSON()); // -> ClassModule
+        try {
+            console.log("errorrrrrr");
+            var newRef = null;
+            if (this._uid) {
+                newRef = this.constructor.docRef(this._uid_lesson, this._uid);
+            } else {
+                const colRef = collection(
+                    firestore,
+                    ClassLesson.COLLECTION,
+                    this._uid_lesson,
+                    this.constructor.COLLECTION
+                );
+                newRef = doc(colRef);
+            }
+            //const newRef = doc(this.constructor.colRef()); // id auto
+            console.log("errorrrrrr after")
+            const count = await this.constructor.count(this._uid_lesson) || 0;
+            //const countRoom = await ClassRoom.count() || 0;
+            const idChapter = count + 1;
+            this._uid = newRef.id;
+            this._uid_intern = idChapter;
+            //this._name = this.createRoomName(idRoom);
+            //this._name_normalized = this.createRoomName(idRoom, true);
+            //this._enabled = true;
+            this._created_time = new Date();
+            this._last_edit_time = new Date();
+            //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
+            //console.log("TRANSLATES", translates)
+            await setDoc(newRef, { ...this.toJSON() });
+            const translates = Object.values(this._translates)?.map?.(trans => new ClassLessonChapterTranslation(trans));
+            return this.constructor.makeChapterInstance(this._uid, { ...this.toJSON(), translates: translates }); // -> ClassModule
+        } catch (error) {
+            console.log("ERRRRROROOOORO", error)
+        }
     }
     // Mettre à jour un module
     async updateFirestore(patch = {}) {
@@ -548,7 +614,7 @@ export class ClassLessonChapter {
             const data = { ...patch, last_edit_time: new Date() };
 
             await updateDoc(ref, data, { merge: true });
-            console.log("weshtest", await this.constructor.fetchFromFirestore(this._uid))
+            //console.log("weshtest", await this.constructor.fetchFromFirestore(this._uid))
             //console.log("UPDATE COMPLETED")
             return await this.constructor.fetchFromFirestore(this._uid); // -> ClassModule
         } catch (e) {

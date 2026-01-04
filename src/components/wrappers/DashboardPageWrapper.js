@@ -65,7 +65,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             sx={{
                 height: '100vh',
                 width: '100%',
-                background: 'var(--background-menu)', 
+                background: 'var(--background-menu)',
                 //backgroundImage: 'url("/images/login/back.png")',
                 //backgroundSize: 'cover',        // l'image couvre tout l'écran
                 //backgroundPosition: 'center',   // centrée
@@ -141,7 +141,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                                                 alignItems: "stretch",
                                                                 width: '100%'
                                                             }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
-                                                                <Grid size={'auto'} sx={{ background: 'yellow' }}>
+                                                                <Grid size={'auto'} sx={{ background: '' }}>
                                                                     <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: 'blue' }}>
                                                                         {item.icon}
                                                                     </Stack>
@@ -166,7 +166,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 </Stack>
                 <Button
                     variant='contained'
-                    sx={{ background: 'red', color: backgroundMenu.main }}
+                    //sx={{ color: backgroundMenu.main }}
                     onClick={async () => {
                         await logout();
                     }}
@@ -204,7 +204,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     }
     if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
     return (
-        <Box sx={{ display: 'flex', background: 'green', overflow: 'hidden', height: '100vh' }}>
+        <Box sx={{ display: 'flex', background: 'var(--background-menu)', overflow: 'hidden', height: '100vh' }}>
 
             <AppBar
                 elevation={0}
@@ -217,16 +217,16 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>
                         <IconButton
-                            color="inherit"
+                            //color="var(--primary)"
                             aria-label="open drawer"
                             edge="start"
                             onClick={handleDrawerToggle}
-                            sx={{ mr: 2, display: { sm: 'none' }, color: text.main }}
+                            sx={{ mr: 2, display: { sm: 'none' }, color: "var(--primary)" }}
                         >
                             <MenuIcon />
                         </IconButton>
 
-                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{fontWeight:600, py: 0.25, px: 0.5, height: '100%', color: "var(--primary)", border: `1px solid var(--primary-shadow-md)`, borderRadius: '20px', background:"var(--primary-shadow-sm)" }}>
+                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{ fontWeight: 600, py: 0.25, px: 0.5, height: '100%', color: "var(--primary)", border: `1px solid var(--primary-shadow-md)`, borderRadius: '20px', background: "var(--primary-shadow-sm)" }}>
                             {
                                 user?.showAvatar({ size: 20, fontSize: '5px' })
                             }
@@ -289,18 +289,23 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             </Box>
             <Box
                 component="main"
-                sx={{ background: 'yellow', width: { sm: `calc(100%-${drawerWidth}px)`},position:'relstive' }}
+                sx={{ background: '', width: '100vw', position: 'relative' }}
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }} />
-                <Container disableGutters maxWidth={'xl'} sx={{ 
-                    position:'absolute',
-                    left:drawerWidth,
-                    right:0,
-                    height: "100vh", 
-                    py: 1, 
-                    px: { xs: 1, sm: 2 }, 
-                    background: 'red', mt: 0, 
-                    borderTopLeftRadius: { xs: 0, sm: '20px' } }}>
+                <Container disableGutters maxWidth={'xl'} sx={{
+                    position: 'absolute',
+                    top: '40px',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: "100vh",
+                    width: '100%',
+                    py: 1,
+                    px: { xs: 1, sm: 2 },
+                    background: 'var(--background)', 
+                    mt: 0,
+                    borderTopLeftRadius: { xs: 0, sm: '20px' }
+                }}>
                     <Stack
                         //spacing={1}
                         position={'relative'}
@@ -314,16 +319,15 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             // ✅ layout colonne qui remplit
                             display: "flex",
                             flexDirection: "column",
-                            overflowY:'hidden',
+                            overflowY: 'hidden',
 
                             // ✅ clé pour permettre le scroll enfant
                             minHeight: 0,
 
                             // (debug)
-                            // background: "yellow",
                         }}
                     >
-                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%',py:1 }} spacing={{ xs: 1, sm: 0.5 }}>
+                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%', py: 1 }} spacing={{ xs: 1, sm: 0.5 }}>
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
@@ -351,13 +355,34 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
 
                         </Stack>
                         <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{
-                            overflowY: 'auto', background: '', minHeight: 0, 
+                            overflowY: 'auto',
+                            //overflowY: 'auto', 
+                            background: '', minHeight: 0,
                             width: '100%', height: '100vh', py: 1,
                             width: "100%",
                             flex: 1,          // prend le reste
                             minHeight: 0,     // ✅ clé
-                            overflowY: "auto",// ✅ scroll ici
+                            //overflowY: "auto",// ✅ scroll ici
                             //pr: 1,            // optionnel pour éviter que le scrollbar colle au bord
+                            scrollbarWidth: "thin",
+                            scrollbarColor: "rgba(0,0,0,0.35) transparent",
+
+                            // Chrome/Safari/Edge
+                            "&::-webkit-scrollbar": {
+                                width: "10px",
+                            },
+                            "&::-webkit-scrollbar-track": {
+                                background: "transparent",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "rgba(0,0,0,0.25)",
+                                borderRadius: "999px",
+                                border: "2px solid transparent",
+                                backgroundClip: "content-box",
+                            },
+                            "&::-webkit-scrollbar-thumb:hover": {
+                                backgroundColor: "rgba(0,0,0,0.4)",
+                            },
                         }}>
                             {children}
                         </Stack>
