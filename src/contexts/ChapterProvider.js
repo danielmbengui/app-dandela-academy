@@ -104,6 +104,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             for (const snapshot of snap.docs) {
                 const chapter = snapshot.data();
                 chapter.translate = chapter.translates?.find(trans => trans.lang === lang);
+                /*
                 const _quiz = chapter.quiz;
                 const _questions = _quiz.questions?.map(sub => {
                     sub.translate = sub.getTranslate(lang);
@@ -111,6 +112,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 });
                 _quiz.questions = _questions;
                 chapter.quiz = _quiz;
+                */
                 //console.log("chap", chapter, uidLesson)
                 _chapters.push(chapter);
                 /*
@@ -125,7 +127,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             }
             _chapters = _chapters.sort((a, b) => a.uid_intern - b.uid_intern);
             //_stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-            console.log("providers CHAPTER", _chapters)
+            //console.log("providers CHAPTER", _chapters)
             setChapters(_chapters);
             //setStats(_stats);
             //setLastStat(_stats.length > 0 ? _stats[0] : null);
@@ -156,7 +158,9 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
             const translate = _chapter.translates?.find(trans => trans.lang === lang);
+            console.log("Weeeeesh translate", _chapter)
             _chapter.translate = translate;
+            /*
             const _quiz = _chapter.quiz;
             const _questions = _quiz.questions?.map(sub => {
                 sub.translate = sub.getTranslate(lang);
@@ -164,6 +168,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             });
             _quiz.questions = _questions;
             _chapter.quiz = _quiz;
+            */
             /*
             const _stats = await new ClassUserStat({
                 uid_user: user?.uid,

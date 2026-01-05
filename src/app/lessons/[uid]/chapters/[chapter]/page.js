@@ -1303,7 +1303,7 @@ export default function ExcelBeginnerCoursePage() {
     //const [subchapter, setSubchapter] = useState(null);
 
     const [process, setProcess] = useState(false);
-    const [indexSub, setIndexSub] = useState(9);
+    const [indexSub, setIndexSub] = useState(0);
     const onTranslate = async () => {
         try {
             setProcess(true);

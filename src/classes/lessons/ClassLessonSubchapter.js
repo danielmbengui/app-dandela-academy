@@ -26,12 +26,22 @@ export class ClassLessonSubchapter {
         uid_intern = "",
         uid_chapter = "",
         chapter = null,
+        title = "",
+        photo_url = "",
+        exercises = [],
+        goals = [],
+        keys = [],
         translate = {},
         translates = [],
     } = {}) {
         this._uid_intern = uid_intern;
         this._uid_chapter = uid_chapter;
         this._chapter = chapter;
+        this._title = title;
+        this._photo_url = photo_url;
+        this._exercises = exercises;
+        this._goals = goals;
+        this._keys = keys;
         this._translate = translate && typeof translate === "object" ? translate : {};
         this._translates = translates;
     }
@@ -40,7 +50,7 @@ export class ClassLessonSubchapter {
         return this._uid_intern;
     }
     set uid_intern(value) {
-        this._uid_intern = String(value ?? "");
+        this._uid_intern = value;
     }
 
     // uid_lesson
@@ -57,6 +67,37 @@ export class ClassLessonSubchapter {
     }
     set chapter(value) {
         this._chapter = value ?? null;
+    }
+
+    get title() {
+        return this._title;
+    }
+    set title(value) {
+        this._title = value ?? null;
+    }
+    get photo_url() {
+        return this._photo_url;
+    }
+    set photo_url(value) {
+        this._photo_url = value ?? null;
+    }
+    get exercises() {
+        return this._exercises;
+    }
+    set exercises(value) {
+        this._exercises = value ?? null;
+    }
+    get goals() {
+        return this._goals;
+    }
+    set goals(value) {
+        this._goals = value ?? null;
+    }
+    get keys() {
+        return this._keys;
+    }
+    set keys(value) {
+        this._keys = value ?? null;
     }
 
     // translate (objet)
@@ -106,12 +147,23 @@ export class ClassLessonSubchapter {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
+        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
         cleaned.chapter = null;
         cleaned.translate = null;
+        cleaned.title = null;
+        cleaned.photo_url = null;
+        cleaned.exercises = null;
+        cleaned.goals = null;
+        cleaned.keys = null;
         //cleaned.translates = null;
         //cleaned.computers = null;
         delete cleaned.chapter;
         delete cleaned.translate;
+        delete cleaned.title;
+        delete cleaned.photo_url;
+        delete cleaned.exercises;
+        delete cleaned.goals;
+        delete cleaned.keys;
         //delete cleaned.translates;
         //delete cleaned.computers;
         //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
@@ -128,8 +180,14 @@ export class ClassLessonSubchapter {
     clone() {
         return new ClassLessonSubchapter({
             ...this.toJSON(),
-            lesson: this._lesson,
+            chapter: this._chapter,
             translate: this._translate,
+            translates: this._translates,
+            title: this._title,
+            photo_url: this._photo_url,
+            exercises: this._exercises,
+            goals: this._goals,
+            keys: this._keys,
             //translates: this._translates,
             //computers: this._computers,
         });

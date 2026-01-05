@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Grid, Stack, Typography } from "@mui/material"
 import { useTranslation } from "react-i18next"
 import { ClassLessonChapter, ClassLessonChapterTranslation } from "@/classes/lessons/ClassLessonChapter"
@@ -24,7 +24,7 @@ const MODE_CREATE_SUB_CHAPTERS = 'create-subchapters';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 export default function TestCreateChapter() {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION, ClassSession.NS_COLLECTION, NS_LEVELS]);
-    const [mode, setMode] = useState(MODE_CREATE_CHAPTER);
+    const [mode, setMode] = useState(MODE_ADD_GOALS);
     const [chapter, setChapter] = useState(null);
     const { lessons } = useLesson();
     const router = useRouter();
@@ -238,7 +238,6 @@ function CreateChapterComponent({ chapter = null, setChapter = null, setMode = n
                 hasNull={!chapter?.uid_lesson}
                 required
                 error={errors?.uid_lesson}
-
             />
             <SelectComponentDark
                 required
@@ -337,6 +336,7 @@ function CreateChapterComponent({ chapter = null, setChapter = null, setMode = n
     </Stack>)
 }
 function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
+    const router = useRouter();
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION, ClassSession.NS_COLLECTION, NS_LEVELS]);
     const { lessons } = useLesson();
     const [disabledNext, setDisabledNext] = useState(false);
@@ -344,6 +344,30 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
     const [errors, setErrors] = useState({});
     const [newGoal, setNewGoal] = useState("");
     const [goals, setGoals] = useState([]);
+    useEffect(() => {
+        setChapter(prev => {
+            if (!prev || prev === null) {
+                return new ClassLessonChapter({
+                    uid_lesson: "zlUoi3t14wzC5cNhfS3J",
+                    level: "intermediate",
+                    title: "Excel Intermédiaire : Formules & Analyse de données",
+                    subtitle: "Cours Excel – Niveau Intermédiaire",
+                    description: "Approfondis les bases d'Excel avec des formules plus avancées, des références absolues, de la mise en forme conditionnelle et une première approche des tableaux croisés dynamiques.",
+                    estimated_start_duration: 6,
+                    estimated_end_duration: 8,
+                    goals: [
+                        "Utiliser des fonctions statistiques simples : MOYENNE, MIN, MAX, NB, NBVAL.",
+                        "Construire des formules conditionnelles simples avec la fonction SI.",
+                        "Comprendre et utiliser les références absolues avec le symbole $.",
+                        "Appliquer une mise en forme conditionnelle pour mettre en évidence des valeurs.",
+                        "Appliquer un tri et des filtres sur un tableau de données plus conséquent.",
+                        "Créer un premier tableau croisé dynamique pour résumer des données.",
+                    ],
+                });
+            }
+            return prev;
+        });
+    }, []);
     const onChangeNewGoalValue = (e) => {
         const { name, value, type } = e.target;
         setDisabledNext(!goals?.length);
@@ -485,12 +509,110 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
             //setProcessing(false);
         }
     }
+    const onSubmit = async () => {
+        try {
+            setProcessing(true);
+            const _errors = {};
+            if (!chapter?.goals?.length) {
+                _errors.new_goal = 'error-new-goal';
+            }
+            setErrors(_errors);
+            if (Object.keys(_errors).length > 0) {
+                setDisabledNext(true);
+                return;
+            }
+
+            const transChapter = {
+                title: chapter?.title,
+                subtitle: chapter?.subtitle,
+                description: chapter?.description,
+            }
+            const qsChapter = encodeURIComponent(JSON.stringify(transChapter));
+            const fetchTranslateChapter = await fetch(`/api/test?lang=fr&translations=${qsChapter}`);
+            const resultChapter = await fetchTranslateChapter.json();
+            const langsChapter = Object.keys(resultChapter);
+
+            const trans = chapter?.goals;
+            const qs = encodeURIComponent(JSON.stringify(trans));
+            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
+            const result = await fetchTranslate.json();
+            const langs = Object.keys(result);
+            const translates = Object.values(result)?.map?.((trans, i) => new ClassLessonChapterTranslation({ goals: trans, lang: langs[i] }));
+            const translatesChapter = Object.values(resultChapter).map?.((trans, i) => {
+                const lang = langs[i];
+                //Object.values(result)
+
+                const translate = translates.find(t => t.lang === lang);
+                return new ClassLessonChapterTranslation({ ...trans, goals: translate.goals, lang: lang });
+            });
+
+
+            //const translates = Object.values(result)?.map?.((trans, i) => new ClassLessonChapterTranslation({ goals: trans, lang: langs[i] }));
+            //const globalTranslates = { ...translatesChapter, goals: translates };
+            chapter.translates = translatesChapter;
+            //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
+            //console.log("TRANSLATES", chapter._convertTranslatesToFirestore(translatesChapter))
+            console.log("chapter", chapter.translates);
+            //console.log("RESULT chapter", Object.keys(result), result);
+            const _patch = await chapter?.createFirestore();
+            console.log("PATCH", _patch);
+            setChapter(_patch);
+            router.push(`/admin/chapter/create/${_patch.uid}/subchapters`);
+            /*
+            setProcess(true);
+            const INDEX_SUB = 8;
+            const quiz = chapter.quiz || [];
+            var questions = quiz?.questions || [];
+            const trans = questions?.[INDEX_SUB].getTranslate('fr');
+            const qs = encodeURIComponent(JSON.stringify(trans));
+            //console.log("fect", qs);
+            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
+            const result = await fetchTranslate.json();
+            const translates = Object.values(result)?.map?.(trans => new ClassLessonChapterQuestionTranslation(trans));
+            questions[INDEX_SUB].translates = translates;
+            questions = questions.map((q, i) => {
+                const final = q;
+                const qTrans = q.translates.map(_trans => {
+                    var answer = _trans.answer;
+                    const proposals = _trans.proposals.map((prop, i) => {
+                        var propReturn = {};
+                        if (prop.uid_intern) {
+                            propReturn = prop;
+                        } else {
+                            propReturn = { value: prop, uid_intern: i + 1 };
+                        }
+
+                        if (!answer.uid_intern && propReturn.value === answer) {
+                            answer = { uid_intern: i + 1, value: propReturn.value }
+                        }
+                        return propReturn;
+                    });
+                    _trans.proposals = proposals;
+                    _trans.answer = answer;
+                    return (_trans);
+                });
+
+                const trans = q._convertTranslatesToFirestore(qTrans);
+                final.translates = trans;
+                //final.translates
+                return final.toJSON();
+            });
+            quiz.questions = questions;
+
+            const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
+            console.log("RESUULT", quiz)
+            */
+        } catch (error) {
+            console.log("ERRROR", error);
+        } finally {
+            setProcessing(false);
+        }
+    }
     return (<Stack spacing={2} sx={{ minWidth: '500px', py: 2, px: 3, background: 'var(--card-color)', borderRadius: '15px', }}>
         <Typography>{`Les objectifs du chapitre`}</Typography>
         <Stack spacing={1}>
             {
-
-                goals.map((goal, i) => {
+                chapter?.goals.map((goal, i) => {
                     return (<FieldComponent
                         //required
                         key={`${i}`}
@@ -504,6 +626,14 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
                         onRemove={() => {
                             const _goals = goals.filter(v => v !== goal);
                             setGoals(_goals);
+                            setChapter(prev => {
+                                if (!prev) return new ClassLessonChapter({ goals: _goals });
+                                //const _goals = prev.goals;
+                                //_goals.push(newGoal);
+                                //prev.goals.push(newGoal);
+                                prev.update({ goals: _goals });
+                                return prev.clone();
+                            });
                         }}
                         /*
                         editable={true}
@@ -527,7 +657,6 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
                         style={{ width: '100%' }}
                     />)
                 })
-
             }
             <FieldComponent
                 //required
@@ -572,8 +701,8 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
                 <ButtonConfirm
                     label="Suivant"
                     loading={processing}
-                    disabled={disabledNext || !goals?.length}
-                    onClick={onGoNext}
+                    disabled={disabledNext || !chapter?.goals?.length}
+                    onClick={onSubmit}
                 />
             </Stack>
         </Stack>

@@ -269,6 +269,14 @@ export class ClassLessonChapter {
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
         cleaned.translates = this._convertTranslatesToFirestore(this._translates);
+        /*
+        cleaned.subchapters = this._subchapters?.map?.((sub) => {
+           // const subClass = new ClassLessonSubchapter(sub);
+            //const translates = subClass._convertTranslatesToFirestore(sub.translates);
+            //subClass.translates = translates;
+            return sub.toJSON();
+        });
+        */
         cleaned.lesson = null;
         cleaned.translate = null;
         cleaned.title = null;
@@ -307,6 +315,7 @@ export class ClassLessonChapter {
             subtitle: this._subtitle,
             description: this._description,
             goals: this._goals,
+            subchapters: this._subchapters
             //computers: this._computers,
         });
     }
@@ -349,6 +358,7 @@ export class ClassLessonChapter {
                 }
                 */
                 //const translates = chapterInstance?.translates?._convertTranslatesToFirestore();
+                //const translates = ClassLessonChapter._convertTranslatesToFirestore(this._translates);
                 //const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates);
                 //console.log("TRANSLATES", translates)
                 // chaque classe a un .toJSON() propre
@@ -367,7 +377,7 @@ export class ClassLessonChapter {
                     subClass.translates = translates;
                     return subClass;
                 });
-                const quiz = new ClassLessonChapterQuiz(data.quiz);
+                const quiz = data.quiz ? new ClassLessonChapterQuiz(data.quiz) : {};
                 return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates, subchapters, quiz });
             },
         };
@@ -480,11 +490,13 @@ export class ClassLessonChapter {
         const chapter = docSnap.data();
         const translate = chapter.translates?.find(item => item.lang === lang);
         chapter.translate = translate;
+        /*
         chapter.subchapters = chapter.subchapters?.map(sub => {
             const translate = sub.translates?.find(item => item.lang === lang);
             sub.translate = translate;
             return (sub);
         });
+        */
         chapter.quiz.questions = chapter.quiz.questions?.map(q => {
             const translate = q.translates?.find(item => item.lang === lang);
             q.translate = translate;
@@ -600,6 +612,7 @@ export class ClassLessonChapter {
             this._last_edit_time = new Date();
             //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
             //console.log("TRANSLATES", translates)
+            //const translates = this._convertTranslatesToFirestore(this._translates);
             await setDoc(newRef, { ...this.toJSON() });
             const translates = Object.values(this._translates)?.map?.(trans => new ClassLessonChapterTranslation(trans));
             return this.constructor.makeChapterInstance(this._uid, { ...this.toJSON(), translates: translates }); // -> ClassModule
