@@ -238,10 +238,16 @@ export class ClassLessonChapterQuestion {
 
     constructor({
         uid_intern = "",
+        question = "",
+        proposals = [],
+        answer = {},
         translate = {},
         translates = [],
     } = {}) {
         this._uid_intern = uid_intern;
+        this._question = question;
+        this._proposals = proposals;
+        this._answer = answer;
         this._translate = translate && typeof translate === "object" ? translate : {};
         this._translates = translates;
     }
@@ -251,6 +257,25 @@ export class ClassLessonChapterQuestion {
     }
     set uid_intern(value) {
         this._uid_intern = String(value ?? "");
+    }
+
+    get question() {
+        return this._question;
+    }
+    set question(value) {
+        this._question = value;
+    }
+    get proposals() {
+        return this._proposals;
+    }
+    set proposals(value) {
+        this._proposals = value;
+    }
+    get answer() {
+        return this._answer;
+    }
+    set answer(value) {
+        this._answer = value;
     }
 
     // translate (objet)
@@ -302,12 +327,14 @@ export class ClassLessonChapterQuestion {
         );
         //cleaned.chapter = null;
         cleaned.translate = null;
-        //cleaned.translates = null;
-        //cleaned.computers = null;
+        cleaned.question = null;
+        cleaned.proposals = null;
+        cleaned.answer = null;
         //delete cleaned.chapter;
         delete cleaned.translate;
-        //delete cleaned.translates;
-        //delete cleaned.computers;
+        delete cleaned.question;
+        delete cleaned.proposals;
+        delete cleaned.answer;
         //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
         //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
         return cleaned;
@@ -324,7 +351,9 @@ export class ClassLessonChapterQuestion {
             ...this.toJSON(),
             //lesson: this._lesson,
             translate: this._translate,
-            //translates: this._translates,
+            question: this._question,
+            proposals: this._proposals,
+            answer: this._answer,
             //computers: this._computers,
         });
     }

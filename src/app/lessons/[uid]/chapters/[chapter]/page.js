@@ -640,21 +640,6 @@ const CardSubChaptersContent = ({
                                     </Stack>
                                 </Stack>
 
-                                <Typography variant="body2" sx={{ fontWeight: 400, mt: 1.5 }}>
-                                    <Trans
-                                        t={t}
-                                        i18nKey={'subchapters-last'}
-                                        values={{
-                                            start: chapter?.estimated_start_duration,
-                                            end: chapter?.estimated_end_duration
-                                        }}
-                                        components={{
-                                            b: <strong />,
-                                            br: <br />
-                                        }}
-                                    />
-                                </Typography>
-
                                 <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
                                     {
                                         index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
