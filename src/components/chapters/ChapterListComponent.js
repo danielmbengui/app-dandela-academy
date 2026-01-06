@@ -261,7 +261,7 @@ function ChapterComponent() {
                                     //fill
                                     height={100}
                                     width={200}
-                                    style={{ objectFit: "cover", width: '100%', height: 'auto',borderRadius:'10px' }}
+                                    style={{ objectFit: "cover", width: '100%', height: 'auto',maxHeight:'300px',borderRadius:'10px' }}
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                 />
                             }
@@ -439,7 +439,7 @@ function SubchapterCard({ subchapter = null, onOpen }) {
             sx={{
                 borderRadius: 5,
                 p: 2.0,
-                border: "1px solid rgba(15,23,42,0.10)",
+                border: "0.1px solid var(--card-border)",
                 cursor: locked ? "not-allowed" : "pointer",
                 opacity: locked ? 0.7 : 1,
                 position: "relative",
