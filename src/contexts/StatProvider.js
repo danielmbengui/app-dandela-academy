@@ -41,6 +41,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         init();
     }, []);
+    /*
     useEffect(()=>{
         if(uidLesson) {
             setUidLesson(uidLesson);
@@ -52,7 +53,8 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         } else {
             setUidChapter('');
         }
-    }, [uidLesson, uidChapter])
+    }, [uidLesson, uidChapter]);
+    */
     const [countHourTotalLessons, setCountHourTotalLessons] = useState(0);
     //const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();

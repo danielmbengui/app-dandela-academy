@@ -34,6 +34,8 @@ import { useTranslation } from "react-i18next";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { StatProvider, useStat } from "@/contexts/StatProvider";
 import Image from "next/image";
+import AccordionComponent from "../dashboard/elements/AccordionComponent";
+import { formatChrono } from "@/contexts/functions";
 
 const ROYAL = "#2563EB";
 const NAVY = "#0B1B4D";
@@ -46,7 +48,7 @@ export default function ChapterListComponent() {
             setUidChapter(chapters[0].uid);
         }
     }, [chapters.length]);
-    return (<StatProvider uidLesson={lesson?.uid} uidChapter={chapter?.uid}>
+    return (<StatProvider>
         <ChapterComponent />
     </StatProvider>)
 }
@@ -63,7 +65,7 @@ function ChapterComponent() {
     const { chapters, estimateChapterTimes, chapter, setUidChapter } = useChapter();
     useEffect(() => {
         if (chapters.length > 0 && (!chapter || chapter === null)) {
-            setUidChapter(chapters[0].uid);
+            //setUidChapter(chapters[0].uid);
         }
         console.log("STATTS", stats)
     }, [chapters.length]);
@@ -161,6 +163,101 @@ function ChapterComponent() {
     };
     return (
         <Box sx={{ bgcolor: "var(--card-color)", borderRadius: '10px', minHeight: "100vh", px: 1.5, py: 2 }}>
+            <Stack spacing={0.5}>
+                {
+                    chapters?.map((_chapter, i) => {
+                        const percent = getGlobalPercent(_chapter.uid_lesson, _chapter.uid);
+                        const time = estimateChapterTimes({
+                            totalMinHours: _chapter.estimated_start_duration,
+                            totalMaxHours: _chapter.estimated_end_duration,
+                            chapterCount: _chapter.subchapters?.length,
+                            level: _chapter.level,
+                        });
+                        console.log("YAAAA", time);
+                        return (<AccordionComponent
+                            title={`${_chapter.uid_intern}. ${_chapter.translate?.title} - ${_chapter.estimated_start_duration} à ${_chapter.estimated_end_duration}`}
+                            key={`${_chapter.uid}-${i}`}>
+                            <Grid container sx={{ px: 1, py: 1.5 }} spacing={1} justifyContent={'space-between'}>
+                                <Grid size={8}>
+                                    <Stack>
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} flexWrap="wrap">
+                                            <Chip label={`${t(_chapter?.level)} • ${_chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
+                                            <Chip label={`Progression: ${percent.toFixed(2)}%`} variant="outlined" sx={chipHeader} />
+                                        </Stack>
+                                        <Stack sx={{ px: 1.5, py: 1 }}>
+                                            {
+                                                _chapter.subchapters?.map((sub, i) => {
+                                                    return (<Typography variant="caption" key={`${sub.uid_intern}-${i}`}>{sub.uid_intern}. {sub.translate?.title} (<span style={{ color: 'var(--primary)' }}>≈{formatChrono((time[i].duration_min + time[i].duration_max) / 2 * 60)}</span>)</Typography>)
+                                                })
+                                            }
+                                        </Stack>
+                                    </Stack>
+                                    {/* Progress bar */}
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            borderRadius: 1.5,
+                                            my:1,
+                                            mx:1.5,
+                                            p: 1.5,
+                                            border: "0.1px solid var(--primary-shadow-xs)",
+                                            bgcolor: "var(--primary-shadow)",
+                                        }}
+                                    >
+                                        <Stack spacing={0.7}>
+                                            <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
+                                                <Typography variant="body2" sx={{ fontWeight: 900 }}>
+                                                    {stats?.filter(s=>s.uid_chapter===_chapter.uid).length} questionnaires completés
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 950 }}>
+                                                    {Number.isNaN(percent) ? 0 : percent.toFixed(2)}%
+                                                </Typography>
+                                            </Stack>
+                                            <LinearProgress
+                                                variant="determinate"
+                                                value={percent}
+                                                sx={{
+                                                    height: 10,
+                                                    borderRadius: 999,
+                                                    bgcolor: "var(--primary-shadow-lg)",
+                                                    "& .MuiLinearProgress-bar": { bgcolor: "var(--primary)", borderRadius: 999 },
+                                                }}
+                                            />
+                                        </Stack>
+                                    </Paper>
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                                    <Stack
+                                        sx={{
+                                            position: "relative",
+                                            width: "100%",
+                                            //height: 220,
+                                            //borderRadius: 2,
+                                            overflow: "hidden",
+                                            border: "1px solid",
+                                            border: "0.1px solid transparent",
+                                            //background:'red',
+
+                                        }}
+                                    >
+                                        {
+                                            chapter?.photo_url && <Image
+                                                src={chapter?.photo_url}
+                                                alt={chapter?.translate?.title || ""}
+                                                //fill
+                                                height={100}
+                                                width={200}
+                                                style={{ objectFit: "cover", width: '100%', height: 'auto', borderRadius: '10px' }}
+                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                            />
+                                        }
+                                    </Stack>
+                                </Grid>
+                            </Grid>
+                        </AccordionComponent>)
+                    })
+                }
+            </Stack>
             {
                 chapter && <Tabs
                     value={chapter?.uid || ''}
@@ -186,51 +283,84 @@ function ChapterComponent() {
                     }
                 </Tabs>
             }
+            <Grid container spacing={1} sx={{ background: 'red', py: 1 }} justifyContent={'space-between'}>
+                <Grid size={{ xs: 12, sm: 8 }}>
+                    <Stack spacing={2} justifyContent={'center'} sx={{ width: { xs: '100%', sm: '100%' }, py: 3, px: 2 }}>
+                        <Stack spacing={1}>
+                            <Typography variant="h4">{chapter?.uid_intern}. {chapter?.translate?.title} {chapter?.duration}</Typography>
 
-            <Stack spacing={2} justifyContent={'center'} sx={{ width: { xs: '100%', sm: '60%' }, py: 3,px:2 }}>
-                <Stack spacing={1}>
-                    <Typography variant="h4">{chapter?.uid_intern}. {chapter?.translate?.title} {chapter?.duration}</Typography>
-
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                        <Chip label={`${t(chapter?.level)} • ${chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
-                        <Chip label={`Progression: ${currentLevel.progress}%`} variant="outlined" sx={chipHeader} />
-                    </Stack>
-                </Stack>
-                {/* Progress bar */}
-                <Paper
-                    elevation={0}
-                    sx={{
-                        borderRadius: 1.5,
-                        p: 1.2,
-                        border: "0.1px solid var(--primary-shadow-xs)",
-                        bgcolor: "var(--primary-shadow)",
-                    }}
-                >
-                    <Stack spacing={0.7}>
-                        <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="body2" sx={{ fontWeight: 900 }}>
-                                {stats?.length} questionnaires completés
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 950 }}>
-                                {Number.isNaN(percent) ? 0 : percent.toFixed(2)}%
-                            </Typography>
+                            <Stack direction="row" spacing={1} flexWrap="wrap">
+                                <Chip label={`${t(chapter?.level)} • ${chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
+                                <Chip label={`Progression: ${currentLevel.progress}%`} variant="outlined" sx={chipHeader} />
+                            </Stack>
                         </Stack>
-                        <LinearProgress
-                            variant="determinate"
-                            value={percent}
-                            sx={{
-                                height: 10,
-                                borderRadius: 999,
-                                bgcolor: "var(--primary-shadow-lg)",
-                                "& .MuiLinearProgress-bar": { bgcolor: "var(--primary)", borderRadius: 999 },
-                            }}
-                        />
-                    </Stack>
-                </Paper>
-            </Stack>
 
-            <Stack spacing={1} sx={{px:2}}>
-                <Grid container sx={{ background: 'red' }} spacing={2}>
+                        {/* Progress bar */}
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                borderRadius: 1.5,
+                                p: 1.2,
+                                border: "0.1px solid var(--primary-shadow-xs)",
+                                bgcolor: "var(--primary-shadow)",
+                            }}
+                        >
+                            <Stack spacing={0.7}>
+                                <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
+                                    <Typography variant="body2" sx={{ fontWeight: 900 }}>
+                                        {stats?.length} questionnaires completés
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 950 }}>
+                                        {Number.isNaN(percent) ? 0 : percent.toFixed(2)}%
+                                    </Typography>
+                                </Stack>
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={percent}
+                                    sx={{
+                                        height: 10,
+                                        borderRadius: 999,
+                                        bgcolor: "var(--primary-shadow-lg)",
+                                        "& .MuiLinearProgress-bar": { bgcolor: "var(--primary)", borderRadius: 999 },
+                                    }}
+                                />
+                            </Stack>
+                        </Paper>
+                    </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                    <Stack
+                        sx={{
+                            position: "relative",
+                            width: "100%",
+                            //height: 220,
+                            //borderRadius: 2,
+                            overflow: "hidden",
+                            border: "1px solid",
+                            border: "0.1px solid transparent",
+                            //background:'red',
+
+                        }}
+                    >
+                        {
+                            chapter?.photo_url && <Image
+                                src={chapter?.photo_url}
+                                alt={chapter?.translate?.title || ""}
+                                //fill
+                                height={100}
+                                width={200}
+                                style={{ objectFit: "cover", width: '100%', height: 'auto', borderRadius: '10px' }}
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                        }
+                    </Stack>
+                </Grid>
+            </Grid>
+
+
+
+            <Stack spacing={1} sx={{ px: 2 }}>
+                <Grid container sx={{ background: '' }} spacing={2}>
                     <Grid size={12}>
                         <Grid container spacing={1}>
                             {chapter?.subchapters?.map((sub) => (
@@ -261,7 +391,7 @@ function ChapterComponent() {
                                     //fill
                                     height={100}
                                     width={200}
-                                    style={{ objectFit: "cover", width: '100%', height: 'auto',maxHeight:'300px',borderRadius:'10px' }}
+                                    style={{ objectFit: "cover", width: '100%', height: 'auto', borderRadius: '10px' }}
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                 />
                             }

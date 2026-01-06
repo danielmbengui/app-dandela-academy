@@ -17,11 +17,12 @@ const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square={true} {...props} />
 ))(({ theme }) => ({
   //border: `1px solid ${theme.palette.divider}`,
-  '&:not(:last-child)': {
+  '&:last-child': {
     // borderBottom: 0,
+    //borderTop: 'none',
   },
   '&::before': {
-    // display: 'none',
+    display: 'none',
   },
 }));
 
@@ -35,7 +36,7 @@ const AccordionSummary = styled((props) => (
 
   backgroundColor: 'rgba(0, 0, 0, .03)',
   backgroundColor: 'var(--grey-light)',
-  backgroundColor: 'none',
+  background: 'transparent',
   border: '0.1px solid var(--card-border)',
   flexDirection: 'row',
   color: "var(--font-color)",
@@ -49,8 +50,10 @@ const AccordionSummary = styled((props) => (
     minHeight: 30,               // hauteur ouverte
     //background:'yellow',
     //backgroundColor: 'var(--grey-hyper-light)',
+    borderColor: 'var(--card-border)',
     borderBottomLeftRadius: '0px',
     borderBottomRightRadius: '0px',
+    borderRadius: '5px',
   },
   '& .MuiAccordionSummary-content': {
     //margin: 0,                   // enlève le gros padding vertical

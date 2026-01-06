@@ -44,7 +44,7 @@ export function formatChrono(seconds = 0) {
     const _hours = parseInt(seconds / STEP_HOUR);
     const _minutes = parseInt((seconds % STEP_HOUR) / STEP_MINUTES);
     const _seconds = parseInt((seconds % STEP_HOUR) % STEP_MINUTES);
-    return `${_hours}h ${_minutes}min ${_seconds}s`;
+    return `${_hours}h ${_minutes ? `${_minutes}min` : ''} ${_seconds ? `${_seconds}s` : ''}`;
   }
   const _days = parseInt(seconds / STEP_DAY);
   const _hours = parseInt((seconds % STEP_DAY) / STEP_HOUR);

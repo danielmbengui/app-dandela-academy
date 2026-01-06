@@ -29,7 +29,7 @@ export default function DashboardOneLesson() {
         if (uidLesson && !isLoadingLessons) {
             const _lesson = getOneLesson(uidLesson);
             //setLesson(_lesson);
-            setUidLesson(uidLesson);
+            //setUidLesson(uidLesson);
             console.log("UUUID lesson", uidLesson)
         }
     }, [uidLesson, isLoadingLessons]);

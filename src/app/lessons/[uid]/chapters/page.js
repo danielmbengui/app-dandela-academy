@@ -22,6 +22,7 @@ const CardHeader = () => {
         borderColor: "var(--card-border)",
         fontWeight: 900,
     };
+    console.log("LEEEES", lesson)
 
     return (<Stack sx={{ background: '', width: '100%' }}>
         <Grid container>
