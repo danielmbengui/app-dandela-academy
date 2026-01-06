@@ -396,3 +396,6 @@ export const IconProgressUp = ({ width = 24, height = 24, color = '' }) => {
 export const IconProgressDown = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="ph:chart-line-down-bold" width={width} height={height} color={color} />)
 }
+export const IconSearch = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:twotone-search" width={width} height={height} color={color} />)
+}

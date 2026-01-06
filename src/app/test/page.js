@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Avatar,
+  Box,
   Button,
   Chip,
   Divider,
@@ -11,357 +12,390 @@ import {
   Stack,
   Typography,
   Grid,
-  IconButton,
-  Tooltip,
-  Backdrop,
+  TextField,
+  InputAdornment,
+  LinearProgress,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EventIcon from "@mui/icons-material/Event";
-import RoomIcon from "@mui/icons-material/Room";
+import SearchIcon from "@mui/icons-material/Search";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SchoolIcon from "@mui/icons-material/School";
-import PersonIcon from "@mui/icons-material/Person";
-import LanguageIcon from "@mui/icons-material/Language";
-import PaymentsIcon from "@mui/icons-material/Payments";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import LockIcon from "@mui/icons-material/Lock";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-/**
- * Page Session (mini page) — Next.js / App Router / JavaScript + MUI
- *
- * ✅ Affiche infos session
- * ✅ Bouton "Voir le cours"
- * ✅ Bouton "S'inscrire"
- *
- * À brancher :
- * - Récupération session par params (uid)
- * - Actions Firestore (subscribe)
- */
-export default function LessonSessionPage() {
+const ROYAL = "#2563EB";
+const NAVY = "#0B1B4D";
+
+export default function CourseChaptersPage() {
   const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [level, setLevel] = useState("Débutant"); // Débutant | Intermédiaire | Avancé
 
-  // ---- MOCK (remplace par ton fetch Firestore / ClassLessonSession.get(uid)) ----
-  const session = useMemo(
+  // --- MOCK: 5 chapitres par niveau ---
+  const course = useMemo(
     () => ({
-      uid: "session_001",
-      uid_lesson: "lesson_excel_101",
-      uid_teacher: "teacher_01",
-      uid_room: "room_02",
-      code: "EXCEL-101",
-      title: "Excel Débutant — Session Janvier",
-      format: "hybrid", // "onsite" | "online" | "hybrid"
-      price: 2500,
-      currency: "AOA",
-      start_date: new Date("2026-01-12T09:00:00"),
-      end_date: new Date("2026-01-12T12:00:00"),
-      location: "Luanda - Talatona",
-      url: "https://meet.google.com/xxx-xxxx-xxx",
-      seats_availables_onsite: 12,
-      seats_availables_online: 40,
-      subscribers_onsite: ["u1", "u2", "u3"],
-      subscribers_online: ["u4", "u5"],
-      photo_url:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=80&auto=format&fit=crop",
-      status: "PUBLISHED",
+      uid: "lesson_excel_101",
+      code: "EXCEL",
+      title: "Excel",
+      subtitle: "Apprends Excel étape par étape, avec exercices et quiz.",
+      levels: [
+        {
+          key: "Débutant",
+          progress: 60, // %
+          chapters: [
+            { uid: "b1", index: 1, title: "Introduction & interface", duration_min: 12, status: "done" },
+            { uid: "b2", index: 2, title: "Cellules, lignes, colonnes", duration_min: 15, status: "done" },
+            { uid: "b3", index: 3, title: "Saisie & formats (nombres, dates)", duration_min: 18, status: "current" },
+            { uid: "b4", index: 4, title: "Formules simples (SOMME, MOYENNE)", duration_min: 20, status: "locked" },
+            { uid: "b5", index: 5, title: "Mise en forme conditionnelle", duration_min: 16, status: "locked" },
+          ],
+        },
+        {
+          key: "Intermédiaire",
+          progress: 20,
+          chapters: [
+            { uid: "i1", index: 1, title: "Références relatives/absolues", duration_min: 18, status: "done" },
+            { uid: "i2", index: 2, title: "Fonctions SI & logique", duration_min: 22, status: "current" },
+            { uid: "i3", index: 3, title: "Tri, filtres, tableaux", duration_min: 24, status: "locked" },
+            { uid: "i4", index: 4, title: "RechercheV / XLOOKUP", duration_min: 26, status: "locked" },
+            { uid: "i5", index: 5, title: "Graphiques & mise en page", duration_min: 20, status: "locked" },
+          ],
+        },
+        {
+          key: "Avancé",
+          progress: 0,
+          chapters: [
+            { uid: "a1", index: 1, title: "Tableaux croisés dynamiques", duration_min: 28, status: "locked" },
+            { uid: "a2", index: 2, title: "Power Query (nettoyage)", duration_min: 30, status: "locked" },
+            { uid: "a3", index: 3, title: "Modèle de données (Power Pivot)", duration_min: 30, status: "locked" },
+            { uid: "a4", index: 4, title: "Dashboards & KPIs", duration_min: 35, status: "locked" },
+            { uid: "a5", index: 5, title: "Mini-projet final", duration_min: 40, status: "locked" },
+          ],
+        },
+      ],
     }),
     []
   );
 
-  const lessonRoute = `/dashboard/lessons/${session.uid_lesson}`; // adapte
-  const calendarRoute = `/dashboard/calendar`; // adapte
-  const backRoute = calendarRoute;
-
-  const formatLabel =
-    session.format === "onsite"
-      ? "Présentiel"
-      : session.format === "online"
-        ? "En ligne"
-        : "Hybride";
-
-  const seatsLeftOnsite = Math.max(
-    0,
-    Number(session.seats_availables_onsite || 0) -
-    (session.subscribers_onsite?.length || 0)
-  );
-  const seatsLeftOnline = Math.max(
-    0,
-    Number(session.seats_availables_online || 0) -
-    (session.subscribers_online?.length || 0)
+  const currentLevel = useMemo(
+    () => course.levels.find((l) => l.key === level) || course.levels[0],
+    [course.levels, level]
   );
 
-  const startText = formatDate(session.start_date);
-  const endText = formatDate(session.end_date);
+  const chaptersFiltered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return currentLevel.chapters;
+    return currentLevel.chapters.filter((c) => c.title.toLowerCase().includes(q));
+  }, [currentLevel.chapters, query]);
 
-  const handleBack = () => router.push(backRoute);
-
-  const handleGoToLesson = () => router.push(lessonRoute);
-
-  const handleSubscribe = async () => {
-    // TODO: brancher Firestore
-    // - vérifier si déjà inscrit
-    // - vérifier places restantes selon mode choisi
-    // - pousser uid user dans subscribers_online / subscribers_onsite
-    // - ou créer une sous-collection / collection "subscriptions"
-    console.log("subscribe to session:", session.uid);
-    alert("Inscription (mock) ✅");
+  const handleOpenChapter = (chapter) => {
+    if (chapter.status === "locked") return;
+    // adapte vers ta page chapitre existante :
+    router.push(`/dashboard/lessons/${course.uid}/chapters/${chapter.uid}`);
   };
 
   return (
-    <Backdrop
-      open={true}
-      sx={{
-        minHeight: "100vh",
-        zIndex: (theme) => theme.zIndex.drawer + 1
-      }
-      }
-    >
-      <Stack
+    <Box sx={{ bgcolor: "#fff", minHeight: "100vh" }}>
+      {/* HERO */}
+      <Box
         sx={{
-          height: "100%",
-          width: "100%",
-          px: { xs: 2, md: 3 },
-          py: { xs: 2, md: 3 },
-          
+          background: "linear-gradient(135deg, rgba(11,27,77,1) 0%, rgba(37,99,235,1) 55%, rgba(96,165,250,1) 100%)",
+          color: "white",
+          pb: 9,
         }}
-        alignItems={'center'}
-        spacing={2}
       >
-        {/* Header */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ maxWidth: 1100, width: "100%", mx: "auto" }}
-        >
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Tooltip title="Retour">
-              <IconButton onClick={handleBack} sx={{ color: "white" }}>
-                <ArrowBackIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Stack spacing={0.2}>
-              <Typography variant="h4" sx={{ color: "white", fontWeight: 700 }}>
-                Session
-              </Typography>
-              <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.75)" }}>
-                Infos rapides + inscription
-              </Typography>
-            </Stack>
-          </Stack>
-
-          <Chip
-            label={session.status === "PUBLISHED" ? "Inscriptions ouvertes" : session.status}
-            color={session.status === "PUBLISHED" ? "success" : "default"}
-            variant={session.status === "PUBLISHED" ? "filled" : "outlined"}
-          />
-        </Stack>
-
-        <Stack sx={{ maxWidth: 1100, width: "100%", mx: "auto",overflowY: "auto", }} spacing={2}>
-          {/* Hero card */}
-          <Paper
-            elevation={6}
-            sx={{
-              borderRadius: 3,
-             // overflow: "hidden",
-            }}
-          >
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              sx={{ minHeight: 220 }}
-            >
-              {/* Image */}
-              <Stack
-                sx={{
-                  width: { xs: "100%", md: 360 },
-                  minHeight: { xs: 180, md: "auto" },
-                  backgroundImage: `url(${session.photo_url})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-
-              {/* Content */}
-              <Stack sx={{ p: 2.5, flex: 1 }} spacing={1.2}>
-                <Stack
-                  direction="row"
-                  alignItems="flex-start"
-                  justifyContent="space-between"
-                  spacing={2}
+        <Stack sx={{ maxWidth: 1200, mx: "auto", px: { xs: 2, md: 3 }, pt: 3 }} spacing={2}>
+          <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2}>
+            <Stack spacing={0.6}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Avatar
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.14)",
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    color: "white",
+                  }}
                 >
-                  <Stack spacing={0.4} sx={{ minWidth: 0 }}>
-                    <Typography
-                      variant="h4"
-                      sx={{ fontWeight: 700 }}
-                      noWrap
-                      title={session.title}
-                    >
-                      {session.title}
-                    </Typography>
-
-                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                      <Chip size="small" icon={<SchoolIcon />} label={session.code} />
-                      <Chip size="small" icon={<EventIcon />} label={`${startText} → ${endText}`} />
-                      <Chip size="small" icon={<PersonIcon />} label={`Prof: ${session.uid_teacher}`} />
-                    </Stack>
-                  </Stack>
-
-                  <Stack spacing={0.6} alignItems="flex-end">
-                    <Stack direction="row" spacing={0.8} alignItems="center">
-                      <PaymentsIcon fontSize="small" />
-                      <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                        {formatMoney(session.price, session.currency)}
-                      </Typography>
-                    </Stack>
-                    <Chip size="small" icon={<LanguageIcon />} label={formatLabel} variant="outlined" />
-                  </Stack>
-                </Stack>
-
-                <Divider />
-
-                <Grid container spacing={1.5}>
-                  <Grid item xs={12} md={6}>
-                    <InfoLine
-                      icon={<RoomIcon fontSize="small" />}
-                      label="Lieu"
-                      value={session.location || (session.uid_room ? `Salle ${session.uid_room}` : "-")}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <InfoLine
-                      icon={<LanguageIcon fontSize="small" />}
-                      label="Lien (si en ligne)"
-                      value={session.url ? session.url : "—"}
-                      isLink={!!session.url}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <InfoLine
-                      label="Places restantes (présentiel)"
-                      value={`${seatsLeftOnsite} / ${session.seats_availables_onsite}`}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <InfoLine
-                      label="Places restantes (en ligne)"
-                      value={`${seatsLeftOnline} / ${session.seats_availables_online}`}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Divider />
-
-                {/* Actions */}
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={1.5}
-                  justifyContent="space-between"
-                  alignItems={{ xs: "stretch", sm: "center" }}
-                >
-                  <Button
-                    variant="outlined"
-                    onClick={handleGoToLesson}
-                    startIcon={<SchoolIcon />}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Voir le cours
-                  </Button>
-
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2}>
-                    <Button
-                      variant="contained"
-                      onClick={handleSubscribe}
-                      sx={{ borderRadius: 2 }}
-                      disabled={session.status !== "PUBLISHED"}
-                    >
-                      S’inscrire à la session
-                    </Button>
-                  </Stack>
+                  <SchoolIcon />
+                </Avatar>
+                <Stack spacing={0.1}>
+                  <Typography variant="h3" sx={{ fontWeight: 950, lineHeight: 1 }}>
+                    {course.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                    {course.subtitle}
+                  </Typography>
                 </Stack>
               </Stack>
+
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                <Chip label={course.code} variant="outlined" sx={chipHero} />
+                <Chip label={`${level} • 5 chapitres`} variant="outlined" sx={chipHero} />
+                <Chip label={`Progression: ${currentLevel.progress}%`} variant="outlined" sx={chipHero} />
+              </Stack>
             </Stack>
-          </Paper>
 
-          {/* Bloc “infos utiles” */}
-          <Paper elevation={2} sx={{ borderRadius: 3, p: 2.5 }}>
-            <Stack spacing={1}>
-              <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                Infos utiles
-              </Typography>
+            {/* Search */}
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 4,
+                p: 0.8,
+                border: "1px solid rgba(255,255,255,0.22)",
+                bgcolor: "rgba(255,255,255,0.12)",
+                width: { xs: "100%", md: 420 },
+              }}
+            >
+              <TextField
+                fullWidth
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher un chapitre…"
+                variant="standard"
+                InputProps={{
+                  disableUnderline: true,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: "rgba(255,255,255,0.85)" }} />
+                    </InputAdornment>
+                  ),
+                  sx: { color: "white", fontWeight: 800 },
+                }}
+              />
+            </Paper>
+          </Stack>
 
-              <Typography variant="body2" color="text.secondary">
-                - Arrive 10 minutes avant le début (présentiel). <br />
-                - Si tu choisis “en ligne”, assure-toi d’avoir une bonne connexion. <br />
-                - Le lien peut être mis à jour : vérifie le jour J.
-              </Typography>
+          {/* Level switch */}
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            {course.levels.map((l) => (
+              <Button
+                key={l.key}
+                onClick={() => setLevel(l.key)}
+                variant={l.key === level ? "contained" : "outlined"}
+                sx={l.key === level ? levelBtnActive : levelBtn}
+              >
+                {l.key}
+              </Button>
+            ))}
+          </Stack>
+
+          {/* Progress bar */}
+          <Paper
+            elevation={0}
+            sx={{
+              borderRadius: 4,
+              p: 1.2,
+              border: "1px solid rgba(255,255,255,0.18)",
+              bgcolor: "rgba(255,255,255,0.10)",
+            }}
+          >
+            <Stack spacing={0.7}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="body2" sx={{ fontWeight: 900 }}>
+                  Progression — {level}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 950 }}>
+                  {currentLevel.progress}%
+                </Typography>
+              </Stack>
+              <LinearProgress
+                variant="determinate"
+                value={currentLevel.progress}
+                sx={{
+                  height: 10,
+                  borderRadius: 999,
+                  bgcolor: "rgba(255,255,255,0.18)",
+                  "& .MuiLinearProgress-bar": { bgcolor: "rgba(255,255,255,0.85)", borderRadius: 999 },
+                }}
+              />
             </Stack>
           </Paper>
         </Stack>
+      </Box>
+
+      {/* CONTENT */}
+      <Stack sx={{ maxWidth: 1200, mx: "auto", px: { xs: 2, md: 3 }, mt: -6, pb: 4 }} spacing={2}>
+        <Grid container spacing={2}>
+          {chaptersFiltered.map((ch) => (
+            <Grid item xs={12} md={6} key={ch.uid}>
+              <ChapterCard chapter={ch} onOpen={() => handleOpenChapter(ch)} />
+            </Grid>
+          ))}
+
+          {!chaptersFiltered.length ? (
+            <Grid item xs={12}>
+              <Paper elevation={0} sx={{ borderRadius: 5, p: 3, border: "1px solid rgba(15,23,42,0.10)" }}>
+                <Typography variant="h5" sx={{ fontWeight: 950, color: NAVY }}>
+                  Aucun chapitre trouvé
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Essaie une autre recherche.
+                </Typography>
+              </Paper>
+            </Grid>
+          ) : null}
+        </Grid>
+
+        {/* Footer hint */}
+        <Paper elevation={0} sx={{ borderRadius: 5, p: 2.2, border: "1px solid rgba(15,23,42,0.10)", bgcolor: "rgba(37,99,235,0.04)" }}>
+          <Typography variant="h5" sx={{ fontWeight: 950, color: NAVY }}>
+            Astuce
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Termine le chapitre en cours pour débloquer le suivant. Chaque chapitre a un exercice + un quiz de validation.
+          </Typography>
+        </Paper>
       </Stack>
-    </Backdrop>
+    </Box>
   );
 }
 
-function InfoLine({ icon, label, value, isLink = false }) {
+/* -------------------- Components -------------------- */
+
+function ChapterCard({ chapter, onOpen }) {
+  const locked = chapter.status === "locked";
+  const done = chapter.status === "done";
+  const current = chapter.status === "current";
+
   return (
-    <Stack
-      direction="row"
-      spacing={1}
-      alignItems="center"
+    <Paper
+      elevation={0}
+      onClick={() => !locked && onOpen()}
       sx={{
-        p: 1,
-        borderRadius: 2,
-        border: "1px solid rgba(0,0,0,0.08)",
+        borderRadius: 5,
+        p: 2.0,
+        border: "1px solid rgba(15,23,42,0.10)",
+        cursor: locked ? "not-allowed" : "pointer",
+        opacity: locked ? 0.7 : 1,
+        position: "relative",
+        overflow: "hidden",
+        "&:hover": locked
+          ? {}
+          : {
+              borderColor: "rgba(37,99,235,0.35)",
+              boxShadow: "0 16px 40px rgba(2,6,23,0.08)",
+              transform: "translateY(-1px)",
+            },
+        transition: "all .18s ease",
       }}
     >
-      {icon ? <Avatar sx={{ width: 28, height: 28 }}>{icon}</Avatar> : null}
-      <Stack sx={{ minWidth: 0 }}>
-        <Typography variant="caption" color="text.secondary">
-          {label}
-        </Typography>
-        {isLink ? (
-          <Typography
-            variant="body2"
-            component="a"
-            href={value}
-            target="_blank"
-            rel="noreferrer"
-            style={{ textDecoration: "underline" }}
+      {/* subtle gradient accent */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background: current
+            ? "linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(96,165,250,0.05) 55%, rgba(255,255,255,0) 100%)"
+            : "linear-gradient(135deg, rgba(11,27,77,0.06) 0%, rgba(37,99,235,0.04) 55%, rgba(255,255,255,0) 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <Stack spacing={1.1} sx={{ position: "relative" }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
+          <Stack spacing={0.2} sx={{ minWidth: 0 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 900 }}>
+              Chapitre {chapter.index}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 950, color: NAVY, lineHeight: 1.1 }} noWrap title={chapter.title}>
+              {chapter.title}
+            </Typography>
+          </Stack>
+
+          <Stack direction="row" spacing={1} alignItems="center">
+            {done ? <Chip size="small" icon={<CheckCircleIcon />} label="Terminé" sx={chipDone} /> : null}
+            {current ? <Chip size="small" label="En cours" sx={chipCurrent} /> : null}
+            {locked ? <Chip size="small" icon={<LockIcon />} label="Verrouillé" sx={chipLocked} /> : null}
+          </Stack>
+        </Stack>
+
+        <Divider sx={{ borderColor: "rgba(15,23,42,0.08)" }} />
+
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Chip
+            size="small"
+            icon={<AccessTimeIcon />}
+            label={`${chapter.duration_min} min`}
+            sx={chipMeta}
+          />
+
+          <Button
+            endIcon={<ArrowForwardIcon />}
+            variant="text"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!locked) onOpen();
+            }}
+            sx={{
+              fontWeight: 950,
+              textTransform: "none",
+              borderRadius: 3,
+              color: locked ? "rgba(11,27,77,0.45)" : ROYAL,
+            }}
+            disabled={locked}
           >
-            {value}
-          </Typography>
-        ) : (
-          <Typography variant="body2" noWrap title={value}>
-            {value}
-          </Typography>
-        )}
+            Ouvrir
+          </Button>
+        </Stack>
       </Stack>
-    </Stack>
+    </Paper>
   );
 }
 
-function formatDate(value) {
-  if (!value) return "-";
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleString("fr-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+/* -------------------- Styles -------------------- */
 
-function formatMoney(amount, currency) {
-  const n = Number(amount || 0);
-  try {
-    return new Intl.NumberFormat("fr-CH", {
-      style: "currency",
-      currency: currency || "CHF",
-      maximumFractionDigits: 0,
-    }).format(n);
-  } catch {
-    return `${n} ${currency || ""}`.trim();
-  }
-}
+const chipHero = {
+  color: "white",
+  bgcolor: "rgba(255,255,255,0.12)",
+  borderColor: "rgba(255,255,255,0.22)",
+  fontWeight: 900,
+};
+
+const levelBtn = {
+  borderRadius: 4,
+  fontWeight: 950,
+  textTransform: "none",
+  borderColor: "rgba(255,255,255,0.35)",
+  color: "white",
+  bgcolor: "rgba(255,255,255,0.10)",
+  "&:hover": { bgcolor: "rgba(255,255,255,0.16)", borderColor: "rgba(255,255,255,0.6)" },
+};
+
+const levelBtnActive = {
+  borderRadius: 4,
+  fontWeight: 950,
+  textTransform: "none",
+  bgcolor: "white",
+  color: NAVY,
+  "&:hover": { bgcolor: "rgba(255,255,255,0.92)" },
+};
+
+const chipDone = {
+  fontWeight: 900,
+  bgcolor: "rgba(34,197,94,0.12)",
+  color: "#15803D",
+  border: "1px solid rgba(34,197,94,0.22)",
+  "& .MuiChip-icon": { color: "#22C55E" },
+};
+
+const chipCurrent = {
+  fontWeight: 900,
+  bgcolor: "rgba(37,99,235,0.10)",
+  color: "#1D4ED8",
+  border: "1px solid rgba(37,99,235,0.22)",
+};
+
+const chipLocked = {
+  fontWeight: 900,
+  bgcolor: "rgba(15,23,42,0.06)",
+  color: NAVY,
+  border: "1px solid rgba(15,23,42,0.12)",
+  "& .MuiChip-icon": { color: "rgba(11,27,77,0.75)" },
+};
+
+const chipMeta = {
+  bgcolor: "rgba(15,23,42,0.05)",
+  color: NAVY,
+  border: "1px solid rgba(15,23,42,0.10)",
+  fontWeight: 800,
+  "& .MuiChip-icon": { color: ROYAL },
+};

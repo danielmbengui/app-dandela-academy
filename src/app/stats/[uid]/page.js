@@ -38,7 +38,7 @@ import { ClassLesson } from "@/classes/ClassLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconQuizz } from "@/assets/icons/IconsComponent";
+import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
 import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_STATS_ONE } from "@/contexts/i18n/settings";
 import { PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
@@ -1210,7 +1210,7 @@ export default function ExcelBeginnerCoursePage() {
         ]}
         //title={`Cours / ${lesson?.title}`}
         //subtitle={lesson?.translate?.subtitle}
-        icon={<IconLessons />}
+        icon={<IconStats height={18} width={18} />}
     >
         <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
             {

@@ -20,11 +20,11 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({ label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small', ...props }) {
+export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small', ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight, text } = theme.palette;
   return (<Button
-    variant="contained"
+    variant={variant}
     fullWidth={fullWidth}
     disableElevation
     loading={loading}

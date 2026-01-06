@@ -1089,9 +1089,11 @@ const CardQuizz = ({
                 uid_chapter: chapter.uid,
             });
             const _stat = await _user_stat_object.getStat();
+            /*
             var _stats = await _user_stat_object.getStats();
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime())
             console.log("statsss", _stats);
+            */
             //setStats(_stats);
             setIsLoadingStats(false);
             //setState(prev => ({ ...prev, isLoading: false, stats: _stats }))
@@ -1233,9 +1235,6 @@ const CardQuizz = ({
                     <Grid container spacing={{ xs: 0.5, sm: 1 }} alignItems={'start'} sx={{ background: '', width: '100%', maxWidth: '100vw', }}>
                         {
                             index>= 0 && <NewQuizComponent />
-                        }
-                        {
-                            !isLoadingStats && stats.length > 0 && <StatsListComponent />
                         }
                     </Grid>
 

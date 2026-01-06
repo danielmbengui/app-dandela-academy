@@ -305,15 +305,16 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         if (uidLesson && uidChapter) {
             for (const stat of stats) {
                 if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
-                    const percent = (stat.score / stat.answers.length) * 100;
+                    const percent = stat.answers.length>0 ? (stat.score / stat.answers.length) * 100 : 0;
                     percentTotal += percent;
                     total++;
+                    //console.log("OK stats", stat.uid)
                 }
             }
         } else if (uidLesson) {
             for (const stat of stats) {
                 if (uidLesson === stat.uid_lesson) {
-                    const percent = (stat.score / stat.answers.length) * 100;
+                    const percent = stat.answers.length>0 ? (stat.score / stat.answers.length) * 100 : 0;
                     percentTotal += percent;
                     total++;
                 }
@@ -321,18 +322,19 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         } else if (uidChapter) {
             for (const stat of stats) {
                 if (uidChapter === stat.uid_chapter) {
-                    const percent = (stat.score / stat.answers.length) * 100;
+                    const percent = stat.answers.length>0 ? (stat.score / stat.answers.length) * 100 : 0;
                     percentTotal += percent;
                     total++;
                 }
             }
         } else {
             for (const stat of stats) {
-                const percent = (stat.score / stat.answers.length) * 100;
+                const percent = stat.answers.length>0 ? (stat.score / stat.answers.length) * 100 : 0;
                 percentTotal += percent;
                 total++;
             }
         }
+        //console.log("wesh global", percentTotal,total, uidLesson,uidChapter,stats.length)
         return (percentTotal / total);
     }
     function getGlobalCountQuiz(uidLesson = "", uidChapter = "") {
@@ -372,7 +374,6 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return timeTotal;
     }
-
     function getBestStat(uidLesson = "", uidChapter = "") {
         var total = 0;
         var percentTotal = 0;

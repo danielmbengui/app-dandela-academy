@@ -358,7 +358,9 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             overflowY: 'auto',
                             //overflowY: 'auto', 
                             background: '', minHeight: 0,
-                            width: '100%', height: '100vh', py: 1,
+                            width: '100%', 
+                            minWidth:'100%',
+                            height: '100vh', py: 1,
                             width: "100%",
                             flex: 1,          // prend le reste
                             minHeight: 0,     // ✅ clé

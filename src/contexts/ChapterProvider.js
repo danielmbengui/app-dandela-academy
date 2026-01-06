@@ -104,7 +104,10 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             for (const snapshot of snap.docs) {
                 const chapter = snapshot.data();
                 chapter.translate = chapter.translates?.find(trans => trans.lang === lang);
-                /*
+                const _subchapters = chapter.subchapters?.map(sub => {
+                    sub.translate = sub.getTranslate(lang);
+                    return sub;
+                });
                 const _quiz = chapter.quiz;
                 const _questions = _quiz.questions?.map(sub => {
                     sub.translate = sub.getTranslate(lang);
@@ -112,7 +115,8 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 });
                 _quiz.questions = _questions;
                 chapter.quiz = _quiz;
-                */
+                chapter.subchapters = _subchapters;
+
                 //console.log("chap", chapter, uidLesson)
                 _chapters.push(chapter);
                 /*
@@ -160,7 +164,10 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             const translate = _chapter.translates?.find(trans => trans.lang === lang);
             console.log("Weeeeesh translate", _chapter)
             _chapter.translate = translate;
-            /*
+            const _subchapters = _chapter.subchapters?.map(sub => {
+                sub.translate = sub.getTranslate(lang);
+                return sub;
+            });
             const _quiz = _chapter.quiz;
             const _questions = _quiz.questions?.map(sub => {
                 sub.translate = sub.getTranslate(lang);
@@ -168,7 +175,8 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             });
             _quiz.questions = _questions;
             _chapter.quiz = _quiz;
-            */
+            _chapter.subchapters = _subchapters;
+
             /*
             const _stats = await new ClassUserStat({
                 uid_user: user?.uid,
@@ -224,7 +232,6 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
         setChapters(_sessions);
     }
-
     function getOneChapter(uid = '') {
         if (!uid || uid === '' || uid === null) {
             return null;
@@ -232,8 +239,6 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         const _chapter = chapters.find(item => item.uid === uid);
         return _chapter;
     }
-
-    // session
     function changeSession(uid = '', mode = '') {
         if (mode === 'create') {
             return new ClassSession();
@@ -250,6 +255,80 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setChapter(null);
         }
     }
+    /**
+ * Estime le temps par chapitre à partir d'une fourchette totale (min/max) et du niveau.
+ * Retourne une liste de chapitres avec duration_min / duration_max (en minutes).
+ */
+    function estimateChapterTimes({
+        totalMinHours,
+        totalMaxHours,
+        chapterCount,
+        level = "beginner", // "beginner" | "intermediate" | "advanced"
+    }) {
+        if (!Number.isFinite(chapterCount) || chapterCount <= 0) {
+            throw new Error("chapterCount invalide");
+        }
+        if (![totalMinHours, totalMaxHours].every(Number.isFinite) || totalMinHours <= 0 || totalMaxHours <= 0) {
+            throw new Error("totalMinHours/totalMaxHours invalides");
+        }
+        const minH = Math.min(totalMinHours, totalMaxHours);
+        const maxH = Math.max(totalMinHours, totalMaxHours);
+
+        const totalMin = Math.round(minH * 60);
+        const totalMax = Math.round(maxH * 60);
+
+        // Variance selon niveau (plus avancé => plus hétérogène)
+        const levelVariance = {
+            [ClassLessonChapter.LEVEL.BEGINNER]: 0.10,
+            [ClassLessonChapter.LEVEL.INTERMEDIATE]: 0.18,
+            [ClassLessonChapter.LEVEL.COMPETENT]: 0.28,
+            [ClassLessonChapter.LEVEL.ADVANCED]: 0.34,
+            [ClassLessonChapter.LEVEL.EXPERT]: 0.42,
+        }[level] ?? 0.15;
+
+        // Poids progressifs (les chapitres plus loin sont souvent plus denses)
+        // Tu peux remplacer ça par des poids venant de tes datas (nb de leçons, vidéos, mots, etc.)
+        const baseWeights = Array.from({ length: chapterCount }, (_, i) => {
+            const t = chapterCount === 1 ? 1 : i / (chapterCount - 1); // 0..1
+            return 1 + (t - 0.5) * 2 * levelVariance; // autour de 1, un peu + vers la fin
+        });
+
+        // Normaliser pour que la somme des poids = 1
+        const sumW = baseWeights.reduce((a, b) => a + b, 0);
+        const weights = baseWeights.map(w => w / sumW);
+
+        // Répartir min/max sur les chapitres
+        const rawMin = weights.map(w => w * totalMin);
+        const rawMax = weights.map(w => w * totalMax);
+
+        // Arrondir en gardant la somme exacte (méthode des plus grands restes)
+        const roundKeepSum = (arr, targetSum) => {
+            const floors = arr.map(x => Math.floor(x));
+            let diff = targetSum - floors.reduce((a, b) => a + b, 0);
+            const remainders = arr
+                .map((x, i) => ({ i, r: x - floors[i] }))
+                .sort((a, b) => b.r - a.r);
+
+            const out = [...floors];
+            for (let k = 0; k < remainders.length && diff > 0; k++, diff--) {
+                out[remainders[k].i] += 1;
+            }
+            return out;
+        };
+
+        const chapterMin = roundKeepSum(rawMin, totalMin);
+        const chapterMax = roundKeepSum(rawMax, totalMax);
+        console.log("MIN MAX", totalMin, totalMax)
+        //var min = 0;
+        //var totalMax = 0;
+
+        return Array.from({ length: chapterCount }, (_, i) => ({
+            chapterIndex: i + 1,
+            duration_min: chapterMin[i],
+            duration_max: chapterMax[i],
+        }));
+    }
+
 
     const value = {
         //create,
@@ -279,6 +358,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         stat,
         lastStat,
         stats,
+        estimateChapterTimes,
     };
     //if (isLoading) return <Preloader />;
     //if (!user) return (<LoginComponent />);

@@ -48,6 +48,7 @@ export class ClassLessonChapter {
         EXPERT: 'expert', // expert
         UNKNOWN: 'unknown',
     });
+    static ALL_LEVELS = Object.values(this.LEVEL).filter(l=>l!==this.LEVEL.UNKNOWN);
     static DEFAULT_QUIZ_DELAY_DAYS = 7;
 
     constructor({
@@ -63,6 +64,7 @@ export class ClassLessonChapter {
         estimated_start_duration = 0,
         estimated_end_duration = 0,
 
+        photo_url = "",
         level = "",
         goals = [],
         subchapters = [],
@@ -82,6 +84,7 @@ export class ClassLessonChapter {
         this._subtitle = subtitle;
         this._description = description;
         this._level = level;
+        this._photo_url = photo_url;
 
         this._estimated_start_duration = estimated_start_duration;
         this._estimated_end_duration = estimated_end_duration;
@@ -178,6 +181,14 @@ export class ClassLessonChapter {
     }
 
     // level
+    get photo_url() {
+        return this._photo_url;
+    }
+    set photo_url(value) {
+        this._photo_url = String(value ?? "");
+    }
+
+    // level
     get level() {
         return this._level;
     }
@@ -214,7 +225,7 @@ export class ClassLessonChapter {
         return this._translates;
     }
     set translates(value) {
-        this._translates = Array.isArray(value) ? value : [];;
+        this._translates = value;
     }
 
     // created_time
@@ -268,7 +279,8 @@ export class ClassLessonChapter {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
-        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
+        //cleaned.translates = this._convertTranslatesToFirestore?.(this._translates || []);
+        //cleaned.quiz = this._quiz?.toJSON();
         /*
         cleaned.subchapters = this._subchapters?.map?.((sub) => {
            // const subClass = new ClassLessonSubchapter(sub);
@@ -310,12 +322,13 @@ export class ClassLessonChapter {
             ...this.toJSON(),
             lesson: this._lesson,
             translate: this._translate,
-            translates: this._translates,
+            //translates: this._translates,
             title: this._title,
             subtitle: this._subtitle,
             description: this._description,
             goals: this._goals,
-            subchapters: this._subchapters
+            subchapters: this._subchapters,
+            quiz:this._quiz,
             //computers: this._computers,
         });
     }
@@ -362,6 +375,7 @@ export class ClassLessonChapter {
                 //const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates);
                 //console.log("TRANSLATES", translates)
                 // chaque classe a un .toJSON() propre
+                //chapterInstance.quiz = chapterInstance?.quiz?.toJSON ? chapterInstance?.quiz?.toJSON() : chapterInstance?.quiz;
                 return chapterInstance?.toJSON ? chapterInstance.toJSON() : chapterInstance;
                 //return chapterInstance?.toJSON ? chapterInstance.toJSON() : chapterInstance;
             },
@@ -378,7 +392,7 @@ export class ClassLessonChapter {
                     return subClass;
                 });
                 const quiz = data.quiz ? new ClassLessonChapterQuiz(data.quiz) : {};
-                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates, subchapters, quiz });
+                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates:translates, subchapters, quiz });
             },
         };
     }

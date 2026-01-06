@@ -326,6 +326,7 @@ export class ClassLessonChapterQuestion {
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
         //cleaned.chapter = null;
+        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
         cleaned.translate = null;
         cleaned.question = null;
         cleaned.proposals = null;
@@ -351,6 +352,7 @@ export class ClassLessonChapterQuestion {
             ...this.toJSON(),
             //lesson: this._lesson,
             translate: this._translate,
+            translates: this._translates,
             question: this._question,
             proposals: this._proposals,
             answer: this._answer,

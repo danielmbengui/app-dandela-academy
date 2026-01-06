@@ -16,8 +16,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS } from "@/contexts/constants/constants_pages";
-import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS } from "@/contexts/constants/constants_pages";
+import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -501,7 +501,7 @@ export class ClassUser {
         return [{
             name: "dashboard",
             path: PAGE_DASHBOARD_HOME,
-            icon: <IconDashboard width={20} height={20} />,
+            icon: <IconDashboard width={18} height={18} />,
             subs: [/*{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
@@ -511,7 +511,7 @@ export class ClassUser {
         {
             name: "calendar",
             path: PAGE_DASHBOARD_CALENDAR,
-            icon: <IconCalendar width={20} height={20} />,
+            icon: <IconCalendar width={18} height={18} />,
             subs: [/*{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
@@ -524,25 +524,27 @@ export class ClassUser {
             icon: <IconLessons width={18} height={18} />,
         },
         {
+            name: "stats",
+            path: PAGE_STATS,
+            icon: <IconStats width={16} height={16} />,
+        },
+        /*
+        {
             name: "computers",
             path: PAGE_DASHBOARD_COMPUTERS,
             icon: <IconComputers width={20} height={20} />,
-            subs: [/*{
-                name: "lessons",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconLessons width={18} height={18} />,
-            }*/]
         },
         {
             name: "users",
             path: PAGE_DASHBOARD_USERS,
             icon: <IconUsers width={20} height={20} />,
-            subs: [/*{
+            subs: [{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
                 icon: <IconLessons width={18} height={18} />,
-            }*/]
+            }]
         },
+        */
         {
             name: "profile",
             path: PAGE_DASHBOARD_PROFILE,
