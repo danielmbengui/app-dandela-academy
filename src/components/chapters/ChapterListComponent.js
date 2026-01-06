@@ -187,7 +187,7 @@ function ChapterComponent() {
                 </Tabs>
             }
 
-            <Stack spacing={2} justifyContent={'center'} sx={{ width: { xs: '100%', sm: '60%' }, py: 3 }}>
+            <Stack spacing={2} justifyContent={'center'} sx={{ width: { xs: '100%', sm: '60%' }, py: 3,px:2 }}>
                 <Stack spacing={1}>
                     <Typography variant="h4">{chapter?.uid_intern}. {chapter?.translate?.title} {chapter?.duration}</Typography>
 
@@ -229,7 +229,7 @@ function ChapterComponent() {
                 </Paper>
             </Stack>
 
-            <Stack spacing={1}>
+            <Stack spacing={1} sx={{px:2}}>
                 <Grid container sx={{ background: 'red' }} spacing={2}>
                     <Grid size={12}>
                         <Grid container spacing={1}>
