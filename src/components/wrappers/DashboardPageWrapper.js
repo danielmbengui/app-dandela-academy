@@ -18,7 +18,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import { useTranslation } from 'react-i18next';
-import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
+import { NS_BUTTONS, NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Preloader from '../shared/Preloader';
@@ -171,7 +171,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         await logout();
                     }}
                 >
-                    {'disconnect'}
+                    {t('disconnect', {ns:NS_BUTTONS})}
                 </Button>
             </Stack>
         </Stack>

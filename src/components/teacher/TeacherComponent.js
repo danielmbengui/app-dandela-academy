@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
-import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
+import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
 import { Box, CircularProgress, Skeleton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
@@ -143,7 +143,7 @@ export default function TeacherComponent() {
   return (<Stack>
     <div className="page">
       <div className="teacher-card">
-        <p className="teacher-label-text">Professeur du cours</p>
+        <p className="teacher-label-text">{t('teacher', {ns:NS_LESSONS_ONE})}</p>
         <div className="teacher-main">
           {lesson?.teacher?.showAvatar?.({})}
           <div className="teacher-text">
@@ -161,12 +161,12 @@ export default function TeacherComponent() {
         <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
         <Link href={`${PAGE_TEACHERS}/${lesson?.teacher?.uid}`} target="_blank">
           <ButtonCancel
-            label="Profil"
+            label={t('see-profile', {ns:NS_BUTTONS})}
           />
         </Link>
         <Link href={`mailto:${lesson?.teacher?.email}`}>
           <ButtonConfirm
-            label="Contacter"
+            label={t('contact',{ns:NS_BUTTONS} )}
           />
         </Link>
         </Stack>

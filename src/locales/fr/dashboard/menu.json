@@ -1,15 +1,18 @@
 {
-    "dashboard":"Tableau de bord",
-    "computers":"Ordinateurs",
-    "calendar":"Calendrier",
-    "lessons":"Cours",
-    "profile":"Mon profil",
-    "users":"Utilisateurs",
-    "super-admins":"Super-Admin",
-    "admins":"Admins",
-    "teams":"Équipe",
-    "students":"Étudiants",
-    "tutors":"Professeurs",
-    "settings":"Paramètres",
-    "stats":"Résultats"
-}
+    "dashboard": "Tableau de bord",
+    "computers": "Ordinateurs",
+    "calendar": "Calendrier",
+    "lessons": "Cours",
+    "chapter": "Chapitre",
+    "chapters": "Chapitres",
+    "profile": "Mon profil",
+    "users": "Utilisateurs",
+    "super-admins": "Super-Admin",
+    "admins": "Admins",
+    "teams": "Équipe",
+    "students": "Étudiants",
+    "tutors": "Professeurs",
+    "settings": "Paramètres",
+    "stats": "Résultats"
+  }
+  

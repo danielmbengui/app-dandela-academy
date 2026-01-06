@@ -1348,6 +1348,7 @@ export default function ExcelBeginnerCoursePage() {
     useEffect(() => {
         //console.log("laaaaast stat", uidLess);
         setUidLesson(uidLess);
+        //console.log("LESSSSSSON", lesson)
         setUidChapter(uidChapter);
     }, [uidLess, uidChapter])
     return (<DashboardPageWrapper
@@ -1414,7 +1415,7 @@ export default function ExcelBeginnerCoursePage() {
                 </Grid>
             </Grid>
             {/* HEADER / HERO */}
-            <Box component={Paper} elevation={2} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
+            <Box component={Paper} elevation={2} sx={{ p: 3, mb: 4, borderRadius: 3, display:'none' }}>
                 <ButtonConfirm
                     label="Translate"
                     loading={process}

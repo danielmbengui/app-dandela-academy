@@ -12,8 +12,8 @@ export default function AlertComponent({
         <Alert
             severity={severity}
             color={color && severity !== color ? color : severity}
-            action={<Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                {buttonCancelComponent}
+            action={<Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{height:'100%'}}>
+                {buttonCancelComponent} 
                 {buttonConfirmComponent}
             </Stack>}
         >
@@ -22,7 +22,7 @@ export default function AlertComponent({
                     title && <Typography><b>{title}</b></Typography>
                 }
                 {
-                    subtitle && <Typography>{subtitle}</Typography>
+                    subtitle
                 }
             </Stack>
         </Alert>

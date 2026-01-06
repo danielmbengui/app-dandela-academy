@@ -22,6 +22,7 @@ import TeacherComponent from "../../teacher/TeacherComponent";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { PAGE_CHAPTERS, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import { usePathname } from "next/navigation";
+import ButtonConfirm from "../elements/ButtonConfirm";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -110,7 +111,6 @@ const initialCourse = {
     "Le support de cours (PDF, fichiers Excel d&apos;exercices) sera accessible dans ton espace personnel."
   ]
 };
-
 const FORMAT_CONFIG = {
   online: {
     label: "En ligne",
@@ -196,7 +196,6 @@ function InfoRow({ label, value }) {
     </>
   );
 }
-
 function SlotRow({ slot = null }) {
   const { sessions, setUidSession, setUidSlot, slots, getOneSession } = useSession();
   //const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
@@ -240,7 +239,6 @@ function SlotRow({ slot = null }) {
     </Stack>
   </>)
 }
-
 function NextSessionsComponent() {
   const { t } = useTranslation([NS_LESSONS_ONE]);
   const { slots } = useSession();
@@ -409,12 +407,12 @@ export default function LessonComponent() {
           <aside className="hero-right">
             {/* PROFESSEUR */}
             <div className="teacher-card">
-              <p className="teacher-label-text">Suivre le cours en ligne</p>
-              <List dense disablePadding>
+              <p className="teacher-label-text">{t('title-online', {ns:NS_LESSONS_ONE})}</p>
+              <List dense disablePadding sx={{mb:1.5}}>
                 {
                   chapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((chapter, i) => {
                     return (<ListItem key={`${chapter.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
-                      <Link target="_blank" href={`${PAGE_LESSONS}/${lesson.uid}${PAGE_CHAPTERS}/${chapter.uid}`}>
+                      <Link href={`${PAGE_LESSONS}/${chapter.uid_lesson}${PAGE_CHAPTERS}/${chapter.uid}`}>
                       <Stack direction={'row'} alignItems={'center'} spacing={1}
                         //onClick={() => setIndex(i)}
                         sx={{
@@ -431,6 +429,9 @@ export default function LessonComponent() {
                   })
                 }
               </List>
+              <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}`}>
+              <ButtonConfirm label={t('follow-online', {ns:NS_LESSONS_ONE})} />
+              </Link>
             </div>
             <TeacherComponent />
             {

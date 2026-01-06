@@ -6,5 +6,8 @@
   "next-sessions": "Upcoming sessions",
   "previous-sessions": "Previous sessions",
   "next-sessions-not": "There are no upcoming sessions.",
-  "previous-sessions-not": "There are no past sessions."
+  "previous-sessions-not": "There are no past sessions.",
+  "follow-online": "Attend the course online",
+  "title-online": "Course content",
+  "teacher": "Course instructor"
 }

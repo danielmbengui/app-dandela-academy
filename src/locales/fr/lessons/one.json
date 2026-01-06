@@ -6,5 +6,8 @@
   "next-sessions": "Prochaines sessions",
   "previous-sessions": "Sessions précédentes",
   "next-sessions-not": "Il n'y a aucune session à venir.",
-  "previous-sessions-not": "Il n'y a aucune session passée"
+  "previous-sessions-not": "Il n'y a aucune session passée",
+  "follow-online": "Suivre le cours en ligne",
+  "title-online": "Contenu du cours",
+  "teacher": "Professeur du cours"
 }

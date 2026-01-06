@@ -1,9 +1,11 @@
 {
   "know-more": "Learn more",
-  "subscribe": "Subscribe",
+  "see-profile": "View profile",
+  "contact": "Contact",
+  "subscribe": "Sign up",
   "connect": "Connect",
   "signup": "Create an account",
-  "disconnect": "Disconnect",
+  "disconnect": "Log out",
   "space-members": "Members area",
   "new": "New",
   "add": "Add",

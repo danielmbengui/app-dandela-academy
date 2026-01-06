@@ -54,7 +54,7 @@ export default function ChaptersPage() {
         titles={[
             { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_LESSONS },
             { name: lesson?.translate?.title, url: `${PAGE_LESSONS}/${lesson?.uid}` },
-            { name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
+            { name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `` },
             //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
         ]}
         //title={`Cours / ${lesson?.title}`}

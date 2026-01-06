@@ -30,12 +30,15 @@ import { IconSearch } from "@/assets/icons/IconsComponent";
 import { ClassLessonChapter } from "@/classes/lessons/ClassLessonChapter";
 import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { StatProvider, useStat } from "@/contexts/StatProvider";
 import Image from "next/image";
 import AccordionComponent from "../dashboard/elements/AccordionComponent";
 import { formatChrono } from "@/contexts/functions";
+import Link from "next/link";
+import { PAGE_CHAPTERS, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import AlertComponent from "../elements/AlertComponent";
 
 const ROYAL = "#2563EB";
 const NAVY = "#0B1B4D";
@@ -162,7 +165,7 @@ function ChapterComponent() {
         router.push(`/dashboard/lessons/${course.uid}/chapters/${chapter.uid}`);
     };
     return (
-        <Box sx={{ bgcolor: "var(--card-color)", borderRadius: '10px', minHeight: "100vh", px: 1.5, py: 2 }}>
+        <Stack spacing={3} sx={{ bgcolor: "var(--card-color)", borderRadius: '10px', minHeight: "100vh", px: 1.5, py: 2 }}>
             <Stack spacing={0.5}>
                 {
                     chapters?.map((_chapter, i) => {
@@ -173,60 +176,91 @@ function ChapterComponent() {
                             chapterCount: _chapter.subchapters?.length,
                             level: _chapter.level,
                         });
+                        const countCompletedQuiz = stats?.filter(s => s.uid_chapter === _chapter.uid).length || 0;
+                        const hasStats = stats?.filter(s => s.uid_chapter === _chapter.uid)?.length > 0 || false;
                         console.log("YAAAA", time);
                         return (<AccordionComponent
-                            title={`${_chapter.uid_intern}. ${_chapter.translate?.title} - ${_chapter.estimated_start_duration} à ${_chapter.estimated_end_duration}`}
+                            title={<Typography>{`${_chapter.uid_intern}. ${_chapter.translate?.title} - ${_chapter.estimated_start_duration} à ${_chapter.estimated_end_duration}`}</Typography>}
                             key={`${_chapter.uid}-${i}`}>
                             <Grid container sx={{ px: 1, py: 1.5 }} spacing={1} justifyContent={'space-between'}>
-                                <Grid size={8}>
+                                <Grid size={{ xs: 12, sm: 8 }}>
                                     <Stack>
                                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} flexWrap="wrap">
                                             <Chip label={`${t(_chapter?.level)} • ${_chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
-                                            <Chip label={`Progression: ${percent.toFixed(2)}%`} variant="outlined" sx={chipHeader} />
+                                            <Chip label={`${t('progression')}: ${percent.toFixed(2)}%`} variant="outlined" sx={chipHeader} />
                                         </Stack>
                                         <Stack sx={{ px: 1.5, py: 1 }}>
                                             {
                                                 _chapter.subchapters?.map((sub, i) => {
-                                                    return (<Typography variant="caption" key={`${sub.uid_intern}-${i}`}>{sub.uid_intern}. {sub.translate?.title} (<span style={{ color: 'var(--primary)' }}>≈{formatChrono((time[i].duration_min + time[i].duration_max) / 2 * 60)}</span>)</Typography>)
+                                                    return (<Typography noWrap variant="caption" key={`${sub.uid_intern}-${i}`}>{sub.uid_intern}. {sub.translate?.title} (<span style={{ color: 'var(--primary)' }}>≈{formatChrono((time[i].duration_min + time[i].duration_max) / 2 * 60)}</span>)</Typography>)
                                                 })
                                             }
                                         </Stack>
                                     </Stack>
-                                    {/* Progress bar */}
-                                    <Paper
-                                        elevation={0}
-                                        sx={{
-                                            borderRadius: 1.5,
-                                            my:1,
-                                            mx:1.5,
-                                            p: 1.5,
-                                            border: "0.1px solid var(--primary-shadow-xs)",
-                                            bgcolor: "var(--primary-shadow)",
-                                        }}
-                                    >
-                                        <Stack spacing={0.7}>
-                                            <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
-                                                <Typography variant="body2" sx={{ fontWeight: 900 }}>
-                                                    {stats?.filter(s=>s.uid_chapter===_chapter.uid).length} questionnaires completés
-                                                </Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 950 }}>
-                                                    {Number.isNaN(percent) ? 0 : percent.toFixed(2)}%
-                                                </Typography>
+
+                                    <Stack spacing={1} sx={{
+                                        my: 1,
+                                        mx: 1.5,
+                                    }}>
+                                        {
+                                            hasStats && <Stack spacing={1}>
+                                                {/* Progress bar */}
+                                                <Paper
+                                                    elevation={0}
+                                                    sx={{
+                                                        borderRadius: 1.5,
+                                                        p: 1.5,
+                                                        border: "0.1px solid var(--primary-shadow-xs)",
+                                                        bgcolor: "var(--primary-shadow)",
+                                                    }}
+                                                >
+                                                    <Stack spacing={0.7}>
+                                                        <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
+                                                            <Typography variant="body2" sx={{ fontWeight: 900 }}>
+                                                                {countCompletedQuiz} questionnaires completés
+                                                                <Trans
+                                                                    t={t}
+                                                                    i18nKey={'count-completed-quiz'}
+                                                                    values={{
+                                                                        count: countCompletedQuiz
+                                                                    }}
+                                                                />
+                                                            </Typography>
+                                                            <Typography variant="body2" sx={{ fontWeight: 950 }}>
+                                                                {Number.isNaN(percent) ? 0 : percent.toFixed(2)}%
+                                                            </Typography>
+                                                        </Stack>
+                                                        <LinearProgress
+                                                            variant="determinate"
+                                                            value={percent}
+                                                            sx={{
+                                                                height: 10,
+                                                                borderRadius: 999,
+                                                                bgcolor: "var(--primary-shadow-lg)",
+                                                                "& .MuiLinearProgress-bar": { bgcolor: "var(--primary)", borderRadius: 999 },
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                </Paper>
+                                                <Stack alignItems={'start'}>
+                                                <ButtonConfirm label={t('btn-see-chapter')} onClick={() => {
+                                                    router.push(`${PAGE_LESSONS}/${_chapter.uid_lesson}${PAGE_CHAPTERS}/${_chapter.uid}`);
+                                                }} />
+                                                </Stack>
                                             </Stack>
-                                            <LinearProgress
-                                                variant="determinate"
-                                                value={percent}
-                                                sx={{
-                                                    height: 10,
-                                                    borderRadius: 999,
-                                                    bgcolor: "var(--primary-shadow-lg)",
-                                                    "& .MuiLinearProgress-bar": { bgcolor: "var(--primary)", borderRadius: 999 },
-                                                }}
+                                        }
+
+                                        {
+                                            !hasStats && <AlertComponent
+                                                title="Astuce"
+                                                subtitle={<Typography>{"Termine le quiz de validation pour débloquer le chapitre suivant."}</Typography>}
+                                                severity="warning"
+                                                buttonConfirmComponent={<ButtonConfirm label="Le quiz" style={{ background: 'var(--warning)' }} />}
                                             />
-                                        </Stack>
-                                    </Paper>
+                                        }
+                                    </Stack>
                                 </Grid>
-                                <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                                <Grid size={{ xs: 12, sm: 'auto' }}>
                                     <Stack
                                         sx={{
                                             position: "relative",
@@ -241,9 +275,9 @@ function ChapterComponent() {
                                         }}
                                     >
                                         {
-                                            chapter?.photo_url && <Image
-                                                src={chapter?.photo_url}
-                                                alt={chapter?.translate?.title || ""}
+                                            _chapter.photo_url && <Image
+                                                src={_chapter.photo_url}
+                                                alt={_chapter.translate?.title || ""}
                                                 //fill
                                                 height={100}
                                                 width={200}
@@ -258,300 +292,28 @@ function ChapterComponent() {
                     })
                 }
             </Stack>
+
             {
-                chapter && <Tabs
-                    value={chapter?.uid || ''}
-                    //onChange={handleChange} 
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    allowScrollButtonsMobile
-                    aria-label="basic tabs chapters"
-                >
-                    {
-                        chapters.map((c, i) => {
-                            return (<Tab
-                                key={`${c}-${i}`} wrapped
-                                sx={{
-                                    textTransform: 'none',
-                                    fontSize: '0.85rem'
-                                }}
-                                label={c.translate?.title}
-                                value={c.uid}
-                                onClick={() => setUidChapter(c.uid)}
-                            />)
-                        })
-                    }
-                </Tabs>
+                lesson?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '30%' } }}>
+                    <Image
+                        src={lesson?.photo_url || ''}
+                        alt={`lesson-${lesson?.uid}`}
+                        quality={100}
+                        width={300}
+                        height={150}
+                        //loading="lazy"
+                        priority
+                        style={{
+                            width: '100%',
+                            height: 'auto',
+                            //maxHeight:'400px',
+                            borderRadius: '8px',
+                            objectFit: 'cover',
+                        }}
+                    />
+                </Box>
             }
-            <Grid container spacing={1} sx={{ background: 'red', py: 1 }} justifyContent={'space-between'}>
-                <Grid size={{ xs: 12, sm: 8 }}>
-                    <Stack spacing={2} justifyContent={'center'} sx={{ width: { xs: '100%', sm: '100%' }, py: 3, px: 2 }}>
-                        <Stack spacing={1}>
-                            <Typography variant="h4">{chapter?.uid_intern}. {chapter?.translate?.title} {chapter?.duration}</Typography>
-
-                            <Stack direction="row" spacing={1} flexWrap="wrap">
-                                <Chip label={`${t(chapter?.level)} • ${chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
-                                <Chip label={`Progression: ${currentLevel.progress}%`} variant="outlined" sx={chipHeader} />
-                            </Stack>
-                        </Stack>
-
-                        {/* Progress bar */}
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                borderRadius: 1.5,
-                                p: 1.2,
-                                border: "0.1px solid var(--primary-shadow-xs)",
-                                bgcolor: "var(--primary-shadow)",
-                            }}
-                        >
-                            <Stack spacing={0.7}>
-                                <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="body2" sx={{ fontWeight: 900 }}>
-                                        {stats?.length} questionnaires completés
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 950 }}>
-                                        {Number.isNaN(percent) ? 0 : percent.toFixed(2)}%
-                                    </Typography>
-                                </Stack>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={percent}
-                                    sx={{
-                                        height: 10,
-                                        borderRadius: 999,
-                                        bgcolor: "var(--primary-shadow-lg)",
-                                        "& .MuiLinearProgress-bar": { bgcolor: "var(--primary)", borderRadius: 999 },
-                                    }}
-                                />
-                            </Stack>
-                        </Paper>
-                    </Stack>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                    <Stack
-                        sx={{
-                            position: "relative",
-                            width: "100%",
-                            //height: 220,
-                            //borderRadius: 2,
-                            overflow: "hidden",
-                            border: "1px solid",
-                            border: "0.1px solid transparent",
-                            //background:'red',
-
-                        }}
-                    >
-                        {
-                            chapter?.photo_url && <Image
-                                src={chapter?.photo_url}
-                                alt={chapter?.translate?.title || ""}
-                                //fill
-                                height={100}
-                                width={200}
-                                style={{ objectFit: "cover", width: '100%', height: 'auto', borderRadius: '10px' }}
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-                        }
-                    </Stack>
-                </Grid>
-            </Grid>
-
-
-
-            <Stack spacing={1} sx={{ px: 2 }}>
-                <Grid container sx={{ background: '' }} spacing={2}>
-                    <Grid size={12}>
-                        <Grid container spacing={1}>
-                            {chapter?.subchapters?.map((sub) => (
-                                <Grid size={{ xs: 12, sm: 'auto' }} key={sub.uid_intern}>
-                                    <SubchapterCard subchapter={sub} onOpen={() => handleOpenChapter(ch)} />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 'auto' }}>
-                        <Stack
-                            sx={{
-                                position: "relative",
-                                width: "100%",
-                                //height: 220,
-                                //borderRadius: 2,
-                                overflow: "hidden",
-                                border: "1px solid",
-                                border: "0.1px solid transparent",
-                                //background:'red',
-
-                            }}
-                        >
-                            {
-                                chapter?.photo_url && <Image
-                                    src={chapter?.photo_url}
-                                    alt={chapter?.translate?.title || ""}
-                                    //fill
-                                    height={100}
-                                    width={200}
-                                    style={{ objectFit: "cover", width: '100%', height: 'auto', borderRadius: '10px' }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            }
-                        </Stack>
-                    </Grid>
-                </Grid>
-
-
-            </Stack>
-
-            {/* HERO */}
-            <Box
-                sx={{
-                    background: "linear-gradient(135deg, rgba(11,27,77,1) 0%, rgba(37,99,235,1) 55%, rgba(96,165,250,1) 100%)",
-                    color: "white",
-                    pb: 9,
-                }}
-            >
-                <Stack sx={{ maxWidth: 1200, mx: "auto", px: { xs: 2, md: 3 }, pt: 3 }} spacing={2}>
-                    <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2}>
-                        <Stack spacing={0.6}>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                                <Avatar
-                                    sx={{
-                                        bgcolor: "rgba(255,255,255,0.14)",
-                                        border: "1px solid rgba(255,255,255,0.18)",
-                                        color: "white",
-                                    }}
-                                >
-                                    <SchoolIcon />
-                                </Avatar>
-                                <Stack spacing={0.1}>
-                                    <Typography variant="h3" sx={{ fontWeight: 950, lineHeight: 1 }}>
-                                        {course.title}
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                        {course.subtitle}
-                                    </Typography>
-                                </Stack>
-                            </Stack>
-
-                            <Stack direction="row" spacing={1} flexWrap="wrap">
-                                <Chip label={course.code} variant="outlined" sx={chipHero} />
-                                <Chip label={`${level} • 5 chapitres`} variant="outlined" sx={chipHero} />
-                                <Chip label={`Progression: ${currentLevel.progress}%`} variant="outlined" sx={chipHero} />
-                            </Stack>
-                        </Stack>
-
-                        {/* Search */}
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                borderRadius: 4,
-                                p: 0.8,
-                                border: "1px solid rgba(255,255,255,0.22)",
-                                bgcolor: "rgba(255,255,255,0.12)",
-                                width: { xs: "100%", md: 420 },
-                            }}
-                        >
-                            <TextField
-                                fullWidth
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Rechercher un chapitre…"
-                                variant="standard"
-                                InputProps={{
-                                    disableUnderline: true,
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon sx={{ color: "rgba(255,255,255,0.85)" }} />
-                                        </InputAdornment>
-                                    ),
-                                    sx: { color: "white", fontWeight: 800 },
-                                }}
-                            />
-                        </Paper>
-                    </Stack>
-
-                    {/* Level switch */}
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                        {course.levels.map((l) => (
-                            <Button
-                                key={l.key}
-                                onClick={() => setLevel(l.key)}
-                                variant={l.key === level ? "contained" : "outlined"}
-                                sx={l.key === level ? levelBtnActive : levelBtn}
-                            >
-                                {l.key}
-                            </Button>
-                        ))}
-                    </Stack>
-
-                    {/* Progress bar */}
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            borderRadius: 4,
-                            p: 1.2,
-                            border: "1px solid rgba(255,255,255,0.18)",
-                            bgcolor: "rgba(255,255,255,0.10)",
-                        }}
-                    >
-                        <Stack spacing={0.7}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Typography variant="body2" sx={{ fontWeight: 900 }}>
-                                    Progression — {level}
-                                </Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 950 }}>
-                                    {currentLevel.progress}%
-                                </Typography>
-                            </Stack>
-                            <LinearProgress
-                                variant="determinate"
-                                value={currentLevel.progress}
-                                sx={{
-                                    height: 10,
-                                    borderRadius: 999,
-                                    bgcolor: "rgba(255,255,255,0.18)",
-                                    "& .MuiLinearProgress-bar": { bgcolor: "rgba(255,255,255,0.85)", borderRadius: 999 },
-                                }}
-                            />
-                        </Stack>
-                    </Paper>
-                </Stack>
-            </Box>
-
-            {/* CONTENT */}
-            <Stack sx={{ maxWidth: 1200, mx: "auto", px: { xs: 2, md: 3 }, mt: -6, pb: 4 }} spacing={2}>
-                <Grid container spacing={2}>
-                    {chaptersFiltered.map((ch) => (
-                        <Grid item xs={12} md={6} key={ch.uid}>
-                            <ChapterCard chapter={ch} onOpen={() => handleOpenChapter(ch)} />
-                        </Grid>
-                    ))}
-
-                    {!chaptersFiltered.length ? (
-                        <Grid item xs={12}>
-                            <Paper elevation={0} sx={{ borderRadius: 5, p: 3, border: "1px solid rgba(15,23,42,0.10)" }}>
-                                <Typography variant="h5" sx={{ fontWeight: 950, color: NAVY }}>
-                                    Aucun chapitre trouvé
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Essaie une autre recherche.
-                                </Typography>
-                            </Paper>
-                        </Grid>
-                    ) : null}
-                </Grid>
-
-                {/* Footer hint */}
-                <Paper elevation={0} sx={{ borderRadius: 5, p: 2.2, border: "1px solid rgba(15,23,42,0.10)", bgcolor: "rgba(37,99,235,0.04)" }}>
-                    <Typography variant="h5" sx={{ fontWeight: 950, color: NAVY }}>
-                        Astuce
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Termine le chapitre en cours pour débloquer le suivant. Chaque chapitre a un exercice + un quiz de validation.
-                    </Typography>
-                </Paper>
-            </Stack>
-        </Box>
+        </Stack>
     );
 }
 
