@@ -376,6 +376,24 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return timeTotal;
     }
+    function getMostRecentStat(uidLesson = "", uidChapter = "") {
+        var total = 0;
+        var percentTotal = 0;
+        var maxScore = 0;
+        var maxStat = null;
+        var sortedStats = stats.sort((a,b)=>b.created_time.getTime()-a.created_time.getTime());
+        if(!sortedStats.length) return null;
+        if (uidLesson && uidChapter) {
+            sortedStats = sortedStats.filter(s=>s.uid_lesson === uidLesson && s.uid_chapter === uidChapter);
+            return sortedStats[0];
+        } else if (uidLesson) {
+            sortedStats = sortedStats.filter(s=>s.uid_lesson === uidLesson);
+        } else if (uidChapter) {
+            sortedStats = sortedStats.filter(s=>s.uid_chapter === uidChapter);
+        }
+        if(!sortedStats.length) return null;
+        return sortedStats[0];
+    }
     function getBestStat(uidLesson = "", uidChapter = "") {
         var total = 0;
         var percentTotal = 0;
@@ -474,7 +492,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
                 //return(new Classse)
             });
         } else {
-            setChapter(null);
+         //   setChapter(null);
         }
     }
 
@@ -502,6 +520,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         getGlobalCountLesson,
         getGlobalCountChapters,
         getGlobalCountQuiz,
+        getMostRecentStat,
         getBestStat,
         getWorstStat,
         countHourTotalLessons,

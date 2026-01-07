@@ -37,7 +37,7 @@ import Image from "next/image";
 import AccordionComponent from "../dashboard/elements/AccordionComponent";
 import { formatChrono } from "@/contexts/functions";
 import Link from "next/link";
-import { PAGE_CHAPTERS, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { PAGE_CHAPTERS, PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import AlertComponent from "../elements/AlertComponent";
 
 const ROYAL = "#2563EB";
@@ -178,8 +178,11 @@ function ChapterComponent() {
                         });
                         const countCompletedQuiz = stats?.filter(s => s.uid_chapter === _chapter.uid).length || 0;
                         const hasStats = stats?.filter(s => s.uid_chapter === _chapter.uid)?.length > 0 || false;
+                        const firstStats = hasStats ? stats?.filter(s => s.uid_chapter === _chapter.uid)?.[0]  : null;
+                        const hasCompletedPrevious = i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0 ? true : false || true;
                         console.log("YAAAA", time);
                         return (<AccordionComponent
+                            disabled={false}
                             title={<Typography>{`${_chapter.uid_intern}. ${_chapter.translate?.title} - ${_chapter.estimated_start_duration} à ${_chapter.estimated_end_duration}`}</Typography>}
                             key={`${_chapter.uid}-${i}`}>
                             <Grid container sx={{ px: 1, py: 1.5 }} spacing={1} justifyContent={'space-between'}>
@@ -211,13 +214,12 @@ function ChapterComponent() {
                                                         borderRadius: 1.5,
                                                         p: 1.5,
                                                         border: "0.1px solid var(--primary-shadow-xs)",
-                                                        bgcolor: "var(--primary-shadow)",
+                                                        bgcolor: "",
                                                     }}
                                                 >
                                                     <Stack spacing={0.7}>
                                                         <Stack sx={{ color: 'var(--primary)' }} direction="row" justifyContent="space-between" alignItems="center">
-                                                            <Typography variant="body2" sx={{ fontWeight: 900 }}>
-                                                                {countCompletedQuiz} questionnaires completés
+                                                            <Typography variant="body2" sx={{ fontWeight: 400 }}>
                                                                 <Trans
                                                                     t={t}
                                                                     i18nKey={'count-completed-quiz'}
@@ -242,10 +244,13 @@ function ChapterComponent() {
                                                         />
                                                     </Stack>
                                                 </Paper>
-                                                <Stack alignItems={'start'}>
-                                                <ButtonConfirm label={t('btn-see-chapter')} onClick={() => {
-                                                    router.push(`${PAGE_LESSONS}/${_chapter.uid_lesson}${PAGE_CHAPTERS}/${_chapter.uid}`);
-                                                }} />
+                                                <Stack alignItems={'center'} direction={'row'} spacing={1}>
+                                                    <ButtonCancel label={t('btn-see-stats')} onClick={() => {
+                                                        router.push(`${PAGE_STATS}/${firstStats.uid}`);
+                                                    }} />
+                                                    <ButtonConfirm label={t('btn-see-chapter')} onClick={() => {
+                                                        router.push(`${PAGE_LESSONS}/${_chapter.uid_lesson}${PAGE_CHAPTERS}/${_chapter.uid}`);
+                                                    }} />
                                                 </Stack>
                                             </Stack>
                                         }
@@ -291,6 +296,15 @@ function ChapterComponent() {
                         </AccordionComponent>)
                     })
                 }
+            </Stack>
+
+            <Stack sx={{width:{xs:'100%', sm:'70%'}}}>
+            <AlertComponent
+                title={t('title-tip')}
+                subtitle={<Typography>{t('tip')}</Typography>}
+                severity="info"
+                //buttonConfirmComponent={<ButtonConfirm label="Le quiz" style={{ background: 'var(--warning)' }} />}
+            />
             </Stack>
 
             {

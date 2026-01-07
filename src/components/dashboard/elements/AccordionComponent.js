@@ -14,8 +14,9 @@ import { ClassRoom } from '@/classes/ClassRoom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={0} square={true} {...props} />
+  <MuiAccordion disabled={props.disabled} disableGutters elevation={0} square={true} {...props} />
 ))(({ theme }) => ({
+  
   //border: `1px solid ${theme.palette.divider}`,
   '&:last-child': {
     // borderBottom: 0,
@@ -104,7 +105,7 @@ const AccordionDetails = styled((props) => (
   //borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-export default function AccordionComponent({ children, title = "", expanded = false,onChange=null }) {
+export default function AccordionComponent({ children, title = "", expanded = false,onChange=null,disabled=false }) {
   const { theme } = useThemeMode();
   const [isExpanded, setIsExpanded] = useState(expanded);
 
@@ -121,6 +122,7 @@ export default function AccordionComponent({ children, title = "", expanded = fa
 
   return (<Accordion
     expanded={isExpanded}
+    disabled={disabled}
     onChange={handleChange(!isExpanded)}
     sx={{ borderRadius: '5px', }}>
     <AccordionSummary     

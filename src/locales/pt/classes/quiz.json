@@ -1,6 +1,6 @@
 {
-  "title": "Quiz de fim de curso",
-  "subtitle": "*Este teste só pode ser realizado uma única vez. A tua pontuação será guardada para te permitir acompanhar a tua progressão ao longo do tempo.",
+  "title": "Quiz final do curso",
+  "subtitle": "*Este teste só pode ser realizado uma vez. A tua pontuação será guardada para te permitir acompanhar a tua progressão ao longo do tempo.",
   "uid_intern": "Número",
   "uid_chapter": "Secção",
   "warning": "O quiz é cronometrado e só pode ser realizado uma vez a cada {{quiz_delay_days}} dias.<br/>Clica em <b>\"Iniciar o quiz\"</b> quando estiveres pronto(a).",
@@ -11,14 +11,16 @@
   "competent": "Competente",
   "advanced": "Avançado",
   "expert": "Especialista",
+  "max-score": "Obtiveste a pontuação máxima neste questionário, parabéns!",
   "btn-back": "Voltar ao curso",
   "btn-start": "Iniciar o quiz",
+  "btn-see-answers": "Ver as minhas respostas",
   "finished": {
     "title": "<b>Parabéns por teres concluído o quiz!</b>",
     "score": "Obtiveste: <caption>{{score}}</caption>",
     "percentage": "Respostas corretas: <caption>{{percentage}}%</caption>",
     "time": "Duração do teste: <caption>{{duration}}</caption>",
-    "next-trying-date": "Próxima tentativa: <caption>{{nextDate}}</caption>",
+    "next-trying-date": "Tens de esperar antes de tentares novamente!<br/>Próxima tentativa: <b>{{nextDate}}</b>",
     "congrats": "Parabéns!",
     "max-score": "Obtiveste a pontuação máxima neste questionário!",
     "max-answer": "{{score}} / {{total}}"
