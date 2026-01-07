@@ -2,6 +2,7 @@
   "uid": "Identifiant",
   "uid_intern": "Numéro",
   "duration": "Durée estimée : {{start}} à {{end}} heures",
+  "duration_short": "{{start}} à {{end}} heures",
   "level": "Niveau",
   "beginner": "Débutant",
   "intermediate": "Intermédiaire",

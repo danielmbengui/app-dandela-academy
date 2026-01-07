@@ -19,6 +19,116 @@ import { useChapter } from "@/contexts/ChapterProvider"
 const MODE_CREATE_CHAPTER = 'create-chapter';
 const MODE_ADD_GOALS = 'add-goals';
 const MODE_CREATE_SUB_CHAPTERS = 'create-subchapters';
+
+const TITLES_CHAPTER_3 = [
+    "Préparation des données & rappel Niveau 2",
+    "Fonctions de recherche (RECHERCHEV, RECHERCHEX, index simple)",
+    "Plages nommées & lisibilité des formules",
+    "Fonctions texte (GAUCHE, DROITE, STXT, CONCAT/CONCATENER, TEXTE)",
+    "Fonctions de date (AUJOURDHUI, MAINTENANT, DATEDIF, JOUR/MOIS/ANNEE)",
+    "Nettoyage simple des données (espaces, format texte/numérique)",
+    "Mini tableau de bord (indicateurs + graphiques)",
+    "Mini-projet de synthèse",
+];
+const GOALS_CHAPTER_3 = [
+    ["On part d’un tableau de données un peu plus riche : ventes par produit, dates, clients, montants, etc. L'objectif est de s'assurer que les bases du Niveau 2 sont solides."],
+    ["Les fonctions de recherche permettent de retrouver une information dans un tableau à partir d’une valeur (par exemple, retrouver le prix d’un produit à partir de son nom)."],
+    ["Nommer des cellules ou des plages facilite la lecture des formules et évite les erreurs de référence."],
+    ["Les fonctions texte permettent de nettoyer ou recomposer des informations (codes, noms, numéros)."],
+    ["Les fonctions de date sont très utiles pour suivre des délais, des durées, des échéances."],
+    ["Données “sales” = résultats faux. On voit comment corriger quelques problèmes fréquents."],
+    ["On assemble tout : indicateurs clés (KPI), graphiques, et présentation propre sur une feuille de synthèse."],
+    ["Pour consolider toutes les notions du niveau 3, l'apprenant réalise une petite analyse à partir d’un jeu de données plus riche."],
+];
+const KEYS_CHAPTER_3 = [
+    [
+        "Vérifier que les formules de base (SOMME, MOYENNE, SI, SOMME.SI) sont maîtrisées.",
+        "Créer une feuille Données bien structurée (en-têtes propres, pas de lignes vides).",
+    ],
+    [
+        "➡️ (RECHERCHEV)",
+        "Syntaxe : =RECHERCHEV(valeur_cherchée;table_matrice;no_index_col;[valeur_proche]).",
+        "La valeur cherchée doit se trouver dans la première colonne de la table.",
+        "no_index_col = numéro de la colonne à renvoyer dans la table.",
+        "➡️ (RECHERCHEX / XLOOKUP si disponible)",
+        "Plus flexible que RECHERCHEV (pas obligé que la donnée soit dans la première colonne).",
+        "Permet de définir facilement la valeur en cas de non-trouvée.",
+    ],
+    [
+        "Créer un nom via la zone de nom (à gauche de la barre de formule).",
+        "Créer un nom via Formules → Gestionnaire de noms.",
+        "Utiliser le nom dans une formule (ex: =Montant_HT * Taux_TVA).",
+    ],
+    [
+        "GAUCHE(texte; n) : renvoie les n premiers caractères.",
+        "DROITE(texte; n) : renvoie les n derniers caractères.",
+        "STXT(texte; début; n) : renvoie n caractères à partir d’une position.",
+        "CONCAT ou CONCATENER : fusionne plusieurs morceaux de texte.",
+        "TEXTE(valeur; format) : affiche une valeur numérique avec un format texte (ex: « 01/2025 »).",
+    ],
+    [
+        "AUJOURDHUI() : renvoie la date du jour.",
+        "MAINTENANT() : renvoie date + heure actuelles.",
+        "DATEDIF(date_début; date_fin; unité) : différence entre deux dates (ex: en jours, mois, années).",
+        "JOUR(date), MOIS(date), ANNEE(date) : extraire le jour, le mois ou l’année.",
+    ],
+    [
+        "Fonction SUPPRESPACE(texte) pour enlever les espaces superflus.",
+        "Fonction CNUM(texte) pour convertir un texte en nombre lorsqu’il est bien formé.",
+        "Vérifier s’il y a des espaces cachés dans les cellules qui semblent identiques.",
+    ],
+    [
+        "Total des ventes, moyenne, meilleure vente, etc.",
+        "Graphique par produit ou par mois.",
+        "Mise en forme claire : titres, couleurs, alignements.",
+    ],
+    [
+        "➡️ À partir d’une base de données de ventes (Produits, Clients, Dates, Montants, Pays, etc.), produire :",
+        "Une feuille Données propre (après nettoyage éventuel).",
+        "Une feuille Référentiel avec une liste de produits ou clients et des infos associées (prix, catégorie…).",
+        "Des RECHERCHEV/RECHERCHEX pour compléter automatiquement des informations dans la feuille Données.",
+        "Quelques colonnes calculées avec des fonctions texte ou date (pays, mois, année…).",
+        "Une feuille Dashboard avec 3 à 5 indicateurs et 1 à 2 graphiques.",
+    ]
+];
+const EXERCICES_CHAPTER_3 = [
+    [
+        "Importer ou saisir un tableau de 30 à 50 lignes (Produits, Clients, Dates, Montants).",
+        "Contrôler la cohérence des données (pas de textes mélangés aux chiffres dans la colonne Montants).",
+    ],
+    [
+        "Créer une petite table de référence des Produits avec leur Prix unitaire sur une feuille « Référentiel ».",
+        "Dans la feuille Données, utiliser RECHERCHEV ou RECHERCHEX pour ramener le Prix unitaire à partir du nom du produit.",
+    ],
+    [
+        "Nommer une cellule contenant un taux de TVA (ex: Taux_TVA).",
+        "Nommer une plage de données (ex: Ventes_2025).",
+        "Réécrire une formule en remplaçant les références de cellules par des noms.",
+    ],
+    [
+        "Sur une colonne de codes clients (ex: « CH-001 », « CH-002 »), extraire le pays (2 premières lettres) avec GAUCHE.",
+        "Assembler un texte du type « Client X – Ville Y » avec CONCAT.",
+    ],
+    [
+        "À partir d’une date de début de contrat et d’une date de fin, calculer le nombre de jours de contrat avec DATEDIF.",
+        "Extraire le mois et l’année des dates de factures pour préparer un regroupement par mois.",
+    ],
+    [
+        "Importer une petite liste avec des noms ou des codes contenant des espaces en trop, puis les nettoyer avec SUPPRESPACE.",
+    ],
+    [
+        "Créer une feuille « Dashboard » avec 3 indicateurs : Total ventes, Moyenne par vente, Nombre de clients.",
+        "Ajouter au moins un graphique pertinent (par produit ou par mois).",
+    ],
+    [
+        "➡️ À partir d’une base de données de ventes (Produits, Clients, Dates, Montants, Pays, etc.), produire :",
+        "Une feuille Données propre (après nettoyage éventuel).",
+        "Une feuille Référentiel avec une liste de produits ou clients et des infos associées (prix, catégorie…).",
+        "Des RECHERCHEV/RECHERCHEX pour compléter automatiquement des informations dans la feuille Données.",
+        "Quelques colonnes calculées avec des fonctions texte ou date (pays, mois, année…).",
+        "Une feuille Dashboard avec 3 à 5 indicateurs et 1 à 2 graphiques.",
+    ],
+]
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
@@ -490,158 +600,6 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
     const [errors, setErrors] = useState({});
 
     const [subchapter, setSubchapter] = useState(new ClassLessonSubchapter({
-        //uid_chapter: chapter?.uid,
-        title: "Rappel des bases & préparation du fichier",
-        goals: ["Cette leçon sert à vérifier que les bases du niveau débutant sont acquises et à préparer un fichier de travail qui servira tout au long du cours."],
-        keys: [
-            "Création d’un classeur dédié au cours « Excel Intermédiaire ».",
-            "Organisation des feuilles : Données, Calculs, Résumés.",
-            "Rappel rapide : SOMME, sélection de cellules, recopie de formule.",
-        ],
-        exercises: [
-            "Créer un classeur nommé « Excel_Intermediaire.xlsx ».",
-            "Renommer Feuil1 en « Données » et créer deux autres feuilles : « Calculs » et « Résumé ».",
-        ],
-    }));
-    //const subchapters = 
-    const [newSubchapter, setNewSubChapter] = useState(null);
-    const [subchapters, setSubchapters] = useState([
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 1,
-            title: "Rappel des bases & préparation du fichier",
-            goals: ["Cette leçon sert à vérifier que les bases du niveau débutant sont acquises et à préparer un fichier de travail qui servira tout au long du cours."],
-            keys: [
-                "Création d’un classeur dédié au cours « Excel Intermédiaire ».",
-                "Organisation des feuilles : Données, Calculs, Résumés.",
-                "Rappel rapide : SOMME, sélection de cellules, recopie de formule.",
-            ],
-            exercises: [
-                "Créer un classeur nommé « Excel_Intermediaire.xlsx ».",
-                "Renommer Feuil1 en « Données » et créer deux autres feuilles : « Calculs » et « Résumé ».",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 2,
-            title: "Fonctions statistiques simples (MOYENNE, MIN, MAX, NB, NBVAL)",
-            goals: [
-                "On va au-delà de SOMME pour obtenir des informations clés : moyenne, valeur minimale, valeur maximale, nombre de valeurs."
-            ],
-            keys: [
-                "=MOYENNE(plage) pour calculer la moyenne d’une série de nombres.",
-                "=MIN(plage) et =MAX(plage) pour trouver la plus petite et la plus grande valeur.",
-                "=NB(plage) pour compter les cellules numériques.",
-                "=NBVAL(plage) pour compter les cellules non vides.",
-            ],
-            exercises: [
-                "Sur la feuille Données, saisir une liste de 10 ventes (montants).",
-                "Sur la feuille Calculs, utiliser MOYENNE, MIN, MAX, NB, NBVAL pour analyser ces ventes.",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 3,
-            title: "Formules conditionnelles avec SI",
-            goals: [
-                "La fonction SI permet d'afficher un résultat différent selon qu'une condition est vraie ou fausse (par exemple, appliquer un bonus si une vente dépasse un certain montant)."
-            ],
-            keys: [
-                "Structure : =SI(condition; valeur_si_vrai; valeur_si_faux).",
-                "Exemple :",
-            ],
-            exercises: [
-                "Dans la feuille Données, ajouter une colonne « Statut ».",
-                "Utiliser une formule SI pour afficher « BONUS » si la vente est supérieure à un montant (ex: 1000), sinon « - ».",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 4,
-            title: "Références relatives & absolues",
-            goals: [
-                "Comprendre la différence entre les références relatives (A1) et absolues ($A$1) est essentiel pour recopier des formules qui utilisent des constantes (taux TVA, taux de commission, etc.)."
-            ],
-            keys: [
-                "Référence relative : change lors de la recopie (A1 devient A2, A3...).",
-                "Référence absolue : reste fixe grâce au symbole $ (ex: $D$1).",
-                "Utiliser F4 (sur Windows) pour basculer entre relative / absolue.",
-            ],
-            exercises: [
-                "Placer un taux TVA en D1 (ex: 0,2).",
-                "En E2, calculer le prix TTC avec =C2*(1+$D$1) puis recopier vers le bas.",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 5,
-            title: "Mise en forme conditionnelle",
-            goals: [
-                "La mise en forme conditionnelle permet de mettre visuellement en évidence les cellules qui respectent une condition (valeurs élevées, seuils, doublons, etc.)."
-            ],
-            keys: [
-                "Onglet Accueil → Mise en forme conditionnelle.",
-                "Règles simples : « Supérieur à », « Inférieur à », « Égal à ».",
-                "Exemples : surligner les ventes supérieures à 1000 en vert.",
-            ],
-            exercises: [
-                "Appliquer une mise en forme conditionnelle sur la colonne des ventes pour surligner celles qui dépassent un seuil.",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 6,
-            title: "Tri, filtres & sous-totaux simples",
-            goals: [
-                "Dans cette leçon, l'apprenant va plus loin dans l'analyse de données avec des tris combinés et des filtres multi-critères."
-            ],
-            keys: [
-                "Tri sur une ou plusieurs colonnes (ex: trier par vendeur puis par montant).",
-                "Filtres pour afficher uniquement les ventes d’un vendeur spécifique.",
-                "Comprendre que les lignes non filtrées sont simplement masquées, pas supprimées.",
-            ],
-            exercises: [
-                "Trier la liste de ventes par vendeur (A–Z), puis par montant décroissant.",
-                "Filtrer pour n’afficher que les ventes d’un vendeur donné.",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 7,
-            title: "Introduction aux tableaux croisés dynamiques",
-            goals: [
-                "Le tableau croisé dynamique (TCD) permet de résumer rapidement un grand tableau de données : total par vendeur, par produit, par mois, etc."
-            ],
-            keys: [
-                "Sélectionner le tableau de données.",
-                "Insertion → Tableau croisé dynamique.",
-                "Placer par exemple Vendeur en Lignes et Somme des ventes en Valeurs.",
-            ],
-            exercises: [
-                "Créer un TCD qui affiche le total des ventes par vendeur.",
-                "Ajouter éventuellement un filtre par mois si les dates sont disponibles.",
-            ],
-        }),
-        new ClassLessonSubchapter({
-            uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-            uid_intern: 8,
-            title: "Mini-projet & bonnes pratiques",
-            goals: [
-                "Pour clôturer le module, l'apprenant réalise une mini-analyse des ventes en réutilisant toutes les notions vues."
-            ],
-            keys: [
-                "À partir d'un tableau de ventes (Produit, Vendeur, Date, Quantité, Prix unitaire), produire :",
-            ],
-            exercises: [
-                "Une feuille Données propre (tableau complet).",
-                "Une feuille Calculs avec : total général, moyenne, min, max, NB, NBVAL.",
-                "Une colonne Statut avec un SI simple (par ex: « Grosse vente » si montant > seuil).",
-                "Une mise en forme conditionnelle pour surligner les grosses ventes.",
-                "Un TCD résumant les ventes par vendeur ou par produit.",
-            ],
-        }),
-        /*
-        new ClassLessonSubchapter({
             uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
             uid_intern:0,
             title: "",
@@ -657,9 +615,21 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
                 "",
                 "",
             ],
-        }),
-        */
-    ]);
+        }));
+    
+    //const subchapters = 
+    const [newSubchapter, setNewSubChapter] = useState(null);
+    const [subchapters, setSubchapters] = useState(TITLES_CHAPTER_3.map((title, i) => {
+        return new ClassLessonSubchapter({
+            uid_chapter: "Cl8lok4rcSCC6oOkiXhO",
+            uid_intern: i+1,
+            title: title,
+            goals: GOALS_CHAPTER_3[i],
+            keys: KEYS_CHAPTER_3[i],
+            exercises: EXERCICES_CHAPTER_3[i],
+        });
+    }));
+    //console.log("Suuububuubabu",subchapters)
 
     const [newGoal, setNewGoal] = useState("");
     const [goals, setGoals] = useState([]);
@@ -889,7 +859,7 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
                 return new ClassLessonSubchapterTranslation({
                     ...trans,
                     lang: lang,
-                    photo_url: `https://app.academy.dandela.com/images/lessons/excel/intermediate/chapter_${subchapter.uid_intern}/explaination_${lang}.png`,
+                    photo_url: `https://app.academy.dandela.com/images/lessons/excel/competent/chapter_${subchapter.uid_intern}/explaination_${lang}.png`,
                 })
             });
             //const globalTranslates = { ...chapter.translates, goals: translates };
@@ -990,7 +960,7 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
                 <ButtonConfirm
                     label="Suivant"
                     loading={processing}
-                    disabled={!subchapter?.title || !subchapter?.goals?.length || !subchapter?.keys?.length || !subchapter?.exercises?.length}
+                    //disabled={!subchapter?.title || !subchapter?.goals?.length || !subchapter?.keys?.length || !subchapter?.exercises?.length}
                     onClick={onGoNext}
                 />
             </Stack>

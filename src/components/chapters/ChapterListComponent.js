@@ -183,7 +183,20 @@ function ChapterComponent() {
                         console.log("YAAAA", time);
                         return (<AccordionComponent
                             disabled={false}
-                            title={<Typography>{`${_chapter.uid_intern}. ${_chapter.translate?.title} - ${_chapter.estimated_start_duration} à ${_chapter.estimated_end_duration}`}</Typography>}
+                            title={
+                            <Typography>{`${_chapter.uid_intern}. ${_chapter.translate?.title} (${t(_chapter.level)})`}
+                            <span style={{color:'var(--grey-light)', }}>
+                                {" - "}
+                                <Trans
+t={t}
+i18nKey={'duration_short'}
+values={{
+    start:_chapter.estimated_start_duration,
+    end:_chapter.estimated_end_duration
+}}
+                            />
+                            </span>
+                            </Typography>}
                             key={`${_chapter.uid}-${i}`}>
                             <Grid container sx={{ px: 1, py: 1.5 }} spacing={1} justifyContent={'space-between'}>
                                 <Grid size={{ xs: 12, sm: 8 }}>

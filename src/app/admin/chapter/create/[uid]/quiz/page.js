@@ -21,6 +21,76 @@ const MODE_CREATE_CHAPTER = 'create-chapter';
 const MODE_ADD_GOALS = 'add-goals';
 const MODE_CREATE_SUB_CHAPTERS = 'create-subchapters';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
+const QUESTIONS_CHAPTER_3 = [
+    "La fonction RECHERCHEV permet :",
+    "Quelle syntaxe est la plus proche d’une RECHERCHEV classique ?",
+    "La fonction GAUCHE(texte;2) renvoie :",
+    "Quelle fonction renvoie la date d’aujourd’hui ?",
+    "Quel est l’intérêt de nommer une plage (Nom de cellule) ?",
+    "Un tableau de bord simple dans Excel contient souvent :",
+    "Quelle fonction permet de calculer le nombre de jours entre deux dates ?",
+    "La fonction CONCAT ou CONCATENER sert à :",
+];
+const ANSWERS_CHAPTER_3 = [
+    { uid_intern: 2, value: "De rechercher une valeur dans la première colonne d’un tableau" },
+    { uid_intern: 1, value: "=RECHERCHEV(valeur;table;no_index_col;[valeur_proche])" },
+    { uid_intern: 2, value: "Les 2 premières lettres du texte" },
+    { uid_intern: 3, value: "AUJOURDHUI()" },
+    { uid_intern: 2, value: "Rendre les formules plus lisibles et réutilisables" },
+    { uid_intern: 3, value: "Des indicateurs, des graphiques et des chiffres clés" },
+    { uid_intern: 2, value: "DATEDIF()" },
+    { uid_intern: 2, value: "Fusionner plusieurs textes ou cellules en un seul texte" },
+];
+const PROPOSALS_CHAPTER_3 = [
+    [
+        { uid_intern: 1, value: "De calculer une moyenne" },
+        { uid_intern: 2, value: "De rechercher une valeur dans la première colonne d’un tableau" },
+        { uid_intern: 3, value: "De trier un tableau" },
+        { uid_intern: 4, value: "De créer un graphique" },
+    ],
+    [
+        { uid_intern: 1, value: "=RECHERCHEV(valeur;table;no_index_col;[valeur_proche])" },
+        { uid_intern: 2, value: "=RECHERCHEV(table;valeur;no_index_col;[valeur_proche])" },
+        { uid_intern: 3, value: "=RECHERCHEV(no_index_col;valeur;table)" },
+        { uid_intern: 4, value: "=RECHERCHEV(valeur;no_index_col;table)" },
+    ],
+    [
+        { uid_intern: 1, value: "Les 2 dernières lettres du texte" },
+        { uid_intern: 2, value: "Les 2 premières lettres du texte" },
+        { uid_intern: 3, value: "2 mots du texte" },
+        { uid_intern: 4, value: "La longueur du texte" },
+    ],
+    [
+        { uid_intern: 1, value: "DATE()" },
+        { uid_intern: 2, value: "MAINTENANT()" },
+        { uid_intern: 3, value: "AUJOURDHUI()" },
+        { uid_intern: 4, value: "JOUR()" },
+    ],
+    [
+        { uid_intern: 1, value: "Changer la couleur des cellules" },
+        { uid_intern: 2, value: "Rendre les formules plus lisibles et réutilisables" },
+        { uid_intern: 3, value: "Protéger le classeur" },
+        { uid_intern: 4, value: "Créer un graphique automatiquement" },
+    ],
+    [
+        { uid_intern: 1, value: "Uniquement des textes" },
+        { uid_intern: 2, value: "Des macros uniquement" },
+        { uid_intern: 3, value: "Des indicateurs, des graphiques et des chiffres clés" },
+        { uid_intern: 4, value: "Uniquement des tableaux croisés dynamiques" },
+    ],
+    [
+        { uid_intern: 1, value: "JOUR()" },
+        { uid_intern: 2, value: "DATEDIF()" },
+        { uid_intern: 3, value: "NB.JOURS()" },
+        { uid_intern: 4, value: "MOIS()" },
+    ],
+    [
+        { uid_intern: 1, value: "Additionner des chiffres" },
+        { uid_intern: 2, value: "Fusionner plusieurs textes ou cellules en un seul texte" },
+        { uid_intern: 3, value: "Supprimer des espaces" },
+        { uid_intern: 4, value: "Compter des cellules" },
+    ],
+]
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
@@ -492,336 +562,250 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
 
     const [quiz, setQuiz] = useState(new ClassLessonChapterQuiz({
         uid_intern: 1,
-        uid_chapter: "7mQDtdYbjFGSBlvtnyrC",
-        questions: [
-            new ClassLessonChapterQuestion({
-                uid_intern: 1,
-                question: "À quoi sert le symbole $ dans une référence comme $A$1 ?",
-                answer: { uid_intern: 2, value: "À fixer la colonne et la ligne lors de la recopie" },
-                proposals: [
-                    { uid_intern: 1, value: "À colorer la cellule" },
-                    { uid_intern: 2, value: "À fixer la colonne et la ligne lors de la recopie" },
-                    { uid_intern: 3, value: "À effacer la formule" },
-                    { uid_intern: 4, value: "À transformer la cellule en texte" },
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern: 2,
-                question: "La formule =MOYENNE(B2:B10) calcule :",
-                answer: { uid_intern: 3, value: "La moyenne des valeurs de B2 à B10" },
-                proposals: [
-                    { uid_intern: 1, value: "La somme de B2 à B10" },
-                    { uid_intern: 2, value: "Le nombre de cellules non vides" },
-                    { uid_intern: 3, value: "La moyenne des valeurs de B2 à B10" },
-                    { uid_intern: 4, value: "La valeur la plus élevée" },
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern:3, 
-                question:"Quelle fonction renvoie VRAI/FAUX selon une condition ?",
-                answer:{uid_intern:2,value:"SI"},
-                proposals:[
-                    {uid_intern:1,value:"SOMME"},
-                    {uid_intern:2,value:"SI"},
-                    {uid_intern:3,value:"NB.SI"},
-                    {uid_intern:4,value:"MAX"},
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern:4, 
-                question:"La mise en forme conditionnelle permet principalement de :",
-                answer:{uid_intern:2,value:"Appliquer un style automatiquement selon des règles"},
-                proposals:[
-                    {uid_intern:1,value:"Modifier la mise en page du classeur"},
-                    {uid_intern:2,value:"Appliquer un style automatiquement selon des règles"},
-                    {uid_intern:3,value:"Renommer des feuilles"},
-                    {uid_intern:4,value:"Créer des macros"},
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern:5, 
-                question:"Quel est l’intérêt d’un tableau croisé dynamique simple ?",
-                answer:{uid_intern:3,value:"Résumer, regrouper et analyser des données rapidement"},
-                proposals:[
-                    {uid_intern:1,value:"Dessiner des formes"},
-                    {uid_intern:2,value:"Faire des mises en forme avancées"},
-                    {uid_intern:3,value:"Résumer, regrouper et analyser des données rapidement"},
-                    {uid_intern:4,value:"Changer la langue d’Excel"},
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern:6, 
-                question:"NBVAL(A1:A10) compte :",
-                answer:{uid_intern:4,value:"Les cellules non vides (texte ou nombre)"},
-                proposals:[
-                    {uid_intern:1,value:"Toutes les cellules, vides ou non"},
-                    {uid_intern:2,value:"Uniquement les cellules numériques"},
-                    {uid_intern:3,value:"Uniquement les cellules texte"},
-                    {uid_intern:4,value:"Les cellules non vides (texte ou nombre)"},
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern:7, 
-                question:"Pour surligner automatiquement les valeurs supérieures à 1000, on utilisera :",
-                answer:{uid_intern:3,value:"Une mise en forme conditionnelle"},
-                proposals:[
-                    {uid_intern:1,value:"Une bordure"},
-                    {uid_intern:2,value:"Une formule SOMME"},
-                    {uid_intern:3,value:"Une mise en forme conditionnelle"},
-                    {uid_intern:4,value:"Un graphique"},
-                ]
-            }),
-            new ClassLessonChapterQuestion({
-                uid_intern:8, 
-                question:"Après avoir appliqué un filtre sur un tableau, que se passe-t-il ?",
-                answer:{uid_intern:2,value:"Les lignes qui ne répondent pas au critère sont masquées"},
-                proposals:[
-                    {uid_intern:1,value:"Les données sont supprimées"},
-                    {uid_intern:2,value:"Les lignes qui ne répondent pas au critère sont masquées"},
-                    {uid_intern:3,value:"Le fichier est verrouillé"},
-                    {uid_intern:4,value:"Les formules sont effacées"},
-                ]
-            }),
-            /*
-            new ClassLessonChapterQuestion({
-                uid_intern:1, 
-                question:"",
-                answer:{uid_intern:2,value:""},
-                proposals:[
-                    {uid_intern:1,value:""},
-                    {uid_intern:2,value:""},
-                    {uid_intern:3,value:""},
-                    {uid_intern:4,value:""},
-                ]
-            }),
-            */
-        ]
-}));
-
-const [subchapter, setSubchapter] = useState(new ClassLessonSubchapter({
-    //uid_chapter: chapter?.uid,
-    title: "Rappel des bases & préparation du fichier",
-    goals: ["Cette leçon sert à vérifier que les bases du niveau débutant sont acquises et à préparer un fichier de travail qui servira tout au long du cours."],
-    keys: [
-        "Création d’un classeur dédié au cours « Excel Intermédiaire ».",
-        "Organisation des feuilles : Données, Calculs, Résumés.",
-        "Rappel rapide : SOMME, sélection de cellules, recopie de formule.",
-    ],
-    exercises: [
-        "Créer un classeur nommé « Excel_Intermediaire.xlsx ».",
-        "Renommer Feuil1 en « Données » et créer deux autres feuilles : « Calculs » et « Résumé ».",
-    ],
-}));
-//const subchapters =
-
-const [newGoal, setNewGoal] = useState("");
-const [goals, setGoals] = useState([]);
-
-const onChangeNewGoalValue = (e) => {
-    const { name, value, type } = e.target;
-    setDisabledNext(!goals?.length);
-    setNewGoal(value);
-}
-const onClearNewGoalValue = () => {
-    setNewGoal("");
-    setDisabledNext(false);
-}
-const onChangeValue = (e) => {
-    //e.preventDefault();
-    const { name, value, type } = e.target;
-    //console.log("change", name, value)
-    setSubchapter(prev => {
-        if (!prev) return new ClassLessonSubchapter({ [name]: value });
-        //const _goals = [...prev.goals];
-        //_goals[index] = value;
-        prev.update({ [name]: value });
-        //prev.goals = _goals;
-        return prev.clone();
-    });
-}
-const onClearValue = (name) => {
-    //const { name, value, type } = e.target;
-    //const { value } = e.target;
-    //const index = name?.split?.('goal_')?.[1] || -1;
-    //if (index < 0) return;
-    //setErrors({ [name]: '' });
-    //setDisabledNext(false);
-    setSubchapter(prev => {
-        if (!prev) return new ClassLessonChapter({ [name]: '' });
-        prev.update({ [name]: '' });
-        return prev.clone();
-    })
-}
-const onGoBack = () => {
-    setMode(MODE_CREATE_CHAPTER);
-}
-const onGoNext = async () => {
-    //chapter.update({ uid_lesson: "zlUoi3t14wzC5cNhfS3J" });
-    //console.log("click next", chapter.createFirestoreDocUid())
-    setProcessing(true);
-    //await onTranslateGoals();
-
-    const results = await Promise.all(
-        quiz.questions.map((q) => onTranslateGoals(q))
-    );
-    console.log("RESULTS", results);
-    const toFirestore = results.map(res => {
-        return res.toJSON();
-    });
-    console.log("toFirestore", toFirestore);
-    quiz.update({questions:toFirestore});
-    const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
-    console.log("PATCH", _patch);
-
-    setProcessing(false);
-
-    /*
-    const _errors = {};
-    if (!goals?.length) {
-        _errors.new_goal = 'error-new-goal';
-    }
-    setErrors(_errors);
-    if (Object.keys(_errors).length > 0) {
-        setDisabledNext(true);
-        return;
-    }
-    //await onTranslateGoals();
-    setMode(MODE_CREATE_SUB_CHAPTERS);
-    */
-}
-const onTranslateGoals = async (question) => {
-    try {
-        //const subchapters = [...chapter.subchapters];
-        //const subchapterUid = subchapters.length + 1;
-        const trans = {
-            proposals: question.proposals,
-            answer: question.answer,
-            question: question.question,
-        };
-        const qs = encodeURIComponent(JSON.stringify(trans));
-        const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
-        const result = await fetchTranslate.json();
-
-        const langs = Object.keys(result);
-        const translates = Object.values(result)?.map?.((trans, i) => {
-            const lang = langs[i];
-            /*
-            const questions = trans.questions?.map(q=>{
-                return q;
-            })
-            */
-            //console.log("TRANS", trans, questions)
-            return new ClassLessonChapterQuestionTranslation({
-                ...trans,
-                lang: lang,
-                //photo_url: `https://app.academy.dandela.com/images/lessons/excel/intermediate/chapter_${subchapter.uid_intern}/explaination_${lang}.png`,
-            })
-        });
-
-        //const globalTranslates = { ...chapter.translates, goals: translates };
-
-        question.translates = translates;
-        //subchapter.uid_intern = subchapterUid;
-        //subchapter.uid_chapter = chapter?.uid;
-        //const translatesToFirestore = translates.map(trans => trans._convertTranslatesToFirestore(trans));
-        //subchapters.push(subchapter);
-        //chapter.update({ subchapters: subchapters });
-        //const translatePush = {};
+        uid_chapter: "Cl8lok4rcSCC6oOkiXhO",
+        questions: QUESTIONS_CHAPTER_3.map((question, i) => (new ClassLessonChapterQuestion({
+            uid_intern: i + 1,
+            question: question,
+            answer: ANSWERS_CHAPTER_3[i],
+            proposals: PROPOSALS_CHAPTER_3[i],
+        })))
         /*
-        for (const trans of translates) {
-            translatePush[trans.lang] = trans._convertTranslatesToFirestore(trans);
-        }
+        new ClassLessonChapterQuestion({
+            uid_intern:1, 
+            question:"",
+            answer:{uid_intern:2,value:""},
+            proposals:[
+                {uid_intern:1,value:""},
+                {uid_intern:2,value:""},
+                {uid_intern:3,value:""},
+                {uid_intern:4,value:""},
+            ]
+        }),
         */
-        //console.log("RESULT", result);
-        //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
-        //console.log("TRANSLATES", translates)
+    }));
 
+    const [subchapter, setSubchapter] = useState(new ClassLessonSubchapter({
+        //uid_chapter: chapter?.uid,
+        title: "Rappel des bases & préparation du fichier",
+        goals: ["Cette leçon sert à vérifier que les bases du niveau débutant sont acquises et à préparer un fichier de travail qui servira tout au long du cours."],
+        keys: [
+            "Création d’un classeur dédié au cours « Excel Intermédiaire ».",
+            "Organisation des feuilles : Données, Calculs, Résumés.",
+            "Rappel rapide : SOMME, sélection de cellules, recopie de formule.",
+        ],
+        exercises: [
+            "Créer un classeur nommé « Excel_Intermediaire.xlsx ».",
+            "Renommer Feuil1 en « Données » et créer deux autres feuilles : « Calculs » et « Résumé ».",
+        ],
+    }));
+    //const subchapters =
 
-        return question;
+    const [newGoal, setNewGoal] = useState("");
+    const [goals, setGoals] = useState([]);
+
+    const onChangeNewGoalValue = (e) => {
+        const { name, value, type } = e.target;
+        setDisabledNext(!goals?.length);
+        setNewGoal(value);
+    }
+    const onClearNewGoalValue = () => {
+        setNewGoal("");
+        setDisabledNext(false);
+    }
+    const onChangeValue = (e) => {
+        //e.preventDefault();
+        const { name, value, type } = e.target;
+        //console.log("change", name, value)
+        setSubchapter(prev => {
+            if (!prev) return new ClassLessonSubchapter({ [name]: value });
+            //const _goals = [...prev.goals];
+            //_goals[index] = value;
+            prev.update({ [name]: value });
+            //prev.goals = _goals;
+            return prev.clone();
+        });
+    }
+    const onClearValue = (name) => {
+        //const { name, value, type } = e.target;
+        //const { value } = e.target;
+        //const index = name?.split?.('goal_')?.[1] || -1;
+        //if (index < 0) return;
+        //setErrors({ [name]: '' });
+        //setDisabledNext(false);
+        setSubchapter(prev => {
+            if (!prev) return new ClassLessonChapter({ [name]: '' });
+            prev.update({ [name]: '' });
+            return prev.clone();
+        })
+    }
+    const onGoBack = () => {
+        setMode(MODE_CREATE_CHAPTER);
+    }
+    const onGoNext = async () => {
+        //chapter.update({ uid_lesson: "zlUoi3t14wzC5cNhfS3J" });
+        //console.log("click next", chapter.createFirestoreDocUid())
+        setProcessing(true);
+        //await onTranslateGoals();
+
+        const results = await Promise.all(
+            quiz.questions.map((q) => onTranslateGoals(q))
+        );
+        console.log("RESULTS", results);
+        const toFirestore = results.map(res => {
+            return res.toJSON();
+        });
+        console.log("toFirestore", toFirestore);
+        quiz.update({ questions: toFirestore });
+        const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
+        console.log("PATCH", _patch);
+
+        setProcessing(false);
+
         /*
-        setProcess(true);
-        const INDEX_SUB = 8;
-        const quiz = chapter.quiz || [];
-        var questions = quiz?.questions || [];
-        const trans = questions?.[INDEX_SUB].getTranslate('fr');
-        const qs = encodeURIComponent(JSON.stringify(trans));
-        //console.log("fect", qs);
-        const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
-        const result = await fetchTranslate.json();
-        const translates = Object.values(result)?.map?.(trans => new ClassLessonChapterQuestionTranslation(trans));
-        questions[INDEX_SUB].translates = translates;
-        questions = questions.map((q, i) => {
-            const final = q;
-            const qTrans = q.translates.map(_trans => {
-                var answer = _trans.answer;
-                const proposals = _trans.proposals.map((prop, i) => {
-                    var propReturn = {};
-                    if (prop.uid_intern) {
-                        propReturn = prop;
-                    } else {
-                        propReturn = { value: prop, uid_intern: i + 1 };
-                    }
+        const _errors = {};
+        if (!goals?.length) {
+            _errors.new_goal = 'error-new-goal';
+        }
+        setErrors(_errors);
+        if (Object.keys(_errors).length > 0) {
+            setDisabledNext(true);
+            return;
+        }
+        //await onTranslateGoals();
+        setMode(MODE_CREATE_SUB_CHAPTERS);
+        */
+    }
+    const onTranslateGoals = async (question) => {
+        try {
+            //const subchapters = [...chapter.subchapters];
+            //const subchapterUid = subchapters.length + 1;
+            const trans = {
+                proposals: question.proposals,
+                answer: question.answer,
+                question: question.question,
+            };
+            const qs = encodeURIComponent(JSON.stringify(trans));
+            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
+            const result = await fetchTranslate.json();
 
-                    if (!answer.uid_intern && propReturn.value === answer) {
-                        answer = { uid_intern: i + 1, value: propReturn.value }
-                    }
-                    return propReturn;
-                });
-                _trans.proposals = proposals;
-                _trans.answer = answer;
-                return (_trans);
+            const langs = Object.keys(result);
+            const translates = Object.values(result)?.map?.((trans, i) => {
+                const lang = langs[i];
+                /*
+                const questions = trans.questions?.map(q=>{
+                    return q;
+                })
+                */
+                //console.log("TRANS", trans, questions)
+                return new ClassLessonChapterQuestionTranslation({
+                    ...trans,
+                    lang: lang,
+                    //photo_url: `https://app.academy.dandela.com/images/lessons/excel/intermediate/chapter_${subchapter.uid_intern}/explaination_${lang}.png`,
+                })
             });
 
-            const trans = q._convertTranslatesToFirestore(qTrans);
-            final.translates = trans;
-            //final.translates
-            return final.toJSON();
-        });
-        quiz.questions = questions;
+            //const globalTranslates = { ...chapter.translates, goals: translates };
 
-        const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
-        console.log("RESUULT", quiz)
-        */
-    } catch (error) {
-        console.log("ERRROR", error);
-    } finally {
-        //setProcessing(false);
+            question.translates = translates;
+            //subchapter.uid_intern = subchapterUid;
+            //subchapter.uid_chapter = chapter?.uid;
+            //const translatesToFirestore = translates.map(trans => trans._convertTranslatesToFirestore(trans));
+            //subchapters.push(subchapter);
+            //chapter.update({ subchapters: subchapters });
+            //const translatePush = {};
+            /*
+            for (const trans of translates) {
+                translatePush[trans.lang] = trans._convertTranslatesToFirestore(trans);
+            }
+            */
+            //console.log("RESULT", result);
+            //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
+            //console.log("TRANSLATES", translates)
+
+
+            return question;
+            /*
+            setProcess(true);
+            const INDEX_SUB = 8;
+            const quiz = chapter.quiz || [];
+            var questions = quiz?.questions || [];
+            const trans = questions?.[INDEX_SUB].getTranslate('fr');
+            const qs = encodeURIComponent(JSON.stringify(trans));
+            //console.log("fect", qs);
+            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
+            const result = await fetchTranslate.json();
+            const translates = Object.values(result)?.map?.(trans => new ClassLessonChapterQuestionTranslation(trans));
+            questions[INDEX_SUB].translates = translates;
+            questions = questions.map((q, i) => {
+                const final = q;
+                const qTrans = q.translates.map(_trans => {
+                    var answer = _trans.answer;
+                    const proposals = _trans.proposals.map((prop, i) => {
+                        var propReturn = {};
+                        if (prop.uid_intern) {
+                            propReturn = prop;
+                        } else {
+                            propReturn = { value: prop, uid_intern: i + 1 };
+                        }
+    
+                        if (!answer.uid_intern && propReturn.value === answer) {
+                            answer = { uid_intern: i + 1, value: propReturn.value }
+                        }
+                        return propReturn;
+                    });
+                    _trans.proposals = proposals;
+                    _trans.answer = answer;
+                    return (_trans);
+                });
+    
+                const trans = q._convertTranslatesToFirestore(qTrans);
+                final.translates = trans;
+                //final.translates
+                return final.toJSON();
+            });
+            quiz.questions = questions;
+    
+            const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
+            console.log("RESUULT", quiz)
+            */
+        } catch (error) {
+            console.log("ERRROR", error);
+        } finally {
+            //setProcessing(false);
+        }
     }
-}
-return (<Stack spacing={2} sx={{ minWidth: '500px', py: 2, px: 3, background: 'var(--card-color)', borderRadius: '15px', }}>
-    <Typography>{`Ajouter des sections au chapitre`}</Typography>
-    <Stack spacing={1}>
-        <FieldComponent
-            required
-            value={subchapter?.title || ''}
-            name={`title`}
-            label={t(`title`)}
-            type={'text'}
-            onChange={onChangeValue}
-            onClear={() => onClearValue('title')}
-            fullWidth
-            style={{ width: '100%' }}
-        />
-        <AddGoalsComponent subchapter={subchapter} setSubchapter={setSubchapter} />
-        <AddKeysComponent subchapter={subchapter} setSubchapter={setSubchapter} />
-        <AddExercicesComponent subchapter={subchapter} setSubchapter={setSubchapter} />
+    return (<Stack spacing={2} sx={{ minWidth: '500px', py: 2, px: 3, background: 'var(--card-color)', borderRadius: '15px', }}>
+        <Typography>{`Ajouter des sections au chapitre`}</Typography>
+        <Stack spacing={1}>
+            <FieldComponent
+                required
+                value={subchapter?.title || ''}
+                name={`title`}
+                label={t(`title`)}
+                type={'text'}
+                onChange={onChangeValue}
+                onClear={() => onClearValue('title')}
+                fullWidth
+                style={{ width: '100%' }}
+            />
+            <AddGoalsComponent subchapter={subchapter} setSubchapter={setSubchapter} />
+            <AddKeysComponent subchapter={subchapter} setSubchapter={setSubchapter} />
+            <AddExercicesComponent subchapter={subchapter} setSubchapter={setSubchapter} />
 
-        <Stack direction={'row'} spacing={1} sx={{ py: 2, px: 1 }} justifyContent={'end'} alignItems={'center'}>
-            <ButtonCancel
-                label="Précédent"
-                loading={processing}
-                //disabled={disabledNext}
-                onClick={onGoBack}
-            />
-            <ButtonConfirm
-                label="Suivant"
-                loading={processing}
-                disabled={!subchapter?.title || !subchapter?.goals?.length || !subchapter?.keys?.length || !subchapter?.exercises?.length}
-                onClick={onGoNext}
-            />
+            <Stack direction={'row'} spacing={1} sx={{ py: 2, px: 1 }} justifyContent={'end'} alignItems={'center'}>
+                <ButtonCancel
+                    label="Précédent"
+                    loading={processing}
+                    //disabled={disabledNext}
+                    onClick={onGoBack}
+                />
+                <ButtonConfirm
+                    label="Suivant"
+                    loading={processing}
+                    disabled={!subchapter?.title || !subchapter?.goals?.length || !subchapter?.keys?.length || !subchapter?.exercises?.length}
+                    onClick={onGoNext}
+                />
+            </Stack>
         </Stack>
-    </Stack>
-</Stack>)
+    </Stack>)
 }
-
-function CreateQuizComponent() { }

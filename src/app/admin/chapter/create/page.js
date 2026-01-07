@@ -349,21 +349,40 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
             if (!prev || prev === null) {
                 return new ClassLessonChapter({
                     uid_lesson: "zlUoi3t14wzC5cNhfS3J",
-                    level: "intermediate",
-                    title: "Excel Intermédiaire : Formules & Analyse de données",
-                    subtitle: "Cours Excel – Niveau Intermédiaire",
-                    description: "Approfondis les bases d'Excel avec des formules plus avancées, des références absolues, de la mise en forme conditionnelle et une première approche des tableaux croisés dynamiques.",
-                    estimated_start_duration: 6,
-                    estimated_end_duration: 8,
+                    level: "competent",
+                    title: "Recherche & Fonctions avancées",
+                    subtitle: "Cours Excel – Niveau Compétent",
+                    description: "Apprends à utiliser les fonctions de recherche, les fonctions texte et date, les plages nommées et à créer une première synthèse de type tableau de bord.",
+                    estimated_start_duration: 8,
+                    estimated_end_duration: 10,
                     goals: [
-                        "Utiliser des fonctions statistiques simples : MOYENNE, MIN, MAX, NB, NBVAL.",
-                        "Construire des formules conditionnelles simples avec la fonction SI.",
-                        "Comprendre et utiliser les références absolues avec le symbole $.",
-                        "Appliquer une mise en forme conditionnelle pour mettre en évidence des valeurs.",
-                        "Appliquer un tri et des filtres sur un tableau de données plus conséquent.",
-                        "Créer un premier tableau croisé dynamique pour résumer des données.",
+                        "Utiliser des fonctions de recherche : RECHERCHEV, RECHERCHEX (si disponible).",
+                        "Composer des formules plus lisibles à l’aide de plages nommées.",
+                        "Utiliser des fonctions texte de base : GAUCHE, DROITE, STXT, CONCAT/CONCATENER, TEXTE.",
+                        "Utiliser des fonctions de date : AUJOURDHUI, MAINTENANT, DATEDIF, JOUR, MOIS, ANNEE.",
+                        "Créer une petite synthèse graphique de type tableau de bord simple.",
                     ],
                 });
+                /*
+                return new ClassLessonChapter({
+                    uid_lesson: "zlUoi3t14wzC5cNhfS3J",
+                    level: "competent",
+                    title: "",
+                    subtitle: "Cours Excel – Niveau Compétent",
+                    description: "",
+                    estimated_start_duration: 6,
+                    estimated_end_duration: 8,
+                    photo_url:"https://app.academy.dandela.com/images/lessons/excel/intermediate/chapter.png",
+                    goals: [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                    ],
+                });
+                */
             }
             return prev;
         });
@@ -549,7 +568,7 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
 
             //const translates = Object.values(result)?.map?.((trans, i) => new ClassLessonChapterTranslation({ goals: trans, lang: langs[i] }));
             //const globalTranslates = { ...translatesChapter, goals: translates };
-            chapter.translates = translatesChapter;
+            chapter.translates = chapter._convertTranslatesToFirestore(translatesChapter);
             //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
             //console.log("TRANSLATES", chapter._convertTranslatesToFirestore(translatesChapter))
             console.log("chapter", chapter.translates);
@@ -1029,5 +1048,3 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
         </Stack>
     </Stack>)
 }
-
-function CreateQuizComponent() { }
