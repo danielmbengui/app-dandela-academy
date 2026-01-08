@@ -69,14 +69,16 @@ function ChapterComponent() {
     useEffect(() => {
         if (chapters.length > 0 && (!chapter || chapter === null)) {
             //setUidChapter(chapters[0].uid);
+
         }
-        console.log("STATTS", stats)
+
     }, [chapters.length]);
 
     useEffect(() => {
         if (chapter && lesson) {
             setPercent(getGlobalPercent(lesson.uid, chapter.uid));
         }
+        console.log("STATTS", stats)
     }, [chapter, lesson, stats?.length])
     // console.log("levels", ClassLessonChapter.ALL_LEVELS);
     const filteredChapters = useMemo(() => {
@@ -188,11 +190,12 @@ function ChapterComponent() {
                                 });
                                 const countCompletedQuiz = stats?.filter(s => s.uid_chapter === _chapter.uid).length || 0;
                                 const hasStats = stats?.filter(s => s.uid_chapter === _chapter.uid)?.length > 0 || false;
+                                const hasPreviousStats = i === 0 ? true : i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0;
                                 const firstStats = hasStats ? stats?.filter(s => s.uid_chapter === _chapter.uid)?.[0] : null;
                                 const hasCompletedPrevious = i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0 ? true : false || true;
-                                console.log("YAAAA", time);
+                                console.log("has stat", i, hasPreviousStats);
                                 return (<AccordionComponent
-                                    disabled={false}
+                                    disabled={!hasPreviousStats}
                                     title={
                                         <Typography>{`${_chapter.uid_intern}. ${_chapter.translate?.title} (${t(_chapter.level)})`}
                                             <span style={{ color: 'var(--grey-light)', }}>
@@ -213,7 +216,9 @@ function ChapterComponent() {
                                             <Stack>
                                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} flexWrap="wrap">
                                                     <Chip label={`${t(_chapter?.level)} • ${_chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
-                                                    <Chip label={`${t('progression')}: ${percent.toFixed(2)}%`} variant="outlined" sx={chipHeader} />
+                                                    {
+                                                        hasStats && <Chip label={`${t('progression')}: ${percent.toFixed(2)}%`} variant="outlined" sx={chipHeader} />
+                                                    }
                                                 </Stack>
                                                 <Stack sx={{ px: 1.5, py: 1 }}>
                                                     {
@@ -267,28 +272,33 @@ function ChapterComponent() {
                                                                 />
                                                             </Stack>
                                                         </Paper>
-                                                        <Stack alignItems={'center'} direction={'row'} spacing={1}>
-                                                            <ButtonCancel label={t('btn-see-stats')} onClick={() => {
+
+                                                    </Stack>
+                                                }
+                                                {
+                                                    hasPreviousStats && <Stack alignItems={'center'} direction={'row'} spacing={1}>
+                                                        {
+                                                            hasStats && <ButtonCancel label={t('btn-see-stats')} onClick={() => {
                                                                 router.push(`${PAGE_STATS}/${firstStats.uid}`);
                                                             }} />
-                                                            <ButtonConfirm label={t('btn-see-chapter')} onClick={() => {
-                                                                router.push(`${PAGE_LESSONS}/${_chapter.uid_lesson}${PAGE_CHAPTERS}/${_chapter.uid}`);
-                                                            }} />
-                                                        </Stack>
+                                                        }
+                                                        <ButtonConfirm label={t('btn-see-chapter')} onClick={() => {
+                                                            router.push(`${PAGE_LESSONS}/${_chapter.uid_lesson}${PAGE_CHAPTERS}/${_chapter.uid}`);
+                                                        }} />
                                                     </Stack>
                                                 }
 
                                                 {
-                                                    !hasStats && <AlertComponent
-                                                        title="Astuce"
-                                                        subtitle={<Typography>{"Termine le quiz de validation pour débloquer le chapitre suivant."}</Typography>}
+                                                    !hasPreviousStats && <AlertComponent
+                                                        title={t('title-tip')}
+                                                        subtitle={<Typography>{t('tip')}</Typography>}
                                                         severity="warning"
-                                                        buttonConfirmComponent={<ButtonConfirm label="Le quiz" style={{ background: 'var(--warning)' }} />}
+                                                        //buttonConfirmComponent={<ButtonConfirm label="Le quiz" style={{ background: 'var(--warning)' }} />}
                                                     />
                                                 }
                                             </Stack>
                                         </Grid>
-                                        <Grid size={{ xs: 12, sm: 'auto' }}>
+                                        <Grid size={{ xs: 12, sm: 'grow' }}>
                                             <Stack
                                                 sx={{
                                                     position: "relative",
@@ -323,7 +333,7 @@ function ChapterComponent() {
                 </Grid>
                 {
                     lesson?.photo_url && <Grid size={{ xs: 12, sm: 'auto' }}>
-                        <Box sx={{background: '', width: '100%' }}>
+                        <Box sx={{ background: '', width: '100%' }}>
                             <Image
                                 src={lesson?.photo_url || ''}
                                 alt={`lesson-${lesson?.uid}`}

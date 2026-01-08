@@ -508,7 +508,7 @@ const CardGoals = () => {
         <List dense disablePadding>
             {
                 chapter?.translate?.goals?.map((goal, i) => {
-                    return (<ListItem key={`${goal}-${i}`} disableGutters sx={{ px: 1 }}>
+                    return (<ListItem key={`${goal}`} disableGutters sx={{ px: 1 }}>
                         <Stack direction={'row'} alignItems={'center'} spacing={1}>
                             <CheckCircleIcon color="success" fontSize="small" />
                             <Typography sx={{ fontSize: '0.85rem' }} >{goal}</Typography>
@@ -538,7 +538,7 @@ const CardSubChapters = ({
         <List dense disablePadding>
             {
                 subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
-                    return (<ListItem key={`${sub.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
+                    return (<ListItem key={`${sub.uid_intern}`} disableGutters sx={{ px: 1 }}>
                         <Stack direction={'row'} alignItems={'center'} spacing={1}
                             onClick={() => setIndex(i)}
                             sx={{
@@ -621,7 +621,7 @@ const CardSubChaptersContent = ({
                             <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
                                 {
                                     subchapter?.translate?.goals?.map?.((goal, i) => {
-                                        return (<Typography sx={{ fontWeight: 600 }} key={`${goal}-${i}`}>{goal}</Typography>)
+                                        return (<Typography sx={{ fontWeight: 600 }} key={`${goal}`}>{goal}</Typography>)
                                     })
                                 }
                                 <Stack alignItems={'start'} spacing={1}>
@@ -629,7 +629,7 @@ const CardSubChaptersContent = ({
                                     <Stack spacing={0.5} sx={{ px: 1.5 }}>
                                         {
                                             subchapter?.translate?.keys?.map?.((key, i) => {
-                                                return (<Typography key={`${key}-${i}`} sx={{ fontSize: '0.85rem' }} >{`- `}{key}</Typography>)
+                                                return (<Typography key={`${key}`} sx={{ fontSize: '0.85rem' }} >{`- `}{key}</Typography>)
                                             })
                                         }
                                     </Stack>
@@ -639,7 +639,7 @@ const CardSubChaptersContent = ({
                                     <Stack spacing={0.5} sx={{ px: 1.5 }}>
                                         {
                                             subchapter?.translate?.exercises?.map?.((exercise, i) => {
-                                                return (<Typography key={`${exercise}-${i}`} sx={{ fontSize: '0.85rem' }} >{`- `}{exercise}</Typography>)
+                                                return (<Typography key={`${exercise}`} sx={{ fontSize: '0.85rem' }} >{`- `}{exercise}</Typography>)
                                             })
                                         }
                                     </Stack>

@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { IconCertificate, IconDashboard, } from "@/assets/icons/IconsComponent";
+import { IconCertificate, IconDashboard, IconLessons, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_COMMON, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
+import { NS_COMMON, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_LESSONS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -36,104 +36,6 @@ import { ClassLessonChapter } from '@/classes/lessons/ClassLessonChapter';
 import { ChapterProvider, useChapter } from '@/contexts/ChapterProvider';
 import { ClassLessonSubchapter } from '@/classes/lessons/ClassLessonSubchapter';
 
-const USERS_MOCK = [
-  {
-    id: "u1",
-    firstName: "Daniel",
-    lastName: "Mbengui",
-    username: "daniel.mb",
-    role: "student",
-    type: "Étudiant",
-    email: "daniel@example.com",
-    schoolEmail: "daniel@dandela-academy.com",
-    avatarUrl: "",
-    status: "online", // online | offline | away
-    mainGroup: "Cohorte 2025",
-    language: "Français",
-  },
-  {
-    id: "u2",
-    firstName: "Ana",
-    lastName: "Silva",
-    username: "ana.silva",
-    role: "tutor",
-    type: "Professeure",
-    email: "ana.silva@example.com",
-    schoolEmail: "ana.silva@dandela-academy.com",
-    avatarUrl: "",
-    status: "online",
-    mainGroup: "Formateurs bureautique",
-    language: "Portugais",
-  },
-  {
-    id: "u3",
-    firstName: "João",
-    lastName: "Pereira",
-    username: "joao.p",
-    role: "tutor",
-    type: "Professeur IA",
-    email: "joao.p@example.com",
-    schoolEmail: "joao.p@dandela-academy.com",
-    avatarUrl: "",
-    status: "away",
-    mainGroup: "Formateurs IA",
-    language: "Portugais",
-  },
-  {
-    id: "u4",
-    firstName: "Marie",
-    lastName: "Dupont",
-    username: "marie.d",
-    role: "admin",
-    type: "Admin pédagogique",
-    email: "marie.d@example.com",
-    schoolEmail: "marie.d@dandela-academy.com",
-    avatarUrl: "",
-    status: "online",
-    mainGroup: "Administration",
-    language: "Français",
-  },
-  {
-    id: "u5",
-    firstName: "Alex",
-    lastName: "Ngombo",
-    username: "alex.ng",
-    role: "super-admin",
-    type: "Direction",
-    email: "alex.ng@example.com",
-    schoolEmail: "alex.ng@dandela-academy.com",
-    avatarUrl: "",
-    status: "online",
-    mainGroup: "Direction",
-    language: "Français",
-  },
-  {
-    id: "u6",
-    firstName: "Inès",
-    lastName: "Costa",
-    username: "ines.c",
-    role: "team",
-    type: "Stagiaire",
-    email: "ines.c@example.com",
-    schoolEmail: "ines.c@dandela-academy.com",
-    avatarUrl: "",
-    status: "offline",
-    mainGroup: "Support",
-    language: "Anglais",
-  },
-  // tu peux en rajouter facilement
-];
-
-const ROLE_CONFIG = {
-  student: { label: "Étudiant", color: "#22c55eff", background: "rgba(34, 197, 94, 0.5)" },
-  team: { label: "Équipe", color: "#fff317ff" },
-  teacher: { label: "Professeur", color: "#3b82f6" },
-  tutor: { label: "Professeur", color: "#3b82f6" },
-  admin: { label: "Admin", color: "#f97316" },
-  super_admin: { label: "Super-Admin", color: "#a855f7" },
-  ['super-admin']: { label: "Super-Admin", color: "#a855f7" },
-  intern: { label: "Stagiaire", color: "#e5e7eb" },
-};
 
 const STATUS_CONFIG_1 = {
   online: { label: "En ligne", color: "#22c55e" },
@@ -152,66 +54,79 @@ const TABLE_SPACE = `grid-template-columns:
             minmax(0, 1.0fr)
             ;`
 
-function LessonsComponent({ userDialog = null, setUserDialog = null }) {
+function LessonsComponent() {
   const router = useRouter();
   const { lang } = useLanguage();
   const { theme } = useThemeMode();
-  const { text, cardColor, greyLight, blueDark } = theme.palette;
-  const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION]);
-  const [search, setSearch] = useState("");
+  const { text, cardColor, } = theme.palette;
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS, NS_ROLES, ClassUser.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION]);
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [allUsers, setAllUsers] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [_, setLessons] = useState([]);
+  const [lessonsFilter, setLessonsFilter] = useState([]);
+  //const [_, setLessons] = useState([]);
   const { lessons, changeLesson } = useLesson();
 
+  const [filter, setFilter] = useState({
+    search: "",
+  })
 
   useEffect(() => {
-    let list = [...lessons];
-
-    if (roleFilter !== "all") {
-      list = list.filter((u) => u.role === roleFilter);
-    }
-    if (statusFilter !== "all") {
-      list = list.filter((u) => u.status === statusFilter);
-    }
-
-    if (search.trim()) {
-      const s = search.toLowerCase();
-      list = list.filter((u) => {
-        const completeName = `${u.completeName?.()}`.toLowerCase() || '';
-        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-        return (
-          u.completeName?.().includes(s) ||
-          u.first_name?.toLowerCase().includes(s) ||
-          u.last_name?.toLowerCase().includes(s) ||
-          u.display_name?.toLowerCase().includes(s) ||
-          u.email?.toLowerCase().includes(s) ||
-          u.email_academy?.toLowerCase().includes(s) ||
-          fullName.includes(s) ||
-          u.username?.toLowerCase().includes(s) ||
-          u.email?.toLowerCase().includes(s) ||
-          u.schoolEmail?.toLowerCase().includes(s)
-        );
-      });
-    }
-
-    if (sortBy === "name") {
-      list.sort((a, b) =>
-        `${a.lastName} ${a.firstName}`.localeCompare(
-          `${b.lastName} ${b.firstName}`
-        )
-      );
-    } else if (sortBy === "role") {
-      list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
-    }
+    //let list = [...lessons];
+    /*
+        if (roleFilter !== "all") {
+          list = list.filter((u) => u.role === roleFilter);
+        }
+        if (statusFilter !== "all") {
+          list = list.filter((u) => u.status === statusFilter);
+        }
+    
+        if (search.trim()) {
+          const s = search.toLowerCase();
+          list = list.filter((u) => {
+            const completeName = `${u.completeName?.()}`.toLowerCase() || '';
+            const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
+            return (
+              u.completeName?.().includes(s) ||
+              u.first_name?.toLowerCase().includes(s) ||
+              u.last_name?.toLowerCase().includes(s) ||
+              u.display_name?.toLowerCase().includes(s) ||
+              u.email?.toLowerCase().includes(s) ||
+              u.email_academy?.toLowerCase().includes(s) ||
+              fullName.includes(s) ||
+              u.username?.toLowerCase().includes(s) ||
+              u.email?.toLowerCase().includes(s) ||
+              u.schoolEmail?.toLowerCase().includes(s)
+            );
+          });
+        }
+    
+        if (sortBy === "name") {
+          list.sort((a, b) =>
+            `${a.lastName} ${a.firstName}`.localeCompare(
+              `${b.lastName} ${b.firstName}`
+            )
+          );
+        } else if (sortBy === "role") {
+          list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
+        }
+        */
     //const ok = ClassLesson.translate();
 
     // setUsers(list);
-  }, [search, roleFilter, statusFilter, sortBy]);
-
+  }, []);
+  useEffect(() => {
+    console.log("search =", filter.search);
+    let list = [...lessons];
+    if(filter.search.length) {
+      list = list.filter((u) => {
+        const cond_title = u.translate.title.toLowerCase().includes(filter.search.toLowerCase());
+        const cond_category = t(u.category)?.toLowerCase().includes(filter.search.toLowerCase());
+        return cond_title || cond_category;
+      });
+    }
+    setLessonsFilter(list);
+  }, [filter.search]);
   return (
     <div className="page">
       <main className="container">
@@ -219,40 +134,24 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
         {/* BARRE DE FILTRES */}
         <Grid container sx={{ mb: 2.5 }} direction={'row'} alignItems={'center'} spacing={{ xs: 1, sm: 1 }}>
           <Grid size={{ xs: 12, sm: 6 }} sx={{ background: '' }}>
-            <TextFieldComponentDark
-              value={search}
-              placeholder={t('placeholder_search', { ns: ClassUser.NS_COLLECTION })}
+            <FieldComponent
+              name={'search'}
+              value={filter.search || ""}
+              placeholder={t('placeholder_search', {ns:NS_LESSONS})}
               fullWidth
-              onChange={(e) => setSearch(e.target.value)}
-              onClear={() => setSearch('')}
+              type='text'
+              onChange={(e) => {
+                e.preventDefault();
+                setFilter(prev => ({
+                  ...prev,
+                  search: e.target.value,
+                }));
+              }}
+              onClear={() => setFilter(prev => ({
+                ...prev,
+                search: "",
+              }))}
             />
-          </Grid>
-          <Grid size={'grow'}>
-            <Grid container spacing={0.5} alignItems={'center'} justifyContent={{ xs: 'start', sm: 'end' }} sx={{ background: '', height: '100%' }}>
-              <Grid size={'auto'}>            <SelectComponentDark
-                //label={'Rôle'}
-                value={roleFilter}
-                values={['all', ...ClassUser.ALL_ROLES].map(item => ({ id: item, value: t(item, { ns: NS_ROLES }) }))}
-                onChange={(e) => setRoleFilter(e.target.value)}
-                hasNull={false}
-              /></Grid>
-              <Grid size={'auto'}>            <SelectComponentDark
-                //label={'Rôle'}
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                values={['all_status', ...ClassUser.ALL_STATUS].map(item => ({ id: item, value: t(item, { ns: ClassUser.NS_COLLECTION }) }))}
-                hasNull={false}
-              /></Grid>
-              <Grid size={'auto'}>            <SelectComponentDark
-                //label={'Rôle'}
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                values={['name', 'role'].map(item => ({ id: item, value: `Trier par ${t(item, { ns: NS_ROLES })}` }))}
-                hasNull={false}
-              /></Grid>
-            </Grid>
-            <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'end'} sx={{ height: '100%' }}>
-            </Stack>
           </Grid>
         </Grid>
 
@@ -260,23 +159,23 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
         <section className="card">
           <div className="table-header">
             <span className="th th-user">{""}</span>
-            <span className="th th-user">{"lesson"}</span>
-            <span className="th th-user">{"level"}</span>
-            <span className="th th-user">{"chapters"}</span>
-            <span className="th th-user">{"certified"}</span>
+            <span className="th th-user">{t('lesson')}</span>
+            <span className="th th-user">{t('level')}</span>
+            <span className="th th-user">{t('chapters')}</span>
+            <span className="th th-user">{t('certified_short')}</span>
           </div>
 
           <div className="table-body">
-            {lessons.length === 0 && (
+            {lessonsFilter.length === 0 && (
               <div className="empty-state">
-                {t('not-found', { ns: ClassLesson.NS_COLLECTION })}
+                {t('not-found', { ns: NS_LESSONS})}
               </div>
             )}
 
-            {lessons.map(async (lesson, i) => {
+            {lessonsFilter.map((lesson, i) => {
               //console.log("one lesson while", await lesson.getMinLevel(lang))
               return (
-                <Box key={`${lesson.uid}-${i}`} onClick={() => {
+                <Box key={`${lesson.uid}`} onClick={() => {
                   //setUserDialog(user);
                   //changeLesson(lesson.uid);
                   router.push(`${PAGE_LESSONS}/${lesson.uid}`)
@@ -434,6 +333,8 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
 
         .th {
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .table-body {
@@ -457,231 +358,7 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
     </div>
   );
 }
-
-function UserRow({ user: lesson, lastChild = false, setUserDialog = null }) {
-  const { theme } = useThemeMode();
-  const { greyLight, cardColor, text } = theme.palette;
-  const { lang } = useLanguage();
-  const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
-  const roleCfg = ROLE_CONFIG[lesson.role];
-  const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
-
-  return (
-    <>
-      <div className={`row ${lastChild ? 'last-child' : ''}`}>
-        {/* Utilisateur */}
-        <div className="cell cell-user">
-          {lesson?.showAvatar?.({ size: 30, fontSize: '14px' })}
-          <div className="user-text">
-            <p className="user-name">
-              {lesson.firstName || lesson.first_name || ''} {lesson.lastName || lesson.last_name || ''}
-            </p>
-            <p className="user-id">{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${lesson.language || t(lesson.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
-          </div>
-        </div>
-
-        {/* Username */}
-        <div className="cell cell-username">
-          <p className="text-main">@{lesson.username || lesson.display_name || ''}</p>
-          <p className="text-sub" style={{ display: 'none' }}>{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${lesson.language || t(lesson.preferred_language, { ns: NS_LANGS }) || ''}` || ''}</p>
-        </div>
-
-        {/* Rôle */}
-        <div className="cell cell-role">
-          <span
-            className="role-badge"
-            style={{
-              borderColor: roleCfg?.color || '',
-              color: '',
-            }}
-          >
-            <span
-              className="role-dot"
-              style={{ backgroundColor: roleCfg?.color || '', display: 'none' }}
-            />
-            {t(lesson?.role, { ns: NS_ROLES }) || ''}
-          </span>
-        </div>
-
-        {/* Email */}
-        <div className="cell cell-email">
-          <p className="text-main">{lesson.schoolEmail || lesson.email_academy || ''}</p>
-          <p className="text-sub" style={{ display: 'none' }}>{lesson.email_academy || ''}</p>
-        </div>
-
-        {/* Statut */}
-        <div className="cell cell-status">
-          <span className="status-pill">
-            <span
-              className="status-dot"
-              style={{ backgroundColor: statusCfg?.color || '' }}
-            />
-            {t(lesson?.status, { ns: ClassUser.NS_COLLECTION }) || ''}
-          </span>
-        </div>
-
-        {/* Groupe / Langue */}
-        <div className="cell cell-group">
-          <p className="text-main">{'Dernière connexion'}</p>
-          <p className="text-sub">{lesson.mainGroup || getFormattedDateCompleteNumeric(lesson?.last_connexion_time, lang) || ''}</p>
-        </div>
-
-        {/* Actions */}
-        <div className="cell cell-actions">
-          <ButtonConfirm
-            label='Voir'
-            onClick={() => {
-              setUserDialog(lesson);
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Styles spécifiques à la row */}
-      <style jsx>{`
-        .row {
-          display: grid;
-          grid-template-columns:
-            minmax(0, 2.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 2.3fr)
-            minmax(0, 1.4fr)
-            minmax(0, 2.2fr)
-            minmax(0, 1.5fr);
-          gap: 8px;
-          padding: 10px 16px;
-          font-size: 0.85rem;
-          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
-          align-items: center;
-        }
-
-        
-        .row.last-child {
-          border-bottom: none;
-        }
-
-        .cell {
-          min-width: 0;
-        }
-
-        .cell-user {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .user-text {
-          min-width: 0;
-        }
-
-        .user-name {
-          margin: 0;
-          font-weight: 500;
-        }
-
-        .user-id {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #6b7280;
-        }
-
-        .text-main {
-          margin: 0;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .text-sub {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #6b7280;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .role-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          border-radius: 999px;
-          border: 1px solid;
-          padding: 2px 8px;
-          font-size: 0.75rem;
-          background: ${roleCfg.color};
-        }
-
-        .role-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 999px;
-          
-        }
-
-        .status-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          border-radius: 999px;
-          padding: 2px 8px;
-          font-size: 0.75rem;
-          border: 0.1px solid ${statusCfg?.color};
-          
-        }
-
-        .status-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 999px;
-        }
-
-        .mini-btn {
-          border-radius: 999px;
-          padding: 4px 8px;
-          border: 1px solid #374151;
-          background: #020617;
-          color: #e5e7eb;
-          font-size: 0.75rem;
-          cursor: pointer;
-          margin-right: 4px;
-        }
-
-        .mini-btn.ghost {
-          background: transparent;
-        }
-
-        @media (max-width: 900px) {
-          .row {
-            grid-template-columns: 1fr;
-            padding: 10px 10px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            border: 1px solid #111827;
-          }
-
-          .row.last-child {
-          border: 1px solid #111827;
-        }
-
-          .cell-email,
-          .cell-group {
-            margin-top: -4px;
-          }
-
-          .cell-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 4px;
-          }
-        }
-      `}</style>
-    </>
-  );
-}
-
-function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
+function LessonRow({ lesson = null, lastChild = false}) {
   const router = useRouter();
   const { theme } = useThemeMode();
   const { greyLight, cardColor, text } = theme.palette;
@@ -731,8 +408,7 @@ function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
         <div className="cell cell-level">
           {lesson?.showAvatar?.({ size: 30, fontSize: '14px' })}
           <div className="user-text">
-            <p className="user-name">{t(getMinLevel(lang))}-{t(getMaxLevel(lang))}</p>
-                        <p className="user-id">{t(lesson?.category)}</p>
+            <p className="user-name">{t(getMinLevel())}-{t(getMaxLevel())}</p>
           </div>
         </div>
 
@@ -896,89 +572,17 @@ function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
   );
 }
 
-function Avatar({ user }) {
-  const initials = `${user?.firstName?.[0] || user?.first_name?.[0] || ''}${user.lastName?.[0] || user.last_name?.[0] || ''}`;
-
-  if (user.avatarUrl) {
-    return (
-      <>
-        <div className="avatar">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={user.avatarUrl || user.photo_url || ''} alt={initials} />
-        </div>
-
-        <style jsx>{`
-          .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 999px;
-            overflow: hidden;
-            border: 1px solid #1f2937;
-          }
-          .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-        `}</style>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div className="avatar-fallback">
-        {initials}
-      </div>
-
-      <style jsx>{`
-        .avatar-fallback {
-          width: 32px;
-          height: 32px;
-          border-radius: 999px;
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-      `}</style>
-    </>
-  );
-}
-
 export default function LessonsPage() {
-  const { theme } = useThemeMode();
-  const { text } = theme.palette;
-  const { t } = useTranslation([NS_DASHBOARD_USERS]);
-  const { lang } = useLanguage();
-  const now = new Date();
-  const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
-  const [user, setUser] = useState(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  //const { user, login, logout } = useAuth();
-  //static async create(data = {})
-
-  const [processing, setProcessing] = useState(false);
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
-
-
-
-
+  const { t } = useTranslation([NS_LESSONS, NS_DASHBOARD_MENU]);
 
   return (<DashboardPageWrapper
     //title={'Cours'} 
     titles={[{ name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: '' }]}
-    subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}
+    subtitle={t('subtitle')}
+    icon={<IconLessons width={22} height={22} />}
   >
-    <DialogUser userDialog={user} setUserDialog={setUser} />
     <Stack sx={{ width: '100%', height: '100%' }}>
-      <LessonsComponent userDialog={user} setUserDialog={setUser} />
+      <LessonsComponent />
     </Stack>
   </DashboardPageWrapper>)
   /*

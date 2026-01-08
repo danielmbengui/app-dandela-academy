@@ -255,7 +255,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setChapter(null);
         }
     }
-    function getMinLevel(lang = defaultLanguage) {
+    function getMinLevel() {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length) return;
         const lastIndex = allLevels.length - 1;
@@ -270,11 +270,11 @@ export function ChapterProvider({ children, uidLesson = "" }) {
 
             }
         }
-        console.log("min", minChapter.value);
+       // console.log("min", minChapter.value);
 
         return minChapter.value;
     }
-    function getMaxLevel(lang = defaultLanguage) {
+    function getMaxLevel() {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length) return;
         const lastIndex = allLevels.length - 1;
@@ -287,7 +287,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 maxChapter = levelChapter;
             }
         }
-        console.log("max", maxChapter.value);
+       // console.log("max", maxChapter.value);
 
         return maxChapter.value;
     }
@@ -297,7 +297,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         for (const c of chapters) {
             count+= c.subchapters?.length || 0;
         }
-        console.log("count subchapters", count);
+        //console.log("count subchapters", count);
 
         return count;
     }
@@ -364,7 +364,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
 
         const chapterMin = roundKeepSum(rawMin, totalMin);
         const chapterMax = roundKeepSum(rawMax, totalMax);
-        console.log("MIN MAX", totalMin, totalMax)
+        //console.log("MIN MAX", totalMin, totalMax)
         //var min = 0;
         //var totalMax = 0;
 

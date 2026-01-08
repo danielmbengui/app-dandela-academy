@@ -1,5 +1,12 @@
 {
-  "office": "Office automation",
+  "uid": "Course",
+  "lesson": "Course",
+  "lessons": "Courses",
+  "chapter": "Chapter",
+  "chapters": "Chapters",
+  "subchapter": "Section",
+  "subchapters": "Sections",
+  "office": "Office skills",
   "beginner": "Beginner",
   "intermediate": "Intermediate",
   "competent": "Competent",
@@ -8,20 +15,21 @@
   "hybrid": "Hybrid",
   "onsite": "On-site",
   "online": "Online",
-  "open": "Registrations open",
+  "open": "Open for registration",
   "full": "Full",
   "finished": "Finished",
   "draft": "Draft",
   "certified": "Certified by Dandela Academy",
+  "certified_short": "Certified",
   "level": "Level",
   "lang": "Language",
-  "category": "Type",
+  "category": "Category",
   "format": "Format",
   "location": "Location",
   "schedule": "Schedule",
   "duration": "Duration",
   "duration_total": "Total duration",
-  "duration_lesson": "{{duration}} of supervised training",
+  "duration_lesson": "{{duration}} of guided training",
   "sessions_type": "Pace",
   "dates": "Dates",
   "description": "About this course",
@@ -29,17 +37,17 @@
   "programs": "Program",
   "prerequisites": "Prerequisites",
   "target_audiences": "Who is it for?",
-  "modalities": "Practical information",
+  "modalities": "Practical details",
   "certification": "Certification",
-  "certification_official": "✅ Certification recognized within the Dandela Academy learning paths.",
+  "certification_official": "✅ Certification recognized as part of Dandela Academy learning paths.",
   "certification_block": {
     "title": "🎓 This course grants a certificate issued by Dandela Academy.",
     "items": [
-      "Proof of completion listing the acquired skills.",
-      "Certificate delivered as a PDF (and possibly printed).",
-      "Perfect to enrich a CV or application file."
+      "Certificate of completion detailing acquired skills.",
+      "Certificate delivered in PDF format (and possibly paper).",
+      "Ideal to complement a CV or job application."
     ],
-    "no_certification": "This course does not issue an official certificate, but a participation statement can be provided upon request."
+    "no_certification": "This course does not issue an official certificate, but a participation certificate can be provided upon request."
   },
   "notes": "Important information",
   "seats_taken": "Registered",
@@ -47,5 +55,5 @@
   "multiple_payments": "Installment payment available",
   "security": "Secure registration • You will receive a confirmation email with all practical information.",
   "unknown": "Unknown",
-  "btn-subscribe": "Register for this course"
+  "btn-subscribe": "Enroll in this course"
 }
