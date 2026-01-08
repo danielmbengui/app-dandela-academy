@@ -48,7 +48,7 @@ export class ClassLessonChapter {
         EXPERT: 'expert', // expert
         UNKNOWN: 'unknown',
     });
-    static ALL_LEVELS = Object.values(this.LEVEL).filter(l=>l!==this.LEVEL.UNKNOWN);
+    static ALL_LEVELS = Object.values(this.LEVEL).filter(l => l !== this.LEVEL.UNKNOWN);
     static DEFAULT_QUIZ_DELAY_DAYS = 7;
 
     constructor({
@@ -67,6 +67,7 @@ export class ClassLessonChapter {
         photo_url = "",
         level = "",
         goals = [],
+        subchapters_title = "",
         subchapters = [],
         translate = [],
         translates = [],
@@ -91,6 +92,7 @@ export class ClassLessonChapter {
         this._quiz_delay_days = quiz_delay_days;
 
         this._goals = goals;
+        this._subchapters_title = subchapters_title;
         this._subchapters = subchapters;
 
         this._translate = translate && typeof translate === "object" ? translate : {};
@@ -204,6 +206,14 @@ export class ClassLessonChapter {
         this._goals = Array.isArray(value) ? value : [];
     }
 
+    // subchapters_title
+    get subchapters_title() {
+        return this._subchapters_title;
+    }
+    set subchapters_title(value) {
+        this._subchapters_title = value;
+    }
+
     // subchapters
     get subchapters() {
         return this._subchapters;
@@ -292,6 +302,7 @@ export class ClassLessonChapter {
         cleaned.lesson = null;
         cleaned.translate = null;
         cleaned.title = null;
+        cleaned.subchapters_title = null;
         cleaned.subtitle = null;
         cleaned.description = null;
         cleaned.goals = null;
@@ -300,6 +311,7 @@ export class ClassLessonChapter {
         delete cleaned.lesson;
         delete cleaned.translate;
         delete cleaned.title;
+        delete cleaned.subchapters_title;
         delete cleaned.subtitle;
         delete cleaned.description;
         delete cleaned.goals;
@@ -327,8 +339,9 @@ export class ClassLessonChapter {
             subtitle: this._subtitle,
             description: this._description,
             goals: this._goals,
+            subchapters_title: this._subchapters_title,
             subchapters: this._subchapters,
-            quiz:this._quiz,
+            quiz: this._quiz,
             //computers: this._computers,
         });
     }
@@ -392,7 +405,7 @@ export class ClassLessonChapter {
                     return subClass;
                 });
                 const quiz = data.quiz ? new ClassLessonChapterQuiz(data.quiz) : {};
-                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates:translates, subchapters, quiz });
+                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates: translates, subchapters, quiz });
             },
         };
     }
@@ -769,12 +782,14 @@ export class ClassLessonChapterTranslation {
         subtitle = "",
         description = "",
         goals = [],
+        subchapters_title="",
     } = {}) {
         this._lang = lang;
         this._subtitle = subtitle;
         this._title = title;
         this._description = description;
         this._goals = goals;
+        this._subchapters_title = subchapters_title;
     }
 
     // lang
@@ -816,6 +831,15 @@ export class ClassLessonChapterTranslation {
     set title(value) {
         this._title = value || "";
     }
+    // subchapters_title
+    get subchapters_title() {
+        return this._subchapters_title;
+    }
+    set subchapters_title(value) {
+        this._subchapters_title = value || "";
+    }
+
+    
 
     // 🔁 Getters & Setters
     // --- normalisation interne ---

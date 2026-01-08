@@ -304,7 +304,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                     px: { xs: 1, sm: 2 },
                     background: 'var(--background)', 
                     mt: 0,
-                    borderTopLeftRadius: { xs: 0, sm: '20px' }
+                    borderTopLeftRadius: { xs: 0, sm: '15px' }
                 }}>
                     <Stack
                         //spacing={1}

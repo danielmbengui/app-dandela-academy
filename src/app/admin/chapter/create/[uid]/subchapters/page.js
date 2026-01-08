@@ -15,120 +15,12 @@ import TextFieldComponent from "@/components/elements/TextFieldComponent"
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel"
 import { ClassLessonSubchapter, ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter"
 import { useChapter } from "@/contexts/ChapterProvider"
+import { EXCEL_EXERCICES_CHAPTER_4, EXCEL_EXERCICES_CHAPTER_5, EXCEL_GOALS_CHAPTER_4, EXCEL_GOALS_CHAPTER_5, EXCEL_KEYS_CHAPTER_4, EXCEL_KEYS_CHAPTER_5, EXCEL_TITLES_CHAPTER_4, EXCEL_TITLES_CHAPTER_5 } from "@/contexts/datas-init/subchapters"
 
 const MODE_CREATE_CHAPTER = 'create-chapter';
 const MODE_ADD_GOALS = 'add-goals';
 const MODE_CREATE_SUB_CHAPTERS = 'create-subchapters';
 
-const TITLES_CHAPTER_3 = [
-    "Préparation des données & rappel Niveau 2",
-    "Fonctions de recherche (RECHERCHEV, RECHERCHEX, index simple)",
-    "Plages nommées & lisibilité des formules",
-    "Fonctions texte (GAUCHE, DROITE, STXT, CONCAT/CONCATENER, TEXTE)",
-    "Fonctions de date (AUJOURDHUI, MAINTENANT, DATEDIF, JOUR/MOIS/ANNEE)",
-    "Nettoyage simple des données (espaces, format texte/numérique)",
-    "Mini tableau de bord (indicateurs + graphiques)",
-    "Mini-projet de synthèse",
-];
-const GOALS_CHAPTER_3 = [
-    ["On part d’un tableau de données un peu plus riche : ventes par produit, dates, clients, montants, etc. L'objectif est de s'assurer que les bases du Niveau 2 sont solides."],
-    ["Les fonctions de recherche permettent de retrouver une information dans un tableau à partir d’une valeur (par exemple, retrouver le prix d’un produit à partir de son nom)."],
-    ["Nommer des cellules ou des plages facilite la lecture des formules et évite les erreurs de référence."],
-    ["Les fonctions texte permettent de nettoyer ou recomposer des informations (codes, noms, numéros)."],
-    ["Les fonctions de date sont très utiles pour suivre des délais, des durées, des échéances."],
-    ["Données “sales” = résultats faux. On voit comment corriger quelques problèmes fréquents."],
-    ["On assemble tout : indicateurs clés (KPI), graphiques, et présentation propre sur une feuille de synthèse."],
-    ["Pour consolider toutes les notions du niveau 3, l'apprenant réalise une petite analyse à partir d’un jeu de données plus riche."],
-];
-const KEYS_CHAPTER_3 = [
-    [
-        "Vérifier que les formules de base (SOMME, MOYENNE, SI, SOMME.SI) sont maîtrisées.",
-        "Créer une feuille Données bien structurée (en-têtes propres, pas de lignes vides).",
-    ],
-    [
-        "➡️ (RECHERCHEV)",
-        "Syntaxe : =RECHERCHEV(valeur_cherchée;table_matrice;no_index_col;[valeur_proche]).",
-        "La valeur cherchée doit se trouver dans la première colonne de la table.",
-        "no_index_col = numéro de la colonne à renvoyer dans la table.",
-        "➡️ (RECHERCHEX / XLOOKUP si disponible)",
-        "Plus flexible que RECHERCHEV (pas obligé que la donnée soit dans la première colonne).",
-        "Permet de définir facilement la valeur en cas de non-trouvée.",
-    ],
-    [
-        "Créer un nom via la zone de nom (à gauche de la barre de formule).",
-        "Créer un nom via Formules → Gestionnaire de noms.",
-        "Utiliser le nom dans une formule (ex: =Montant_HT * Taux_TVA).",
-    ],
-    [
-        "GAUCHE(texte; n) : renvoie les n premiers caractères.",
-        "DROITE(texte; n) : renvoie les n derniers caractères.",
-        "STXT(texte; début; n) : renvoie n caractères à partir d’une position.",
-        "CONCAT ou CONCATENER : fusionne plusieurs morceaux de texte.",
-        "TEXTE(valeur; format) : affiche une valeur numérique avec un format texte (ex: « 01/2025 »).",
-    ],
-    [
-        "AUJOURDHUI() : renvoie la date du jour.",
-        "MAINTENANT() : renvoie date + heure actuelles.",
-        "DATEDIF(date_début; date_fin; unité) : différence entre deux dates (ex: en jours, mois, années).",
-        "JOUR(date), MOIS(date), ANNEE(date) : extraire le jour, le mois ou l’année.",
-    ],
-    [
-        "Fonction SUPPRESPACE(texte) pour enlever les espaces superflus.",
-        "Fonction CNUM(texte) pour convertir un texte en nombre lorsqu’il est bien formé.",
-        "Vérifier s’il y a des espaces cachés dans les cellules qui semblent identiques.",
-    ],
-    [
-        "Total des ventes, moyenne, meilleure vente, etc.",
-        "Graphique par produit ou par mois.",
-        "Mise en forme claire : titres, couleurs, alignements.",
-    ],
-    [
-        "➡️ À partir d’une base de données de ventes (Produits, Clients, Dates, Montants, Pays, etc.), produire :",
-        "Une feuille Données propre (après nettoyage éventuel).",
-        "Une feuille Référentiel avec une liste de produits ou clients et des infos associées (prix, catégorie…).",
-        "Des RECHERCHEV/RECHERCHEX pour compléter automatiquement des informations dans la feuille Données.",
-        "Quelques colonnes calculées avec des fonctions texte ou date (pays, mois, année…).",
-        "Une feuille Dashboard avec 3 à 5 indicateurs et 1 à 2 graphiques.",
-    ]
-];
-const EXERCICES_CHAPTER_3 = [
-    [
-        "Importer ou saisir un tableau de 30 à 50 lignes (Produits, Clients, Dates, Montants).",
-        "Contrôler la cohérence des données (pas de textes mélangés aux chiffres dans la colonne Montants).",
-    ],
-    [
-        "Créer une petite table de référence des Produits avec leur Prix unitaire sur une feuille « Référentiel ».",
-        "Dans la feuille Données, utiliser RECHERCHEV ou RECHERCHEX pour ramener le Prix unitaire à partir du nom du produit.",
-    ],
-    [
-        "Nommer une cellule contenant un taux de TVA (ex: Taux_TVA).",
-        "Nommer une plage de données (ex: Ventes_2025).",
-        "Réécrire une formule en remplaçant les références de cellules par des noms.",
-    ],
-    [
-        "Sur une colonne de codes clients (ex: « CH-001 », « CH-002 »), extraire le pays (2 premières lettres) avec GAUCHE.",
-        "Assembler un texte du type « Client X – Ville Y » avec CONCAT.",
-    ],
-    [
-        "À partir d’une date de début de contrat et d’une date de fin, calculer le nombre de jours de contrat avec DATEDIF.",
-        "Extraire le mois et l’année des dates de factures pour préparer un regroupement par mois.",
-    ],
-    [
-        "Importer une petite liste avec des noms ou des codes contenant des espaces en trop, puis les nettoyer avec SUPPRESPACE.",
-    ],
-    [
-        "Créer une feuille « Dashboard » avec 3 indicateurs : Total ventes, Moyenne par vente, Nombre de clients.",
-        "Ajouter au moins un graphique pertinent (par produit ou par mois).",
-    ],
-    [
-        "➡️ À partir d’une base de données de ventes (Produits, Clients, Dates, Montants, Pays, etc.), produire :",
-        "Une feuille Données propre (après nettoyage éventuel).",
-        "Une feuille Référentiel avec une liste de produits ou clients et des infos associées (prix, catégorie…).",
-        "Des RECHERCHEV/RECHERCHEX pour compléter automatiquement des informations dans la feuille Données.",
-        "Quelques colonnes calculées avec des fonctions texte ou date (pays, mois, année…).",
-        "Une feuille Dashboard avec 3 à 5 indicateurs et 1 à 2 graphiques.",
-    ],
-]
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
 //const MODE_CREATE_CHAPTER = 'create-chapter';
@@ -593,6 +485,7 @@ function AddExercicesComponent({ subchapter = null, setSubchapter = null }) {
 }
 
 function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode = null }) {
+    const { uid:uidChapter } = useParams();
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION, ClassSession.NS_COLLECTION, NS_LEVELS]);
     const { lessons } = useLesson();
     const [disabledNext, setDisabledNext] = useState(false);
@@ -619,14 +512,14 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
     
     //const subchapters = 
     const [newSubchapter, setNewSubChapter] = useState(null);
-    const [subchapters, setSubchapters] = useState(TITLES_CHAPTER_3.map((title, i) => {
+    const [subchapters, setSubchapters] = useState(EXCEL_TITLES_CHAPTER_5.map((title, i) => {
         return new ClassLessonSubchapter({
-            uid_chapter: "Cl8lok4rcSCC6oOkiXhO",
+            uid_chapter: uidChapter,
             uid_intern: i+1,
             title: title,
-            goals: GOALS_CHAPTER_3[i],
-            keys: KEYS_CHAPTER_3[i],
-            exercises: EXERCICES_CHAPTER_3[i],
+            goals: EXCEL_GOALS_CHAPTER_5[i],
+            keys: EXCEL_KEYS_CHAPTER_5[i],
+            exercises: EXCEL_EXERCICES_CHAPTER_5[i],
         });
     }));
     //console.log("Suuububuubabu",subchapters)

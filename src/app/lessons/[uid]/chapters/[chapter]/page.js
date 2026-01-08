@@ -534,7 +534,7 @@ const CardSubChapters = ({
             <IconBookOpen height={18} width={18} color="var(--primary)" />
             <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('subchapters')}</Typography>
         </Stack>
-        <Typography variant="caption" sx={{ mb: 0.5 }}>{t('subchapters-subtitle')}</Typography>
+        <Typography variant="caption" sx={{ mb: 0.5 }}>{t('subchapters-subtitle')} {chapter?.translate?.subchapters_title}</Typography>
         <List dense disablePadding>
             {
                 subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
