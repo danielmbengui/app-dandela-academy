@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { IconCertificate, IconDashboard, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
+import { NS_COMMON, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -31,6 +31,10 @@ import BadgeStatusLesson from '@/components/dashboard/lessons/BadgeStatusLesson'
 import { useRouter } from 'next/navigation';
 import { PAGE_LESSONS } from '@/contexts/constants/constants_pages';
 import { useLesson } from '@/contexts/LessonProvider';
+import Image from 'next/image';
+import { ClassLessonChapter } from '@/classes/lessons/ClassLessonChapter';
+import { ChapterProvider, useChapter } from '@/contexts/ChapterProvider';
+import { ClassLessonSubchapter } from '@/classes/lessons/ClassLessonSubchapter';
 
 const USERS_MOCK = [
   {
@@ -141,21 +145,19 @@ const STATUS_CONFIG_1 = {
 };
 
 const TABLE_SPACE = `grid-template-columns:
+            minmax(0, 0.5fr)
             minmax(0, 2.0fr)
-            minmax(0, 2.0fr)
-            minmax(0, 1.5fr)
-            minmax(0, 1.5fr)
-            minmax(0, 3.0fr)
-            minmax(0, 1.5fr)
-            minmax(0, 2.25fr)
-            minmax(0, 1.75fr)
-            minmax(0, 1.5fr);`
+            minmax(0, 1.0fr)
+            minmax(0, 0.5fr)
+            minmax(0, 1.0fr)
+            ;`
 
 function LessonsComponent({ userDialog = null, setUserDialog = null }) {
   const router = useRouter();
+  const { lang } = useLanguage();
   const { theme } = useThemeMode();
   const { text, cardColor, greyLight, blueDark } = theme.palette;
-  const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION]);
+  const { t } = useTranslation([NS_ROLES, ClassUser.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -163,7 +165,7 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([]);
   const [_, setLessons] = useState([]);
-  const {lessons, changeLesson} = useLesson();
+  const { lessons, changeLesson } = useLesson();
 
 
   useEffect(() => {
@@ -206,10 +208,9 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
       list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
     }
     //const ok = ClassLesson.translate();
-    
-   // setUsers(list);
-  }, [search, roleFilter, statusFilter, sortBy]);
 
+    // setUsers(list);
+  }, [search, roleFilter, statusFilter, sortBy]);
 
   return (
     <div className="page">
@@ -258,15 +259,11 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
         {/* TABLE / LISTE */}
         <section className="card">
           <div className="table-header">
-            <span className="th th-user">{"Cours"}</span>
-            <span className="th th-username">{"Code"}</span>
-            <span className="th th-role">{"Type"}</span>
-            <span className="th th-email">{"Niveau"}</span>
-            <span className="th th-status">{"Date"}</span>
-            <span className="th th-group">{"Prix"}</span>
-            <span className="th th-actions">{"Places"}</span>
-            <span className="th th-actions">{"Statut"}</span>
-            <span className="th th-actions">{"Actions"}</span>
+            <span className="th th-user">{""}</span>
+            <span className="th th-user">{"lesson"}</span>
+            <span className="th th-user">{"level"}</span>
+            <span className="th th-user">{"chapters"}</span>
+            <span className="th th-user">{"certified"}</span>
           </div>
 
           <div className="table-body">
@@ -276,15 +273,20 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
               </div>
             )}
 
-            {lessons.map((lesson, i) => (
-              <Box key={`${lesson.uid}-${i}`} onClick={() => {
-                //setUserDialog(user);
-                //changeLesson(lesson.uid);
-                router.push(`${PAGE_LESSONS}/${lesson.uid}`)
-              }} sx={{ cursor: 'pointer' }}>
-                <LessonRow lesson={lesson} lastChild={i === lessons.length - 1} />
-              </Box>
-            ))}
+            {lessons.map(async (lesson, i) => {
+              //console.log("one lesson while", await lesson.getMinLevel(lang))
+              return (
+                <Box key={`${lesson.uid}-${i}`} onClick={() => {
+                  //setUserDialog(user);
+                  //changeLesson(lesson.uid);
+                  router.push(`${PAGE_LESSONS}/${lesson.uid}`)
+                }} sx={{ cursor: 'pointer' }}>
+                  <ChapterProvider uidLesson={lesson.uid}>
+                    <LessonRow lesson={lesson} lastChild={i === lessons.length - 1} />
+                  </ChapterProvider>
+                </Box>
+              )
+            })}
           </div>
         </section>
       </main>
@@ -404,7 +406,7 @@ function LessonsComponent({ userDialog = null, setUserDialog = null }) {
         .card {
           background: ${cardColor.main};
           border-radius: 16px;
-          border: 1px solid ${cardColor.main};
+          border: 0.1px solid var(--card-border);
           
           padding: 0;
            overflow: hidden;           /* ✅ coupe les bords des enfants, y compris au hover */
@@ -684,7 +686,8 @@ function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
   const { theme } = useThemeMode();
   const { greyLight, cardColor, text } = theme.palette;
   const { lang } = useLanguage();
-  const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
+  const { chapters, getMinLevel, getMaxLevel, getCountSubchapters } = useChapter();
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION, NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION]);
   const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
   const roleCfg = FORMAT_CONFIG[lesson?.format];
   const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
@@ -692,81 +695,64 @@ function LessonRow({ lesson = null, lastChild = false, setUserDialog = null }) {
   return (
     <>
       <div className={`row ${lastChild ? 'last-child' : ''}`}>
-        {/* Utilisateur */}
-        <div className="cell cell-user">
+        {/* Image */}
+        <div className="cell cell-image">
+          {
+            lesson?.photo_url && <Box sx={{ background: '', width: '50%' }}>
+              <Image
+                src={lesson?.photo_url || ''}
+                alt={`lesson-${lesson?.uid}`}
+                quality={100}
+                width={300}
+                height={150}
+                //loading="lazy"
+                priority
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  //maxHeight:'400px',
+                  borderRadius: '8px',
+                  objectFit: 'cover',
+                }}
+              />
+            </Box>
+          }
+        </div>
+        {/* Cours */}
+        <div className="cell cell-lesson">
           {lesson?.showAvatar?.({ size: 30, fontSize: '14px' })}
           <div className="user-text">
-            <p className="user-name">
-              {lesson?.title}
-            </p>
-            {
-              lesson?.certified && <p className="user-id">{lesson?.category}</p>
-            }
+            <p className="user-name">{lesson?.translate?.title}</p>
+            <p className="user-id">{t(lesson?.category)}</p>
           </div>
         </div>
 
-        {/* Username */}
-        <div className="cell cell-username">
-          <p className="text-main">{lesson?.code}</p>
-          <p className="text-sub">{`${t('lang', { ns: ClassUser.NS_COLLECTION })} : ${t(lesson.lang, { ns: NS_LANGS }) || ''}` || ''}</p>
+        {/* Niveau */}
+        <div className="cell cell-level">
+          {lesson?.showAvatar?.({ size: 30, fontSize: '14px' })}
+          <div className="user-text">
+            <p className="user-name">{t(getMinLevel(lang))}-{t(getMaxLevel(lang))}</p>
+                        <p className="user-id">{t(lesson?.category)}</p>
+          </div>
         </div>
 
-        {/* Rôle */}
-        <div className="cell cell-role">
-          <BadgeFormatLesson format={lesson?.format} />
+        {/* Chapitres */}
+        <div className="cell cell-chapters">
+          <p className="text-main">{chapters.length} {t('chapters', { ns: NS_COMMON })}</p>
+          <p className="text-sub">{getCountSubchapters()} {t('subchapters', { ns: NS_COMMON })}</p>
         </div>
 
-        {/* Email */}
-        <div className="cell cell-email">
+        {/* Certificé */}
+        <div className="cell cell-certified">
           <p className="text-main">{lesson?.level}</p>
           <Stack direction={'row'} alignItems={'center'} spacing={0.5} sx={{ display: lesson?.certified ? 'flex' : 'none' }}>
-            <IconCertificate color='#6b7280' height={15} width={15} />
+            <IconCertificate color='var(--primary)' height={15} width={15} />
             <p className="text-sub" style={{
-              marginLeft:"1px",
+              marginLeft: "1px",
               fontSize: '0.75rem',
               color: '#6b7280',
-            }}>{"Certifié"}</p>
+            }}>{t('certified')}</p>
           </Stack>
-        </div>
-
-                 {/* Dates */}
-        <div className="cell cell-group">
-          <p className="text-main">{`${getFormattedDateNumeric(lesson?.start_date)} - ${getFormattedDateNumeric(lesson?.end_date)}`}</p>
-          <p className="text-sub">{`Durée : ${formatDuration(lesson?.duration)}`}</p>
-        </div>
-
-                         {/* Prix */}
-        <div className="cell cell-group">
-          <p className="text-main">{`${lesson?.price} ${lesson.currency}`}</p>
-          <p className="text-sub" style={{display:'none'}}>{`Durée : ${formatDuration(lesson?.duration)}`}</p>
-        </div>
-
-                                 {/* Disponibilité */}
-        <div className="cell cell-group">
-          <p className="text-main">{`${lesson?.seats_taken}/${lesson?.seats_availables} inscrits`}</p>
-          {
-            lesson?.seats_taken < lesson?.seats_availables && <p className="text-sub">{`${lesson?.seats_availables - lesson?.seats_taken} place(s) disponible(s)`}</p>
-          }
-          {
-            lesson?.seats_taken === lesson?.seats_availables && <p className="text-sub">{`Complet`}</p>
-          }
-        </div>
-
-        {/* Statut */}
-        <div className="cell cell-status">
-          <BadgeStatusLesson status={lesson?.status} />
-        </div>
-
-
-        {/* Actions */}
-        <div className="cell cell-actions">
-          <ButtonConfirm
-            label='Voir'
-            onClick={() => {
-              router.push(`${PAGE_LESSONS}/${lesson?.uid}`)
-              //setUserDialog(lesson);
-            }}
-          />
         </div>
       </div>
 
@@ -966,6 +952,7 @@ export default function LessonsPage() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_USERS]);
+  const { lang } = useLanguage();
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const [user, setUser] = useState(null);
@@ -983,10 +970,11 @@ export default function LessonsPage() {
 
 
 
-  return (<DashboardPageWrapper 
-  //title={'Cours'} 
-  titles={[{name:t('lessons', {ns:NS_DASHBOARD_MENU}), url:''}]}
-  subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}
+
+  return (<DashboardPageWrapper
+    //title={'Cours'} 
+    titles={[{ name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: '' }]}
+    subtitle={"Consulte tous les cours de Dandela Academy : état des disponibilités, formats, certifications et tarifs."} icon={<IconDashboard width={22} height={22} />}
   >
     <DialogUser userDialog={user} setUserDialog={setUser} />
     <Stack sx={{ width: '100%', height: '100%' }}>

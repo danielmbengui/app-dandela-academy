@@ -16,6 +16,7 @@ import {
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { ClassUser, ClassUserTeacher } from "./users/ClassUser";
+import { ClassLessonChapter } from "./lessons/ClassLessonChapter";
 
 export class ClassLesson {
     static COLLECTION = "LESSONS";

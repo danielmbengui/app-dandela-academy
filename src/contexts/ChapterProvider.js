@@ -255,6 +255,52 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setChapter(null);
         }
     }
+    function getMinLevel(lang = defaultLanguage) {
+        const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
+        if (!allLevels.length) return;
+        const lastIndex = allLevels.length - 1;
+        var minChapter = allLevels[lastIndex];
+        //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
+        for (const c of chapters) {
+            const levelChapter = allLevels.find(level => level.value === c.level);
+            if (!levelChapter) return;
+
+            if (levelChapter.id < minChapter.id) {
+                minChapter = levelChapter;
+
+            }
+        }
+        console.log("min", minChapter.value);
+
+        return minChapter.value;
+    }
+    function getMaxLevel(lang = defaultLanguage) {
+        const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
+        if (!allLevels.length) return;
+        const lastIndex = allLevels.length - 1;
+        var maxChapter = allLevels[lastIndex];
+        //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
+        for (const c of chapters) {
+            const levelChapter = allLevels.find(level => level.value === c.level);
+            if (!levelChapter) continue;
+            if (levelChapter.id >= maxChapter.id) {
+                maxChapter = levelChapter;
+            }
+        }
+        console.log("max", maxChapter.value);
+
+        return maxChapter.value;
+    }
+    function getCountSubchapters() {
+        var count = 0;
+        //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
+        for (const c of chapters) {
+            count+= c.subchapters?.length || 0;
+        }
+        console.log("count subchapters", count);
+
+        return count;
+    }
     /**
  * Estime le temps par chapitre à partir d'une fourchette totale (min/max) et du niveau.
  * Retourne une liste de chapitres avec duration_min / duration_max (en minutes).
@@ -358,6 +404,9 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         stat,
         lastStat,
         stats,
+        getMinLevel,
+        getMaxLevel,
+        getCountSubchapters,
         estimateChapterTimes,
     };
     //if (isLoading) return <Preloader />;

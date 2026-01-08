@@ -162,6 +162,7 @@ export default function TeacherComponent() {
         <Link href={`${PAGE_TEACHERS}/${lesson?.teacher?.uid}`} target="_blank">
           <ButtonCancel
             label={t('see-profile', {ns:NS_BUTTONS})}
+            style={{display:'none'}}
           />
         </Link>
         <Link href={`mailto:${lesson?.teacher?.email}`}>

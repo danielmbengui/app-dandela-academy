@@ -4,7 +4,7 @@
   "hello": "Olá",
   "welcome": "Bem-vindo",
   "language": "Idioma",
-  "loading": "Carregando...",
+  "loading": "A carregar...",
   "day": "Dia",
   "month": "Mês",
   "year": "Ano",
@@ -15,5 +15,9 @@
   "and": "e",
   "light": "Claro",
   "dark": "Escuro",
-  "system": "Sistema"
+  "system": "Sistema",
+  "chapter": "Capítulo",
+  "chapters": "Capítulos",
+  "subchapter": "Secção",
+  "subchapters": "Secções"
 }

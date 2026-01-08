@@ -240,7 +240,6 @@ export function LessonProvider({ children, uidTeacher=null }) {
         const _lesson = lessons.find(item => item.uid === uid);
         return _lesson;
     }
-
     // session
     function changeLesson(uid = '', mode = '') {
         var _lesson = lessons.find(item => item.uid === uid) || null;

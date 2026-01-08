@@ -498,46 +498,22 @@ export class ClassUser {
     }
     /**************** MENU ****************/
     menuDashboard() {
-        return [{
+        return [
+        /*
+        {
             name: "dashboard",
             path: PAGE_DASHBOARD_HOME,
             icon: <IconDashboard width={18} height={18} />,
-            subs: [/*{
+            subs: [{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
                 icon: <IconLessons width={18} height={18} />,
-            }*/]
+            }]
         },
         {
             name: "calendar",
             path: PAGE_DASHBOARD_CALENDAR,
             icon: <IconCalendar width={18} height={18} />,
-            subs: [/*{
-                name: "lessons",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconLessons width={18} height={18} />,
-            }*/]
-        },
-        {
-            name: "lessons",
-            path: PAGE_LESSONS,
-            icon: <IconLessons width={18} height={18} />,
-        },
-        {
-            name: "stats",
-            path: PAGE_STATS,
-            icon: <IconStats width={16} height={16} />,
-        },
-        /*
-        {
-            name: "computers",
-            path: PAGE_DASHBOARD_COMPUTERS,
-            icon: <IconComputers width={20} height={20} />,
-        },
-        {
-            name: "users",
-            path: PAGE_DASHBOARD_USERS,
-            icon: <IconUsers width={20} height={20} />,
             subs: [{
                 name: "lessons",
                 path: PAGE_DASHBOARD_HOME,
@@ -545,11 +521,40 @@ export class ClassUser {
             }]
         },
         */
-        {
-            name: "profile",
-            path: PAGE_DASHBOARD_PROFILE,
-            icon: <IconProfile width={20} height={20} />,
-        },
+            {
+                name: "lessons",
+                path: PAGE_LESSONS,
+                icon: <IconLessons width={18} height={18} />,
+            },
+            /*
+            {
+                name: "stats",
+                path: PAGE_STATS,
+                icon: <IconStats width={16} height={16} />,
+            },
+            */
+            /*
+            {
+                name: "computers",
+                path: PAGE_DASHBOARD_COMPUTERS,
+                icon: <IconComputers width={20} height={20} />,
+            },
+            {
+                name: "users",
+                path: PAGE_DASHBOARD_USERS,
+                icon: <IconUsers width={20} height={20} />,
+                subs: [{
+                    name: "lessons",
+                    path: PAGE_DASHBOARD_HOME,
+                    icon: <IconLessons width={18} height={18} />,
+                }]
+            },
+            */
+            {
+                name: "profile",
+                path: PAGE_DASHBOARD_PROFILE,
+                icon: <IconProfile width={20} height={20} />,
+            },
         ]
     }
     // ---------- Converter intégré ----------

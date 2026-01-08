@@ -16,7 +16,7 @@ import ButtonCancel from "@/components/dashboard/elements/ButtonCancel"
 import { ClassLessonSubchapter, ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter"
 import { useChapter } from "@/contexts/ChapterProvider"
 import { ClassLessonChapterQuestion, ClassLessonChapterQuestionTranslation, ClassLessonChapterQuiz } from "@/classes/lessons/ClassLessonChapterQuiz"
-import { EXCEL_ANSWERS_CHAPTER_4, EXCEL_PROPOSALS_CHAPTER_4, EXCEL_QUESTIONS_CHAPTER_4 } from "@/contexts/datas-init/quizs"
+import { EXCEL_ANSWERS_CHAPTER_4, EXCEL_ANSWERS_CHAPTER_5, EXCEL_PROPOSALS_CHAPTER_4, EXCEL_PROPOSALS_CHAPTER_5, EXCEL_QUESTIONS_CHAPTER_4, EXCEL_QUESTIONS_CHAPTER_5 } from "@/contexts/datas-init/quizs"
 
 const MODE_CREATE_CHAPTER = 'create-chapter';
 const MODE_ADD_GOALS = 'add-goals';
@@ -565,11 +565,11 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
     const [quiz, setQuiz] = useState(new ClassLessonChapterQuiz({
         uid_intern: 1,
         uid_chapter: uidChapter,
-        questions: EXCEL_QUESTIONS_CHAPTER_4.map((question, i) => (new ClassLessonChapterQuestion({
+        questions: EXCEL_QUESTIONS_CHAPTER_5.map((question, i) => (new ClassLessonChapterQuestion({
             uid_intern: i + 1,
             question: question,
-            answer: EXCEL_ANSWERS_CHAPTER_4[i],
-            proposals: EXCEL_PROPOSALS_CHAPTER_4[i],
+            answer: EXCEL_ANSWERS_CHAPTER_5[i],
+            proposals: EXCEL_PROPOSALS_CHAPTER_5[i],
         })))
         /*
         new ClassLessonChapterQuestion({
