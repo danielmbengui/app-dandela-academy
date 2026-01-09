@@ -1,13 +1,15 @@
 {
-    "monday":"Lundi",
-    "tuesday":"Mardi",
-    "wednesday":"Mercredi",
-    "thursday":"Jeudi",
-    "friday":"Vendredi",
-    "saturday":"Samedi",
-    "sunday":"Dimanche",
-    "daily":"Jour",
-    "weekly":"Semaine",
-    "monthly":"Mois",
-    "yearly":"Année"
+  "monday": "Lundi",
+  "tuesday": "Mardi",
+  "wednesday": "Mercredi",
+  "thursday": "Jeudi",
+  "friday": "Vendredi",
+  "saturday": "Samedi",
+  "sunday": "Dimanche",
+  "daily": "Jour",
+  "weekly": "Semaine",
+  "monthly": "Mois",
+  "yearly": "Année",
+  "today": "Aujourd'hui",
+  "now": "Maintenant"
 }

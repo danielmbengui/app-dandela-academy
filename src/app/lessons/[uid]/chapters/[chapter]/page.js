@@ -61,7 +61,7 @@ const CongratulationsComponent = ({ stat = null, setIndexSub = null }) => {
     //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
     //duration: formatChrono(duration),
     return (<>
-        <Stack className="results-summary-container" sx={{borderRadius:'10px', width:{xs:'100%', sm:'400px'}, border:'0.1px solid var(--card-border)'}}>
+        <Stack className="results-summary-container" sx={{ borderRadius: '10px', width: { xs: '100%', sm: '400px' }, border: '0.1px solid var(--card-border)' }}>
             <div className="confetti">
                 <div className="confetti-piece"></div>
                 <div className="confetti-piece"></div>
@@ -83,7 +83,7 @@ const CongratulationsComponent = ({ stat = null, setIndexSub = null }) => {
                 <div className="confetti-piece"></div>
                 <div className="confetti-piece"></div>
             </div>
-            <div className="results-summary-container__result" style={{zIndex:1_001}}>
+            <div className="results-summary-container__result" style={{ zIndex: 1_001 }}>
                 <div className="result-box">
                     <div className="heading-primary">
                         {stat?.score}/{stat?.answers?.length}
@@ -922,12 +922,13 @@ const CardQuizz = ({
     //subchapters = [],
     //subchapter, setSubchapter
 }) => {
-    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
+    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION, NS_DAYS]);
     const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
     const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter } = useChapter();
-    const { stats, setUidStat, getMostRecentStat, getBestStat } = useStat();
+    const { stats, setUidStat, getMostRecentStat, getBestStat, isLoading: isLoadingStats } = useStat();
     //const { lesson, } = useLesson();
     //const { stats, chapters, lastStat, setUidChapter, subchapter, setSubchapter } = useChapter();
+    const [hasStat, setHasStat] = useState(false);
     const [mostResentStat, setMostResentStat] = useState(null);
     const [bestStat, setBestStat] = useState(null);
     const [index, setIndex] = useState(-1);
@@ -943,7 +944,7 @@ const CardQuizz = ({
     const [nextDate, setNextDate] = useState(null);
     const [stat, setStat] = useState(null);
     //const [stats, setStats] = useState([]);
-    const [isLoadingStats, setIsLoadingStats] = useState(true);
+    //const [isLoadingStats, setIsLoadingStats] = useState(true);
     useEffect(() => {
         async function init() {
             const _user_stat_object = new ClassUserStat({
@@ -954,15 +955,17 @@ const CardQuizz = ({
             const _stat = await _user_stat_object.getStat();
             const _most_recent_stat = getMostRecentStat(chapter.uid_lesson, chapter.uid);
             const _best_stat = getBestStat(chapter.uid_lesson, chapter.uid);
+            setHasStat(stats.length > 0);
             setMostResentStat(_most_recent_stat);
             setBestStat(_best_stat);
+            console.log("most recent", _most_recent_stat)
             /*
             var _stats = await _user_stat_object.getStats();
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime())
             console.log("statsss", _stats);
             */
             //setStats(_stats);
-            setIsLoadingStats(false);
+            //setIsLoadingStats(false);
             //setState(prev => ({ ...prev, isLoading: false, stats: _stats }))
             if (_stat) {
                 const diff = _stat.end_date?.getTime() - _stat.start_date?.getTime();
@@ -976,7 +979,7 @@ const CardQuizz = ({
         if (user && lesson && chapter) {
             init();
         }
-    }, [lesson, chapter, user])
+    }, [lesson, chapter, user, stats.length])
     useEffect(() => {
         if (chapter?.quiz?.questions?.length > 0) {
             const _questions = chapter.quiz.questions;
@@ -1050,36 +1053,48 @@ const CardQuizz = ({
                             <Typography sx={{ color: 'var(--font-color)' }}>{t('title')}</Typography>
                         </Stack>
                         {
-                            index < 0 && bestStat?.score < bestStat?.answers?.length && <Typography variant="caption" sx={{ color: 'red', fontWeight: 300 }}>{t('subtitle')}</Typography>
-                        }
-                        {
-                            index < 0 && bestStat?.score < bestStat?.answers?.length && <>
+                            index < 0 && <Stack spacing={0.5}>
                                 {
-                                    !mostResentStat && <AlertComponent
-                                        severity="warning"
-                                        subtitle={<Typography><Trans
-                                            t={t}
-                                            i18nKey={'warning'}
-                                            values={{
-                                                quiz_delay_days: chapter?.quiz_delay_days
-                                            }}
-                                            components={{
-                                                b: <strong />
-                                            }}
-                                        /></Typography>}
-                                    />
+                                    !mostResentStat && <>
+                                        {
+                                            //(!mostResentStat || mostResentStat===null) && 
+                                            //(bestStat && bestStat.score < bestStat.answers?.length) &&
+                                            //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
+                                            <Typography variant="caption" sx={{ color: 'red', fontWeight: 300 }}>{t('subtitle')}</Typography>
+                                        }
+                                        {
+                                            <AlertComponent
+                                                severity="warning"
+                                                subtitle={<Typography>
+                                                    <Trans
+                                                        t={t}
+                                                        i18nKey={'warning'}
+                                                        values={{
+                                                            quiz_delay_days: chapter?.quiz_delay_days
+                                                        }}
+                                                        components={{
+                                                            b: <strong />
+                                                        }}
+                                                    />
+                                                </Typography>}
+                                            />
+                                        }
+                                    </>
                                 }
                                 {
-                                    mostResentStat && <>
+                                    mostResentStat && bestStat && bestStat.score < bestStat.answers?.length && <>
                                         {
-                                            mostResentStat.next_trying_date?.getTime() <= new Date().getTime() && <AlertComponent
+                                            mostResentStat.next_trying_date.getTime() <= new Date().getTime() &&
+                                            //(bestStat && bestStat.score < bestStat.answers?.length) &&
+                                            //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
+                                            <AlertComponent
                                                 severity={'info'}
                                                 subtitle={<Typography>
                                                     <Trans
                                                         t={t}
                                                         i18nKey={'finished.next-trying-date'}
                                                         values={{
-                                                            nextDate: t('now')
+                                                            nextDate: t('now', { ns: NS_DAYS })
                                                         }}
                                                         components={{
                                                             b: <strong />
@@ -1089,7 +1104,10 @@ const CardQuizz = ({
                                             />
                                         }
                                         {
-                                            mostResentStat.next_trying_date?.getTime() > new Date().getTime() && <AlertComponent
+                                            mostResentStat.next_trying_date.getTime() > new Date().getTime() &&
+                                            //(bestStat && bestStat.score < bestStat.answers?.length) &&
+                                            //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
+                                            <AlertComponent
                                                 severity={"error"}
                                                 subtitle={<Typography>
                                                     <Trans
@@ -1107,25 +1125,32 @@ const CardQuizz = ({
                                         }
                                     </>
                                 }
-                            </>
+                            </Stack>
+
                         }
+
                     </Stack>
-                    <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
-                        {
-                            index < 0 && bestStat?.score < bestStat?.answers?.length && <ButtonCancel label={t('btn-back')} onClick={goBackSub} />
-                        }
-                        {
-                            //index < 0 && stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
-                            index < 0 && (!mostResentStat || mostResentStat.next_trying_date?.getTime() <= new Date().getTime() || bestStat.score < bestStat.answers?.length) && <ButtonConfirm label={t('btn-start')} onClick={startQuiz} />
-                        }
-                    </Stack>
+                    {
+                        index < 0 && <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
+                            {
+                                //index < 0 &&
+                                //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
+                                <ButtonCancel label={t('btn-back')} onClick={goBackSub} />
+                            }
+                            {
+                                // index < 0 &&
+                                //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
+                                <ButtonConfirm label={t('btn-start')} onClick={startQuiz} />
+                            }
+                        </Stack>
+                    }
                     <Grid container spacing={{ xs: 0.5, sm: 1 }} alignItems={'start'} sx={{ background: '', width: '100%', maxWidth: '100vw', }}>
                         {
-                            index >= 0 && <NewQuizComponent />
+                            index > 0 && <NewQuizComponent />
                         }
                     </Grid>
                     {
-                        bestStat?.score === bestStat?.answers?.length && <CongratulationsComponent stat={bestStat} setIndexSub={setIndexSub} />
+                        bestStat && bestStat.score === bestStat.answers?.length && <CongratulationsComponent stat={bestStat} setIndexSub={setIndexSub} />
                     }
                 </Stack>
             </Grid>
@@ -1150,7 +1175,7 @@ const CardQuizz = ({
                                 priority
                                 height={100}
                                 width={200}
-                                style={{ objectFit: "cover", width: '100%', height: 'auto',borderRadius:'10px' }}
+                                style={{ objectFit: "cover", width: '100%', height: 'auto', borderRadius: '10px' }}
                                 sizes="(max-width: 768px) 100vw, 50vw"
                             />
                         }
@@ -1173,7 +1198,7 @@ export default function ExcelBeginnerCoursePage() {
     //const [subchapter, setSubchapter] = useState(null);
 
     const [process, setProcess] = useState(false);
-    const [indexSub, setIndexSub] = useState(0);
+    const [indexSub, setIndexSub] = useState(8);
     const onTranslate = async () => {
         try {
             setProcess(true);
