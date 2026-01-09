@@ -466,7 +466,7 @@ const CardHeader = () => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     const { chapter } = useChapter();
     const { lesson } = useLesson();
-    return (<Stack sx={{ background: '', width: '100%' }}>
+    return (<Stack sx={{ background: '', width: '100%', color:'var(--font-color)' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 6 }}>
                 <Box>
@@ -499,7 +499,7 @@ const CardHeader = () => {
 const CardGoals = () => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     const { chapter } = useChapter();
-    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%', color:'var(--font-color)' }}>
         <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
             <IconObjective height={18} width={18} color="var(--primary)" />
             <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('goals')}</Typography>
@@ -529,7 +529,7 @@ const CardSubChapters = ({
     const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
 
     // const { subchapters } = useChapter();
-    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
+    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%', color:'var(--font-color)' }}>
         <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
             <IconBookOpen height={18} width={18} color="var(--primary)" />
             <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('subchapters')}</Typography>
@@ -597,7 +597,7 @@ const CardSubChaptersContent = ({
         setIndex(prev => prev + 1);
     }
 
-    return (<Stack sx={{ background: '', width: '100%' }}>
+    return (<Stack sx={{ background: '', width: '100%', color:'var(--font-color)' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 12 }}>
                 <Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>

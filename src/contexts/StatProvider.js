@@ -154,7 +154,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             //const _most_recent_stat = getMostRecentStat(chapter.uid_lesson, chapter.uid);
             //const _best_stat = getBestStat(chapter.uid_lesson, chapter.uid);
             //setHasStat(stats.length > 0);
-            setMostResentStat(_most_recent_stat);
+            //setMostResentStat(_most_recent_stat);
             //setLastStat(_stats.length > 0 ? _stats[0] : null);
             setIsLoading(false);
             //setStats(_stats);
