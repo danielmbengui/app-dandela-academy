@@ -131,10 +131,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             var _chapters = [];
             var _stats = [];
 
-            const _most_recent_stat = getMostRecentStat(chapter.uid_lesson, chapter.uid);
-            //const _best_stat = getBestStat(chapter.uid_lesson, chapter.uid);
-            //setHasStat(stats.length > 0);
-            setMostResentStat(_most_recent_stat);
+
             //setBestStat(_best_stat);
 
             for (const snapshot of snap.docs) {
@@ -153,7 +150,11 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
             console.log("stats provider STAT", lessons, chapters)
             //setChapters(_chapters);
-            setStats(_stats);
+            //setStats(_stats);
+            //const _most_recent_stat = getMostRecentStat(chapter.uid_lesson, chapter.uid);
+            //const _best_stat = getBestStat(chapter.uid_lesson, chapter.uid);
+            //setHasStat(stats.length > 0);
+            setMostResentStat(_most_recent_stat);
             //setLastStat(_stats.length > 0 ? _stats[0] : null);
             setIsLoading(false);
             //setStats(_stats);
@@ -220,31 +221,6 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         });
         return unsubscribe;
     }, [user, uidStat]);
-
-    async function refreshList() {
-        var _sessions = [];
-        const constraints = [];
-        /*
-        if (filterStatus !== 'all') {
-            constraints.push(where("status", '==', filterStatus));
-        }
-        if (filterType !== 'all') {
-            constraints.push(where("type", '==', filterType));
-        }
-        */
-        _sessions = await ClassSession.fetchListFromFirestore(constraints);
-        for (const session of _sessions) {
-            //const lesson = snapshot.data();
-            //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
-            _sessions.push(new ClassSession({
-                ...session.toJSON(),
-                // translate: translate,
-            }));
-        }
-
-        _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
-        //setChapters(_sessions);
-    }
 
     function getOneStat(uid = '') {
         if (!uid || uid === '' || uid === null) {
@@ -385,7 +361,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return timeTotal;
     }
-    function getMostRecentStat(uidLesson = "", uidChapter = "", statsParam=stats) {
+    function getMostRecentStat(uidLesson = "", uidChapter = "", statsParam = stats) {
         var total = 0;
         var percentTotal = 0;
         var maxScore = 0;
