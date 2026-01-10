@@ -53,6 +53,7 @@ import AccordionComponent from "@/components/dashboard/elements/AccordionCompone
 import { useChapter } from "@/contexts/ChapterProvider";
 import { useStat } from "@/contexts/StatProvider";
 import Link from "next/link";
+import CircularProgressStatComponent from "@/components/elements/CircularProgressStatComponent";
 
 const CongratulationsComponent = ({ stat = null, setIndexSub = null }) => {
     const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);

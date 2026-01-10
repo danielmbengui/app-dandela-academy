@@ -454,7 +454,7 @@ const CardHeader = ({ lesson = null, chapter = null }) => {
     useEffect(() => {
         console.log("STATTTTS", stats)
     })
-    return (<Stack sx={{ background: '', width: '100%',color:'var(--font-color)' }}>
+    return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 6 }}>
                 <Box>
@@ -482,8 +482,9 @@ const CardHeader = ({ lesson = null, chapter = null }) => {
 
 export default function ExcelBeginnerCoursePage() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-   // const { lang } = useLanguage();
+    // const { lang } = useLanguage();
     //const { user } = useAuth();
+    const { stats } = useStat();
     //const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
     const { isLoading: isLoadingStats } = useStat();
 
@@ -501,13 +502,13 @@ export default function ExcelBeginnerCoursePage() {
         <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
             {
                 isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
-                <Grid size={12}>
-                    <CardHeader />
+                    <Grid size={12}>
+                        <CardHeader />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 12 }}>
+                        <StatsListComponent />
+                    </Grid>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12 }}>
-                    <StatsListComponent />
-                </Grid>
-            </Grid>
             }
         </Container>
     </DashboardPageWrapper>);

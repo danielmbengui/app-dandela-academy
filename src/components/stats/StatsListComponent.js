@@ -36,6 +36,8 @@ import ButtonCancel from "../dashboard/elements/ButtonCancel";
 import Link from "next/link";
 import { PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import { useRouter } from "next/navigation";
+import CircularProgressStatComponent from "../elements/CircularProgressStatComponent";
+import { IconDropDown } from "@/assets/icons/IconsComponent";
 
 
 /**
@@ -52,23 +54,24 @@ import { useRouter } from "next/navigation";
 function ChaptersList() {
     const { chapters } = useChapter();
     const { getBestStat } = useStat();
-    return (<Grid container spacing={1} sx={{background:'', width:'100%',}}>
+    return (<Grid container spacing={1} sx={{ background: '', width: '100%', }}>
+
         {
             chapters.map((chapter, i) => {
                 const bestStat = getBestStat(chapter.uid_lesson, chapter.uid);
                 console.log("beeest ststa", bestStat)
                 return (<Grid key={`${chapter.uid}-${i}`} size={{ xs: 12, sm: 'auto' }}>
                     <Link href={`${PAGE_STATS}/${bestStat?.uid}`}>
-                    <HighlightCard
-                        uidLesson={chapter.uid_lesson}
-                        uidChapter={chapter.uid}
-                        title="Meilleur résultat"
-                        icon={<EmojiEventsIcon />}
-                        //attempt={filteredStats.best}
-                        tone="good"
-                        status={bestStat?.status}
-                        stat={bestStat}
-                    />
+                        <HighlightCard
+                            uidLesson={chapter.uid_lesson}
+                            uidChapter={chapter.uid}
+                            title="Meilleur résultat"
+                            icon={<EmojiEventsIcon />}
+                            //attempt={filteredStats.best}
+                            tone="good"
+                            status={bestStat?.status}
+                            stat={bestStat}
+                        />
                     </Link>
                 </Grid>)
             })
@@ -244,12 +247,12 @@ export default function StatsListComponent() {
 
     return (
         <Stack spacing={2}>
-            <Stack direction={{xs:'column',sm:'row'}} spacing={1} alignItems={{xs:'start',sm:'end'}}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'start', sm: 'end' }}>
                 <SelectComponentDark
                     label={t('uid_lesson')}
                     name={'uid_lesson'}
                     value={lesson?.uid || ''}
-                    values={[{ id: '', value: t('all') }, ...lessons.map(lesson => ({ id: lesson.uid, value: cutString(lesson.translate?.title,20) }))]}
+                    values={[{ id: '', value: t('all') }, ...lessons.map(lesson => ({ id: lesson.uid, value: cutString(lesson.translate?.title, 20) }))]}
                     hasNull={false}
                     onChange={(e) => {
                         const { value } = e.target;
@@ -262,13 +265,13 @@ export default function StatsListComponent() {
                     onClick={() => setUidLesson('')}
                 />
             </Stack>
-            
-            <Box sx={{ minHeight: "100vh", width:'100%',bgcolor: "var(--card-color)", borderRadius: '20px',py: 2,px:{xs:1.5,sm:2} }}>
-                
+
+            <Box sx={{ minHeight: "100vh", width: '100%', bgcolor: "var(--card-color)", borderRadius: '20px', py: 2, px: { xs: 1.5, sm: 2 } }}>
+
                 <Stack maxWidth={'xl'} spacing={2}>
                     {/* Top KPI cards */}
                     <Grid container spacing={2}>
-                        <Grid size={{xs:12,sm:3}}>
+                        <Grid size={{ xs: 12, sm: 3 }}>
                             <KpiCard
                                 icon={<InsightsIcon />}
                                 title={t('global-rating')}
@@ -277,7 +280,7 @@ export default function StatsListComponent() {
                                 progress={getGlobalPercent()}
                             />
                         </Grid>
-                        <Grid size={{xs:12,sm:3}}>
+                        <Grid size={{ xs: 12, sm: 3 }}>
                             <KpiCard
                                 icon={<SchoolIcon />}
                                 title={t('global-cover')}
@@ -286,7 +289,7 @@ export default function StatsListComponent() {
                                 progress={Math.min(100, (filteredStats.chaptersCount / Math.max(1, globalStats.chaptersCount)) * 100)}
                             />
                         </Grid>
-                        <Grid size={{xs:12,sm:3}}>
+                        <Grid size={{ xs: 12, sm: 3 }}>
                             <KpiCard
                                 icon={<TrendingUpIcon />}
                                 title={t('global-duration')}
@@ -297,31 +300,26 @@ export default function StatsListComponent() {
                             />
                         </Grid>
                     </Grid>
-                     <ChaptersList />  
-                    {/* Best/Worst */}
+                    <ChaptersList />
+
                     {
-                         
-                    }               
-                    {/* Per course blocks */}
-                   {
-                    
-                     <Grid container spacing={2}>
-                        {
-                            lessons.map((lesson, i) => {
-                                return (<Grid size={{xs:12,sm:12}} key={lesson?.uid}>
-                                    <CourseResultsBlock
-                                    
-                                    lesson={lesson}
-                                    course={lesson}
-                                    onOpenCourse={() => console.log("open course page", course.uid)}
-                                    onOpenChapter={(ch) => console.log("open chapter page", ch.uid)}
-                                />
-                                </Grid>)
-                            })
-                        }
-                    </Grid>
-                    
-                   }
+                        <Grid container spacing={2}>
+                            {
+                                lessons.map((lesson, i) => {
+                                    return (<Grid size={{ xs: 12, sm: 12 }} key={lesson?.uid}>
+                                        <CourseResultsBlock
+
+                                            lesson={lesson}
+                                            course={lesson}
+                                            onOpenCourse={() => console.log("open course page", course.uid)}
+                                            onOpenChapter={(ch) => console.log("open chapter page", ch.uid)}
+                                        />
+                                    </Grid>)
+                                })
+                            }
+                        </Grid>
+
+                    }
                 </Stack>
             </Box>
         </Stack>
@@ -445,7 +443,7 @@ function HighlightCard({ title, icon, attempt, tone, status = "", stat = null, u
                 maxWidth: '300px'
             }}
         >
-            <Stack spacing={1} sx={{width:'100%'}}>
+            <Stack spacing={1} sx={{ width: '100%' }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ color: color?.color }}>
                         <AvatarIcon
@@ -526,7 +524,7 @@ function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter
     const router = useRouter();
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION])
     const { chapters } = useChapter();
-    const { getGlobalScore, getGlobalDuration, getGlobalCountQuiz, getGlobalPercent,stats } = useStat();
+    const { getGlobalScore, getGlobalDuration, getGlobalCountQuiz, getGlobalPercent, stats } = useStat();
     const courseStats = []; /*useMemo(() => {
         const allAttempts = [];
         for (const ch of course?.chapters) {
@@ -562,7 +560,7 @@ function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter
             <Stack sx={{ py: 2, px: 2 }} spacing={1}>
                 <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={1.2}>
                     <Stack spacing={0.5}>
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{width:'100%'}}>
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%' }}>
                             <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
                                 {lesson?.translate?.title || course?.title}
                             </Typography>
@@ -601,9 +599,9 @@ function CourseResultsBlock({ lesson = null, course, onOpenCourse, onOpenChapter
 
                 <Grid container spacing={1}>
                     {chapters?.filter(c => c.uid_lesson === lesson?.uid).map((ch) => (
-                        <Grid key={ch.uid} size={{xs:12,sm:4}}>
+                        <Grid key={ch.uid} size={{ xs: 12, sm: 4 }}>
                             <Link href={`${PAGE_STATS}/${stats?.[0]?.uid}`}>
-                            <ChapterResultCard chapter={ch} />
+                                <ChapterResultCard chapter={ch} />
                             </Link>
                         </Grid>
                     ))}
@@ -620,6 +618,7 @@ function ChapterResultCard({ chapter, onOpen }) {
     const percent = getGlobalPercent(chapter.uid_lesson, chapter.uid);
     const bestStat = getBestStat(chapter.uid_lesson, chapter.uid);
     const worstStat = getWorstStat(chapter.uid_lesson, chapter.uid);
+    const hasMaxStats = bestStat && bestStat.score === bestStat.answers?.length || false;
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const colorBest = STATUS_CONFIG[bestStat?.status];
     const colorWorst = STATUS_CONFIG[worstStat?.status];
@@ -651,7 +650,7 @@ function ChapterResultCard({ chapter, onOpen }) {
                     <Chip size="small" label={`${countQuiz} ${t('quizs')}`} sx={softChip()} />
                 </Stack>
 
-                <Stack direction={{xs:'column',sm:'row'}} alignItems={'center'} spacing={0} flexWrap="wrap">
+                <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} spacing={0} flexWrap="wrap">
                     <Chip size="small"
                         label={`${t('average').substring(0, 3)}. ${percent.toFixed(2)}%`}
                         sx={chapterChip({
@@ -661,18 +660,108 @@ function ChapterResultCard({ chapter, onOpen }) {
                         })} />
                     <Stack direction={'row'} alignItems={'center'}>
                         {bestStat && <Chip size="small"
-                        label={`${t('best')} ${bestStat.score}/${bestStat.answers.length}`}
-                        sx={chapterChip({
-                            background: "var(--card-color)", borderColor: "transparent",
-                            color: colorBest.background_bar
-                        })} />}
-                    {countQuiz > 1 && worstStat && <Chip size="small"
-                        label={`${t('worst')} ${worstStat.score}/${worstStat.answers.length}`}
-                        sx={chapterChip({
-                            background: "var(--card-color)", borderColor: "transparent",
-                            color: colorWorst.background_bar
-                        })} />}
+                            label={`${t('best')} ${bestStat.score}/${bestStat.answers.length}`}
+                            sx={chapterChip({
+                                background: "var(--card-color)", borderColor: "transparent",
+                                color: colorBest.background_bar
+                            })} />}
+                        {countQuiz > 1 && worstStat && <Chip size="small"
+                            label={`${t('worst')} ${worstStat.score}/${worstStat.answers.length}`}
+                            sx={chapterChip({
+                                background: "var(--card-color)", borderColor: "transparent",
+                                color: colorWorst.background_bar
+                            })} />}
                     </Stack>
+                </Stack>
+
+                <Stack spacing={3} alignItems={'center'}>
+                    <Stack direction={'row'} alignItems={'center'} sx={{ color: 'var(--primary)' }}>
+                        <Typography variant="caption" sx={{color:'inherit'}}>{'Voir moins'}</Typography>
+                        <IconDropDown height={10} />
+                    </Stack>
+                    <Grid container sx={{ background: '' }} alignItems={'center'} justifyContent={'center'} spacing={2}>
+                        <Grid size={12} sx={{ background: '' }} alignItems={'center'}>
+                            <Stack justifyContent={'center'} alignItems={'center'} spacing={1}>
+                                {
+                                    /*
+                                            background: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+            background_icon: good ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
+            glow: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+            color: good ? "#15803D" : "#B45309",
+            border: "rgba(15, 23, 42, 0.10)",
+            border_icon: "rgba(15, 23, 42, 0.10)",
+            color_icon: good ? "#15803D" : "#B45309",
+            background_bar: good ? "#15803D" : "#B45309",
+                                    */
+                                }
+                                <Typography>{t('best')}</Typography>
+                                <EmojiEventsIcon sx={{ color: hasMaxStats ? colorBest?.color_icon : 'red', fontSize: '30px' }} />
+
+                                <CircularProgressStatComponent progress={42} stat={bestStat} />
+                                <Typography sx={{ color: colorBest?.color }}>{t(bestStat?.status)?.toUpperCase()}</Typography>
+                                <Chip size="small" label={getFormattedDateNumeric(bestStat?.end_date)} sx={{
+                                    fontWeight: 950,
+                                    bgcolor: colorBest?.background_bubble,
+                                    color: colorBest?.color,
+                                    border: `1px solid ${colorBest?.border}`,
+                                }} />
+                            </Stack>
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 'auto' }} sx={{ background: '' }} alignItems={'center'}>
+                            <Stack justifyContent={'center'} alignItems={'center'} spacing={1}>
+                                {
+                                    /*
+                                            background: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+            background_icon: good ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
+            glow: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+            color: good ? "#15803D" : "#B45309",
+            border: "rgba(15, 23, 42, 0.10)",
+            border_icon: "rgba(15, 23, 42, 0.10)",
+            color_icon: good ? "#15803D" : "#B45309",
+            background_bar: good ? "#15803D" : "#B45309",
+                                    */
+                                }
+                                <Typography>{t('best')}</Typography>
+                                <EmojiEventsIcon sx={{ color: hasMaxStats ? colorBest?.color_icon : 'red', fontSize: '30px' }} />
+
+                                <CircularProgressStatComponent progress={42} stat={bestStat} />
+                                <Typography sx={{ color: colorBest?.color }}>{t(bestStat?.status)?.toUpperCase()}</Typography>
+                                <Chip size="small" label={getFormattedDateNumeric(bestStat?.end_date)} sx={{
+                                    fontWeight: 950,
+                                    bgcolor: colorBest?.background_bubble,
+                                    color: colorBest?.color,
+                                    border: `1px solid ${colorBest?.border}`,
+                                }} />
+                            </Stack>
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 'auto' }} sx={{ background: '' }} alignItems={'center'}>
+                            <Stack justifyContent={'center'} alignItems={'center'} spacing={1}>
+                                {
+                                    /*
+                                            background: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+            background_icon: good ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
+            glow: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+            color: good ? "#15803D" : "#B45309",
+            border: "rgba(15, 23, 42, 0.10)",
+            border_icon: "rgba(15, 23, 42, 0.10)",
+            color_icon: good ? "#15803D" : "#B45309",
+            background_bar: good ? "#15803D" : "#B45309",
+                                    */
+                                }
+                                <Typography>{t('best')}</Typography>
+                                <EmojiEventsIcon sx={{ color: hasMaxStats ? colorBest?.color_icon : 'red', fontSize: '30px' }} />
+
+                                <CircularProgressStatComponent progress={42} stat={bestStat} />
+                                <Typography sx={{ color: colorBest?.color }}>{t(bestStat?.status)?.toUpperCase()}</Typography>
+                                <Chip size="small" label={getFormattedDateNumeric(bestStat?.end_date)} sx={{
+                                    fontWeight: 950,
+                                    bgcolor: colorBest?.background_bubble,
+                                    color: colorBest?.color,
+                                    border: `1px solid ${colorBest?.border}`,
+                                }} />
+                            </Stack>
+                        </Grid>
+                    </Grid>
                 </Stack>
 
                 <LinearProgress
