@@ -113,6 +113,7 @@ export class ClassLesson {
         uid_intern = "",
         uid_teacher = "",
         teacher = null,
+        enabled=false,
         title = "",
         title_normalized = "",
         subtitle = "",
@@ -136,6 +137,7 @@ export class ClassLesson {
         this._uid_intern = uid_intern;
         this._uid_teacher = uid_teacher;
         this._teacher = teacher;
+        this._enabled=enabled;
         this._title = title;
         this._title_normalized = title_normalized;
         this._subtitle = subtitle;
@@ -188,6 +190,15 @@ export class ClassLesson {
     set teacher(value) {
         this._teacher = value;
     }
+        // teacher
+    get enabled() {
+        return this._enabled;
+    }
+    set enabled(value) {
+        this._enabled = value;
+    }
+
+    
 
     // title
     get title() {
@@ -411,7 +422,7 @@ export class ClassLesson {
                 var end_date = ClassLesson._toJsDate(data.end_date);
                 var created_time = ClassLesson._toJsDate(data.created_time);
                 var last_edit_time = ClassLesson._toJsDate(data.last_edit_time);
-                const translates = Object.values(data.translates)?.map?.(trans=>new ClassLessonTranslate(trans));
+                const translates = Object.values(data.translates)?.map?.(trans => new ClassLessonTranslate(trans));
                 //console.log("uid lesson",uid, )
                 //console.log("translate classLesson", Object.values(data.translates))
                 return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time, translates });
@@ -466,7 +477,7 @@ export class ClassLesson {
         if (snap.exists()) {
             //const data = await snap.data();
             const lesson = snap.data();
-            const translate = lesson.translates?.find(item=>item.lang === lang);
+            const translate = lesson.translates?.find(item => item.lang === lang);
             lesson.translate = translate;
             //const translates = await ClassLessonTranslate.fetchListFromFirestore(uid);
             //const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
@@ -498,9 +509,9 @@ export class ClassLesson {
         const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
         const lessons = [];
-        for(const doc of qSnap.docs) {
+        for (const doc of qSnap.docs) {
             const lesson = doc.data();
-            const translate = lesson.translates?.find(item=>item.lang === lang);
+            const translate = lesson.translates?.find(item => item.lang === lang);
             lesson.translate = translate;
             lessons.push(lesson);
         }
@@ -711,8 +722,7 @@ export class ClassLessonTranslate {
         prerequisites = [],
         programs = [],
         target_audiences = [],
-
-
+        photo_url = "",
         created_time = new Date(),
         last_edit_time = new Date(),
     } = {}) {
@@ -725,6 +735,7 @@ export class ClassLessonTranslate {
         this._prerequisites = Array.isArray(prerequisites) ? prerequisites : [];
         this._programs = Array.isArray(programs) ? programs : [];
         this._target_audiences = Array.isArray(target_audiences) ? target_audiences : [];
+        this._photo_url = photo_url;
 
         this._subtitle = subtitle;
         this._title = title;
@@ -796,6 +807,15 @@ export class ClassLessonTranslate {
     set target_audiences(value) {
         this._target_audiences = Array.isArray(value) ? value : [];
     }
+
+    // photo_url
+    get photo_url() {
+        return this._photo_url;
+    }
+    set photo_url(value) {
+        this._photo_url = value;
+    }
+
 
     // subtitle
     get subtitle() {

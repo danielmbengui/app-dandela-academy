@@ -116,9 +116,9 @@ function LessonsComponent() {
     // setUsers(list);
   }, []);
   useEffect(() => {
-    console.log("search =", filter.search);
-    let list = [...lessons];
-    if(filter.search.length) {
+    console.log("search =", filter.search,lessons);
+    let list = [...lessons.filter(l=>l.enabled===true)];
+    if (filter.search.length) {
       list = list.filter((u) => {
         const cond_title = u.translate.title.toLowerCase().includes(filter.search.toLowerCase());
         const cond_category = t(u.category)?.toLowerCase().includes(filter.search.toLowerCase());
@@ -137,7 +137,7 @@ function LessonsComponent() {
             <FieldComponent
               name={'search'}
               value={filter.search || ""}
-              placeholder={t('placeholder_search', {ns:NS_LESSONS})}
+              placeholder={t('placeholder_search', { ns: NS_LESSONS })}
               fullWidth
               type='text'
               onChange={(e) => {
@@ -168,7 +168,7 @@ function LessonsComponent() {
           <div className="table-body">
             {lessonsFilter.length === 0 && (
               <div className="empty-state">
-                {t('not-found', { ns: NS_LESSONS})}
+                {t('not-found', { ns: NS_LESSONS })}
               </div>
             )}
 
@@ -321,8 +321,8 @@ function LessonsComponent() {
           letter-spacing: 0.06em;
           color: ${'white'};
           font-weight: 500;
-          border-bottom: 1px solid ${'black'};
-          background: ${'black'};
+          border-bottom: 0.1px solid var(--card-border);
+          background: var(--blackColor);
         }
 
         @media (max-width: 900px) {
@@ -358,7 +358,7 @@ function LessonsComponent() {
     </div>
   );
 }
-function LessonRow({ lesson = null, lastChild = false}) {
+function LessonRow({ lesson = null, lastChild = false }) {
   const router = useRouter();
   const { theme } = useThemeMode();
   const { greyLight, cardColor, text } = theme.palette;
@@ -368,7 +368,7 @@ function LessonRow({ lesson = null, lastChild = false}) {
   const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
   const roleCfg = FORMAT_CONFIG[lesson?.format];
   const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
-
+  console.log("LESSON", lesson)
   return (
     <>
       <div className={`row ${lastChild ? 'last-child' : ''}`}>
@@ -377,7 +377,7 @@ function LessonRow({ lesson = null, lastChild = false}) {
           {
             lesson?.photo_url && <Box sx={{ background: '', width: '50%' }}>
               <Image
-                src={lesson?.photo_url || ''}
+                src={lesson?.translate?.photo_url || '/'}
                 alt={`lesson-${lesson?.uid}`}
                 quality={100}
                 width={300}

@@ -157,7 +157,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             //setMostResentStat(_most_recent_stat);
             //setLastStat(_stats.length > 0 ? _stats[0] : null);
             setIsLoading(false);
-            //setStats(_stats);
+            setStats(_stats);
             //setIsLoadingSlots(false);
         });
         return snapshotStats;
@@ -367,6 +367,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         var maxScore = 0;
         var maxStat = null;
         var sortedStats = statsParam.sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
+        //console.log("getMostRecentStat", stats)
         if (!sortedStats.length) return null;
         if (uidLesson && uidChapter) {
             sortedStats = sortedStats.filter(s => s.uid_lesson === uidLesson && s.uid_chapter === uidChapter);

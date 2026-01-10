@@ -215,6 +215,7 @@
 .dark {
   --blackColor: #1c1c1c;
   --background-menu:#000000;
+  --background-menu: rgba(0,0,0,0.5);
   --primary: #2676ff;
   --primary-dark: #000000;
   --primary-shadow: rgba(38, 118, 255, 0.45);

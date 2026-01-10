@@ -66,6 +66,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 height: '100vh',
                 width: '100%',
                 background: 'var(--background-menu)',
+                //backgroundColor:'red',
                 //backgroundImage: 'url("/images/login/back.png")',
                 //backgroundSize: 'cover',        // l'image couvre tout l'écran
                 //backgroundPosition: 'center',   // centrée
@@ -210,7 +211,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 elevation={0}
                 position="fixed"
                 sx={{
-                    background: 'var(--background-menu)'
+                    background: 'var(--background-menu)', 
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
@@ -289,7 +290,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             </Box>
             <Box
                 component="main"
-                sx={{ background: '', width: '100vw', position: 'relative' }}
+                sx={{background: 'var(--background-menu)', width: '100vw', position: 'relative' }}
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }} />
                 <Container disableGutters maxWidth={'xl'} sx={{

@@ -382,9 +382,9 @@ export default function LessonComponent() {
               {lesson?.translate?.description}
             </p>
             {
-              lesson?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
+              lesson?.translate?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
                 <Image
-                  src={lesson?.photo_url || ''}
+                  src={lesson?.translate?.photo_url || ''}
                   alt={`lesson-${lesson?.uid}`}
                   quality={100}
                   width={300}

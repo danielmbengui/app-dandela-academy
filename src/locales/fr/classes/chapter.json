@@ -18,6 +18,7 @@
   "exercises": "Exercice pratique",
   "progression": "Progression",
   "count-completed-quiz": "{{count}} questionnaire(s) complété(s)",
+  "btn-previous-chapter": "Chapitre précédent",
   "btn-see-stats": "Voir les résultats",
   "btn-see-chapter": "Voir le chapitre",
   "title-tip": "Prérequis",

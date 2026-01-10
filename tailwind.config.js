@@ -95,7 +95,7 @@ module.exports = {
       colors: {
         blue: "#465fe9",
         darkBlue: "#212529",
-        "blue-light": "#d5eaff",
+        "blue-light": "var(--primary-shadow-sm)",
         "blue-light2": "#e5eded",
         "blue-light1": "#e7f1ff",
         "blue-x-light": "#e9ecef",
