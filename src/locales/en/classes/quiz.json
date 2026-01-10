@@ -20,7 +20,7 @@
     "score": "You scored: <caption>{{score}}</caption>",
     "percentage": "Correct answers: <caption>{{percentage}}%</caption>",
     "time": "Quiz duration: <caption>{{duration}}</caption>",
-    "next-trying-date": "You must wait before trying again!<br/>Next attempt: <b>{{nextDate}}</b>",
+    "next-trying-date": "You must wait before trying again! Next attempt: <b>{{nextDate}}</b>",
     "congrats": "Well done!",
     "max-score": "You achieved the maximum score for this quiz!",
     "max-answer": "{{score}} / {{total}}"

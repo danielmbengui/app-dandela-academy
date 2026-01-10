@@ -20,7 +20,7 @@
     "score": "Tu as obtenu : <caption>{{score}}</caption>",
     "percentage": "Réponses correctes : <caption>{{percentage}}%</caption>",
     "time": "Durée du test : <caption>{{duration}}</caption>",
-    "next-trying-date": "Tu dois attendre avant de retenter ta chance !<br/>Prochaine tentative : <b>{{nextDate}}</b>",
+    "next-trying-date": "Tu dois attendre avant de retenter ta chance ! Prochaine tentative : <b>{{nextDate}}</b>",
     "congrats": "Bravo !",
     "max-score": "Tu as obtenu le maximum de points pour ce questionnaire !",
     "max-answer": "{{score}} / {{total}}"

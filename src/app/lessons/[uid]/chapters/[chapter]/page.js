@@ -727,19 +727,21 @@ const NewQuizComponent = () => {
     useEffect(() => {
         if (user && chapter && chapter?.quiz?.questions?.length > 0) {
             const _questions = chapter.quiz.questions;
+            const _answers = _questions.map(q => ({
+                uid_question: q.uid_intern,
+                uid_answer: q.translate?.answer?.uid_intern,
+                uid_proposal: '',
+            }));
             setQuestions(_questions);
             setStat(new ClassUserStat({
                 //uid_user: user.uid,
                 //uid_lesson: chapter?.uid_lesson,
                 //uid_chapter: chapter?.uid,
                 start_date: new Date(),
+                answers: _answers,
             }))
             //const arr = Array(chapter.quiz.questions.length).fill({});
-            setAnswers(_questions.map(q => ({
-                uid_question: q.uid_intern,
-                uid_answer: q.translate?.answer?.uid_intern,
-                uid_proposal: '',
-            })));
+            setAnswers(_answers);
         } else {
             setQuestions([]);
             setAnswers([]);
@@ -751,7 +753,18 @@ const NewQuizComponent = () => {
 
         const time = 1000;
         const intervalId = setInterval(() => {
-            setDuration(prev => prev + 1);
+            setDuration(prev => {
+                const _duration = prev + 1;
+                setStat(prev => {
+                    if (!prev || prev === null) return new ClassUserStat({
+                        start_date: new Date(),
+                    });
+                    prev.update({ duration: _duration });
+                    return prev.clone();
+                })
+                return _duration;
+            });
+
         }, time);
 
         return () => clearInterval(intervalId);
@@ -806,120 +819,132 @@ const NewQuizComponent = () => {
         <Typography>{`${t('quiz-duration')} : ${formatChrono(duration)}`}</Typography>
         <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
             {
-                <Typography sx={{ fontWeight: 500 }}>{question?.uid_intern}. {question?.translate?.question}</Typography>
-            }
-            {
-                proposals?.map?.((proposal, i) => {
-                    //console.log("PROP", proposal)
-                    return (<CheckboxComponent
-                        checked={answers[index].uid_proposal === proposal.uid_intern}
-                        onChange={(e) => {
-                            const _answers = [...answers];
-                            _answers[index] = { ..._answers[index], uid_proposal: proposal.uid_intern };
-                            setAnswers(_answers)
-                        }}
-                        //name={`proposal${i}`} 
-                        key={`${proposal.uid_intern}-${i}`}
-                        label={proposal.value}
-                    />)
-                })
-            }
-            {
-                <AlertComponent
-                    severity="success"
-                    title={<Trans
-                        t={t}
-                        i18nKey={'finished.title'}
-                        components={{
-                            b: <strong />,
-                            //br: <br />,
-                        }}
-                    />}
-                    subtitle={<Stack spacing={5} sx={{ py: 1 }}>
-                        <Typography sx={{ color: 'inherit', fontWeight: 500 }} variant="caption">
-                            <Trans
-                                t={t}
-                                i18nKey={'finished.score'}
-                                values={{
-                                    score: `${stat?.score}/${stat?.answers?.length}`,
-                                    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                    //duration: formatChrono(duration),
-                                }}
-                                components={{
-                                    caption: <Typography variant="caption" sx={{ color: 'inherit' }} />,
-                                    //br: <br />,
-                                }}
-                            />
-                        </Typography>
-                        <Typography sx={{ color: 'inherit' }} variant="caption">
-                            <Trans
-                                t={t}
-                                i18nKey={'finished.percentage'}
-                                values={{
-                                    //score: `${stat?.score}/${stat?.answers?.length}`,
-                                    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                    percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                    //duration: formatChrono(duration),
-                                }}
-                                components={{
-                                    caption: <Typography variant="caption" sx={{ color: 'inherit' }} />,                                    //br: <br />,
-                                }}
-                            />
-                        </Typography>
-                        <Typography sx={{ color: 'inherit' }} variant="caption">
-                            <Trans
-                                t={t}
-                                i18nKey={'finished.time'}
-                                values={{
-                                    //score: `${stat?.score}/${stat?.answers?.length}`,
-                                    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                    duration: formatChrono(stat?.duration),
-                                }}
-                                components={{
-                                   caption: <Typography variant="caption" sx={{color:'inherit'}} />,
-                                    //br: <br />,
-                                }}
-                            />
-                        </Typography>
-                        <Typography sx={{ color: 'inherit' }} variant="caption">
-                            <Trans
-                                t={t}
-                                i18nKey={stat?.score === stats?.answers?.length ? 'finished.max-score' : 'finished.next-trying-date'}
-                                values={{
-                                    //score: `${stat?.score}/${stat?.answers?.length}`,
-                                    nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-                                    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-                                    //duration: formatChrono(duration),
-                                }}
-                                components={{
-                                    caption: <Typography variant="caption" sx={{color:'inherit'}} />,
-                                    b: <strong />,
-                                }}
-                            />
-                        </Typography>
-                    </Stack>
+                !finished && <>
+                    {
+                        <Typography sx={{ fontWeight: 500 }}>{question?.uid_intern}. {question?.translate?.question}</Typography>
                     }
-                />
+                    {
+                        proposals?.map?.((proposal, i) => {
+                            //console.log("PROP", proposal)
+                            return (<CheckboxComponent
+                                checked={answers[index].uid_proposal === proposal.uid_intern}
+                                onChange={(e) => {
+                                    const _answers = [...answers];
+                                    _answers[index] = { ..._answers[index], uid_proposal: proposal.uid_intern };
+                                    setAnswers(_answers)
+                                }}
+                                //name={`proposal${i}`} 
+                                key={`${proposal.uid_intern}-${i}`}
+                                label={proposal.value}
+                            />)
+                        })
+                    }
+                    <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
+                        {
+                            index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
+                        }
+                        {
+                            index < questions?.length - 1 && <ButtonConfirm
+                                onClick={goNext}
+                                disabled={index === questions?.length - 1 || !answers[index].uid_proposal}
+                                label={t('next', { ns: NS_BUTTONS })} />
+                        }
+                        {
+                            index === questions?.length - 1 && <ButtonConfirm
+                                onClick={submitQuiz}
+                                disabled={index < questions?.length - 1 || !answers[questions?.length - 1].uid_proposal}
+                                label={t('save', { ns: NS_BUTTONS })} />
+                        }
+                    </Stack>
+                </>
             }
-            <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
-                {
-                    index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
-                }
-                {
-                    index < questions?.length - 1 && <ButtonConfirm
-                        onClick={goNext}
-                        disabled={index === questions?.length - 1 || !answers[index].uid_proposal}
-                        label={t('next', { ns: NS_BUTTONS })} />
-                }
-                {
-                    index === questions?.length - 1 && <ButtonConfirm
-                        onClick={submitQuiz}
-                        disabled={index < questions?.length - 1 || !answers[questions?.length - 1].uid_proposal}
-                        label={t('save', { ns: NS_BUTTONS })} />
-                }
-            </Stack>
+            {
+                finished && <>
+                    {
+                        stat?.score < stat?.answers?.length && <AlertComponent
+                            severity="success"
+                            title={<Trans
+                                t={t}
+                                i18nKey={'finished.title'}
+                                components={{
+                                    b: <strong />,
+                                    //br: <br />,
+                                }}
+                            />}
+                            subtitle={<Stack spacing={0.5} sx={{ py: 1 }}>
+                                <Typography sx={{ color: 'inherit', fontWeight: 500 }} variant="caption">
+                                    <Trans
+                                        t={t}
+                                        i18nKey={'finished.score'}
+                                        values={{
+                                            score: `${stat?.score}/${stat?.answers?.length}`,
+                                            //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                            //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                            //duration: formatChrono(duration),
+                                        }}
+                                        components={{
+                                            caption: <Typography variant="caption" sx={{ color: 'inherit' }} />,
+                                            //br: <br />,
+                                        }}
+                                    />
+                                </Typography>
+                                <Typography sx={{ color: 'inherit', fontWeight: 500 }} variant="caption">
+                                    <Trans
+                                        t={t}
+                                        i18nKey={'finished.percentage'}
+                                        values={{
+                                            //score: `${stat?.score}/${stat?.answers?.length}`,
+                                            //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                            percentage: stat ? (stat?.score / stat?.answers?.length * 100).toFixed(2) : 0,
+                                            //duration: formatChrono(duration),
+                                        }}
+                                        components={{
+                                            caption: <Typography variant="caption" sx={{ color: 'inherit' }} />,                                    //br: <br />,
+                                        }}
+                                    />
+                                </Typography>
+                                <Typography sx={{ color: 'inherit', fontWeight: 500 }} variant="caption">
+                                    <Trans
+                                        t={t}
+                                        i18nKey={'finished.time'}
+                                        values={{
+                                            //score: `${stat?.score}/${stat?.answers?.length}`,
+                                            //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+                                            //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                            duration: formatChrono(stat?.duration),
+                                        }}
+                                        components={{
+                                            caption: <Typography variant="caption" sx={{ color: 'inherit' }} />,
+                                            //br: <br />,
+                                        }}
+                                    />
+                                </Typography>
+                                <br />
+                                <Typography sx={{ color: 'inherit' }} variant="caption">
+                                    <Trans
+                                        t={t}
+                                        i18nKey={stat?.score === stats?.answers?.length ? 'finished.max-score' : 'finished.next-trying-date'}
+                                        values={{
+                                            //score: `${stat?.score}/${stat?.answers?.length}`,
+                                            nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date) || new Date(),
+                                            //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+                                            //duration: formatChrono(duration),
+                                        }}
+                                        components={{
+                                            caption: <Typography variant="caption" sx={{ color: 'inherit' }} />,
+                                            b: <strong />,
+                                        }}
+                                    />
+                                </Typography>
+                            </Stack>
+                            }
+                        />
+                    }
+                    {
+                        stat?.score === stat?.answers?.length && <CongratulationsComponent stat={stat} />
+                    }
+                </>
+            }
         </Stack>
     </Grid>)
 }
@@ -1162,11 +1187,19 @@ const CardQuizz = ({
                                         //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
                                         <ButtonConfirm label={t('btn-start')} onClick={startQuiz} />
                                     }
+                                    {
+                                         // index < 0 &&
+                                        //canStartQuiz &&
+                                        (mostResentStat && (bestStat && bestStat.score < bestStat.answers?.length)) &&
+                                        <Link href={`${PAGE_STATS}/${mostResentStat?.uid}`}>
+                                            <ButtonConfirm label={t('btn-see-answers')} />
+                                        </Link>
+                                    }
                                 </Stack>
                             }
                             <Grid container spacing={{ xs: 0.5, sm: 1 }} alignItems={'start'} sx={{ background: '', width: '100%', maxWidth: '100vw', }}>
                                 {
-                                    //index > 0 && 
+                                    index > 0 &&
                                     <NewQuizComponent />
                                 }
                             </Grid>
@@ -1225,7 +1258,7 @@ export default function ExcelBeginnerCoursePage() {
     const [hasPreviousStats, setHasPreviousStats] = useState(false);
     const [previousChapter, setPreviousChapter] = useState(null);
     const [process, setProcess] = useState(false);
-    const [indexSub, setIndexSub] = useState(8);
+    const [indexSub, setIndexSub] = useState(0);
     const onTranslate = async () => {
         try {
             setProcess(true);
