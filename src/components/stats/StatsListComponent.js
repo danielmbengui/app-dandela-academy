@@ -177,17 +177,14 @@ export default function StatsListComponent() {
         }
         return out;
     }, [data]);
-
     const filteredCourses = useMemo(() => {
         if (courseFilter === "ALL") return data.courses;
         return data.courses.filter((c) => c.uid === courseFilter);
     }, [data.courses, courseFilter]);
-
     const filteredAttempts = useMemo(() => {
         if (courseFilter === "ALL") return allChaptersAttempts;
         return allChaptersAttempts.filter((a) => a.course_uid === courseFilter);
     }, [allChaptersAttempts, courseFilter]);
-
     const globalStats = useMemo(() => {
         if (!allChaptersAttempts.length) return emptyStats();
 
@@ -217,7 +214,6 @@ export default function StatsListComponent() {
             worst,
         };
     }, [allChaptersAttempts]);
-
     const filteredStats = useMemo(() => {
         if (!filteredAttempts.length) return emptyStats();
 

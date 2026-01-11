@@ -3,7 +3,7 @@ import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, CircularProgress, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Grid, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -342,7 +342,7 @@ export default function LessonComponent() {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
-  const {path} = usePathname();
+  const { path } = usePathname();
   //const [lesson, setLesson] = useState(null);
   const { lesson } = useLesson();
   const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
@@ -355,20 +355,15 @@ export default function LessonComponent() {
   const isFull = seatsLeft <= 0 && !isEnrolled;
   const formatCfg = FORMAT_CONFIG[lesson?.format];
 
-  return (<Stack sx={{color:"var(--font-color)"}}>
+  return (<Stack sx={{ color: "var(--font-color)" }}>
     <div className="page">
       <main className="container">
         <section className="hero-card">
           <div className="hero-left">
-            {
-              user instanceof ClassUserIntern && <div style={{ marginBottom: '10px' }}>
-                <BadgeStatusLesson status={lesson?.status} />
-              </div>
-            }
             <p className="breadcrumb">{t(lesson?.category).toUpperCase()}</p>
-            <h1 style={{color:"var(--font-color)"}}>{lesson?.translate?.title}</h1>
+            <h1 style={{ color: "var(--font-color)" }}>{lesson?.translate?.title}</h1>
             <p className="muted">
-              {t('subtitle', { ns: NS_LESSONS_ONE })}
+              {lesson?.translate?.subtitle}
             </p>
 
             <div className="badges">
@@ -407,30 +402,30 @@ export default function LessonComponent() {
           <aside className="hero-right">
             {/* PROFESSEUR */}
             <div className="teacher-card">
-              <p className="teacher-label-text">{t('title-online', {ns:NS_LESSONS_ONE})}</p>
-              <List dense disablePadding sx={{mb:1.5}}>
+              <p className="teacher-label-text">{t('title-online', { ns: NS_LESSONS_ONE })}</p>
+              <List dense disablePadding sx={{ mb: 1.5 }}>
                 {
                   chapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((chapter, i) => {
                     return (<ListItem key={`${chapter.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
                       <Link href={`${PAGE_LESSONS}/${chapter.uid_lesson}${PAGE_CHAPTERS}/${chapter.uid}`}>
-                      <Stack direction={'row'} alignItems={'center'} spacing={1}
-                        //onClick={() => setIndex(i)}
-                        sx={{
-                          //color: index === i ? 'var(--primary)' : '',
-                          ":hover": {
-                            color: 'var(--primary)',
-                            cursor: 'pointer',
-                          }
-                        }}>
-                        <Typography sx={{ fontSize: '0.85rem' }} >{`${chapter.uid_intern}. `}{chapter.translate?.title}</Typography>
-                      </Stack>
+                        <Stack direction={'row'} alignItems={'center'} spacing={1}
+                          //onClick={() => setIndex(i)}
+                          sx={{
+                            //color: index === i ? 'var(--primary)' : '',
+                            ":hover": {
+                              color: 'var(--primary)',
+                              cursor: 'pointer',
+                            }
+                          }}>
+                          <Typography sx={{ fontSize: '0.85rem' }} >{`${chapter.uid_intern}. `}{chapter.translate?.title}</Typography>
+                        </Stack>
                       </Link>
                     </ListItem>)
                   })
                 }
               </List>
               <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}`}>
-              <ButtonConfirm label={t('follow-online', {ns:NS_LESSONS_ONE})} />
+                <ButtonConfirm label={t('follow-online', { ns: NS_LESSONS_ONE })} />
               </Link>
             </div>
             <TeacherComponent />
@@ -447,6 +442,21 @@ export default function LessonComponent() {
           </aside>
         </section>
 
+        {
+          lesson?.translate?.tags?.length > 0 && <Grid spacing={1} container sx={{mb: 1 }}>
+            {lesson?.translate?.tags?.map((item, i) => (
+              <Grid size={{ xs: 12, sm: 4 }} key={`${item.title}${i}`}>
+                <div className="card">
+                  <h2>{item.title}</h2>
+                  <p className="description">{item.subtitle}</p>
+                </div>
+              </Grid>
+            ))}
+          </Grid>
+
+        }
+
+
 
         {/* GRID PRINCIPALE */}
         <section className="grid">
@@ -456,44 +466,52 @@ export default function LessonComponent() {
               <h2>{t('description')}</h2>
               <p className="description">{lesson?.translate?.description}</p>
             </div>
-            <div className="card">
-              <h2>{t('goals')}</h2>
-              <ul className="list">
-                {lesson?.translate?.goals?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="card">
-              <h2>{t('programs')}</h2>
-              <ol className="list ordered">
-                {lesson?.translate?.programs?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ol>
-            </div>
-            <div className="card">
-              <h2>{t('prerequisites')}</h2>
-              <ul className="list">
-                {lesson?.translate?.prerequisites?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="card">
-              <h2>{t('target_audiences')}</h2>
-              <ul className="list">
-                {lesson?.translate?.target_audiences?.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            {
+              lesson?.translate?.goals?.length > 0 && <div className="card">
+                <h2>{t('goals')}</h2>
+                <ul className="list">
+                  {lesson.translate.goals.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            }
+            {
+              lesson?.translate?.programs?.length > 0 && <div className="card">
+                <h2>{t('programs')}</h2>
+                <ol className="list ordered">
+                  {lesson.translate.programs.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ol>
+              </div>
+            }
+            {
+              lesson?.translate?.prerequisites?.length > 0 && <div className="card">
+                <h2>{t('prerequisites')}</h2>
+                <ul className="list">
+                  {lesson.translate.prerequisites.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            }
+            {
+              lesson?.translate?.target_audiences?.length > 0 && <div className="card">
+                <h2>{t('target_audiences')}</h2>
+                <ul className="list">
+                  {lesson.translate.target_audiences.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            }
           </div>
 
           {/* COL DROITE : infos pratiques & certification */}
           <div className="side-col">
             <div className="card">
-              <h2>{t('certification')}</h2>
+              <h2>{"🎓"} {t('certification')}</h2>
               {lesson?.certified ? (
                 <>
                   <p className="cert-main">
@@ -520,11 +538,26 @@ export default function LessonComponent() {
               )}
             </div>
 
-            <div className="card">
+            {
+              lesson?.translate?.materials?.length>0 && <div className="card">
+              <h2>{t('materials')}</h2>
+              <ul className="list small">
+                {
+                  lesson.translate.materials.map((material, index) => {
+                    return (<li key={`${material}-${index}`}>
+                      {material}
+                    </li>)
+                  })
+                }
+              </ul>
+            </div>
+            }
+            {
+              lesson?.translate?.notes?.length>0 && <div className="card">
               <h2>{t('notes')}</h2>
               <ul className="list small">
                 {
-                  lesson?.translate?.notes?.map((note, index) => {
+                  lesson.translate.notes.map((note, index) => {
                     return (<li key={`${note}-${index}`}>
                       {note}
                     </li>)
@@ -532,6 +565,7 @@ export default function LessonComponent() {
                 }
               </ul>
             </div>
+            }
           </div>
         </section>
       </main>
@@ -897,8 +931,9 @@ export default function LessonComponent() {
                 }
         
                 .list {
+                  list-style: none;
+                  padding-left: 0;
                   margin: 0;
-                  padding-left: 18px;
                   font-size: 0.88rem;
                             color: var(--grey-light);
                               color: var(--font-color);
@@ -906,6 +941,14 @@ export default function LessonComponent() {
         
                 .list li {
                   margin-bottom: 4px;
+                  position: relative;
+                  padding-left: 0.75rem;
+                }
+
+                .list li::before {
+                  content: "-";
+                  position: absolute;
+                  left: 0;
                 }
         
                 .list.ordered {

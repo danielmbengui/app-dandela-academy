@@ -27,11 +27,13 @@ import { firestore } from './firebase/config';
 const StatContext = createContext(null);
 export const useStat = () => useContext(StatContext);
 
-export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
+export function StatProvider({ children}) {
     const { lang } = useLanguage();
     const { user } = useAuth();
-    const { lesson, lessons, setUidLesson, getOneLesson } = useLesson();
-    const { chapter, chapters, setUidChapter, getOneChapter } = useChapter();
+    const { lesson, lessons, getOneLesson } = useLesson();
+    const { chapter, chapters, getOneChapter } = useChapter();
+    const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
+    const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
     //if(!lesson || !chapter) return;
     useEffect(() => {
         async function init() {
@@ -499,7 +501,8 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         //setFilterStatus,
         isLoading,
         isLoadingSlots,
-        //setUidChapter,
+        setUidChapter,
+        setUidLesson,
         setUidStat,
         stat,
         lastStat,

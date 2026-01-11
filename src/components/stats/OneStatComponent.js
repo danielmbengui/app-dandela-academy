@@ -13,6 +13,7 @@ import {
     LinearProgress,
     ToggleButton,
     ToggleButtonGroup,
+    IconButton,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -29,8 +30,8 @@ import SelectComponentDark from "../elements/SelectComponentDark";
 import { useTranslation } from "react-i18next";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useChapter } from "@/contexts/ChapterProvider";
-import { IconCalendar, IconDuration, IconStats } from "@/assets/icons/IconsComponent";
-import { cutString, formatChrono, getFormattedDateNumeric } from "@/contexts/functions";
+import { IconArrowBack, IconArrowRight, IconCalendar, IconDuration, IconStats } from "@/assets/icons/IconsComponent";
+import { capitalizeFirstLetter, cutString, formatChrono, getFormattedDateNumeric } from "@/contexts/functions";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { ClassLessonChapterQuiz } from "@/classes/lessons/ClassLessonChapterQuiz";
 /**
@@ -50,12 +51,25 @@ export default function OneStatComponent() {
     const { stats, isLoading: isLoadingStats, stat, getOneStatIndex, setUidStat } = useStat();
     const { chapters, setUidChapter, chapter } = useChapter();
     const router = useRouter();
+    
+    
     useEffect(() => {
         if (!isLoadingStats) {
             stats.map(stat => router.prefetch(`${PAGE_STATS}/${stat.uid}`));
             console.log("chapter", stat?.chapter)
         }
     }, [isLoadingStats])
+
+    const statsFiltered = useMemo(() => {
+        var _stats = [...stats].filter(s => s.uid_chapter === stat?.uid_chapter);
+        console.log("????????", _stats)
+        return _stats;
+    }, [stats, stat]);
+    const indexStat = useMemo(() => {
+        return statsFiltered.findIndex(s=>s.uid === stat?.uid);
+    }, [stats, stat]);
+    const disabledBack = indexStat === 0;
+    const disabledNext = indexStat === statsFiltered.length - 1;
 
     // ---- MOCK (remplace par Firestore) ----
     const attempt = useMemo(
@@ -88,8 +102,8 @@ export default function OneStatComponent() {
             const _proposal_text = q.translate?.proposals.find(p => p.uid_intern === _answer.uid_proposal);
             const _answer_text = q.translate?.proposals.find(p => p.uid_intern === _answer.uid_answer);
             q.answer = _answer;
-            q.answer_text = _answer_text.value;
-            q.proposal_text = _proposal_text.value;
+            q.answer_text = _answer_text?.value;
+            q.proposal_text = _proposal_text?.value;
             //q.answer = _answer;
             q.is_correct = _answer?.uid_answer === _answer?.uid_proposal;
             return q;
@@ -98,6 +112,10 @@ export default function OneStatComponent() {
         if (filter === "wrong") return _questions.filter((q) => !q.is_correct);
         return _questions;
     }, [attempt.uid, attempt.questions, filter]);
+
+    useEffect(() => {
+        console.log("filtereeeeeeed", statsFiltered)
+    }, [statsFiltered])
 
     return (
         <Stack spacing={1}>
@@ -113,6 +131,35 @@ export default function OneStatComponent() {
                 />
             </Stack>
             <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 1 }}>
+                <IconButton
+                    disabled={disabledBack}
+                    onClick={() => {
+                        const currentIndex = getOneStatIndex(stat?.uid);
+                        const uid = stats?.[currentIndex - 1]?.uid || "";
+                        //setUidStat(uid);
+                        router.push(`${PAGE_STATS}/${uid}`);
+                    }}
+                    sx={{
+                        color: !disabledBack ? 'var(--primary)' : ''
+                    }}
+                >
+                    <IconArrowBack />
+                </IconButton>
+                <Typography>{capitalizeFirstLetter(t('quiz'))} {indexStat + 1}{"/"}{statsFiltered.length}</Typography>
+                <IconButton
+                    disabled={disabledNext}
+                    onClick={() => {
+                        //const currentIndex = getOneStatIndex(stat?.uid);
+                        const uid = statsFiltered?.[indexStat + 1]?.uid || "";
+                        //setUidStat(uid);
+                        router.push(`${PAGE_STATS}/${uid}`);
+                    }}
+                    sx={{
+                        color: !disabledNext ? 'var(--primary)' : ''
+                    }}
+                >
+                    <IconArrowRight />
+                </IconButton>
                 <ButtonConfirm
                     disabled={getOneStatIndex(stat?.uid) === 0}
                     label="Précédent"
@@ -164,80 +211,80 @@ export default function OneStatComponent() {
                         <Grid container spacing={2} sx={{ width: '100%' }}>
                             <Grid size={{ xs: 12, sm: 3 }}>
                                 <Stack spacing={1}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        borderRadius: 5,
-                                        p: 2.2,
-                                        py: 2,
-                                        px: { xs: 1.5, sm: 2 },
-                                        border: "1px solid rgba(15, 23, 42, 0.10)",
-                                    }}
-                                >
-                                    <Stack spacing={1.2}>
-                                        <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
-                                            Répartition
-                                        </Typography>
-
-                                        <Stack direction="row" spacing={1} flexWrap="wrap">
-                                            <Chip
-                                                icon={<CheckCircleIcon />}
-                                                label={`${correctCount} bonnes`}
-                                                sx={chipGood}
-                                                variant="outlined"
-                                            />
-                                            <Chip
-                                                icon={<CancelIcon />}
-                                                label={`${wrongCount} fausses`}
-                                                sx={chipBad}
-                                                variant="outlined"
-                                            />
-                                        </Stack>
-
-                                        <Stack spacing={0.8}>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Bonnes réponses
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            borderRadius: 5,
+                                            p: 2.2,
+                                            py: 2,
+                                            px: { xs: 1.5, sm: 2 },
+                                            border: "1px solid rgba(15, 23, 42, 0.10)",
+                                        }}
+                                    >
+                                        <Stack spacing={1.2}>
+                                            <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
+                                                Répartition
                                             </Typography>
-                                            <LinearProgress
-                                                variant="determinate"
-                                                value={attempt.questions.length ? (correctCount / attempt.questions.length) * 100 : 0}
-                                                sx={{
-                                                    height: 10,
-                                                    borderRadius: 999,
-                                                    bgcolor: "rgba(34,197,94,0.10)",
-                                                    "& .MuiLinearProgress-bar": { bgcolor: "#22C55E", borderRadius: 999 },
-                                                }}
-                                            />
 
-                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-                                                Mauvaises réponses
+                                            <Stack direction="row" spacing={1} flexWrap="wrap">
+                                                <Chip
+                                                    icon={<CheckCircleIcon />}
+                                                    label={`${correctCount} bonnes`}
+                                                    sx={chipGood}
+                                                    variant="outlined"
+                                                />
+                                                <Chip
+                                                    icon={<CancelIcon />}
+                                                    label={`${wrongCount} fausses`}
+                                                    sx={chipBad}
+                                                    variant="outlined"
+                                                />
+                                            </Stack>
+
+                                            <Stack spacing={0.8}>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Bonnes réponses
+                                                </Typography>
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={attempt.questions.length ? (correctCount / attempt.questions.length) * 100 : 0}
+                                                    sx={{
+                                                        height: 10,
+                                                        borderRadius: 999,
+                                                        bgcolor: "rgba(34,197,94,0.10)",
+                                                        "& .MuiLinearProgress-bar": { bgcolor: "#22C55E", borderRadius: 999 },
+                                                    }}
+                                                />
+
+                                                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                                    Mauvaises réponses
+                                                </Typography>
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={attempt.questions.length ? (wrongCount / attempt.questions.length) * 100 : 0}
+                                                    sx={{
+                                                        height: 10,
+                                                        borderRadius: 999,
+                                                        bgcolor: "rgba(239,68,68,0.10)",
+                                                        "& .MuiLinearProgress-bar": { bgcolor: "#EF4444", borderRadius: 999 },
+                                                    }}
+                                                />
+                                            </Stack>
+
+                                            <Divider sx={{ borderColor: "rgba(15,23,42,0.10)" }} />
+
+                                            <Typography variant="body2" color="text.secondary">
+                                                Idées d’infos à afficher ici :
+                                                <br />• temps moyen par question
+                                                <br />• niveau (débutant / intermédiaire…)
+                                                <br />• progression vs dernière tentative
+                                                <br />• points forts / points faibles
                                             </Typography>
-                                            <LinearProgress
-                                                variant="determinate"
-                                                value={attempt.questions.length ? (wrongCount / attempt.questions.length) * 100 : 0}
-                                                sx={{
-                                                    height: 10,
-                                                    borderRadius: 999,
-                                                    bgcolor: "rgba(239,68,68,0.10)",
-                                                    "& .MuiLinearProgress-bar": { bgcolor: "#EF4444", borderRadius: 999 },
-                                                }}
-                                            />
                                         </Stack>
-
-                                        <Divider sx={{ borderColor: "rgba(15,23,42,0.10)" }} />
-
-                                        <Typography variant="body2" color="text.secondary">
-                                            Idées d’infos à afficher ici :
-                                            <br />• temps moyen par question
-                                            <br />• niveau (débutant / intermédiaire…)
-                                            <br />• progression vs dernière tentative
-                                            <br />• points forts / points faibles
-                                        </Typography>
+                                    </Paper>
+                                    <Stack>
+                                        <CongratulationsComponent stat={stat} />
                                     </Stack>
-                                </Paper>
-                                <Stack>
-                                    <CongratulationsComponent stat={stat} />
-                                </Stack>
                                 </Stack>
                             </Grid>
                             <Grid size={{ xs: 12, sm: 9 }}>

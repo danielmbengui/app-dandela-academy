@@ -117,7 +117,7 @@ function LessonsComponent() {
   }, []);
   useEffect(() => {
     console.log("search =", filter.search,lessons);
-    let list = [...lessons.filter(l=>l.enabled===true)];
+    let list = [...lessons];
     if (filter.search.length) {
       list = list.filter((u) => {
         const cond_title = u.translate.title.toLowerCase().includes(filter.search.toLowerCase());
@@ -126,7 +126,7 @@ function LessonsComponent() {
       });
     }
     setLessonsFilter(list);
-  }, [filter.search]);
+  }, [filter.search, lessons]);
   return (
     <div className="page">
       <main className="container">
@@ -375,9 +375,9 @@ function LessonRow({ lesson = null, lastChild = false }) {
         {/* Image */}
         <div className="cell cell-image">
           {
-            lesson?.photo_url && <Box sx={{ background: '', width: '50%' }}>
+            lesson?.translate?.photo_url && <Box sx={{ background: '', width: '50%' }}>
               <Image
-                src={lesson?.translate?.photo_url || '/'}
+                src={lesson?.translate?.photo_url}
                 alt={`lesson-${lesson?.uid}`}
                 quality={100}
                 width={300}

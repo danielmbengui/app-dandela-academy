@@ -142,22 +142,27 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         return snapshotChapters;
     }, [uidLesson]);
     const listenToOneChapter = useCallback((uidLesson = "", uidChapter = "") => {
-        if (!uidLesson || !uidChapter) {
+        if (!uidChapter) {
             setChapter(null);
             //setIsConnected(false);
             setIsLoading(false);
             return;
         }
         const uid = uidChapter;
-        const ref = ClassLessonChapter.docRef(uidLesson, uid);
-        const unsubscribe = onSnapshot(ref, async (snap) => {
-            if (!snap.exists()) {
+        const ref = ClassLessonChapter.colRef(); // par ex.;
+        const constraints = [where("uid", "==", uidChapter)];
+        if (uidLesson) {
+            constraints.push(where("uid_lesson", "==", uidLesson));
+        }
+        const q = query(ref, ...constraints);
+        const unsubscribe = onSnapshot(q, async (snap) => {
+            if (snap.empty) {
                 setChapter(null);
                 //setIsConnected(false);
                 setIsLoading(false);
                 return;
             }
-            const _chapter = snap.data();
+            const _chapter = snap.docs[0].data();
             //const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
             //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;

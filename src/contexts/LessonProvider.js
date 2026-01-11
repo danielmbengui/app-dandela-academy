@@ -11,15 +11,17 @@ import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { ClassLesson, ClassLessonTranslate } from '@/classes/ClassLesson';
 import { useLanguage } from './LangProvider';
-import { ClassUser, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserAdministrator, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
+import { useAuth } from './AuthProvider';
 
 
 const LessonContext = createContext(null);
 export const useLesson = () => useContext(LessonContext);
 
-export function LessonProvider({ children, uidTeacher=null }) {
+export function LessonProvider({ children, uidTeacher = null }) {
     const { lang } = useLanguage();
+    const { user } = useAuth();
     const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
@@ -36,7 +38,7 @@ export function LessonProvider({ children, uidTeacher=null }) {
     useEffect(() => {
         const listener = listenToLessons(uidTeacher);
         return () => listener?.();
-    }, [lang, uidTeacher]);
+    }, [lang, uidTeacher, user]);
     useEffect(() => {
         if (uidLesson) {
             const _lesson = getOneLesson(uidLesson);
@@ -49,56 +51,72 @@ export function LessonProvider({ children, uidTeacher=null }) {
     }, [uidLesson]);
     // écoute du doc utilisateur
     const listenToLessons = useCallback((uidTeacher) => {
+        //if(!user) return;
         const colRef = ClassLesson.colRef(); // par ex.
         const constraints = [];
-        if(uidTeacher) {
+        if (user && !(user instanceof ClassUserAdministrator)) {
+            constraints.push(where("enabled", "==", true));
+            console.log("is not admin")
+            //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
+        }
+        if (uidTeacher) {
             constraints.push(where("uid_teacher", "==", uidTeacher));
         }
-        const q = constraints.length
-                    ? query(colRef, ...constraints)
-                    : colRef;
+
+        console.log("user lesson proivder", user)
+
+        const q = constraints.length > 0
+            ? query(colRef, ...constraints)
+            : colRef;
         const snapshotLessons = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
+
             if (snap.empty) {
                 setLessons([]);
                 setLesson(null);
                 setIsLoading(false);
                 return;
             }
-            var _lessons = [];
-            for (const snapshot of snap.docs) {
-                const lesson = await snapshot.data();
+            console.log("constraints provider", snap.size)
+            try {
+                const _lessons = [];
+                //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
+                for (const snapshot of snap.docs) {
+                    const lesson = await snapshot.data();
 
-                const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
-                const translate = lesson.translates?.find(a => a.lang === lang);
-                const lesson_new = new ClassLesson({
-                    ...lesson.toJSON(),
-                    translate: translate,
-                    teacher: teacher,
+                    //const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
+                    const translate = lesson.translates?.find(a => a.lang === lang);
+                    const lesson_new = new ClassLesson({
+                        ...lesson.toJSON(),
+                        translate: translate,
+                        //teacher: teacher,
+                    });
+                    //lesson_new.translate = translate;
+                    //lesson_new.teacher = teacher;
+                    //console.log("lessons list provider", lesson_new)
+                    _lessons.push(lesson_new);
+                }
+
+                /*
+                var _lessons = snap.docs.map(async (doc) => {
+                    const lesson = doc.data();
+                    const translates = await ClassLessonTranslate.fetchListFromFirestore(lesson.uid);
+                    
+                    return new ClassLesson({
+                        ...lesson.toJSON(),
+                        translates:translates,
+                    })
                 });
-                //lesson_new.translate = translate;
-                //lesson_new.teacher = teacher;
-                //console.log("lessons list provider", lesson_new)
-                _lessons.push(lesson_new);
+                */
+                //_lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
+                setLessons(_lessons);
+                setIsLoading(false);
+            } catch (error) {
+                console.log("ERRROR", error)
             }
-
-            /*
-            var _lessons = snap.docs.map(async (doc) => {
-                const lesson = doc.data();
-                const translates = await ClassLessonTranslate.fetchListFromFirestore(lesson.uid);
-                
-                return new ClassLesson({
-                    ...lesson.toJSON(),
-                    translates:translates,
-                })
-            });
-            */
-            _lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
-            setLessons(_lessons);
-            setIsLoading(false);
         });
         return snapshotLessons;
-    }, []);
+    }, [user]);
     const listenToOneLesson = useCallback((uidLesson) => {
         if (!uidLesson) {
             setLesson(null);
@@ -126,7 +144,7 @@ export function LessonProvider({ children, uidTeacher=null }) {
             const lesson_new = new ClassLesson({
                 ..._lesson.toJSON(),
                 translate: translate,
-                teacher:teacher,
+                teacher: teacher,
             });
             //lesson_new.lesson = lesson;
             //lesson_new.teacher = teacher;
