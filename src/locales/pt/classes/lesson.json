@@ -6,9 +6,10 @@
   "chapters": "Capítulos",
   "subchapter": "Secção",
   "subchapters": "Secções",
-  "office": "Informática",
+  "office": "Bureautica",
+  "it": "Informática",
   "beginner": "Iniciante",
-  "intermediate": "Intermediário",
+  "intermediate": "Intermédio",
   "competent": "Competente",
   "advanced": "Avançado",
   "expert": "Especialista",
@@ -17,7 +18,7 @@
   "online": "Online",
   "open": "Inscrições abertas",
   "full": "Completo",
-  "finished": "Terminado",
+  "finished": "Concluído",
   "draft": "Rascunho",
   "certified": "Certificado pela Dandela Academy",
   "certified_short": "Certificado",
@@ -26,7 +27,7 @@
   "category": "Tipo",
   "format": "Formato",
   "location": "Local",
-  "schedule": "Horários",
+  "schedule": "Horário",
   "duration": "Duração",
   "duration_total": "Duração total",
   "duration_lesson": "{{duration}} de formação orientada",
@@ -43,16 +44,16 @@
   "certification_block": {
     "title": "🎓 Este curso dá direito a um certificado emitido pela Dandela Academy.",
     "items": [
-      "Declaração de participação com as competências adquiridas.",
+      "Certificado de participação com as competências adquiridas.",
       "Certificado entregue em formato PDF (e eventualmente em papel).",
       "Ideal para complementar um CV ou candidatura."
     ],
-    "no_certification": "Este curso não emite um certificado oficial, mas uma declaração de participação pode ser fornecida mediante pedido."
+    "no_certification": "Este curso não fornece um certificado oficial, mas um comprovativo de participação pode ser fornecido mediante pedido."
   },
   "notes": "Informações importantes",
   "seats_taken": "Inscritos",
   "seats_availables": "Vaga(s) restante(s)",
-  "multiple_payments": "Pagamento parcelado disponível",
+  "multiple_payments": "Pagamento em prestações disponível",
   "security": "Inscrição segura • Receberás um email de confirmação com todas as informações práticas.",
   "unknown": "Desconhecido",
   "btn-subscribe": "Inscrever-me neste curso"

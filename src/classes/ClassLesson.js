@@ -28,6 +28,7 @@ export class ClassLesson {
     });
     static CATEGORY = Object.freeze({
         OFFICE: 'office', // bureautique
+        IT: 'it', // informatique
         UNKNOWN: 'unknown',
     });
     static LEVEL = Object.freeze({
@@ -113,7 +114,7 @@ export class ClassLesson {
         uid_intern = "",
         uid_teacher = "",
         teacher = null,
-        enabled=false,
+        enabled = false,
         title = "",
         title_normalized = "",
         subtitle = "",
@@ -125,6 +126,7 @@ export class ClassLesson {
         programs = [],
         prerequisites = [],
         target_audiences = [],
+        materials = [],
         notes = [],
         photo_url = "",
         status = ClassLesson.STATUS.DRAFT,
@@ -137,7 +139,7 @@ export class ClassLesson {
         this._uid_intern = uid_intern;
         this._uid_teacher = uid_teacher;
         this._teacher = teacher;
-        this._enabled=enabled;
+        this._enabled = enabled;
         this._title = title;
         this._title_normalized = title_normalized;
         this._subtitle = subtitle;
@@ -149,6 +151,7 @@ export class ClassLesson {
         this._programs = programs;
         this._prerequisites = prerequisites;
         this._target_audiences = target_audiences;
+        this._materials = materials;
         this._notes = notes;
         this._photo_url = photo_url;
         this._status = status;
@@ -190,7 +193,7 @@ export class ClassLesson {
     set teacher(value) {
         this._teacher = value;
     }
-        // teacher
+    // teacher
     get enabled() {
         return this._enabled;
     }
@@ -198,7 +201,7 @@ export class ClassLesson {
         this._enabled = value;
     }
 
-    
+
 
     // title
     get title() {
@@ -288,6 +291,16 @@ export class ClassLesson {
         this._target_audiences = value;
     }
 
+    // target_audiences
+    get materials() {
+        return this._materials;
+    }
+    set materials(value) {
+        this._materials = value;
+    }
+
+
+
     // notes
     get notes() {
         return this._notes;
@@ -358,8 +371,32 @@ export class ClassLesson {
         );
         cleaned.teacher = null;
         cleaned.translate = null;
+        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
+        cleaned.title = null;
+        cleaned.subtitle = null;
+        cleaned.description = null;
+        cleaned.materials = null;
+        cleaned.goals = null;
+        cleaned.programs = null;
+        cleaned.prerequisites = null;
+        cleaned.target_audiences = null;
+        cleaned.materials = null;
+        cleaned.notes = null;
+        cleaned.photo_url = null;
+
         delete cleaned.teacher;
         delete cleaned.translate;
+        delete cleaned.title;
+        delete cleaned.subtitle;
+        delete cleaned.description;
+        delete cleaned.materials;
+        delete cleaned.goals;
+        delete cleaned.programs;
+        delete cleaned.prerequisites;
+        delete cleaned.target_audiences;
+        delete cleaned.materials;
+        delete cleaned.notes;
+        delete cleaned.photo_url;
         return cleaned;
     }
     update(props = {}) {
@@ -376,6 +413,18 @@ export class ClassLesson {
             ...this.toJSON(),
             teacher: this._teacher,
             translate: this._translate,
+            translates: this._translates,
+            title: this._title,
+            subtitle: this._subtitle,
+            description: this._description,
+            materials: this._materials,
+            goals: this._goals,
+            programs: this._programs,
+            prerequisites: this._prerequisites,
+            target_audiences: this._target_audiences,
+            materials: this._materials,
+            notes: this._notes,
+            photo_url: this._photo_url,
         });
         //return new ClassUser(this.toJSON());
     }
@@ -396,6 +445,17 @@ export class ClassLesson {
         return (true);
     }
     */
+    _convertTranslatesToFirestore(translates = []) {
+        var translatesObj = {};
+        for (const trans of translates) {
+            translatesObj[trans.lang] = trans.toJSON?.() || trans || {};
+        }
+        return translatesObj;
+    }
+    _convertTranslatesFromFirestore(translatesObj = {}) {
+        const translates = Object.values(translatesObj)?.map?.(trans => new ClassLessonTranslate(trans)) || [];
+        return translates;
+    }
     // ---------- Converter intégré ----------
     static _toJsDate(v) {
         if (!v) return null;
@@ -411,9 +471,9 @@ export class ClassLesson {
     static get converter() {
         return {
             toFirestore(lessonInstance) {
-                const translates = lessonInstance.translates?.map(item => item.toJSON());
+                //const translates = lessonInstance._convertTranslatesToFirestore(this._translates);
                 // chaque classe a un .toJSON() propre
-                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates } : lessonInstance;
+                return lessonInstance?.toJSON ? lessonInstance.toJSON() : lessonInstance;
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
@@ -529,23 +589,38 @@ export class ClassLesson {
         }
         return (result.toLowerCase());
     }
+    createFirestoreDocUid() {
+        try {
+            const newRef = doc(this.constructor.colRef());
+            //const newRef = doc(this.constructor.colRef()); // id auto
+            console.log("errorrrrrr after")
+            return newRef.id;
+        } catch (error) {
+            console.log("ERRRRROROOOORO", error);
+            return null;
+        }
+    }
     // Créer un user (avec option timestamps serveur)
     async createFirestore() {
-        const newRef = doc(this.constructor.colRef()); // id auto
+
+        if (!this._uid) {
+            const newRef = doc(this.constructor.colRef()); // id auto
+            this._uid = newRef.id;
+        }
         //data.uid = newRef.id;
         //const model = data instanceof ClassLesson ? data : new ClassLesson({ ...data });
         //model.uid = newRef.id;()
 
-        const countLesson = await this.constructor.count() || 0;
-        const idLesson = countLesson + 1;
-        this._uid = newRef.id;
-        this._uid_intern = idLesson;
+        //const countLesson = await this.constructor.count() || 0;
+        //const idLesson = countLesson + 1;
+        //this._uid_intern = idLesson;
         this._title_normalized = this.createTitleNormalized(this._title);
         this._subtitle_normalized = this.createTitleNormalized(this.subtitle);
         //this._name_normalized = createNameNormalized(this._name);
         // const uid = newRef.id;
         //const uid_intern = idSchool;
         //this._enabled = false;
+        const newRef = doc(firestore, this.COLLECTION, this._uid).withConverter(this.converter);
         this._created_time = new Date();
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
@@ -722,6 +797,7 @@ export class ClassLessonTranslate {
         prerequisites = [],
         programs = [],
         target_audiences = [],
+        materials = [],
         photo_url = "",
         created_time = new Date(),
         last_edit_time = new Date(),
@@ -729,7 +805,7 @@ export class ClassLessonTranslate {
         this._uid_lesson = uid_lesson;
         this._lang = lang;
         this._description = description;
-
+        this._materials = materials;
         this._goals = Array.isArray(goals) ? goals : [];
         this._notes = Array.isArray(notes) ? notes : [];
         this._prerequisites = Array.isArray(prerequisites) ? prerequisites : [];
@@ -806,6 +882,14 @@ export class ClassLessonTranslate {
     }
     set target_audiences(value) {
         this._target_audiences = Array.isArray(value) ? value : [];
+    }
+
+    // materials
+    get materials() {
+        return this._materials;
+    }
+    set materials(value) {
+        this._materials = Array.isArray(value) ? value : [];
     }
 
     // photo_url
