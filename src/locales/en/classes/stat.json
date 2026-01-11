@@ -29,5 +29,7 @@
   "worst": "Worst",
   "btn-see-lesson": "View course",
   "btn-reset": "Reset",
-  "btn-see-details": "Click to see details →"
+  "btn-see-results": "View results",
+  "btn-see-details": "Click to see details →",
+  "btn-close-details": "Show less"
 }

@@ -63,13 +63,20 @@
   --primary-shadow-lg: rgba(17, 96, 229, 0.45);
   --primary-shadow-xl: rgba(17, 96, 229, 0.55);
 
-  --warning: #ffa600;
   --calendar-free: #3ce0a2;
 
   --blue: #1a5fde;
   --blue-1: #164eb7;
   --blue-dark: #020617;
 
+  --purple: #800080;
+  --purple-dark: #4f004f;
+  --purple-shadow: rgba(128, 0, 128,0.05);
+  --purple-shadow-xs: rgba(128, 0, 128,0.15);
+  --purple-shadow-sm: rgba(128, 0, 128,0.25);
+  --purple-shadow-md: rgba(128, 0, 128,0.35);
+  --purple-shadow-lg: rgba(128, 0, 128,0.45);
+  --purple-shadow-xl: rgba(128, 0, 128,0.55);
 
   --background-footer: #0C0E2B;
 
@@ -149,6 +156,12 @@
   --bronze-shadow-xl: rgba(217, 108, 44, 0.55);
 
   --session-status-open: #3ce0a2;
+  --session-status-open-shadow: rgba(60, 224, 162, 0.05);
+  --session-status-open-shadow-xs: rgba(60, 224, 162, 0.15);
+  --session-status-open-shadow-sm: rgba(60, 224, 162, 0.25);
+  --session-status-open-shadow-md: rgba(60, 224, 162, 0.35);
+  --session-status-open-shadow-lg: rgba(60, 224, 162, 0.45);
+  --session-status-open-shadow-xl: rgba(60, 224, 162, 0.55);
   --session-status-open-glow: #3ce0a254;
   --session-status-open-text: #124532;
   --session-status-open-text-hover: #124532;

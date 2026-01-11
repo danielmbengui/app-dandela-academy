@@ -340,7 +340,7 @@ export class ClassUserStat {
         }
     }
     static getPercentageColor(percentage) {
-        if (percentage === 1) {
+        if (percentage >= 1) {
             return this.STATUS_CONFIG[ClassUserStat.STATUS.MAX];
         } else if (percentage >= 0.8) {
             return this.STATUS_CONFIG[ClassUserStat.STATUS.EXCELLENT];

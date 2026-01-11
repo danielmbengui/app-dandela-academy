@@ -236,51 +236,52 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         //const _stat = ;
         return stats.findIndex(item => item.uid === uid);
     }
-    function getGlobalScore(uidLesson = "") {
+    function getGlobalScore(uidLesson = "", uidChapter = "") {
         var total = 0;
         var scoreTotal = 0;
-        if (uidLesson) {
-            for (const stat of stats) {
-                //const score = (stat.score / stat.answers.length) * 100;
-                if (uidLesson && uidLesson === stat.uid_lesson) {
-                    scoreTotal += stat.score;
-                }
-                total++;
-            }
-        } else {
-            for (const stat of stats) {
-                scoreTotal += stat.score;
-                total++;
-            }
+        var filteredStats = [...stats];
+        if (uidLesson && uidChapter) {
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+        } else if (uidLesson) {
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+        } else if (uidChapter) {
+            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
+            scoreTotal += stat.score;
+            total++;
         }
         return scoreTotal;
     }
-    function getGlobalDuration(uidLesson = "") {
+    function getGlobalDuration(uidLesson = "", uidChapter = "") {
         var total = 0;
         var durationTotal = 0;
-        if (uidLesson) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson) {
-                    //const score = (stat.score / stat.answers.length) * 100;
-                    durationTotal += stat.duration;
-                    total++;
-                }
-            }
-        } else {
-            for (const stat of stats) {
-                //const score = (stat.score / stat.answers.length) * 100;
-                durationTotal += stat.duration;
-                total++;
-            }
+        var filteredStats = [...stats];
+        if (uidLesson && uidChapter) {
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+        } else if (uidLesson) {
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+        } else if (uidChapter) {
+            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
         }
-
+        for (const stat of filteredStats) {
+            durationTotal += stat.duration;
+            total++;
+        }
         return durationTotal;
     }
-    function getGlobalCountQuestions() {
+    function getGlobalCountQuestions(uidLesson = "", uidChapter = "") {
         var total = 0;
         var questionsTotal = 0;
-        for (const stat of stats) {
-            //const score = (stat.score / stat.answers.length) * 100;
+        var filteredStats = [...stats];
+        if (uidLesson && uidChapter) {
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+        } else if (uidLesson) {
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+        } else if (uidChapter) {
+            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
             questionsTotal += stat.answers.length;
             total++;
         }
@@ -289,37 +290,18 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     function getGlobalPercent(uidLesson = "", uidChapter = "") {
         var total = 0;
         var percentTotal = 0;
+        var filteredStats = [...stats];
         if (uidLesson && uidChapter) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
-                    const percent = stat.answers.length > 0 ? (stat.score / stat.answers.length) * 100 : 0;
-                    percentTotal += percent;
-                    total++;
-                    //console.log("OK stats", stat.uid)
-                }
-            }
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson) {
-                    const percent = stat.answers.length > 0 ? (stat.score / stat.answers.length) * 100 : 0;
-                    percentTotal += percent;
-                    total++;
-                }
-            }
+            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            for (const stat of stats) {
-                if (uidChapter === stat.uid_chapter) {
-                    const percent = stat.answers.length > 0 ? (stat.score / stat.answers.length) * 100 : 0;
-                    percentTotal += percent;
-                    total++;
-                }
-            }
-        } else {
-            for (const stat of stats) {
-                const percent = stat.answers.length > 0 ? (stat.score / stat.answers.length) * 100 : 0;
-                percentTotal += percent;
-                total++;
-            }
+            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
+            const percent = stat.answers.length > 0 ? (stat.score / stat.answers.length) * 100 : 0;
+            percentTotal += percent;
+            total++;
         }
         //console.log("wesh global", percentTotal,total, uidLesson,uidChapter,stats.length)
         return (percentTotal / total);

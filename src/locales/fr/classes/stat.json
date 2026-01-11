@@ -24,10 +24,12 @@
   "not-good": "Mauvais résultat",
   "unknown": "Inconnu",
   "office": "Bureautique",
-  "average":"Moyenne",
-  "best":"Meilleur",
-  "worst":"Moins bien",
-  "btn-see-lesson":"Voir le cours",
-  "btn-reset":"Réinitialiser",
-  "btn-see-details":"Clique pour voir les détails →"
+  "average": "Moyenne",
+  "best": "Meilleur",
+  "worst": "Moins bien",
+  "btn-see-lesson": "Voir le cours",
+  "btn-reset": "Réinitialiser",
+  "btn-see-results": "Voir les résultats",
+  "btn-see-details": "Clique pour voir les détails →",
+  "btn-close-details": "Voir moins"
 }
