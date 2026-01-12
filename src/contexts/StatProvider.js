@@ -27,13 +27,13 @@ import { firestore } from './firebase/config';
 const StatContext = createContext(null);
 export const useStat = () => useContext(StatContext);
 
-export function StatProvider({ children}) {
+export function StatProvider({ children, uidLesson="", uidChapter=""}) {
     const { lang } = useLanguage();
     const { user } = useAuth();
     const { lesson, lessons, getOneLesson } = useLesson();
     const { chapter, chapters, getOneChapter } = useChapter();
-    const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
-    const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
+    //const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
+    //const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
     //if(!lesson || !chapter) return;
     useEffect(() => {
         async function init() {
@@ -181,8 +181,8 @@ export function StatProvider({ children}) {
                 return;
             }
             const _stat = snap.data();
-            setUidLesson(_stat.uid_lesson);
-            setUidChapter(_stat.uid_chapter);
+            //setUidLesson(_stat.uid_lesson);
+            //setUidChapter(_stat.uid_chapter);
             _stat.lesson = getOneLesson(_stat.uid_lesson);
             _stat.chapter = getOneChapter(_stat.uid_chapter);
             console.log("ONE STAT", _stat, chapters);
@@ -306,7 +306,7 @@ export function StatProvider({ children}) {
             total++;
         }
         //console.log("wesh global", percentTotal,total, uidLesson,uidChapter,stats.length)
-        return (percentTotal / total);
+        return (total > 0 ? percentTotal / total : 0);
     }
     function getGlobalCountQuiz(uidLesson = "", uidChapter = "") {
         if (uidLesson && uidChapter) {
@@ -332,6 +332,7 @@ export function StatProvider({ children}) {
     function getGlobalCountChapters() {
         return new Set(stats.map(stat => stat.uid_chapter)).size || 0;
     }
+
     async function getLessonsEstimatedTime() {
         var total = 0;
         var timeTotal = 0;
@@ -501,8 +502,8 @@ export function StatProvider({ children}) {
         //setFilterStatus,
         isLoading,
         isLoadingSlots,
-        setUidChapter,
-        setUidLesson,
+        //setUidChapter,
+        //setUidLesson,
         setUidStat,
         stat,
         lastStat,

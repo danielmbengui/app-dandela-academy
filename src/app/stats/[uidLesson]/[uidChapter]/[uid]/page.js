@@ -3,25 +3,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
-    Container,
-    Box,
-    Typography,
-    Chip,
-    Stack,
-    Divider,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Paper,
-    Grid,
-    Card,
-    CardContent,
-    IconButton,
-    CircularProgress,
+  Container,
+  Box,
+  Typography,
+  Chip,
+  Stack,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  IconButton,
+  CircularProgress,
 } from "@mui/material";
 
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -55,58 +55,59 @@ import { useStat } from "@/contexts/StatProvider";
 import OneStatComponent from "@/components/stats/OneStatComponent";
 import { useChapter } from "@/contexts/ChapterProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
+import Link from "next/link";
 
 const CongratulationsComponent = ({ stat = null }) => {
-    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
-    // score: `${stat?.score}/${stat?.answers?.length}`,
-    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-    //duration: formatChrono(duration),
-    return (<>
-        <div className="results-summary-container">
-            <div className="confetti">
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-            </div>
-            <div className="results-summary-container__result">
-                <div className="result-box">
-                    <div className="heading-primary">
-                        {stat?.score}/{stat?.answers?.length}
-                    </div>
-                    <p className="result">
-                        {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
-                    </p>
-                </div>
-                <div className="result-text-box">
-                    <div className="heading-secondary">{t('finished.congrats')}</div>
-                    <p className="paragraph">
-                        {t('finished.max-score')}
-                    </p>
-                </div>
-                <div className="summary__cta" style={{ marginTop: '10px' }}>
-                    <ButtonConfirm label={`Voir mes réponses`} />
-
-                </div>
-            </div>
+  const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
+  // score: `${stat?.score}/${stat?.answers?.length}`,
+  //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+  //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+  //duration: formatChrono(duration),
+  return (<>
+    <div className="results-summary-container">
+      <div className="confetti">
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+      </div>
+      <div className="results-summary-container__result">
+        <div className="result-box">
+          <div className="heading-primary">
+            {stat?.score}/{stat?.answers?.length}
+          </div>
+          <p className="result">
+            {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
+          </p>
         </div>
-        <style jsx>{`
+        <div className="result-text-box">
+          <div className="heading-secondary">{t('finished.congrats')}</div>
+          <p className="paragraph">
+            {t('finished.max-score')}
+          </p>
+        </div>
+        <div className="summary__cta" style={{ marginTop: '10px' }}>
+          <ButtonConfirm label={`Voir mes réponses`} />
+
+        </div>
+      </div>
+    </div>
+    <style jsx>{`
 .results-summary-container {
   font-family: "Hanken Grotesk", sans-serif;
   display: flex;
@@ -449,147 +450,132 @@ const CongratulationsComponent = ({ stat = null }) => {
 }
 
     `}</style>
-    </>)
+  </>)
 }
-const CardHeader = () => {
-    const router = useRouter();
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { lesson } = useLesson();
-    const { chapters, chapter } = useChapter();
-    const { stat, stats,setUidStat, setUidChapter } = useStat();
-    const indexStat = useMemo(() => {
-        return stats.findIndex(s=>s.uid === stat?.uid);
-    }, [stats, stat]);
-    const disabledBack = useMemo(() => {
-        return indexStat=== 0;
-    }, [stats, stat]);
-    const disabledNext = useMemo(() => {
-        return indexStat=== stats?.length -1;
-    }, [stats, stat]);
+const CardHeader = ({indexStat=-1}) => {
+  const router = useRouter();
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  const { lesson } = useLesson();
+  const { chapter } = useChapter();
+  const { stat, stats, setUidStat } = useStat();
+  const disabledBack = useMemo(() => {
+    return indexStat === 0;
+  }, [stats, stat]);
+  const disabledNext = useMemo(() => {
+    return indexStat === stats?.length - 1;
+  }, [stats, stat]);
 
-    
-    useEffect(() => {
-        console.log("Chaptereeeeer", chapter)
-    })
-    return (<Stack sx={{ background: '', width: '100%' }}>
-        <Grid container>
-            <Grid size={{ xs: 12, sm: 6 }}>
-                <Box>
-                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-                        {lesson?.translate?.title}
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                        {lesson?.translate?.subtitle}
-                    </Typography>
-                    
-                    <Stack spacing={1} alignItems={'start'} sx={{
-                        background: 'var(--primary-shadow-xs)',
-                        borderRadius: '10px',
-                        my: 1.5,
-                        py: 1.5,
-                        px: 1,
-                    }}>
-                        <Typography variant="body1" sx={{ color: "var(--primary)" }}>
-                            {t('chapters')}
-                        </Typography>
-                        <SelectComponentDark
-                            value={chapter?.uid || ''}
-                            values={chapters.map(c => ({ id: c.uid, value: c.translate?.title }))}
-                            onChange={(e) => {
-                                setUidChapter(e.target.value);
-                            }}
-                            hasNull={false}
-                        />
-                    </Stack>
-                    <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ py: 1, 
-                        background:'var(--primary-shadow)',
-                        borderRadius: '10px',
-                        my: 1.5,
-                        py: 1.5,
-                        px: 1,
-                         }}>
-                        <IconButton
-                            disabled={disabledBack}
-                            onClick={() => {
-                                //const currentIndex = getOneStatIndex(stat?.uid);
-                                const uid = stats?.[indexStat - 1]?.uid || "";
-                                setUidStat(uid);
-                                router.push(`${PAGE_STATS}/${uid}`);
-                            }}
-                            sx={{
-                                color: !disabledBack ? 'var(--primary)' : ''
-                            }}
-                        >
-                            <IconArrowBack />
-                        </IconButton>
-                        {
-                            <Typography>{capitalizeFirstLetter(t('quiz'))} {indexStat+1}{"/"}{stats?.length}</Typography>
+  return (<Stack sx={{ background: '', width: '100%' }}>
+    <Grid container>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+            {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
+          </Typography>
+          <Typography variant="body1" sx={{ color: "text.secondary" }}>
+          {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)} • {capitalizeFirstLetter(t('quiz'))}{" n°"}{indexStat+1}
+          </Typography>
 
-                        }                <IconButton
-                            disabled={disabledNext}
-                            onClick={() => {
-                                const uid = stats?.[indexStat + 1]?.uid || "";
-                                setUidStat(uid);
-                                router.push(`${PAGE_STATS}/${uid}`);
-                            }}
-                            sx={{
-                                color: !disabledNext ? 'var(--primary)' : ''
-                            }}
-                        >
-                            <IconArrowRight />
-                        </IconButton>
-                    </Stack>
-                </Box>
-            </Grid>
-        </Grid>
-    </Stack>)
-}
+          <Stack spacing={1} direction={'row'} sx={{pt:1}} alignItems={'center'}>
+          <Link href={`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}`}>
+          <ButtonCancel label={t('btn-see-results')} />
+          </Link>
+          </Stack>
 
-export default function ExcelBeginnerCoursePage() {
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { uid: uidStat } = useParams();
-    console.log("uid", uidStat)
-    // const { lang } = useLanguage();
-    //const { user } = useAuth();
-    const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-    const { stat, setUidStat, isLoading: isLoadingStats } = useStat();
-    const { setUidChapter } = useChapter();
-    useEffect(() => {
-        if (uidStat) {
-            setUidStat(uidStat);
-        } else {
-            setUidStat('');
-        }
-    }, [uidStat]);
-
-    useEffect(() => {
-        console.log("STAT", stat);
-        setUidLesson(stat?.uid_lesson);
-        setUidChapter(stat?.uid_chapter);
-    }, [stat])
-
-    return (<DashboardPageWrapper
-        titles={[
-            { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
-            { name: stat?.lesson?.translate?.title, url: `` },
-            //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
-            //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
-        ]}
-        //title={`Cours / ${lesson?.title}`}
-        //subtitle={lesson?.translate?.subtitle}
-        icon={<IconStats height={18} width={18} />}
-    >
-        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+          <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{
+            py: 1,
+            background: 'var(--primary-shadow)',
+            borderRadius: '10px',
+            my: 1.5,
+            py: 1.5,
+            px: 1,
+            color:'var(--primary-dark)'
+          }}>
+            <IconButton
+              disabled={disabledBack}
+              onClick={() => {
+                //const currentIndex = getOneStatIndex(stat?.uid);
+                const uid = stats?.[indexStat - 1]?.uid || "";
+                //setUidStat(uid);
+                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
+              }}
+              sx={{
+                color: !disabledBack ? 'var(--primary)' : ''
+              }}
+            >
+              <IconArrowBack />
+            </IconButton>
             {
-                isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
-                    <Grid size={12}>
-                        <CardHeader />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 12 }}>
-                        <OneStatComponent stat={stat} />
-                    </Grid>
-                </Grid>
-            }
-        </Container>
-    </DashboardPageWrapper>);
+              <Typography>{capitalizeFirstLetter(t('quiz'))} {indexStat + 1}{"/"}{stats?.length}</Typography>
+            }                <IconButton
+              disabled={disabledNext}
+              onClick={() => {
+                const uid = stats?.[indexStat + 1]?.uid || "";
+                //setUidStat(uid);
+                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
+              }}
+              sx={{
+                color: !disabledNext ? 'var(--primary)' : ''
+              }}
+            >
+              <IconArrowRight />
+            </IconButton>
+          </Stack>
+        </Box>
+      </Grid>
+    </Grid>
+  </Stack>)
+}
+
+export default function OneStatPage() {
+  const router = useRouter();
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  const { uidLesson,uidChapter, uid: uidStat } = useParams();
+  console.log("uid", uidStat)
+  // const { lang } = useLanguage();
+  //const { user } = useAuth();
+  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+  const { chapter, setUidChapter } = useChapter();
+
+  const { stat, stats, setUidStat, isLoading: isLoadingStats } = useStat();
+  useEffect(() => {
+    for (const s of stats) {
+      router.prefetch(`${PAGE_STATS}/${uidLesson}/${uidChapter}/${s.uid}`);
+    }
+  }, [stats]);
+  useEffect(() => {
+    setUidLesson(uidLesson);
+    setUidChapter(uidChapter);
+    setUidStat(uidStat);
+  }, [uidLesson,uidChapter,uidStat]);
+  const indexStat = useMemo(() => {
+    return stats.findIndex(s => s.uid === uidStat);
+  }, [stats, uidStat]);
+
+  return (<DashboardPageWrapper
+    titles={[
+      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
+      { name: lesson?.translate?.title, url: `${PAGE_STATS}/${lesson?.uid}` },
+      { name: chapter?.translate?.title, url: `${PAGE_STATS}/${lesson?.uid}/${chapter?.uid}` },
+      { name: `${capitalizeFirstLetter(t('quiz'))} n°${indexStat+1}`, url: `` },
+      //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
+      //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
+    ]}
+    //title={`Cours / ${lesson?.title}`}
+    //subtitle={lesson?.translate?.subtitle}
+    icon={<IconStats height={18} width={18} />}
+  >
+    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+      {
+        isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
+          <Grid size={12}>
+            <CardHeader indexStat={indexStat} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 12 }}>
+            <OneStatComponent stat={stat} />
+          </Grid>
+        </Grid>
+      }
+    </Container>
+  </DashboardPageWrapper>);
 }

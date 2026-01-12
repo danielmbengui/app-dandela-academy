@@ -1,27 +1,28 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
-    Container,
-    Box,
-    Typography,
-    Chip,
-    Stack,
-    Divider,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Paper,
-    Grid,
-    Card,
-    CardContent,
-    IconButton,
-    CircularProgress,
+  Container,
+  Box,
+  Typography,
+  Chip,
+  Stack,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  IconButton,
+  CircularProgress,
+  LinearProgress,
 } from "@mui/material";
 
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -52,58 +53,62 @@ import CircularProgressWithLabelComponent from "@/components/elements/CircularPr
 import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
 import StatsListComponent from "@/components/stats/StatsListComponent";
 import { useStat } from "@/contexts/StatProvider";
+import { useChapter } from "@/contexts/ChapterProvider";
+import SchoolIcon from "@mui/icons-material/School";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import InsightsIcon from "@mui/icons-material/Insights";
 
 const CongratulationsComponent = ({ stat = null }) => {
-    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
-    // score: `${stat?.score}/${stat?.answers?.length}`,
-    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-    //duration: formatChrono(duration),
-    return (<>
-        <div className="results-summary-container">
-            <div className="confetti">
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-            </div>
-            <div className="results-summary-container__result">
-                <div className="result-box">
-                    <div className="heading-primary">
-                        {stat?.score}/{stat?.answers?.length}
-                    </div>
-                    <p className="result">
-                        {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
-                    </p>
-                </div>
-                <div className="result-text-box">
-                    <div className="heading-secondary">{t('finished.congrats')}</div>
-                    <p className="paragraph">
-                        {t('finished.max-score')}
-                    </p>
-                </div>
-                <div className="summary__cta" style={{ marginTop: '10px' }}>
-                    <ButtonConfirm label={`Voir mes réponses`} />
-
-                </div>
-            </div>
+  const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
+  // score: `${stat?.score}/${stat?.answers?.length}`,
+  //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
+  //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
+  //duration: formatChrono(duration),
+  return (<>
+    <div className="results-summary-container">
+      <div className="confetti">
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+        <div className="confetti-piece"></div>
+      </div>
+      <div className="results-summary-container__result">
+        <div className="result-box">
+          <div className="heading-primary">
+            {stat?.score}/{stat?.answers?.length}
+          </div>
+          <p className="result">
+            {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
+          </p>
         </div>
-        <style jsx>{`
+        <div className="result-text-box">
+          <div className="heading-secondary">{t('finished.congrats')}</div>
+          <p className="paragraph">
+            {t('finished.max-score')}
+          </p>
+        </div>
+        <div className="summary__cta" style={{ marginTop: '10px' }}>
+          <ButtonConfirm label={`Voir mes réponses`} />
+
+        </div>
+      </div>
+    </div>
+    <style jsx>{`
 .results-summary-container {
   font-family: "Hanken Grotesk", sans-serif;
   display: flex;
@@ -446,70 +451,202 @@ const CongratulationsComponent = ({ stat = null }) => {
 }
 
     `}</style>
-    </>)
+  </>)
 }
 const CardHeader = ({ lesson = null, chapter = null }) => {
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { stats } = useStat();
-    useEffect(() => {
-        console.log("STATTTTS", stats)
-    })
-    return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
-        <Grid container>
-            <Grid size={{ xs: 12, sm: 6 }}>
-                <Box>
-                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-                        {t('title')}
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                        {t('subtitle')}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, my: 1 }}>
-                        <Trans
-                            t={t}
-                            i18nKey={`count-stats`}
-                            values={{
-                                countLesson: new Set(stats.map(stat => stat.uid_lesson)).size,
-                                countQuiz: stats.length
-                            }}
-                        />
-                    </Typography>
-                </Box>
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  const { stats } = useStat();
+  useEffect(() => {
+    console.log("STATTTTS", stats)
+  })
+  return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
+    <Grid container>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+            {t('title')}
+          </Typography>
+          <Typography variant="body1" sx={{ color: "text.secondary" }}>
+            {t('subtitle')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, my: 1 }}>
+            <Trans
+              t={t}
+              i18nKey={`count-stats`}
+              values={{
+                countLesson: new Set(stats.map(stat => stat.uid_lesson)).size,
+                countQuiz: stats.length
+              }}
+            />
+          </Typography>
+        </Box>
+      </Grid>
+    </Grid>
+  </Stack>)
+}
+function AvatarIcon({ children, sx }) {
+  return (
+    <Box
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: 3,
+        display: "grid",
+        placeItems: "center",
+        bgcolor: "rgba(37,99,235,0.12)",
+        color: "#2563EB",
+        border: "1px solid rgba(37,99,235,0.18)",
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+function clamp(v) {
+  const n = Number(v || 0);
+  return Math.max(0, Math.min(100, n));
+}
+function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 5,
+        p: 2.2,
+        py: 2,
+        px: 1.5,
+        //border: "0.1px solid var(--primary-shadow-sm)",
+        background: 'var(--primary-shadow)',
+        borderRadius: '10px',
+        color: "var(--font-color)",
+      }}
+    >
+      <Stack spacing={1.1}>
+        <Stack direction="row" spacing={1.2} alignItems="center">
+          <AvatarIcon>{icon}</AvatarIcon>
+          <Stack spacing={0.1} sx={{ minWidth: 0 }}>
+            <Typography variant="caption" color="var(--primary-dark)">
+              {title}
+            </Typography>
+            <Typography variant="h4" color="var(--primary)" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
+              {value}
+            </Typography>
+          </Stack>
+        </Stack>
+
+        <Typography variant="body2" color="var(--grey-dark)">
+          {subtitle}
+        </Typography>
+
+        <Grid container alignItems={'center'} spacing={1}>
+          <Grid size={'grow'}>
+            <LinearProgress
+              variant="determinate"
+              value={clamp(progress)}
+              sx={{
+                height: 10,
+                width: '100%',
+                borderRadius: 999,
+                bgcolor: "var(--primary-shadow-sm)",
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: 999,
+                  bgcolor: "var(--primary)",
+                },
+              }}
+            />
+          </Grid>
+          {
+            total && <Grid size={'auto'} alignItems={'center'}>
+              <Typography variant="caption" sx={{ fontSize: '12px', width: 'auto', height: '100%' }}>{total}</Typography>
             </Grid>
+          }
         </Grid>
-    </Stack>)
+      </Stack>
+    </Paper>
+  );
 }
 
 export default function ExcelBeginnerCoursePage() {
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    // const { lang } = useLanguage();
-    //const { user } = useAuth();
-    const { stats } = useStat();
-    //const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-    const { isLoading: isLoadingStats } = useStat();
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  // const { lang } = useLanguage();
 
-    return (<DashboardPageWrapper
-        titles={[
-            { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: '' },
-            //{ name: lesson?.translate?.title, url: `${PAGE_LESSONS}/${lesson?.uid}` },
-            //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
-            //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
-        ]}
-        //title={`Cours / ${lesson?.title}`}
-        //subtitle={lesson?.translate?.subtitle}
-        icon={<IconStats height={18} width={18} />}
-    >
-        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
-            {
-                isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
-                    <Grid size={12}>
-                        <CardHeader />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 12 }}>
-                        <StatsListComponent />
-                    </Grid>
-                </Grid>
-            }
-        </Container>
-    </DashboardPageWrapper>);
+  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+  const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+  const { chapters, chapter, setUidChapter } = useChapter();
+  useEffect(() => {
+   // setUidLesson(uidLesson);
+  }, []);
+  
+  const statsFiltered = useMemo(() => {
+    const filtered = stats.filter(s => s.uid_lesson === lesson?.uid);
+    return filtered;
+  }, [stats]);
+
+  const { score, countQuestions, percent, duration, durationTotal, countChapters,countChaptersTotal } = useMemo(() => {
+    return {
+      score: getGlobalScore(),
+      countQuestions: getGlobalCountQuestions(),
+      percent: getGlobalPercent(),
+      duration: getGlobalDuration(),
+      durationTotal: getGlobalDuration(),
+      countChapters:getGlobalCountChapters(),
+      countChaptersTotal:chapters.length,
+    };
+  }, [stats]);
+
+  return (<DashboardPageWrapper
+    titles={[
+      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: '' },
+      //{ name: lesson?.translate?.title, url: `${PAGE_LESSONS}/${lesson?.uid}` },
+      //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
+      //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
+    ]}
+    //title={`Cours / ${lesson?.title}`}
+    //subtitle={lesson?.translate?.subtitle}
+    icon={<IconStats height={18} width={18} />}
+  >
+    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+      {
+        isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
+          <Grid size={12}>
+            <CardHeader />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <KpiCard
+              icon={<InsightsIcon />}
+              title={t('global-rating')}
+              value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
+              subtitle={`${score}/${countQuestions} • ${statsFiltered.length} ${t('attempts')}`}
+              progress={percent}
+              total={`${score}/${countQuestions}`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <KpiCard
+              icon={<SchoolIcon />}
+              title={t('global-cover')}
+              value={`${countChapters} ${t('chapters')}`}
+              subtitle={`${countChapters}/${countChaptersTotal} ${t('chapters')} • ${stats.length} ${t('attempts')}`}
+              progress={Math.min(100, (countChapters / Math.max(1, countChaptersTotal)) * 100)}
+              total={`${countChapters}/${countChaptersTotal}`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <KpiCard
+              icon={<IconDuration />}
+              title={t('global-duration')}
+              value={formatChrono(duration)}
+              subtitle={t('duration')}
+              progress={Math.min(1000, (duration / Math.max(1, (durationTotal))) * 100)}
+              total={formatChrono(durationTotal)}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 12 }}>
+            <StatsListComponent />
+          </Grid>
+        </Grid>
+      }
+    </Container>
+  </DashboardPageWrapper>);
 }

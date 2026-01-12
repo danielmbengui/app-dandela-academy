@@ -384,6 +384,12 @@ export const IconArrowLeft = ({ width = 24, height = 24, color = '' }) => {
 export const IconArrowRight = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="formkit:arrowright" width={width} height={height} color={color} />)
 }
+export const IconArrowUp = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="mynaui:arrow-up" width={width} height={height} color={color} />)
+}
+export const IconArrowDown = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="mynaui:arrow-down" width={width} height={height} color={color} />)
+}
 export const IconQuizz = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="material-symbols:quiz-rounded" width={width} height={height} color={color} />)
 }
@@ -401,4 +407,19 @@ export const IconSearch = ({ width = 24, height = 24, color = '' }) => {
 }
 export const IconCharts = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="fe:line-chart" width={width} height={height} color={color} />)
+}
+export const IconStar = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="material-symbols:star-rounded" width={width} height={height} color={color} />)
+}
+export const IconClose = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:twotone-close" width={width} height={height} color={color} />)
+}
+export const IconCloseFilled = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="carbon:close-filled" width={width} height={height} color={color} />)
+}
+export const IconCheck = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:round-check" width={width} height={height} color={color} />)
+}
+export const IconCheckFilled = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="lets-icons:check-fill" width={width} height={height} color={color} />)
 }
