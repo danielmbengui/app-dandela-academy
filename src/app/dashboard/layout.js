@@ -3,6 +3,9 @@ import { PAGE_DASHBOARD_HOME, PAGE_HOME, PAGE_LOGIN } from "@/contexts/constants
 import { defaultLanguage, languages, NS_DASHBOARD_HOME, NS_HOME, NS_LOGIN } from "@/contexts/i18n/settings";
 import Preloader from "@/components/shared/Preloader";
 import { SessionProvider } from "@/contexts/SessionProvider";
+import { LessonProvider } from "@/contexts/LessonProvider";
+import { ChapterProvider } from "@/contexts/ChapterProvider";
+import { StatProvider } from "@/contexts/StatProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +17,13 @@ export const generateMetadata = generatePageMetadata({
 });
 
 export default async function DashboardHomeLayout({ children }) {
-  return (<SessionProvider>
-    {children}
-  </SessionProvider>);
+  return (<LessonProvider>
+    <SessionProvider>
+    <ChapterProvider>
+      <StatProvider>
+      {children}
+      </StatProvider>
+    </ChapterProvider>
+  </SessionProvider>
+  </LessonProvider>);
 }

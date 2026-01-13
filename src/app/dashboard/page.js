@@ -1,14 +1,14 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { IconDashboard, IconLogoImage, } from "@/assets/icons/IconsComponent";
+import React, { useEffect, useMemo, useState } from 'react';
+import { IconDashboard, IconDuration, IconLogoImage, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
-import { Box, Button, Stack } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Grid, LinearProgress, Paper, Stack, Typography } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
@@ -16,10 +16,19 @@ import { ClassUser, ClassUserStudent, ClassUserTeacher } from '@/classes/users/C
 import { useSession } from '@/contexts/SessionProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_USERS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
-import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_DASHBOARD_USERS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
+import { formatChrono, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
 import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
-
+import DashboardComponent from '@/components/dashboard/DashboardComponent';
+import SchoolIcon from "@mui/icons-material/School";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import InsightsIcon from "@mui/icons-material/Insights";
+import QuizIcon from "@mui/icons-material/Quiz";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import DashboardChartsComponent from '@/components/dashboard/DashboardChartsComponent';
+import { useLesson } from '@/contexts/LessonProvider';
+import { useStat } from '@/contexts/StatProvider';
+import { useChapter } from '@/contexts/ChapterProvider';
 
 // Mapping des statuts → label + couleurs
 const STATUS_CONFIG = {
@@ -60,7 +69,6 @@ const mockStats = {
   completionRate: 82,
   certificatesThisMonth: 21,
 };
-
 const mockNextLessons = [
   {
     id: 1,
@@ -90,7 +98,6 @@ const mockNextLessons = [
     capacity: 20,
   },
 ];
-
 const mockMessages = [
   {
     id: 1,
@@ -114,17 +121,6 @@ const mockMessages = [
     type: "warning",
   },
 ];
-/*
-const mockStats = {
-  totalCourses: 12,
-  activeCourses: 4,
-  completedCourses: 8,
-  averageScore: 87,
-  hoursLearned: 142,
-  certificates: 3,
-};
-*/
-
 const mockCourses = [
   {
     id: 1,
@@ -151,7 +147,6 @@ const mockCourses = [
     status: "Terminé",
   },
 ];
-
 const mockTeachers = [
   { id: 1, name: "Ana Silva", specialty: "Excel / Power BI", courses: 4 },
   { id: 2, name: "João Pereira", specialty: "IA / Automatisation", courses: 3 },
@@ -2691,7 +2686,312 @@ function DandelaDashboardHome() {
     `}</style>
   </div>);
 }
-export default function DashboardHome() {
+const CardHeader = () => {
+  const { user } = useAuth();
+  return (<Stack sx={{ color: 'var(--font-color)', width: '100%' }} maxWidth={'md'}>
+    <Grid container alignItems={'center'}>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+          <IconLogoImage height={30} width={30} color='var(--primary-shadow-xl)' />
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+              {`Dandela Academy`}
+            </Typography>
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
+              {`Bienvenue sur ton dashboard 👋`}
+            </Typography>
+          </Box>
+        </Stack>
+      </Grid>
+    </Grid>
+  </Stack>)
+}
+function AvatarIcon({ children, sx }) {
+  return (
+    <Box
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: 3,
+        display: "grid",
+        placeItems: "center",
+        bgcolor: "rgba(37,99,235,0.12)",
+        color: "#2563EB",
+        border: "1px solid rgba(37,99,235,0.18)",
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+/*
+function StatCard({ title, tone, stat = null, uidLesson = "", uidChapter = "" }) {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  const router = useRouter();
+  const { getOneLesson } = useLesson();
+  const { getOneChapter, chapters } = useChapter();
+  const [lesson, setLesson] = useState(stat?.lesson);
+  const [chapter, setChapter] = useState(stat?.chapter);
+  const good = tone === "good";
+  const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
+  const color = STATUS_CONFIG[stat?.status] || {
+    background: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+    background_icon: good ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
+    glow: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
+    color: good ? "#15803D" : "#B45309",
+    border: "rgba(15, 23, 42, 0.10)",
+    border_icon: "rgba(15, 23, 42, 0.10)",
+    color_icon: good ? "#15803D" : "#B45309",
+    background_bar: good ? "#15803D" : "#B45309",
+  };
+  var icon = <IconProgressUp />;
+  var background = "";
+  var border = "0.1px solid var(--card-border)";
+  var borderIcon = "0.1px solid transparent";
+  var fontColor = "var(--font-color)";
+  var borderChip = "1px solid var(--card-border)";
+  var backgroundChip = "transparent";
+  var colorChip = "var(--font-color)";
+  var fontWeight = 500;
+  if (stat.status === ClassUserStat.STATUS.MAX) {
+    icon = <EmojiEventsIcon />;
+    background = color?.background;
+    border = `0.1px solid ${color?.border}`;
+    borderIcon = `0.1px solid ${color?.border}`;
+    fontColor = color?.color;
+    borderChip = `1px solid ${color?.border}`;
+    backgroundChip = color?.background_bubble;
+    colorChip = color?.color;
+    fontWeight = 950;
+  } else if (stat.status === ClassUserStat.STATUS.EXCELLENT || stat.status === ClassUserStat.STATUS.GOOD) {
+    icon = <IconStar />;
+  } else {
+    icon = <IconProgressUp />;
+  }
+  //console.log("COLORS", color);
+  useEffect(() => {
+    if (stat) {
+      const _lesson = getOneLesson(uidLesson);
+      const _chapter = getOneChapter(uidChapter);
+      setLesson(stat?.lesson);
+      setChapter(stat?.chapter);
+      console.log("HSPTER", stat.uid_lesson, stat.uid_chapter, chapters)
+    } else {
+      setLesson(null);
+      setChapter(null);
+    }
+  }, [uidLesson, uidChapter, stat?.uid_lesson, stat?.uid_chapter]);
+  if (!stat) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 5,
+          p: 2.2,
+          border: "1px solid rgba(15, 23, 42, 0.10)",
+        }}
+      >
+        <Typography variant="h5" noWrap sx={{ fontWeight: 950 }}>
+          {title}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('no-result')}
+        </Typography>
+      </Paper>
+    );
+  }
+  //const p = percent(attempt);
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 5,
+        p: 2,
+        border: border,
+        bgcolor: background,
+        maxWidth: '350px',
+        cursor: 'pointer'
+      }}
+      onClick={() => router.push(`${PAGE_STATS}/${stat.uid_lesson}/${stat.uid_chapter}/${stat.uid}`)}
+    >
+      <Stack spacing={1} sx={{ width: '100%' }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ color: color?.color }}>
+            <AvatarIcon
+              sx={{
+                bgcolor: color?.background_icon,
+                color: color?.color_icon,
+                border: borderIcon
+              }}
+            >
+              {icon}
+            </AvatarIcon>
+            <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
+              {t(stat?.status)}
+            </Typography>
+          </Stack>
+          <Chip
+            size="small"
+            label={`${parseInt((stat?.score / stat?.answers?.length) * 100)}%`}
+            sx={{
+              fontWeight: 950,
+              bgcolor: color?.background_bubble,
+              color: color?.color,
+              border: `1px solid ${color?.border}`,
+            }}
+          />
+        </Stack>
+
+        <Typography variant="body2" color={fontColor}>
+          <b>{lesson?.translate?.title}</b>
+        </Typography>
+        <Typography variant="caption" color={fontColor}>
+          {chapter?.translate?.title}
+        </Typography>
+
+        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+          <Chip size="small"
+            label={`${stat?.score}/${stat?.answers?.length}`} sx={{
+              fontWeight: fontWeight,
+              bgcolor: backgroundChip,
+              color: colorChip,
+              border: borderChip,
+            }} />
+          <Chip size="small"
+            label={formatChrono(stat?.duration)} sx={{
+              fontWeight: fontWeight,
+              bgcolor: backgroundChip,
+              color: colorChip,
+              border: borderChip,
+            }} />
+          <Chip size="small"
+            label={getFormattedDateNumeric(stat?.end_date)} sx={{
+              fontWeight: fontWeight,
+              bgcolor: backgroundChip,
+              color: colorChip,
+              border: borderChip,
+            }} />
+        </Stack>
+
+        <LinearProgress
+          variant="determinate"
+          value={clamp((stat?.score / stat?.answers?.length) * 100)}
+          sx={{
+            height: 10,
+            borderRadius: 999,
+            bgcolor: color?.background_bubble,
+            border: `0.1px solid ${color?.background_bubble}`,
+            "& .MuiLinearProgress-bar": {
+              borderRadius: 999,
+              bgcolor: color?.background_bar,
+            },
+          }}
+        />
+      </Stack>
+    </Paper>
+  );
+}
+*/
+function clamp(v) {
+  const n = Number(v || 0);
+  return Math.max(0, Math.min(100, n));
+}
+function KpiCardProgress({ icon, title, value, subtitle, progress = 0, total = null }) {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 5,
+        p: 2.2,
+        py: 2,
+        px: 1.5,
+        //border: "0.1px solid var(--primary-shadow-sm)",
+        background: 'var(--primary-shadow)',
+        borderRadius: '10px',
+        color: "var(--font-color)",
+      }}
+    >
+      <Stack spacing={1.1}>
+        <Stack direction="row" spacing={1.2} alignItems="center">
+          <AvatarIcon>{icon}</AvatarIcon>
+          <Stack spacing={0.1} sx={{ minWidth: 0 }}>
+            <Typography variant="caption" color="var(--primary-dark)">
+              {title}
+            </Typography>
+            <Typography variant="h4" color="var(--primary)" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
+              {value}
+            </Typography>
+          </Stack>
+        </Stack>
+
+        <Typography variant="body2" color="var(--grey-dark)">
+          {subtitle}
+        </Typography>
+
+        <Grid container alignItems={'center'} spacing={1}>
+          <Grid size={'grow'}>
+            <LinearProgress
+              variant="determinate"
+              value={clamp(progress)}
+              sx={{
+                height: 10,
+                width: '100%',
+                borderRadius: 999,
+                bgcolor: "var(--primary-shadow-sm)",
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: 999,
+                  bgcolor: "var(--primary)",
+                },
+              }}
+            />
+          </Grid>
+          {
+            total && <Grid size={'auto'} alignItems={'center'}>
+              <Typography variant="caption" sx={{ fontSize: '12px', width: 'auto', height: '100%' }}>{total}</Typography>
+            </Grid>
+          }
+        </Grid>
+      </Stack>
+    </Paper>
+  );
+}
+function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 5,
+        p: 2.2,
+        py: 2,
+        px: 1.5,
+        //border: "0.1px solid var(--primary-shadow-sm)",
+        background: 'var(--primary-shadow)',
+        borderRadius: '10px',
+        color: "var(--font-color)",
+      }}
+    >
+      <Stack spacing={1.1}>
+        <Stack direction="row" spacing={1.2} alignItems="center">
+          <AvatarIcon>{icon}</AvatarIcon>
+          <Stack spacing={0.1} sx={{ minWidth: 0 }}>
+            <Typography variant="caption" color="var(--primary-dark)">
+              {title}
+            </Typography>
+            <Typography variant="h4" color="var(--primary)" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
+              {value}
+            </Typography>
+          </Stack>
+        </Stack>
+
+        <Typography variant="body2" color="var(--grey-dark)">
+          {subtitle}
+        </Typography>
+      </Stack>
+    </Paper>
+  );
+}
+export default function DashboardHomePage() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
@@ -2702,13 +3002,92 @@ export default function DashboardHome() {
   const { user, login, logout } = useAuth();
   //static async create(data = {})
   const [processing, setProcessing] = useState(false);
+  const {lessons} = useLesson();
+  const {chapters} = useChapter();
+  const {stats,getGlobalPercent,getGlobalDuration,getGlobalCountChapters} = useStat();
+
+  const {
+    countStats,
+    countLessons,countStartedLessons,countCompletedLessons,
+    countCertifiedLessons,countCertification,countCertifiationAttempts,
+    averageScore,duration} = useMemo(() => {
+      const startedLessonsSet = new Set(stats.map(s=>s.uid_lesson));
+      var countCompleted=0;
+      for(const lesson of lessons) {
+        const filteredChapters = chapters.filter(c=>c.uid_lesson === lesson.uid);
+        const countComplete = getGlobalCountChapters(lesson.uid);
+        if(filteredChapters.length === countComplete) {
+          countCompleted++;
+        }
+      }
+    //lessons
+    return {
+      countStats:stats.length,
+      countLessons:lessons.length,
+      countStartedLessons:startedLessonsSet.size,
+      countCompletedLessons:countCompleted,
+      countCertifiedLessons:0,
+      countCertification:0,
+      countCertifiationAttempts:0,
+      averageScore:getGlobalPercent(),
+      duration:getGlobalDuration(),
+    };
+  }, [stats, lessons, chapters]);
 
 
-  return (<DashboardPageWrapper>
+  return (<DashboardPageWrapper
+    titles={[
+      { name: t('dashboard', { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME },
+      //{ name: lesson?.translate?.title, url: '' }
+    ]}
+    //title={`Cours / ${lesson?.title}`}
+    //subtitle={lesson?.translate?.subtitle}
+    icon={<IconDashboard />}
+  >
     <DialogCompleteProfile
       isOpen={user?.status === ClassUser.STATUS.FIRST_CONNEXION}
     />
-    <DandelaDashboardHome />
+
+    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+      <Grid container spacing={1}>
+        <Grid size={12}>
+          <CardHeader />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 'auto' }}>
+          <KpiCard
+            icon={<IconDuration />}
+            title={t('cours entamés')}
+            value={`${countStartedLessons}/${countLessons}`}
+            subtitle={`${t('chapitres termninés')} : 2/5`}
+            progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
+            total={formatChrono(310)}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 'auto' }}>
+          <KpiCard
+            icon={<IconDuration />}
+            title={t('cours terminés')}
+            value={`${countCompletedLessons}/${countLessons}`}
+            subtitle={`${t('moyenne globale')} : ${parseInt(averageScore)}%`}
+            progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
+            total={formatChrono(310)}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 'auto' }}>
+          <KpiCard
+            icon={<IconDuration />}
+            title={t('temps passé sur les tests')}
+            value={`${formatChrono(duration)}`}
+            subtitle={`${countStats} tentatives`}
+            progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
+            total={formatChrono(310)}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 12 }}>
+          <DashboardComponent />
+        </Grid>
+      </Grid>
+    </Container>
   </DashboardPageWrapper>)
   /*
   return (

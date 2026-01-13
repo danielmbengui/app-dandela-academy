@@ -329,8 +329,12 @@ export function StatProvider({ children, uidLesson="", uidChapter=""}) {
         }
         return new Set(stats.map(stat => stat.uid_lesson)).size || 0;
     }
-    function getGlobalCountChapters() {
-        return new Set(stats.map(stat => stat.uid_chapter)).size || 0;
+    function getGlobalCountChapters(uidLesson = "",) {
+        var filteredStats = [...stats];
+        if(uidLesson) {
+            filteredStats = [...stats].filter(s=>s.uid_lesson === uidLesson);
+        }
+        return new Set(filteredStats.map(stat => stat.uid_chapter)).size || 0;
     }
 
     async function getLessonsEstimatedTime() {
@@ -366,88 +370,42 @@ export function StatProvider({ children, uidLesson="", uidChapter=""}) {
         return sortedStats[0];
     }
     function getBestStat(uidLesson = "", uidChapter = "") {
-        var total = 0;
-        var percentTotal = 0;
         var maxScore = 0;
         var maxStat = null;
+        var filteredStats = [...stats];
         if (uidLesson && uidChapter) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
-                    if (stat.score > maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = [...stats].filter(stat=>uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson) {
-                    if (stat.score > maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = [...stats].filter(stat=>uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            for (const stat of stats) {
-                if (uidChapter === stat.uid_chapter) {
-                    if (stat.score > maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
-        } else {
-            for (const stat of stats) {
-                if (stat.score > maxScore) {
-                    maxScore = stat.score;
-                    maxStat = stat;
-                }
+            filteredStats = [...stats].filter(stat=>uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
+            if (stat.score > maxScore) {
+                maxScore = stat.score;
+                maxStat = stat;
             }
         }
         return maxStat;
     }
     function getWorstStat(uidLesson = "", uidChapter = "") {
-        var total = 0;
-        var percentTotal = 0;
-        var maxScore = 1_000_000_000;
-        var maxStat = null;
+        var minScore = 1_000_000_000;
+        var minStat = null;
+        var filteredStats = [...stats];
         if (uidLesson && uidChapter) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
-                    if (stat.score < maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = [...stats].filter(stat=>uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson) {
-                    if (stat.score < maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = [...stats].filter(stat=>uidLesson === stat.uid_lesson );
         } else if (uidChapter) {
-            for (const stat of stats) {
-                if (uidChapter === stat.uid_chapter) {
-                    if (stat.score < maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
-        } else {
-            for (const stat of stats) {
-                if (stat.score < maxScore) {
-                    maxScore = stat.score;
-                    maxStat = stat;
-                }
+            filteredStats = [...stats].filter(stat=>uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
+            if (stat.score < minScore) {
+                minScore = stat.score;
+                minStat = stat;
             }
         }
-        return maxStat;
+        return minStat;
     }
     // session
     function changeSession(uid = '', mode = '') {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
@@ -23,6 +23,7 @@ import { useChapter } from "@/contexts/ChapterProvider";
 import { PAGE_CHAPTERS, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import { usePathname } from "next/navigation";
 import ButtonConfirm from "../elements/ButtonConfirm";
+import { useUsers } from "@/contexts/UsersProvider";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -343,6 +344,7 @@ export default function LessonComponent() {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   const { path } = usePathname();
+  const { getOneUser } = useUsers();
   //const [lesson, setLesson] = useState(null);
   const { lesson } = useLesson();
   const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
@@ -354,6 +356,12 @@ export default function LessonComponent() {
   const seatsLeft = Math.max(lesson?.seats_availables || 0 - lesson?.seats_taken || 0, 0);
   const isFull = seatsLeft <= 0 && !isEnrolled;
   const formatCfg = FORMAT_CONFIG[lesson?.format];
+
+  useEffect(() => {
+    if (lesson) {
+      lesson.update({teacher:getOneUser(lesson.uid_teacher)})
+    }
+  }, [lesson])
 
   return (<Stack sx={{ color: "var(--font-color)" }}>
     <div className="page">
@@ -443,7 +451,7 @@ export default function LessonComponent() {
         </section>
 
         {
-          lesson?.translate?.tags?.length > 0 && <Grid spacing={1} container sx={{mb: 1 }}>
+          lesson?.translate?.tags?.length > 0 && <Grid spacing={1} container sx={{ mb: 1 }}>
             {lesson?.translate?.tags?.map((item, i) => (
               <Grid size={{ xs: 12, sm: 4 }} key={`${item.title}${i}`}>
                 <div className="card">
@@ -539,32 +547,32 @@ export default function LessonComponent() {
             </div>
 
             {
-              lesson?.translate?.materials?.length>0 && <div className="card">
-              <h2>{t('materials')}</h2>
-              <ul className="list small">
-                {
-                  lesson.translate.materials.map((material, index) => {
-                    return (<li key={`${material}-${index}`}>
-                      {material}
-                    </li>)
-                  })
-                }
-              </ul>
-            </div>
+              lesson?.translate?.materials?.length > 0 && <div className="card">
+                <h2>{t('materials')}</h2>
+                <ul className="list small">
+                  {
+                    lesson.translate.materials.map((material, index) => {
+                      return (<li key={`${material}-${index}`}>
+                        {material}
+                      </li>)
+                    })
+                  }
+                </ul>
+              </div>
             }
             {
-              lesson?.translate?.notes?.length>0 && <div className="card">
-              <h2>{t('notes')}</h2>
-              <ul className="list small">
-                {
-                  lesson.translate.notes.map((note, index) => {
-                    return (<li key={`${note}-${index}`}>
-                      {note}
-                    </li>)
-                  })
-                }
-              </ul>
-            </div>
+              lesson?.translate?.notes?.length > 0 && <div className="card">
+                <h2>{t('notes')}</h2>
+                <ul className="list small">
+                  {
+                    lesson.translate.notes.map((note, index) => {
+                      return (<li key={`${note}-${index}`}>
+                        {note}
+                      </li>)
+                    })
+                  }
+                </ul>
+              </div>
             }
           </div>
         </section>

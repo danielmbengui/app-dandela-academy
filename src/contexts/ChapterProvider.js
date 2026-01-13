@@ -260,32 +260,37 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setChapter(null);
         }
     }
-    function getMinLevel() {
+    function getMinLevel(uidLesson="") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length) return;
         const lastIndex = allLevels.length - 1;
         var minChapter = allLevels[lastIndex];
+        var chaptersFiletered = [...chapters];
+        if(uidLesson) {
+            chaptersFiletered = [...chapters].filter(c=>c.uid_lesson === uidLesson);
+        }
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
-        for (const c of chapters) {
+        for (const c of chaptersFiletered) {
             const levelChapter = allLevels.find(level => level.value === c.level);
             if (!levelChapter) return;
 
             if (levelChapter.id < minChapter.id) {
                 minChapter = levelChapter;
-
             }
         }
-       // console.log("min", minChapter.value);
-
-        return minChapter.value;
+        return {id:minChapter.id,value:minChapter.value};
     }
-    function getMaxLevel() {
+    function getMaxLevel(uidLesson="") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length) return;
         const lastIndex = allLevels.length - 1;
         var maxChapter = allLevels[lastIndex];
+        var chaptersFiletered = [...chapters];
+        if(uidLesson) {
+            chaptersFiletered = [...chapters].filter(c=>c.uid_lesson === uidLesson);
+        }
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
-        for (const c of chapters) {
+        for (const c of chaptersFiletered) {
             const levelChapter = allLevels.find(level => level.value === c.level);
             if (!levelChapter) continue;
             if (levelChapter.id >= maxChapter.id) {
@@ -294,7 +299,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         }
        // console.log("max", maxChapter.value);
 
-        return maxChapter.value;
+       return {id:maxChapter.id,value:maxChapter.value};
     }
     function getCountSubchapters() {
         var count = 0;
