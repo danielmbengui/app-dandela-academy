@@ -1,5 +1,5 @@
 {
-  "title": "Resultados e progresso",
+  "title": "Resultados & Progresso",
   "subtitle": "Estatísticas por capítulo, por curso e desempenho global.",
   "count-stats": "{{countLesson}} cursos / {{countQuiz}} questionários",
   "uid_user": "Utilizador",
@@ -7,6 +7,7 @@
   "uid_chapter": "Secção",
   "chapter": "Capítulo",
   "chapters": "Capítulos",
+  "chapters_completed": "Capítulos concluídos",
   "lesson": "Curso",
   "lessons": "Cursos",
   "all": "Todos",
@@ -19,7 +20,7 @@
   "duration_short": "Duração",
   "score": "Pontuação",
   "date": "Data",
-  "attempts": "tentativas",
+  "attempts": "Tentativas",
   "no-result": "Nenhum resultado por enquanto.",
   "status": "Estado",
   "max": "Máx",
@@ -28,8 +29,9 @@
   "to-improve": "A melhorar",
   "not-good": "Mau resultado",
   "unknown": "Desconhecido",
-  "office": "Bureautique",
+  "office": "Burocrática",
   "average": "Média",
+  "rate": "Taxa de sucesso",
   "best": "Melhor",
   "worst": "Pior",
   "level": "Nível",
@@ -44,9 +46,11 @@
   "your-answer": "A tua resposta",
   "answer": "Resposta",
   "answers": "Respostas",
-  "btn-see-lesson": "Ver o curso",
-  "btn-see-chapter": "Ver o capítulo",
-  "btn-reset": "Reinicializar",
+  "scores": "Pontuações",
+  "dates": "Datas",
+  "btn-see-lesson": "Ver curso",
+  "btn-see-chapter": "Ver capítulo",
+  "btn-reset": "Reiniciar",
   "btn-see-results": "Ver resultados",
   "btn-see-details": "Clica para ver os detalhes →",
   "btn-close-details": "Ver menos",
@@ -70,5 +74,10 @@
     "date": "Ordenar por data",
     "score": "Ordenar por pontuação",
     "duration": "Ordenar por duração"
+  },
+  "view": {
+    "list": "Lista",
+    "evolution": "Evolução",
+    "compare": "Comparação"
   }
 }

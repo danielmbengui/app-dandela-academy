@@ -423,3 +423,13 @@ export const IconCheck = ({ width = 24, height = 24, color = '' }) => {
 export const IconCheckFilled = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="lets-icons:check-fill" width={width} height={height} color={color} />)
 }
+
+export const IconBarChart = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:round-bar-chart" width={width} height={height} color={color} />)
+}
+export const IconLineChart = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="fa7-solid:chart-line" width={width} height={height} color={color} />)
+}
+export const IconList = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ic:round-list" width={width} height={height} color={color} />)
+}

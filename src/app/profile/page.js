@@ -29,7 +29,16 @@ export default function DashboardCalendar() {
   const { text } = theme.palette;
   const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
 
-  return (<DashboardPageWrapper title={t('title')} subtitle={t('subtitle')} icon={<IconProfile width={22} height={22} />}>
+  return (<DashboardPageWrapper 
+    titles={[
+      { name: t('profile', { ns: NS_DASHBOARD_MENU }), url: '' },
+      //{ name: lesson?.translate?.title, url: '' }
+    ]}
+    //title={`Cours / ${lesson?.title}`}
+    //subtitle={lesson?.translate?.subtitle}
+    icon={<IconProfile width={22} height={22} />}
+  subtitle={t('subtitle')} 
+>
    <Stack sx={{background:'', width:'100%'}}>
      <ProfileComponent />
    </Stack>

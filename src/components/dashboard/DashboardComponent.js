@@ -2245,7 +2245,7 @@ function EvolutionListComponent() {
                 hasProgress: previousStat ? score > previousStat.score : false,
             })
         });
-        console.log("STTTTAS", _stats);
+        //console.log("STTTTAS", _stats);
         _stats=_stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
         return _stats;
     }, [stats]);

@@ -421,3 +421,10 @@ export function convertDoubleToHour(hour = 0) {
   }
   return 0;
 }
+
+export function getCSSVar(name) {
+  if (typeof window === "undefined") return undefined;
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+}

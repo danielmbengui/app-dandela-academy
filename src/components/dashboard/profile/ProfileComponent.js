@@ -22,21 +22,7 @@ import SelectComponentDark from "@/components/elements/SelectComponentDark";
 import { t } from "i18next";
 import CheckboxComponent from "@/components/elements/CheckboxComponent";
 import { ClassColor } from "@/classes/ClassColor";
-const initialUser = {
-    firstName: "Daniel",
-    lastName: "Mbengui",
-    birthDate: "1994-05-20", // format YYYY-MM-DD
-    personalEmail: "daniel@example.com",
-    schoolEmail: "daniel@dandela-academy.com",
-    role: "Étudiant",
-    type: "Temps plein",
-    userNumber: "DA-2025-000123",
-    // paramètres
-    notificationsEmail: true,
-    newsletter: true,
-    language: "fr",
-    theme: "light",
-};
+
 function ProfilePage() {
     const { lang, changeLang } = useLanguage();
     const { user, isLoading, update, processing } = useAuth();
@@ -457,103 +443,11 @@ function ProfilePage() {
 export default function ProfileComponent() {
     const { t } = useTranslation([NS_DASHBOARD_PROFILE, NS_COMMON, NS_LANGS]);
     const form = t('form', { returnObjects: true });
-    const {
-        'title-account': title_account,
-        'title-perso': title_perso,
-        'title-settings': title_settings,
-        email: title_email,
-        phone_number: title_phone_number,
-        uid: title_uid,
-        display_name: title_name,
-        first_name: title_first_name,
-        last_name: title_last_name,
-        role: title_role,
-        birthday: title_birthday,
-        lang: title_lang,
-        theme: title_theme,
-    } = form;
-    console.log("FORM", t('form', { returnObjects: true }))
-    const { lang, changeLang } = useLanguage();
     const { user, isLoading } = useAuth();
     const [userEdit, setUserEdit] = useState(new ClassUser());
-    const [isEditing, setIsEditing] = useState(false);
-    const [errors, setErrors] = useState({});
     useEffect(() => {
         setUserEdit(user.clone());
     }, [user]);
-    const { theme, changeTheme, mode, modeApp } = useThemeMode();
-    const { primary, primaryShadow, greyLight, text } = theme.palette;
-    const completeName = user?.first_name.concat(' ').concat(user?.last_name) || '';
-    const onChangeField = (e) => {
-        const { value, name, type } = e.target;
-        console.log("EVENT", name, type, userEdit)
-        //e.preventDefault();
-        //userInfo.update({ first_name: value });
-        //setErrors(prev => ({ ...prev, [name]: '' }));
-        setErrors(prev => {
-            delete prev[name];
-            return prev;
-        });
-        /*
-        if (user[name] !== value) {
-            setIsEditing(true);
-        } else {
-            setIsEditing(false);
-        }
-        */
-        setUserEdit(prev => {
-            if (!prev) return user;
-            prev.update({ [name]: value });
-            return prev.clone();
-        });
-    }
-    const onClearField = (name) => {
-        //e.preventDefault();
-        //userInfo.update({ first_name: value });
-        //setIsEditing(true);
-        setErrors(prev => {
-            delete prev[name];
-            return prev;
-        });
-        setUserEdit(prev => {
-            if (!prev) return prev;
-            prev.update({ [name]: '' });
-            return prev.clone();
-        });
-    }
-    const onResetField = (name) => {
-        //e.preventDefault();
-        //userInfo.update({ first_name: value });
-        //setIsEditing(true);
-        setErrors(prev => {
-            delete prev[name];
-            return prev;
-        });
-        setUserEdit(prev => {
-            if (!prev) return prev;
-            prev.update({ [name]: user?.[name] });
-            return prev.clone();
-        });
-    }
-    const onEditForm = async () => {
-        setIsEditing(true);
-        const _errors = {};
-        if (!userEdit.validLastName()) {
-            _errors.last_name = "erreur nom";
-        }
-        if (!userEdit.validFirstName()) {
-            _errors.first_name = "erreur prénom";
-        }
-        setErrors(_errors);
-        if (Object.keys(_errors).length > 0) {
-            console.log("Aucune erreur");
-            return;
-        }
-        //setUserInfo();
-        await ClassUser.update(user.uid, userEdit.toJSON());
-        setIsEditing(false);
-        // On EDIT infos
-    }
     return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
         <ProfilePage />
     </Stack>)

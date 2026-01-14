@@ -9,9 +9,12 @@ import { formatChrono } from '@/contexts/functions';
 
 function CircularProgressWithLabel({ stat = null, average = 0,
   score = 0,
+  showScore=true,
   questions = 0,
   percent = 0,
+  showPercent=true,
   duration = 0,
+  showDuration=true,
   size = "medium",
   status = "average",
   ...props }) {
@@ -55,7 +58,8 @@ function CircularProgressWithLabel({ stat = null, average = 0,
           height: '100%',
         }}
       >
-        <Typography
+        {
+          showScore && <Typography
           variant="caption"
           fontWeight={600}
           //component="div"
@@ -63,20 +67,25 @@ function CircularProgressWithLabel({ stat = null, average = 0,
         >
           {`${score}/${questions}`}
         </Typography>
-        <Typography
-          variant="caption"
-          //component="div"
-          sx={{ color: 'var(--font-color)', fontSize: sizePercent }}
-        >
-          {`${percent.toFixed(2)}%`}
-        </Typography>
-        <Typography
+        }
+       {
+        showPercent &&  <Typography
+        variant="caption"
+        //component="div"
+        sx={{ color: 'var(--font-color)', fontSize: sizePercent }}
+      >
+        {`${percent.toFixed(2)}%`}
+      </Typography>
+       }
+        {
+          showDuration && <Typography
           variant="caption"
           //component="div"
           sx={{ fontSize: sizeDuration }}
         >
           {`${formatChrono(duration || 0)}`}
         </Typography>
+        }
       </Stack>
     </Box>
   );
@@ -91,27 +100,19 @@ CircularProgressWithLabel.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-export default function CircularProgressStatComponent({ progress = 0, stat = null, average = 0,
+export default function CircularProgressStatComponent({ progress = 0, stat = null, 
+  average = 0,
   score = 0,
+  showScore=true,
   questions = 0,
   percent = 0,
+  showPercent=true,
   duration = 0,
+  showDuration=true,
   size = "medium",
   status = "average",
 }) {
   //const [progress, setProgress] = React.useState(10);
-
-  useEffect(() => {
-    console.log("Stat CircularProgressStatComponent", stat)
-    /*
-    const timer = setInterval(() => {
-      setProgress((prevProgress) => (prevProgress >= 100 ? 0 : prevProgress + 10));
-    }, 800);
-    return () => {
-      clearInterval(timer);
-    };
-    */
-  }, [stat]);
 
   return <CircularProgressWithLabel value={progress} stat={stat} average={average}
     score={score}
@@ -120,5 +121,8 @@ export default function CircularProgressStatComponent({ progress = 0, stat = nul
     duration={duration}
     size={size}
     status={status}
+    showScore={showScore}
+    showDuration={showDuration}
+    showPercent={showPercent}
   />;
 }

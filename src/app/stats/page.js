@@ -23,6 +23,8 @@ import {
   IconButton,
   CircularProgress,
   LinearProgress,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -39,7 +41,7 @@ import { ClassLesson } from "@/classes/ClassLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
+import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBarChart, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconLineChart, IconList, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
 import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS } from "@/contexts/i18n/settings";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
@@ -57,6 +59,10 @@ import { useChapter } from "@/contexts/ChapterProvider";
 import SchoolIcon from "@mui/icons-material/School";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import InsightsIcon from "@mui/icons-material/Insights";
+import DashboardChartsComponent from "@/components/dashboard/DashboardChartsComponent";
+import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
+import StatsLineChart from "@/components/stats/StatsLineChart";
+import StatsBarChart from "@/components/stats/StatsBarChart";
 
 const CongratulationsComponent = ({ stat = null }) => {
   const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
@@ -456,9 +462,6 @@ const CongratulationsComponent = ({ stat = null }) => {
 const CardHeader = ({ lesson = null, chapter = null }) => {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   const { stats } = useStat();
-  useEffect(() => {
-    console.log("STATTTTS", stats)
-  })
   return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
     <Grid container>
       <Grid size={{ xs: 12, sm: 6 }}>
@@ -468,16 +471,6 @@ const CardHeader = ({ lesson = null, chapter = null }) => {
           </Typography>
           <Typography variant="body1" sx={{ color: "text.secondary" }}>
             {t('subtitle')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, my: 1 }}>
-            <Trans
-              t={t}
-              i18nKey={`count-stats`}
-              values={{
-                countLesson: new Set(stats.map(stat => stat.uid_lesson)).size,
-                countQuiz: stats.length
-              }}
-            />
           </Typography>
         </Box>
       </Grid>
@@ -567,31 +560,26 @@ function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
   );
 }
 
+
+
 export default function ExcelBeginnerCoursePage() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   // const { lang } = useLanguage();
-
-  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+  const [isOpenDetails, setIsOpenDetails] = useState(false);
+  const { lessons,lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
   const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
   const { chapters, chapter, setUidChapter } = useChapter();
-  useEffect(() => {
-   // setUidLesson(uidLesson);
-  }, []);
-  
-  const statsFiltered = useMemo(() => {
-    const filtered = stats.filter(s => s.uid_lesson === lesson?.uid);
-    return filtered;
-  }, [stats]);
+  const [ viewMode, setViewMode ] = useState('list');
 
-  const { score, countQuestions, percent, duration, durationTotal, countChapters,countChaptersTotal } = useMemo(() => {
+  const { score, countQuestions, percent, duration, durationTotal, countChapters, countChaptersTotal } = useMemo(() => {
     return {
       score: getGlobalScore(),
       countQuestions: getGlobalCountQuestions(),
       percent: getGlobalPercent(),
       duration: getGlobalDuration(),
       durationTotal: getGlobalDuration(),
-      countChapters:getGlobalCountChapters(),
-      countChaptersTotal:chapters.length,
+      countChapters: getGlobalCountChapters(),
+      countChaptersTotal: chapters.length,
     };
   }, [stats]);
 
@@ -617,7 +605,7 @@ export default function ExcelBeginnerCoursePage() {
               icon={<InsightsIcon />}
               title={t('global-rating')}
               value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
-              subtitle={`${score}/${countQuestions} • ${statsFiltered.length} ${t('attempts')}`}
+              subtitle={`${score}/${countQuestions} • ${stats.length} ${t('attempts')}`}
               progress={percent}
               total={`${score}/${countQuestions}`}
             />
@@ -643,7 +631,14 @@ export default function ExcelBeginnerCoursePage() {
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 12 }}>
-            <StatsListComponent />
+            <StatsChartsComponent
+            listComponent={<StatsListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+            listAverageComponent={<StatsListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            evolutionComponent={<StatsLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+            evolutionAverageComponent={<StatsLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            compareComponent={<StatsBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+            compareAverageComponent={<StatsBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            />
           </Grid>
         </Grid>
       }

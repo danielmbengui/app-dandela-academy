@@ -56,14 +56,14 @@ export function LessonProvider({ children, uidTeacher = null }) {
         const constraints = [];
         if (user && !(user instanceof ClassUserAdministrator)) {
             constraints.push(where("enabled", "==", true));
-            console.log("is not admin")
+            //console.log("is not admin")
             //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
         }
         if (uidTeacher) {
             constraints.push(where("uid_teacher", "==", uidTeacher));
         }
 
-        console.log("user lesson proivder", user)
+       // console.log("user lesson proivder", user)
 
         const q = constraints.length > 0
             ? query(colRef, ...constraints)
@@ -77,7 +77,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setIsLoading(false);
                 return;
             }
-            console.log("constraints provider", snap.size)
+           // console.log("constraints provider", snap.size)
             try {
                 const _lessons = [];
                 //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));

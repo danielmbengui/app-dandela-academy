@@ -4,6 +4,7 @@ import { AuthProvider } from "./AuthProvider";
 import { LangProvider } from "./LangProvider";
 import { SchoolProvider } from "./SchoolProvider";
 import { ThemeProvider } from "./ThemeProvider";
+import { UserDeviceProvider } from "./UserDeviceProvider";
 //import {HeroUIProvider} from '@heroui/react';
 
 //import { AuthProvider } from '@/contexts/AuthProvider';
@@ -11,6 +12,7 @@ import { ThemeProvider } from "./ThemeProvider";
 //import { ThemeProvider } from '@/contexts/ThemeProvider';
 export default function Providers({ children }) {
     return (<ThemeProvider>
+        <UserDeviceProvider>
         <LangProvider>
            <AuthProvider>
            <SchoolProvider>
@@ -18,6 +20,7 @@ export default function Providers({ children }) {
            </SchoolProvider>
            </AuthProvider>
         </LangProvider>
+        </UserDeviceProvider>
     </ThemeProvider>);
 }
 /*

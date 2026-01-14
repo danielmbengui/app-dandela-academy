@@ -7,6 +7,7 @@
   "uid_chapter": "Section",
   "chapter": "Chapitre",
   "chapters": "Chapitres",
+  "chapters_completed": "Chapitres completés",
   "lesson": "Cours",
   "lessons": "Cours",
   "all": "Tous",
@@ -30,6 +31,7 @@
   "unknown": "Inconnu",
   "office": "Bureautique",
   "average": "Moyenne",
+  "rate": "Taux de réussite",
   "best": "Meilleur",
   "worst": "Moins bien",
   "level": "Niveau",
@@ -44,6 +46,8 @@
   "your-answer":"Ta réponse",
   "answer":"Réponse",
   "answers":"Réponses",
+  "scores":"Scores",
+  "dates":"Dates",
   "btn-see-lesson": "Voir le cours",
   "btn-see-chapter": "Voir le chapitre",
   "btn-reset": "Réinitialiser",
@@ -70,5 +74,10 @@
     "date": "Trier par date",
     "score": "Trier par score",
     "duration": "Trier par durée"
+  },
+  "view": {
+    "list": "Liste",
+    "evolution": "Évolution",
+    "compare": "Comparaison"
   }
 }

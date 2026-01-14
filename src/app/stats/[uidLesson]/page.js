@@ -54,6 +54,11 @@ import { useStat } from "@/contexts/StatProvider";
 import { ClassLesson } from "@/classes/ClassLesson";
 import StatsListComponent from "@/components/stats/StatsListComponent";
 import StatsLessonListComponent from "@/components/stats/lesson/StatsLessonListComponent";
+import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
+import StatsLineChart from "@/components/stats/StatsLineChart";
+import StatsBarChart from "@/components/stats/StatsBarChart";
+import StatsLessonLineChart from "@/components/stats/lesson/StatsLessonLineChart";
+import StatsLessonBarChart from "@/components/stats/lesson/StatsLessonBarChart";
 
 function AvatarIcon({ children, sx }) {
   return (
@@ -448,8 +453,15 @@ export default function ExcelBeginnerCoursePage() {
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 12 }}>
-            <StatsLessonListComponent />
+            <StatsChartsComponent
+            listComponent={<StatsLessonListComponent />}
+            evolutionComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+            evolutionAverageComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            compareComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+            compareAverageComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            />
           </Grid>
+
         </Grid>
       }
     </Container>
