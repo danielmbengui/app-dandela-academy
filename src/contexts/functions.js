@@ -7,6 +7,61 @@ import { ClassCountry } from '@/classes/ClassCountry';
 import { validatePassword } from 'firebase/auth';
 import { auth } from './firebase/config';
 
+export const formatDateToRelative = (date=new Date()) => {
+  if(!(date instanceof Date)) return null;
+  const today = new Date();
+  const timeToday = today.getTime();
+  const timePast = date.getTime();
+  if(timePast > timeToday) return 0;
+  //const STEP_SECONDS = 60;
+  const STEP_MINUTES = 60;
+  const STEP_HOUR = STEP_MINUTES * 60;
+  const STEP_DAY = STEP_HOUR * 24;
+  const STEP_WEEK = STEP_DAY * 7;
+  const STEP_MONTH = STEP_DAY * 30;
+  const STEP_YEAR = STEP_DAY * 365;
+  const seconds = (timeToday-timePast) / 1000;
+  if (seconds < STEP_MINUTES) return `À l'instant`; // moins d'une minute
+  if (seconds < STEP_HOUR) return `Moins d'une heure`; // moins d'une heure
+  const _hour = parseInt(seconds / STEP_HOUR);
+  if (seconds < STEP_DAY) return `Il ya ${_hour} heure(s)`; // moins de 24h
+  const _day = parseInt(seconds / STEP_DAY);
+  if (seconds <= STEP_DAY * 6) return `Il ya ${_day} jour(s)`; // jusqua 6j
+  if (seconds < STEP_WEEK) return `Il ya moins d'une semaine`; // moins de 7j
+  if (seconds <= STEP_DAY * 13) return `Il ya ${_day} jour(s)`; // jusqua 13j
+  if (seconds < STEP_WEEK * 2) return `Moins de deux semaines`; // moins de deux semaines
+  //if (seconds <= STEP_DAY * 20) return `Il ya ${_day} jour(s)`; // jusqau 21j
+  if (seconds < STEP_WEEK * 3) return `Moins de trois semaines`; // moins de trois semaines
+  if (seconds < STEP_MONTH) return `Moins d'un mois`; // moins d'un mois
+  if (seconds < STEP_MONTH * 3) return `Moins de 3 mois`; // moins d'un mois
+  if (seconds < STEP_MONTH * 6) return `Moins de 6 mois`; // moins d'un mois
+  if (seconds <= STEP_MONTH * 8.99) return `Plus de 6 mois`; // moins d'un mois
+  if (seconds < STEP_MONTH * 9) return `Moins de 9 mois`; // moins d'un mois
+  if (seconds < STEP_YEAR) return `Moins d'un an`; // moins d'un mois
+  if (seconds < STEP_YEAR * 2) return `Il ya plus d'un an`; // moins d'un mois
+  const _year = parseInt(seconds / STEP_YEAR);
+  return `Il ya plus de ${_year} ans`; // moins d'un mois
+
+  /*
+  
+  if (seconds < STEP_HOUR) {
+    const _minutes = parseInt(seconds / STEP_MINUTES);
+    const _seconds = parseInt(seconds % STEP_MINUTES);
+    return `${_minutes}min${_seconds > 0 ? ` ${_seconds}s` : ''}`;
+  }
+  if (seconds < STEP_DAY) {
+    const _hours = parseInt(seconds / STEP_HOUR);
+    const _minutes = parseInt((seconds % STEP_HOUR) / STEP_MINUTES);
+    const _seconds = parseInt((seconds % STEP_HOUR) % STEP_MINUTES);
+    return `${_hours}h ${_minutes ? `${_minutes}min` : ''} ${_seconds ? `${_seconds}s` : ''}`;
+  }
+  const _days = parseInt(seconds / STEP_DAY);
+  const _hours = parseInt((seconds % STEP_DAY) / STEP_HOUR);
+  const _minutes = parseInt(((seconds % STEP_DAY) % STEP_HOUR) / STEP_MINUTES);
+  const _seconds = parseInt(((seconds % STEP_DAY) % STEP_HOUR) % STEP_MINUTES);
+  return `${_days}j ${_hours}h ${_minutes}min ${_seconds}s`;
+  */
+}
 export const formatPrice = (amount, currency = "CHF") => {
   const localeByCurrency = {
     CHF: "fr-CH",
@@ -365,4 +420,11 @@ export function convertDoubleToHour(hour = 0) {
     return `${entier}h${reste > 0 ? reste * 60 : ''}`;
   }
   return 0;
+}
+
+export function getCSSVar(name) {
+  if (typeof window === "undefined") return undefined;
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
 }

@@ -499,17 +499,12 @@ export class ClassUser {
     /**************** MENU ****************/
     menuDashboard() {
         return [
-        /*
         {
             name: "dashboard",
             path: PAGE_DASHBOARD_HOME,
             icon: <IconDashboard width={18} height={18} />,
-            subs: [{
-                name: "lessons",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconLessons width={18} height={18} />,
-            }]
         },
+        /*
         {
             name: "calendar",
             path: PAGE_DASHBOARD_CALENDAR,
@@ -526,13 +521,12 @@ export class ClassUser {
                 path: PAGE_LESSONS,
                 icon: <IconLessons width={18} height={18} />,
             },
-            /*
             {
                 name: "stats",
                 path: PAGE_STATS,
                 icon: <IconStats width={16} height={16} />,
             },
-            */
+            
             /*
             {
                 name: "computers",
@@ -1002,39 +996,6 @@ export class ClassUserExtern extends ClassUser {
     isOtherHowKnow() {
         if (this._how_know === ClassUserExtern.HOW_KNOW.OTHER) return (true);
         return (false);
-    }
-    menuDashboard() {
-        return [{
-            name: "dashboard",
-            path: PAGE_DASHBOARD_HOME,
-            icon: <IconDashboard width={20} height={20} />,
-            subs: [/*{
-                name: "lessons",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconLessons width={18} height={18} />,
-            }*/]
-        },
-        {
-            name: "calendar",
-            path: PAGE_DASHBOARD_CALENDAR,
-            icon: <IconCalendar width={20} height={20} />,
-            subs: [/*{
-                name: "lessons",
-                path: PAGE_DASHBOARD_HOME,
-                icon: <IconLessons width={18} height={18} />,
-            }*/]
-        },
-        {
-            name: "lessons",
-            path: PAGE_LESSONS,
-            icon: <IconLessons width={18} height={18} />,
-        },
-        {
-            name: "profile",
-            path: PAGE_DASHBOARD_PROFILE,
-            icon: <IconProfile width={20} height={20} />,
-        },
-        ]
     }
 }
 {/* STUDENT */ }

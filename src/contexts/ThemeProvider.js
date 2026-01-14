@@ -127,12 +127,12 @@ function useSystemTheme() {
 
         const updateTheme = (e) => {
             setTheme(e.matches ? 'dark' : 'light');
-           // console.log("SYSTEM theme change", e.matches ? 'dark' : 'light')
+            // console.log("SYSTEM theme change", e.matches ? 'dark' : 'light')
         };
 
         // valeur initiale
         setTheme(mq.matches ? 'dark' : 'light');
-       // console.log("SYSTEM theme", mq.matches ? 'dark' : 'light')
+        // console.log("SYSTEM theme", mq.matches ? 'dark' : 'light')
         // écoute les changements
         mq.addEventListener('change', updateTheme);
 
@@ -141,6 +141,15 @@ function useSystemTheme() {
 
     return theme;
 }
+
+export const BREAKPOINTS = {
+    xs: 0,
+    sm: 600,
+    md: 1024,
+    lg: 1440,
+    xl: 1920,
+    xxl: 2560,
+};
 
 export const ThemeProvider = ({ children }) => {
     const [modeApp, setModeApp] = useState(DEFAULT_THEME);
@@ -151,18 +160,18 @@ export const ThemeProvider = ({ children }) => {
         if (typeof window === 'undefined') return;
         var theme = localStorage.getItem(LOCAL_STORAGE_THEME) || DEFAULT_THEME; // Récupère la donnée du localStorage
         setModeApp(theme);
-       // console.log("storage theme", theme);
+        // console.log("storage theme", theme);
         if (theme === THEME_SYSTEM) {
             theme = themeSystem || THEME_LIGHT;
         }
-      //  console.log("system theme", themeSystem)
-      //  console.log("final theme", theme)
+        //  console.log("system theme", themeSystem)
+        //  console.log("final theme", theme)
         //theme = DEFAULT_THEME;
         //localStorage.setItem(LOCAL_STORAGE_THEME, theme);
         document.documentElement.className = theme; // Applique la classe du thème
         //document.documentElement['data-theme'] = theme; // Applique la classe du thème
         setThemeMode(theme);
-        
+
         //localStorage.setItem(LOCAL_STORAGE_THEME, DEFAULT_THEME);
         //const actual = document.documentElement.className; // Applique la classe du thème
         //setThemeMode(actual);
@@ -197,14 +206,7 @@ export const ThemeProvider = ({ children }) => {
     // Création de la palette Material-UI basée sur les couleurs dynamiques
     const muiTheme = createTheme({
         breakpoints: {
-            values: {
-                xs: 0,
-                sm: 600,
-                md: 1024,
-                lg: 1440,
-                xl: 1920,
-                xxl: 2560,
-            },
+            values: BREAKPOINTS,
         },
         typography: {
             allVariants: {
@@ -240,7 +242,7 @@ export const ThemeProvider = ({ children }) => {
                 fontWeight: 600,
                 //color: 'black',
                 '@media (max-width:600px)': {
-                   // fontSize: '1.5rem',
+                    // fontSize: '1.5rem',
                 },
             },
             h6: {
@@ -353,7 +355,7 @@ export const ThemeProvider = ({ children }) => {
         },
     });
     return (
-        <ThemeContext.Provider value={{modeApp, mode: themeMode, toggleTheme, changeTheme, theme: muiTheme }}>
+        <ThemeContext.Provider value={{ modeApp, mode: themeMode, toggleTheme, changeTheme, theme: muiTheme }}>
             <MuiThemeProvider theme={muiTheme}>{children}</MuiThemeProvider>
         </ThemeContext.Provider>
     );

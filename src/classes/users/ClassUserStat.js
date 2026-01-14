@@ -23,6 +23,62 @@ import { addDaysToDate } from "@/contexts/functions";
 export class ClassUserStat {
     static COLLECTION = "STATS";
     static NS_COLLECTION = `classes/stat`;
+    static VIEW_LIST = "view.list";
+    static VIEW_EVOLUTION = "view.evolution";
+    static VIEW_COMPARE = "view.compare";
+    static VIEW_MODE_SCORE = "view.score";
+    static VIEW_MODE_AVERAGE = "view.average";
+    static GRAPH_COLORS = [
+        { bg: "--primary-shadow-xs", border: "--primary", bgHover: "--primary" },
+        { bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
+        { bg: "--warning-shadow-xs", border: "--warning", bgHover: "--warning" },
+        { bg: "--error-shadow-xs", border: "--error", bgHover: "--error" },
+        { bg: "--winner-shadow-xs", border: "--winner", bgHover: "--winner" },
+        //{ bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
+        //{ bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
+        //{ bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
+        { bg: "rgba(59,130,246,0.15)", border: "#3B82F6", bgHover: "#3B82F6" }, // blue
+        { bg: "rgba(34,197,94,0.15)",  border: "#22C55E", bgHover: "#22C55E" }, // green
+        { bg: "rgba(245,158,11,0.15)", border: "#F59E0B", bgHover: "#F59E0B" }, // amber
+        { bg: "rgba(239,68,68,0.15)",  border: "#EF4444", bgHover: "#EF4444" }, // red
+        { bg: "rgba(168,85,247,0.15)", border: "#A855F7", bgHover: "#A855F7" }, // purple
+      
+        { bg: "rgba(14,165,233,0.15)", border: "#0EA5E9", bgHover: "#0EA5E9" }, // sky
+        { bg: "rgba(20,184,166,0.15)", border: "#14B8A6", bgHover: "#14B8A6" }, // teal
+        { bg: "rgba(236,72,153,0.15)", border: "#EC4899", bgHover: "#EC4899" }, // pink
+        { bg: "rgba(249,115,22,0.15)", border: "#F97316", bgHover: "#F97316" }, // orange
+        { bg: "rgba(132,204,22,0.15)", border: "#84CC16", bgHover: "#84CC16" }, // lime
+      
+        { bg: "rgba(99,102,241,0.15)", border: "#6366F1", bgHover: "#6366F1" }, // indigo
+        { bg: "rgba(217,70,239,0.15)", border: "#D946EF", bgHover: "#D946EF" }, // fuchsia
+        { bg: "rgba(6,182,212,0.15)",  border: "#06B6D4", bgHover: "#06B6D4" }, // cyan
+        { bg: "rgba(251,191,36,0.15)", border: "#FBBF24", bgHover: "#FBBF24" }, // yellow
+        { bg: "rgba(16,185,129,0.15)", border: "#10B981", bgHover: "#10B981" }, // emerald
+      
+        { bg: "rgba(244,63,94,0.15)",  border: "#F43F5E", bgHover: "#F43F5E" }, // rose
+        { bg: "rgba(139,92,246,0.15)", border: "#8B5CF6", bgHover: "#8B5CF6" }, // violet
+        { bg: "rgba(2,132,199,0.15)",  border: "#0284C7", bgHover: "#0284C7" }, // blue dark
+        { bg: "rgba(190,24,93,0.15)",  border: "#BE185D", bgHover: "#BE185D" }, // pink dark
+        { bg: "rgba(71,85,105,0.15)",  border: "#475569", bgHover: "#475569" }, // slate
+      
+        { bg: "rgba(120,113,108,0.15)", border: "#78716C", bgHover: "#78716C" }, // stone
+        { bg: "rgba(163,163,163,0.15)", border: "#A3A3A3", bgHover: "#A3A3A3" }, // neutral
+        { bg: "rgba(82,82,91,0.15)",    border: "#52525B", bgHover: "#52525B" }, // zinc
+        { bg: "rgba(107,114,128,0.15)", border: "#6B7280", bgHover: "#6B7280" }, // gray
+        { bg: "rgba(37,99,235,0.15)",   border: "#2563EB", bgHover: "#2563EB" }, // blue deep
+      
+        { bg: "rgba(22,163,74,0.15)",   border: "#16A34A", bgHover: "#16A34A" }, // green dark
+        { bg: "rgba(202,138,4,0.15)",   border: "#CA8A04", bgHover: "#CA8A04" }, // yellow dark
+        { bg: "rgba(185,28,28,0.15)",   border: "#B91C1C", bgHover: "#B91C1C" }, // red dark
+        { bg: "rgba(120,53,15,0.15)",   border: "#78350F", bgHover: "#78350F" }, // brown
+        { bg: "rgba(0,0,0,0.15)",       border: "#000000", bgHover: "#000000" }, // black
+        //"--success",
+        //"--error",
+        //"--warning",
+        "--info",
+        "--winner",
+        "--bronze",
+    ];
     static ERROR = Object.freeze({
         ALREADY_EXISTS: 'already-exists',
         UNKNOWN: 'unknown',
@@ -326,6 +382,20 @@ export class ClassUserStat {
         });
     }
 
+    static getStatsByDate(stats = [], date = null) {
+        const dateString = date.toString();
+        if (!(new Date(dateString) instanceof Date)) return [];
+        const startDay = new Date(dateString);
+        startDay.setHours(0);
+        startDay.setMinutes(0);
+        startDay.setSeconds(0);
+        const endDay = new Date(dateString);
+        endDay.setHours(23);
+        endDay.setMinutes(59);
+        endDay.setSeconds(59);
+        return stats.filter(s => s.end_date.getTime() >= startDay.getTime() && s.end_date <= endDay.getTime());
+    }
+
     static getStatusFromPercentage(percentage) {
         if (percentage === 1) {
             return ClassUserStat.STATUS.MAX;
@@ -385,7 +455,7 @@ export class ClassUserStat {
                 const duration = parseInt((end_date.getTime() - start_date.getTime()) / 1000);
                 const percentage = (score / data.answers?.length);
                 const status = ClassUserStat.getStatusFromPercentage(percentage);
-                
+
                 /*
                     EXCELLENT: 'excellent', // bureautique
         GOOD: 'good',

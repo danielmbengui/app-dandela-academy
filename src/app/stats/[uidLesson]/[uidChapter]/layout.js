@@ -4,8 +4,6 @@ import { NS_DASHBOARD_COMPUTERS, NS_LESSONS, NS_STATS_ONE, } from "@/contexts/i1
 import { LessonProvider } from "@/contexts/LessonProvider";
 import { ChapterProvider } from "@/contexts/ChapterProvider";
 import { StatProvider } from "@/contexts/StatProvider";
-import ProviderStats from "@/contexts/providers/providerstats";
-import { SessionProvider } from "@/contexts/SessionProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +14,13 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function OneStatLayout({ children }) {
-  return (children);
+export default async function StatsLessonLayout({ children, params }) {
+  const {uidLesson, uidChapter} = await params;
+  return (<LessonProvider>
+    <ChapterProvider uidLesson={uidLesson}>
+    <StatProvider uidLesson={uidLesson}>
+      {children}
+      </StatProvider>
+    </ChapterProvider>
+  </LessonProvider>);
 }

@@ -1,0 +1,2771 @@
+"use client";
+import React, { useEffect, useMemo, useState } from 'react';
+import { IconCheckFilled, IconDashboard, IconLogoImage, } from "@/assets/icons/IconsComponent";
+import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
+import { NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
+import { useThemeMode } from "@/contexts/ThemeProvider";
+import { useTranslation } from "react-i18next";
+import { useAuth } from '@/contexts/AuthProvider';
+import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
+import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
+import { Box, Button, Chip, Grid, Stack, Typography } from '@mui/material';
+import { ClassSchool } from '@/classes/ClassSchool';
+import { ClassRoom } from '@/classes/ClassRoom';
+import { ClassHardware } from '@/classes/ClassDevice';
+import { ClassUser, ClassUserStudent, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { useSession } from '@/contexts/SessionProvider';
+import { ClassColor } from '@/classes/ClassColor';
+import Link from 'next/link';
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_USERS, PAGE_LESSONS, PAGE_STATS } from '@/contexts/constants/constants_pages';
+import { formatDateToRelative, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
+import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
+import { useStat } from '@/contexts/StatProvider';
+import { ClassUserStat } from '@/classes/users/ClassUserStat';
+import { useLesson } from '@/contexts/LessonProvider';
+import { useChapter } from '@/contexts/ChapterProvider';
+
+
+// Mapping des statuts → label + couleurs
+const STATUS_CONFIG = {
+    available: {
+        label: "Disponible",
+        badgeBg: "#022c22",
+        badgeBorder: "#16a34a",
+        badgeText: "#bbf7d0",
+        glow: "#22c55e55",
+    },
+    in_use: {
+        label: "Occupé",
+        badgeBg: "#111827",
+        badgeBorder: "#3b82f6",
+        badgeText: "#bfdbfe",
+        glow: "#3b82f655",
+    },
+    maintenance: {
+        label: "Maintenance",
+        badgeBg: "#422006",
+        badgeBorder: "#f97316",
+        badgeText: "#fed7aa",
+        glow: "#f9731655",
+    },
+    offline: {
+        label: "Hors service",
+        badgeBg: "#111827",
+        badgeBorder: "#6b7280",
+        badgeText: "#e5e7eb",
+        glow: "#6b728055",
+    },
+};
+const mockStats = {
+    activeStudents: 124,
+    activeTeachers: 8,
+    todayLessons: 5,
+    freeComputers: 17,
+    completionRate: 82,
+    certificatesThisMonth: 21,
+};
+
+const mockNextLessons = [
+    {
+        id: 1,
+        title: "Excel – Niveau Intermédiaire",
+        teacher: "Ana Silva",
+        time: "Aujourd'hui • 14:00",
+        room: "Salle 3",
+        enrolled: 18,
+        capacity: 22,
+    },
+    {
+        id: 2,
+        title: "Initiation à l’IA générative",
+        teacher: "João Pereira",
+        time: "Aujourd'hui • 16:30",
+        room: "Salle 2",
+        enrolled: 14,
+        capacity: 20,
+    },
+    {
+        id: 3,
+        title: "Word – Mise en page avancée",
+        teacher: "Marie Dupont",
+        time: "Demain • 09:00",
+        room: "Salle 1",
+        enrolled: 20,
+        capacity: 20,
+    },
+];
+
+const mockMessages = [
+    {
+        id: 1,
+        from: "Support Dandela Academy",
+        time: "Il y a 1 h",
+        preview: "Un nouveau cours IA a été publié dans le catalogue.",
+        type: "info",
+    },
+    {
+        id: 2,
+        from: "Système",
+        time: "Hier",
+        preview: "3 nouveaux étudiants ont rejoint la cohorte 2025.",
+        type: "success",
+    },
+    {
+        id: 3,
+        from: "Infra",
+        time: "Il y a 2 jours",
+        preview: "1 ordinateur signalé en maintenance dans la salle principale.",
+        type: "warning",
+    },
+];
+/*
+const mockStats = {
+  totalCourses: 12,
+  activeCourses: 4,
+  completedCourses: 8,
+  averageScore: 87,
+  hoursLearned: 142,
+  certificates: 3,
+};
+*/
+
+const mockCourses = [
+    {
+        id: 1,
+        title: "Excel – Niveau Intermédiaire",
+        teacher: "Ana Silva",
+        progress: 65,
+        nextSession: "Aujourd'hui • 14:00",
+        status: "En cours",
+    },
+    {
+        id: 2,
+        title: "Initiation à l’IA générative",
+        teacher: "João Pereira",
+        progress: 30,
+        nextSession: "Demain • 09:30",
+        status: "En cours",
+    },
+    {
+        id: 3,
+        title: "Word – Rédaction professionnelle",
+        teacher: "Marie Dupont",
+        progress: 100,
+        nextSession: "Terminé",
+        status: "Terminé",
+    },
+];
+
+const mockTeachers = [
+    { id: 1, name: "Ana Silva", specialty: "Excel / Power BI", courses: 4 },
+    { id: 2, name: "João Pereira", specialty: "IA / Automatisation", courses: 3 },
+    { id: 3, name: "Marie Dupont", specialty: "Bureautique avancée", courses: 2 },
+];
+/*
+const mockMessages = [
+  {
+    id: 1,
+    from: "Ana Silva",
+    role: "Professeure",
+    time: "Il y a 2 h",
+    preview: "N’oublie pas de terminer l’exercice 3 avant la prochaine session...",
+    unread: true,
+  },
+  {
+    id: 2,
+    from: "Support Dandela Academy",
+    role: "Support",
+    time: "Hier",
+    preview: "Ton certificat pour le cours Excel – Débutant est disponible au téléchargement.",
+    unread: false,
+  },
+  {
+    id: 3,
+    from: "João Pereira",
+    role: "Professeur",
+    time: "Il y a 3 jours",
+    preview: "Bravo pour ta progression, tu es dans le top 10% de ta classe !",
+    unread: false,
+  },
+];
+*/
+const mockCertificates = [
+    {
+        id: 1,
+        title: "Excel – Débutant",
+        date: "12.09.2025",
+    },
+    {
+        id: 2,
+        title: "Word – Bases essentielles",
+        date: "30.10.2025",
+    },
+    {
+        id: 3,
+        title: "Compétences numériques – Niveau 1",
+        date: "05.11.2025",
+    },
+];
+
+function DashboardPage() {
+    const [timeRange, setTimeRange] = useState("30j"); // 7j | 30j | all
+
+    return (
+        <div className="page">
+            <main className="container">
+                {/* HEADER */}
+                <header className="header">
+                    <div>
+                        <p className="welcome">Bonjour, {mockUser.firstName} 👋</p>
+                        <h1>Tableau de bord</h1>
+                        <p className="muted">
+                            Survole tes cours, messages, professeurs et tes résultats en un coup d&apos;œil.
+                        </p>
+                    </div>
+
+                    <div className="quick-actions">
+                        <button className="btn ghost">Voir mon profil</button>
+                        <button className="btn primary">Continuer un cours</button>
+                    </div>
+                </header>
+
+                {/* STATS CARDS */}
+                <section className="stats-grid">
+                    <div className="stat-card">
+                        <p className="stat-label">Cours actifs</p>
+                        <p className="stat-value">{mockStats.activeCourses}</p>
+                        <p className="stat-helper">
+                            Sur {mockStats.totalCourses} au total
+                        </p>
+                    </div>
+
+                    <div className="stat-card">
+                        <p className="stat-label">Cours terminés</p>
+                        <p className="stat-value">{mockStats.completedCourses}</p>
+                        <p className="stat-helper">Continue sur ta lancée 💪</p>
+                    </div>
+
+                    <div className="stat-card">
+                        <p className="stat-label">Moyenne générale</p>
+                        <p className="stat-value">
+                            {mockStats.averageScore}
+                            <span className="stat-unit">%</span>
+                        </p>
+                        <div className="stat-bar">
+                            <div
+                                className="stat-bar-fill"
+                                style={{ width: `${mockStats.averageScore}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="stat-card">
+                        <p className="stat-label">Certificats obtenus</p>
+                        <p className="stat-value">{mockStats.certificates}</p>
+                        <p className="stat-helper">
+                            {mockStats.hoursLearned} h d&apos;apprentissage
+                        </p>
+                    </div>
+                </section>
+
+                {/* MAIN GRID */}
+                <section className="main-grid">
+                    {/* LEFT COLUMN */}
+                    <div className="main-col">
+                        {/* COURSES */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Mes cours</h2>
+                                <div className="chips">
+                                    <button className="chip chip-active">Actifs</button>
+                                    <button className="chip">Terminés</button>
+                                    <button className="chip">Tous</button>
+                                </div>
+                            </div>
+
+                            <div className="course-list">
+                                {mockCourses.map((course) => (
+                                    <div key={course.id} className="course-item">
+                                        <div className="course-main">
+                                            <p className="course-title">{course.title}</p>
+                                            <p className="course-sub">
+                                                {course.teacher} • {course.status}
+                                            </p>
+                                            <p className="course-next">{course.nextSession}</p>
+                                        </div>
+                                        <div className="course-progress">
+                                            <div className="progress-bar">
+                                                <div
+                                                    className="progress-fill"
+                                                    style={{ width: `${course.progress}%` }}
+                                                />
+                                            </div>
+                                            <span className="progress-label">
+                                                {course.progress}% complété
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* STATS DETAIL */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Statistiques détaillées</h2>
+                                <div className="chips">
+                                    <button
+                                        className={`chip ${timeRange === "7j" ? "chip-active" : ""}`}
+                                        onClick={() => setTimeRange("7j")}
+                                    >
+                                        7 jours
+                                    </button>
+                                    <button
+                                        className={`chip ${timeRange === "30j" ? "chip-active" : ""
+                                            }`}
+                                        onClick={() => setTimeRange("30j")}
+                                    >
+                                        30 jours
+                                    </button>
+                                    <button
+                                        className={`chip ${timeRange === "all" ? "chip-active" : ""
+                                            }`}
+                                        onClick={() => setTimeRange("all")}
+                                    >
+                                        Tout
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="stats-detail-grid">
+                                <div className="stats-detail-item">
+                                    <p className="stat-detail-value">12</p>
+                                    <p className="stat-detail-label">Cours suivis</p>
+                                </div>
+                                <div className="stats-detail-item">
+                                    <p className="stat-detail-value">21</p>
+                                    <p className="stat-detail-label">
+                                        Quiz complétés ({timeRange})
+                                    </p>
+                                </div>
+                                <div className="stats-detail-item">
+                                    <p className="stat-detail-value">92%</p>
+                                    <p className="stat-detail-label">Meilleure note</p>
+                                </div>
+                                <div className="stats-detail-item">
+                                    <p className="stat-detail-value">Top 10%</p>
+                                    <p className="stat-detail-label">Classement de la promo</p>
+                                </div>
+                            </div>
+
+                            <p className="stats-note">
+                                Ces données sont fictives. Tu pourras les remplacer par tes
+                                vraies stats venant de Firestore / API.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* RIGHT COLUMN */}
+                    <div className="side-col">
+                        {/* MESSAGES */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Messages récents</h2>
+                                <button className="link-btn">Voir tous</button>
+                            </div>
+
+                            <div className="message-list">
+                                {mockMessages.map((msg) => (
+                                    <div
+                                        key={msg.id}
+                                        className={`message-item ${msg.unread ? "message-unread" : ""
+                                            }`}
+                                    >
+                                        <div className="message-avatar">
+                                            {msg.from
+                                                .split(" ")
+                                                .map((p) => p[0])
+                                                .join("")}
+                                        </div>
+                                        <div className="message-content">
+                                            <div className="message-top">
+                                                <span className="message-from">{msg.from}</span>
+                                                <span className="message-time">{msg.time}</span>
+                                            </div>
+                                            <p className="message-role">{msg.role}</p>
+                                            <p className="message-preview">{msg.preview}</p>
+                                            {msg.unread && <span className="badge">Nouveau</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* TEACHERS */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Professeurs</h2>
+                                <button className="link-btn">Voir tous</button>
+                            </div>
+                            <div className="teacher-list">
+                                {mockTeachers.map((t) => (
+                                    <div key={t.id} className="teacher-item">
+                                        <div className="teacher-avatar">
+                                            {t.name
+                                                .split(" ")
+                                                .map((p) => p[0])
+                                                .join("")}
+                                        </div>
+                                        <div className="teacher-info">
+                                            <p className="teacher-name">{t.name}</p>
+                                            <p className="teacher-sub">{t.specialty}</p>
+                                            <p className="teacher-meta">
+                                                {t.courses} cours disponibles
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* CERTIFICATES */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Diplômes & certificats</h2>
+                                <button className="link-btn">Télécharger</button>
+                            </div>
+                            <div className="cert-list">
+                                {mockCertificates.map((c) => (
+                                    <div key={c.id} className="cert-item">
+                                        <div>
+                                            <p className="cert-title">{c.title}</p>
+                                            <p className="cert-date">Obtenu le {c.date}</p>
+                                        </div>
+                                        <button className="mini-btn">PDF</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            {/* STYLES */}
+            <style jsx>{`
+        .page {
+          
+          background: #020617;
+          padding: 40px 0px;
+          color: #e5e7eb;
+          display: flex;
+          justify-content: center;
+        }
+
+        .container {
+          width: 100%;
+          background: red;
+          padding:0;
+        }
+
+        .header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 24px;
+          background: green;
+        }
+
+        .welcome {
+          margin: 0;
+          font-size: 0.95rem;
+          color: #9ca3af;
+        }
+
+        h1 {
+          margin: 4px 0 8px;
+          font-size: 1.9rem;
+        }
+
+        .muted {
+          margin: 0;
+          font-size: 0.9rem;
+          color: #9ca3af;
+          max-width: 480px;
+        }
+
+        .quick-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .btn {
+          border-radius: 999px;
+          padding: 8px 14px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+
+        .btn.primary {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          border-color: transparent;
+        }
+
+        .btn.ghost {
+          background: transparent;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .stat-card {
+          background: #020617;
+          border-radius: 16px;
+          padding: 14px 16px;
+          border: 1px solid #1f2937;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-label {
+          margin: 0 0 4px;
+          font-size: 0.8rem;
+          color: #9ca3af;
+        }
+
+        .stat-value {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+
+        .stat-unit {
+          font-size: 0.9rem;
+          margin-left: 4px;
+          color: #9ca3af;
+        }
+
+        .stat-helper {
+          margin: 6px 0 0;
+          font-size: 0.8rem;
+          color: #6b7280;
+        }
+
+        .stat-bar {
+          margin-top: 8px;
+          height: 6px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .stat-bar-fill {
+          height: 100%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+
+        .main-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+          gap: 16px;
+          margin-bottom: 40px;
+        }
+
+        .main-col,
+        .side-col {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .card {
+          background: #020617;
+          border-radius: 16px;
+          padding: 16px 16px 14px;
+          border: 1px solid #1f2937;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .card-header h2 {
+          margin: 0;
+          font-size: 1.1rem;
+        }
+
+        .chips {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+
+        .chip {
+          border-radius: 999px;
+          padding: 4px 10px;
+          border: 1px solid #1f2937;
+          background: #020617;
+          color: #9ca3af;
+          font-size: 0.75rem;
+          cursor: pointer;
+        }
+
+        .chip-active {
+          background: #111827;
+          border-color: #2563eb;
+          color: #e5e7eb;
+        }
+
+        .course-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .course-item {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 10px 10px;
+          border-radius: 12px;
+          background: #020617;
+          border: 1px solid #111827;
+        }
+
+        .course-title {
+          margin: 0 0 4px;
+          font-size: 0.95rem;
+        }
+
+        .course-sub {
+          margin: 0;
+          font-size: 0.8rem;
+          color: #9ca3af;
+        }
+
+        .course-next {
+          margin: 4px 0 0;
+          font-size: 0.8rem;
+          color: #60a5fa;
+        }
+
+        .course-progress {
+          min-width: 120px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 4px;
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 6px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #2563eb, #4f46e5);
+        }
+
+        .progress-label {
+          font-size: 0.75rem;
+          color: #9ca3af;
+          text-align: right;
+        }
+
+        .stats-detail-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 10px;
+          margin-top: 8px;
+        }
+
+        .stats-detail-item {
+          padding: 8px 10px;
+          border-radius: 10px;
+          background: #020617;
+          border: 1px solid #111827;
+        }
+
+        .stat-detail-value {
+          margin: 0;
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        .stat-detail-label {
+          margin: 2px 0 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+
+        .stats-note {
+          margin-top: 10px;
+          font-size: 0.75rem;
+          color: #6b7280;
+        }
+
+        .link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          font-size: 0.8rem;
+          color: #60a5fa;
+          cursor: pointer;
+        }
+
+        .message-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .message-item {
+          display: flex;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          background: #020617;
+          border: 1px solid #111827;
+        }
+
+        .message-unread {
+          border-color: #2563eb;
+          background: radial-gradient(circle at top left, #1d4ed81a, #020617);
+        }
+
+        .message-avatar {
+          min-width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+
+        .message-content {
+          flex: 1;
+          position: relative;
+        }
+
+        .message-top {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.8rem;
+          margin-bottom: 2px;
+        }
+
+        .message-from {
+          font-weight: 500;
+        }
+
+        .message-time {
+          color: #6b7280;
+        }
+
+        .message-role {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #9ca3af;
+        }
+
+        .message-preview {
+          margin: 4px 0 0;
+          font-size: 0.8rem;
+          color: #e5e7eb;
+        }
+
+        .badge {
+          position: absolute;
+          top: 0;
+          right: 0;
+          font-size: 0.7rem;
+          padding: 2px 6px;
+          border-radius: 999px;
+          background: #22c55e33;
+          color: #4ade80;
+          border: 1px solid #16a34a;
+        }
+
+        .teacher-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .teacher-item {
+          display: flex;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          background: #020617;
+          border: 1px solid #111827;
+        }
+
+        .teacher-avatar {
+          min-width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          background: #0f172a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+
+        .teacher-name {
+          margin: 0;
+          font-size: 0.9rem;
+        }
+
+        .teacher-sub {
+          margin: 2px 0 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+
+        .teacher-meta {
+          margin: 2px 0 0;
+          font-size: 0.75rem;
+          color: #60a5fa;
+        }
+
+        .cert-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .cert-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          background: #020617;
+          border: 1px solid #111827;
+        }
+
+        .cert-title {
+          margin: 0 0 2px;
+          font-size: 0.9rem;
+        }
+
+        .cert-date {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+
+        .mini-btn {
+          border-radius: 999px;
+          padding: 4px 10px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.75rem;
+          cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .main-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 700px) {
+          .header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .quick-actions {
+            width: 100%;
+          }
+
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .stats-detail-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .course-item {
+            flex-direction: column;
+          }
+
+          .course-progress {
+            align-items: flex-start;
+          }
+        }
+      `}</style>
+        </div>
+    );
+}
+
+// Mock user connecté
+const mockUser = {
+    id: "user_1",
+    firstName: "Daniel",
+    lastName: "Mbengui",
+    role: "student", // "student" | "teacher" | "admin"
+};
+const initialTeacher = {
+    firstName: "Ana",
+    lastName: "Silva",
+    title: "Professeure",
+    schoolEmail: "ana.silva@dandela-academy.com",
+    personalEmail: "ana.silva@example.com",
+    phone: "+41 79 123 45 67",
+    role: "Professeur",
+    type: "Temps plein",
+    teacherId: "T-2025-001",
+    bio: "Passionnée par la bureautique et l’analyse de données, j’accompagne les étudiants dans la maîtrise d’Excel, de Power BI et des outils numériques modernes.",
+    expertise: ["Excel", "Power BI", "IA appliquée", "Automatisation"],
+    languages: ["Français", "Portugais", "Anglais"],
+    location: "Campus central - Salle 3",
+    officeHours: "Mardi & Jeudi • 16:00 – 18:00",
+    notificationsEmail: true,
+    notificationsSms: false,
+    theme: "dark",
+};
+
+function TeacherProfilePage() {
+    const [teacher, setTeacher] = useState(initialTeacher);
+    const [isEditing, setIsEditing] = useState(false);
+    const [draft, setDraft] = useState(initialTeacher);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+
+        // Gestion arrays simple → string séparée par virgule
+        if (name === "expertise" || name === "languages") {
+            const arr = value
+                .split(",")
+                .map((v) => v.trim())
+                .filter(Boolean);
+
+            setDraft((prev) => ({
+                ...prev,
+                [name]: arr,
+            }));
+            return;
+        }
+
+        setDraft((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
+    };
+
+    const handleEdit = () => {
+        setDraft(teacher);
+        setIsEditing(true);
+    };
+
+    const handleCancel = () => {
+        setDraft(teacher);
+        setIsEditing(false);
+    };
+
+    const handleSave = (e) => {
+        e.preventDefault();
+        setTeacher(draft);
+        setIsEditing(false);
+
+        // Ici tu pourras appeler ton API / Firestore pour sauvegarder
+        // await fetch("/api/teachers/me", { method: "PUT", body: JSON.stringify(draft) })
+        console.log("Profil prof sauvegardé :", draft);
+    };
+
+    return (
+        <div className="page">
+            <main className="container">
+                {/* HEADER */}
+                <header className="header">
+                    <div className="header-left">
+                        <div className="avatar">
+                            {teacher.firstName[0]}
+                            {teacher.lastName[0]}
+                        </div>
+                        <div>
+                            <p className="badge-role">{teacher.title}</p>
+                            <h1>
+                                {teacher.firstName} {teacher.lastName}
+                            </h1>
+                            <p className="muted">
+                                #{teacher.teacherId} • {teacher.role} • {teacher.type}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="header-right">
+                        <div className="contact-block">
+                            <p className="contact-line">
+                                <span>Email école :</span> {teacher.schoolEmail}
+                            </p>
+                            <p className="contact-line">
+                                <span>Email perso :</span> {teacher.personalEmail}
+                            </p>
+                            <p className="contact-line">
+                                <span>Téléphone :</span> {teacher.phone}
+                            </p>
+                        </div>
+
+                        <div className="header-actions">
+                            {!isEditing && (
+                                <button className="btn primary" onClick={handleEdit}>
+                                    Modifier le profil
+                                </button>
+                            )}
+                            {isEditing && (
+                                <>
+                                    <button className="btn" onClick={handleCancel}>
+                                        Annuler
+                                    </button>
+                                    <button className="btn primary" onClick={handleSave}>
+                                        Enregistrer
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </header>
+
+                {/* STATS */}
+                <section className="stats-grid">
+                    <div className="stat-card">
+                        <p className="stat-label">Cours actifs</p>
+                        <p className="stat-value">{mockStats.activeCourses}</p>
+                        <p className="stat-helper">en ce moment</p>
+                    </div>
+                    <div className="stat-card">
+                        <p className="stat-label">Étudiants cette année</p>
+                        <p className="stat-value">{mockStats.studentsThisYear}</p>
+                        <p className="stat-helper">tous cours confondus</p>
+                    </div>
+                    <div className="stat-card">
+                        <p className="stat-label">Note moyenne</p>
+                        <p className="stat-value">
+                            {mockStats.averageRating}
+                            <span className="stat-unit">/5</span>
+                        </p>
+                        <div className="stat-bar">
+                            <div
+                                className="stat-bar-fill"
+                                style={{ width: `${(mockStats.averageRating / 5) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <p className="stat-label">Messages non lus</p>
+                        <p className="stat-value">{mockStats.messagesUnread}</p>
+                        <p className="stat-helper">à traiter</p>
+                    </div>
+                </section>
+
+                {/* GRILLE PRINCIPALE */}
+                <section className="grid">
+                    {/* COL 1 : infos prof + paramètres */}
+                    <form className="card" onSubmit={handleSave}>
+                        <h2>Informations du professeur</h2>
+
+                        <div className="field-group">
+                            <div className="field">
+                                <label>Prénom</label>
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    value={draft.firstName}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="field">
+                                <label>Nom</label>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={draft.lastName}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="field-group">
+                            <div className="field">
+                                <label>Titre / fonction</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={draft.title}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="field">
+                                <label>Rôle</label>
+                                <select
+                                    name="role"
+                                    value={draft.role}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                >
+                                    <option value="Professeur">Professeur</option>
+                                    <option value="Super professeur">Super professeur</option>
+                                    <option value="Coordinateur">Coordinateur</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="field-group">
+                            <div className="field">
+                                <label>Type de contrat</label>
+                                <select
+                                    name="type"
+                                    value={draft.type}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                >
+                                    <option value="Temps plein">Temps plein</option>
+                                    <option value="Temps partiel">Temps partiel</option>
+                                    <option value="Consultant externe">Consultant externe</option>
+                                </select>
+                            </div>
+                            <div className="field">
+                                <label>ID professeur</label>
+                                <input
+                                    type="text"
+                                    name="teacherId"
+                                    value={draft.teacherId}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="field">
+                            <label>Bio</label>
+                            <textarea
+                                name="bio"
+                                rows={4}
+                                value={draft.bio}
+                                onChange={handleChange}
+                                disabled={!isEditing}
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label>Domaines d&apos;expertise</label>
+                            <input
+                                type="text"
+                                name="expertise"
+                                value={draft.expertise.join(", ")}
+                                onChange={handleChange}
+                                disabled={!isEditing}
+                                placeholder="Ex: Excel, IA, Power BI"
+                            />
+                            <p className="hint">
+                                Sépare chaque domaine avec une virgule ( , )
+                            </p>
+                        </div>
+
+                        <div className="field">
+                            <label>Langues parlées</label>
+                            <input
+                                type="text"
+                                name="languages"
+                                value={draft.languages.join(", ")}
+                                onChange={handleChange}
+                                disabled={!isEditing}
+                                placeholder="Ex: Français, Portugais, Anglais"
+                            />
+                        </div>
+
+                        <div className="field-group">
+                            <div className="field">
+                                <label>Email de l&apos;école</label>
+                                <input
+                                    type="email"
+                                    name="schoolEmail"
+                                    value={draft.schoolEmail}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="field">
+                                <label>Email personnel</label>
+                                <input
+                                    type="email"
+                                    name="personalEmail"
+                                    value={draft.personalEmail}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="field-group">
+                            <div className="field">
+                                <label>Téléphone</label>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    value={draft.phone}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="field">
+                                <label>Thème</label>
+                                <select
+                                    name="theme"
+                                    value={draft.theme}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                >
+                                    <option value="dark">Sombre</option>
+                                    <option value="light">Clair</option>
+                                    <option value="system">Système</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3>Paramètres</h3>
+                        <div className="field inline">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="notificationsEmail"
+                                    checked={draft.notificationsEmail}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                                Recevoir les notifications par email
+                            </label>
+                        </div>
+                        <div className="field inline">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="notificationsSms"
+                                    checked={draft.notificationsSms}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                                Recevoir les notifications par SMS
+                            </label>
+                        </div>
+
+                        {isEditing && (
+                            <div className="edit-footer">
+                                <button
+                                    type="button"
+                                    className="btn"
+                                    onClick={handleCancel}
+                                >
+                                    Annuler
+                                </button>
+                                <button type="submit" className="btn primary">
+                                    Enregistrer
+                                </button>
+                            </div>
+                        )}
+                    </form>
+
+                    {/* COL 2 : cours, messages, disponibilités */}
+                    <div className="side-col">
+                        {/* COURS */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Cours enseignés</h2>
+                                <button className="link-btn">Voir tous</button>
+                            </div>
+                            <div className="course-list">
+                                {mockCourses.map((course) => (
+                                    <div key={course.id} className="course-item">
+                                        <div>
+                                            <p className="course-title">{course.title}</p>
+                                            <p className="course-sub">
+                                                {course.code} • {course.students} étudiants •{" "}
+                                                {course.status}
+                                            </p>
+                                            <p className="course-next">{course.nextSession}</p>
+                                        </div>
+                                        <button className="mini-btn">Ouvrir</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* MESSAGES */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Messages récents</h2>
+                                <button className="link-btn">Boîte de réception</button>
+                            </div>
+                            <div className="message-list">
+                                {mockMessages.map((msg) => (
+                                    <div
+                                        key={msg.id}
+                                        className={`message-item ${msg.unread ? "message-unread" : ""
+                                            }`}
+                                    >
+                                        <div className="message-avatar">
+                                            {msg.from
+                                                .split(" ")
+                                                .map((p) => p[0])
+                                                .join("")}
+                                        </div>
+                                        <div className="message-content">
+                                            <div className="message-top">
+                                                <span className="message-from">{msg.from}</span>
+                                                <span className="message-time">{msg.time}</span>
+                                            </div>
+                                            <p className="message-preview">{msg.preview}</p>
+                                            {msg.unread && <span className="badge">Nouveau</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* DISPONIBILITÉS */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2>Horaires & lieu</h2>
+                            </div>
+                            <p className="info-line">
+                                <span>Lieu principal :</span> {teacher.location}
+                            </p>
+                            <p className="info-line">
+                                <span>Heures de réception :</span> {teacher.officeHours}
+                            </p>
+                            <p className="info-note">
+                                Les étudiants peuvent réserver un créneau de rendez-vous pendant
+                                ces horaires via le calendrier de l&apos;app.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <style jsx>{`
+        .page {
+          min-height: 100vh;
+          background: #020617;
+          padding: 40px 16px;
+          color: #e5e7eb;
+          display: flex;
+          justify-content: center;
+        }
+
+        .container {
+          width: 100%;
+          max-width: 1150px;
+        }
+
+        .header {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 24px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .avatar {
+          width: 64px;
+          height: 64px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1.3rem;
+        }
+
+        .badge-role {
+          margin: 0 0 4px;
+          font-size: 0.75rem;
+          color: #a5b4fc;
+        }
+
+        h1 {
+          margin: 0;
+          font-size: 1.8rem;
+        }
+
+        .muted {
+          margin: 2px 0 0;
+          font-size: 0.9rem;
+          color: #9ca3af;
+        }
+
+        .header-right {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+        }
+
+        .contact-block {
+          text-align: right;
+          font-size: 0.8rem;
+          color: #e5e7eb;
+        }
+
+        .contact-line {
+          margin: 0;
+        }
+
+        .contact-line span {
+          color: #9ca3af;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .btn {
+          border-radius: 999px;
+          padding: 8px 14px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+
+        .btn.primary {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          border-color: transparent;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .stat-card {
+          background: #020617;
+          border-radius: 16px;
+          padding: 12px 14px;
+          border: 1px solid #1f2937;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-label {
+          margin: 0 0 4px;
+          font-size: 0.8rem;
+          color: #9ca3af;
+        }
+
+        .stat-value {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+
+        .stat-unit {
+          font-size: 0.9rem;
+          margin-left: 3px;
+          color: #9ca3af;
+        }
+
+        .stat-helper {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+
+        .stat-bar {
+          margin-top: 8px;
+          height: 6px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .stat-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+
+        @media (max-width: 980px) {
+          .grid {
+            grid-template-columns: 1fr;
+          }
+
+          .header {
+            align-items: flex-start;
+          }
+
+          .header-right {
+            align-items: flex-start;
+            text-align: left;
+          }
+
+          .contact-block {
+            text-align: left;
+          }
+
+          .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 700px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .card {
+          background: #020617;
+          border-radius: 16px;
+          padding: 16px 16px 18px;
+          border: 1px solid #1f2937;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h2 {
+          margin: 0 0 12px;
+          font-size: 1.1rem;
+        }
+
+        .card h3 {
+          margin: 14px 0 8px;
+          font-size: 0.98rem;
+        }
+
+        .field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 10px;
+          font-size: 0.9rem;
+        }
+
+        .field label {
+          margin-bottom: 4px;
+          color: #9ca3af;
+        }
+
+        .field-group {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+
+        @media (max-width: 800px) {
+          .field-group {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+          background: #020617;
+          border-radius: 10px;
+          border: 1px solid #1f2937;
+          padding: 8px 10px;
+          color: #e5e7eb;
+          outline: none;
+          font-size: 0.9rem;
+        }
+
+        textarea {
+          resize: vertical;
+        }
+
+        input:disabled,
+        select:disabled,
+        textarea:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .field.inline {
+          flex-direction: row;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .field.inline label {
+          margin-bottom: 0;
+        }
+
+        .hint {
+          margin: 3px 0 0;
+          font-size: 0.75rem;
+          color: #6b7280;
+        }
+
+        .edit-footer {
+          margin-top: 12px;
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+        }
+
+        .side-col {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+
+        .card-header h2 {
+          margin: 0;
+          font-size: 1.05rem;
+        }
+
+        .link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          font-size: 0.8rem;
+          color: #60a5fa;
+          cursor: pointer;
+        }
+
+        .course-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .course-item {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          background: #020617;
+          border: 1px solid #111827;
+        }
+
+        .course-title {
+          margin: 0 0 3px;
+          font-size: 0.95rem;
+        }
+
+        .course-sub {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+
+        .course-next {
+          margin: 3px 0 0;
+          font-size: 0.78rem;
+          color: #60a5fa;
+        }
+
+        .mini-btn {
+          border-radius: 999px;
+          padding: 4px 10px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.75rem;
+          height: fit-content;
+          cursor: pointer;
+        }
+
+        .message-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .message-item {
+          display: flex;
+          gap: 8px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          background: #020617;
+          border: 1px solid #111827;
+          position: relative;
+        }
+
+        .message-unread {
+          border-color: #2563eb;
+          background: radial-gradient(circle at top left, #1d4ed81a, #020617);
+        }
+
+        .message-avatar {
+          min-width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          background: #0f172a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+
+        .message-content {
+          flex: 1;
+        }
+
+        .message-top {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.78rem;
+        }
+
+        .message-from {
+          font-weight: 500;
+        }
+
+        .message-time {
+          color: #6b7280;
+        }
+
+        .message-preview {
+          margin: 3px 0 0;
+          font-size: 0.8rem;
+          color: #e5e7eb;
+        }
+
+        .badge {
+          position: absolute;
+          top: 4px;
+          right: 6px;
+          font-size: 0.7rem;
+          padding: 2px 6px;
+          border-radius: 999px;
+          background: #22c55e33;
+          color: #4ade80;
+          border: 1px solid #16a34a;
+        }
+
+        .info-line {
+          margin: 4px 0;
+          font-size: 0.85rem;
+        }
+
+        .info-line span {
+          color: #9ca3af;
+        }
+
+        .info-note {
+          margin-top: 8px;
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+      `}</style>
+        </div>
+    );
+}
+
+/** Nav item dans la sidebar */
+function NavItem({ label, icon, active, onClick }) {
+    return (
+        <>
+            <button
+                type="button"
+                className={`nav-item ${active ? "nav-item-active" : ""}`}
+                onClick={onClick}
+            >
+                <span className="nav-icon">{icon}</span>
+                <span className="nav-label">{label}</span>
+            </button>
+
+            <style jsx>{`
+        .nav-item {
+          width: 100%;
+          border-radius: 999px;
+          padding: 6px 10px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: #9ca3af;
+          font-size: 0.88rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          text-align: left;
+        }
+
+        .nav-item-active {
+          background: linear-gradient(135deg, #1f2937, #111827);
+          border-color: #2563eb;
+          color: #e5e7eb;
+        }
+
+        .nav-icon {
+          font-size: 1rem;
+        }
+
+        .nav-label {
+          flex: 1;
+        }
+      `}</style>
+        </>
+    );
+}
+
+/** Carte de stats */
+function StatCard({ label, value, helper, barValue }) {
+    return (
+        <>
+            <div className="stat-card">
+                <p className="stat-label">{label}</p>
+                <p className="stat-value">{value}</p>
+                {helper && <p className="stat-helper">{helper}</p>}
+                {typeof barValue === "number" && (
+                    <div className="stat-bar">
+                        <div
+                            className="stat-bar-fill"
+                            style={{ width: `${barValue}%` }}
+                        />
+                    </div>
+                )}
+            </div>
+
+            <style jsx>{`
+        .stat-card {
+          background: var(--card-color);
+          border-radius: 10px;
+          border: 0.1px solid var(--card-border);
+          padding: 10px 12px;
+        }
+
+        .stat-label {
+          margin: 0 0 4px;
+          font-size: 0.8rem;
+          color: var(--grey-dark);
+        }
+
+        .stat-value {
+          margin: 0;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: var(--font-color);
+        }
+
+        .stat-helper {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: var(--grey-dark);
+        }
+
+        .stat-bar {
+          margin-top: 8px;
+          height: 6px;
+          border-radius: 999px;
+          background: #020617;
+          border: 1px solid #1f2937;
+          overflow: hidden;
+        }
+
+        .stat-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+      `}</style>
+        </>
+    );
+}
+
+/** Carte “accès rapide” */
+function QuickLink({ emoji, label, description, link = "" }) {
+    return (
+        <>
+            <button type="button" className="quick-link">
+                <Link href={link}>
+
+                    <Stack spacing={1} type="button">
+                        <div className="q-emoji">{emoji}</div>
+                        <div className="q-text">
+                            <p className="q-label">{label}</p>
+                            <p className="q-desc">{description}</p>
+                        </div>
+                    </Stack>
+                </Link>
+            </button>
+
+            <style jsx>{`
+        .quick-link {
+          border-radius: 12px;
+          border: 0.1px solid var(--card-border);
+          background: var(--card-color);
+          padding: 10px 10px;
+          display: flex;
+          gap: 8px;
+          cursor: pointer;
+          text-align: left;
+          color: var(--font-color);
+        }
+
+        .quick-link:hover {
+          background: radial-gradient(circle at top left, #1d4ed822, #020617);
+          border-color: #1f2937;
+
+          background: var(--card-color);
+          border: 0.1px solid var(--primary);
+          color:var(-background);
+        }
+
+        .q-emoji {
+          font-size: 1.2rem;
+        }
+
+        .q-text {
+          font-size: 0.85rem;
+          font-color: var(--font-color);
+        }
+
+        .q-label {
+          margin: 0 0 2px;
+          font-weight: 300;
+         
+        }
+
+        .q-desc {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+      `}</style>
+        </>
+    );
+}
+
+/** Messages dans le panneau “Activité récente” */
+function DashboardMessage({ msg }) {
+    const typeConfig = {
+        info: { border: "#3b82f6", emoji: "ℹ️" },
+        success: { border: "#22c55e", emoji: "✅" },
+        warning: { border: "#f97316", emoji: "⚠️" },
+    }[msg.type || "info"];
+
+    return (
+        <>
+            <div className="dash-msg">
+                <div className="dash-emoji">{typeConfig.emoji}</div>
+                <div className="dash-body">
+                    <div className="dash-header">
+                        <span className="dash-from">{msg.from}</span>
+                        <span className="dash-time">{msg.time}</span>
+                    </div>
+                    <p className="dash-preview">{msg.preview}</p>
+                </div>
+            </div>
+
+            <style jsx>{`
+        .dash-msg {
+          display: flex;
+          gap: 8px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          border: 1px solid ${typeConfig.border}33;
+          background: #020617;
+        }
+
+        .dash-emoji {
+          font-size: 1.1rem;
+        }
+
+        .dash-body {
+          flex: 1;
+          font-size: 0.82rem;
+        }
+
+        .dash-header {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.75rem;
+        }
+
+        .dash-from {
+          font-weight: 500;
+        }
+
+        .dash-time {
+          color: #6b7280;
+        }
+
+        .dash-preview {
+          margin: 3px 0 0;
+          color: #e5e7eb;
+        }
+      `}</style>
+        </>
+    );
+}
+function EvolutionCard({ stat = null, previousStat = null }) {
+    const { getOneLesson } = useLesson();
+    const { getOneChapter } = useChapter();
+    const { emoji, text, lesson, chapter,percentStat, percentPreviousStat, progressScore } = useMemo(() => {
+        var emoji = "ℹ️";
+        var text = "Tu as complété un questionnaire";
+        const lesson = getOneLesson(stat.uid_lesson);
+        const chapter = getOneChapter(stat.uid_chapter);
+        const percentPreviousStat = (previousStat?.score / previousStat?.answers?.length) * 100;
+        const percentStat = (stat?.score / stat?.answers?.length) * 100;
+        const progressScore = stat?.score - previousStat?.score;
+        if (stat.isFirst) {
+            emoji = "1️⃣";
+            text = "Tu as terminé un nouveau questionnaire";
+        } else if (stat.isBest) {
+            emoji = "🏆";
+            text = "Tu as obtenu le meilleur score";
+        } else if (stat.isGood) {
+            emoji = "✅";
+            text = "Ton score est excellent";
+        } else if (stat.isWorst) {
+            emoji = "❌";
+            text = "Tu as obtenu zéro point à ton test";
+        } else if (stat.isNotGood) {
+            emoji = "⚠️";
+            text = "Tu peux mieux faire !";
+        } else if (stat.hasProgress) {
+            emoji = "📈";
+            text = "Tu as amélioré ton score précédent";
+        }
+        return ({ emoji: emoji, text: text, lesson: lesson, chapter: chapter,percentStat,progressScore, percentPreviousStat: percentPreviousStat });
+    }, [stat, previousStat]);
+
+    return (
+        <>
+            <div className="dash-msg">
+                <div className="dash-emoji">{emoji}</div>
+                <div className="dash-body">
+                    <Stack className="dash-header" direction={'row'} alignItems={'start'} spacing={1} justifyContent={'space-between'}>
+                        <span className="dash-from">{text}</span>
+                        <Typography variant='caption' noWrap style={{ fontSize: '12px' }}>{formatDateToRelative(stat.end_date)}</Typography>
+                    </Stack>
+                    <Stack sx={{ width: '100%', background: '' }} spacing={0.5}>
+                        <Typography variant='caption' fontSize={'0.8rem'}>{lesson?.uid_intern}{". "}{lesson?.translate?.title}</Typography>
+                        <Typography variant='caption' fontSize={'0.8rem'}>{chapter?.uid_intern}{". "}{chapter?.translate?.title}</Typography>
+                        <Stack spacing={1} sx={{ py: 1 }}>
+                            <Grid container spacing={1}>
+                                {
+                                    previousStat && <Grid size={{ xs: 12, sm: 'auto' }}>
+                                        <Chip
+                                            label={`Précédent : ${previousStat?.score}/${previousStat?.answers?.length}`}
+                                            size='small'
+                                            sx={{
+                                                fontWeight: 950,
+                                                borderRadius: 3,
+                                                bgcolor: "var(--primary-shadow-xs)",
+                                                color: "var(--primary)",
+                                                px: 1,
+                                                borderColor: "var(--primary-shadow-md)",
+                                                "& .MuiChip-icon": { color: "var(--primary)", marginRight: 0 },
+                                            }}
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+                                }
+                                <Grid size={{ xs: 12, sm: 'auto' }}>
+                                    <Chip
+                                        label={`Score : ${stat.score}/${stat.answers?.length}`}
+                                        size='small'
+                                        sx={{
+                                            fontWeight: 950,
+                                            borderRadius: 3,
+                                            bgcolor: "var(--primary-shadow-xs)",
+                                            color: "var(--primary)",
+                                            px: 1,
+                                            borderColor: "var(--primary-shadow-md)",
+                                            "& .MuiChip-icon": { color: "var(--primary)", marginRight: 0 },
+                                        }}
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                           {
+                            previousStat &&  <Grid container spacing={1}>
+                            <>
+                                    <Grid size={{ xs: 12, sm: 'auto' }}>
+                                        <Chip
+                                            label={`Evolution : ${progressScore>0?"+": ''}${progressScore} point(s)`}
+                                            size='small'
+                                            sx={{
+                                                fontWeight: 950,
+                                                borderRadius: 3,
+                                                bgcolor: `var(--${progressScore>=0 ? 'success' : 'error'}-shadow-xs)`,
+                                                color: `var(--${progressScore>=0 ? 'success' : 'error'})`,
+                                                px: 1,
+                                                borderColor: `var(--${progressScore>=0 ? 'success' : 'error'}-shadow-md)`,
+                                                "& .MuiChip-icon": { color: "var(--${progressScore>=0 ? 'success' : 'error'})", marginRight: 0 },
+                                            }}
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+                                    <Grid size={{ xs: 12, sm: 'auto' }}>
+                                        <Chip
+                                            label={`Progression : ${parseInt(percentStat-percentPreviousStat)}%`}
+                                            size='small'
+                                            sx={{
+                                                fontWeight: 950,
+                                                borderRadius: 3,
+                                                bgcolor: `var(--${progressScore>=0 ? 'success' : 'error'}-shadow-xs)`,
+                                                color: `var(--${progressScore>=0 ? 'success' : 'error'})`,
+                                                px: 1,
+                                                borderColor: `var(--${progressScore>=0 ? 'success' : 'error'}-shadow-md)`,
+                                                "& .MuiChip-icon": { color: "var(--${progressScore>=0 ? 'success' : 'error'})", marginRight: 0 },
+                                            }}
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+                                </>
+                        </Grid>
+                           }
+                        </Stack>
+                    </Stack>
+                    </div>
+            </div>
+
+            <style jsx>{`
+          .dash-msg {
+            display: flex;
+            gap: 8px;
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: 0.1px solid var(--card-border);
+            color:var(--font-color);
+          }
+  
+          .dash-emoji {
+            font-size: 1.1rem;
+          }
+  
+          .dash-body {
+            flex: 1;
+            font-size: 0.82rem;
+            width:100%;
+          }
+  
+          .dash-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+          }
+  
+          .dash-from {
+            font-weight: 600;
+          }
+  
+          .dash-time {
+            color: #6b7280;
+          }
+  
+          .dash-preview {
+            margin: 3px 0 0;
+            color: #e5e7eb;
+          }
+        `}</style>
+        </>
+    );
+}
+
+function EvolutionListComponent() {
+    const { stats, getBestStat, getWorstStat } = useStat();
+    const statsFiltered = useMemo(() => {
+        var _stats = [...stats].sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
+        _stats = _stats.map((stat, i) => {
+            const array = [..._stats];
+            //const max = getBestStat(stat.uid_lesson, stat.uid_chapter);
+            //const min = getWorstStat(stat.uid_lesson, stat.uid_chapter);
+            const score = stat.answers.filter(a => a.uid_answer === a.uid_proposal).length;
+            const previousStat = i > 0 ? array[i - 1] : null;
+            return ({
+                ...stat.toJSON(),
+                score,
+                isFirst: i === 0,
+                isBest: score === stat.answers.length,
+                isGood: stat.status === ClassUserStat.STATUS.GOOD || stat.status === ClassUserStat.STATUS.EXCELLENT,
+                isNotGood: stat.status === ClassUserStat.STATUS.NOT_GOOD,
+                isWorst: score === 0,
+                previousStat: previousStat,
+                hasProgress: previousStat ? score > previousStat.score : false,
+            })
+        });
+        //console.log("STTTTAS", _stats);
+        _stats=_stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
+        return _stats;
+    }, [stats]);
+    return (<>
+        <div className="card">
+            <div className="card-header">
+                <h2>{`Actualités récentes`}</h2>
+                <Link href={PAGE_STATS}>
+                    <button className="link-btn">Tout voir</button>
+                </Link>
+            </div>
+            <Stack spacing={1}>
+                {statsFiltered.map((stat) => (
+                    <EvolutionCard key={stat.uid} stat={stat} previousStat={stat.previousStat} />
+                ))}
+            </Stack>
+        </div>
+        <style jsx>{`  
+        .card {
+          background: var(--card-color);
+          border-radius: 10px;
+          border: 0.1px solid var(--card-border);
+          padding: 14px 14px 16px;
+        }
+  
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+          color:${ClassColor.GREY_LIGHT};
+        }
+  
+        .card-header h2 {
+          margin: 0;
+          font-size: 1.05rem;
+        }
+  
+        .link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          font-size: 0.8rem;
+          color: #60a5fa;
+          cursor: pointer;
+          color: var(--primary);
+        }
+
+        .message-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+      `}</style>
+    </>)
+}
+function DandelaDashboardHome() {
+    const [activeMenu, setActiveMenu] = useState("accueil");
+    const { sessions, slots } = useSession();
+    const [countObj, setCountObj] = useState({
+        students: 0,
+        teachers: 0,
+        devices: 0,
+        sessions: 0,
+        slots: 0
+    })
+
+    const handleMenuClick = (key) => {
+        // Ici tu peux remplacer par un vrai route.push('/app/...') plus tard
+        setActiveMenu(key);
+    };
+    useEffect(() => {
+        async function init() {
+            const results = await Promise.allSettled([
+                ClassUserStudent.count(),
+                ClassUserTeacher.count(),
+                ClassHardware.count(),
+            ]);
+            const count_sessions = sessions.length || 0;
+            const count_slots = slots.length || 0;
+
+            setCountObj(prev => ({
+                ...prev,
+                sessions: count_sessions,
+                slots: count_slots
+            }))
+
+            results.forEach((res, index) => {
+                if (res.status === 'fulfilled') {
+                    //console.log('OK', index, res.value, res);
+                    setCountObj(prev => ({
+                        ...prev,
+                        [Object.keys(prev)[index]]: res.value
+                    }))
+                } else {
+                    console.error('ERROR', index, res.reason);
+                }
+            });
+        }
+        init();
+    }, [sessions])
+
+    return (<>
+        <Grid container spacing={1}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <Stack spacing={1}>
+                    <div className="card">
+                        <div className="card-header">
+                            <h2>Accès rapide</h2>
+                        </div>
+                        <div className="quick-links">
+                            <QuickLink
+                                label="Accéder aux cours"
+                                description="Suivre un cours en ligne ou présentiel"
+                                emoji="📘"
+                                link={PAGE_LESSONS}
+                            />
+                            <QuickLink
+                                label="Voir tous tes résultats"
+                                description="Explorer tous les résultats détaillés"
+                                emoji="🏆"
+                                link={PAGE_STATS}
+                            />
+                            <QuickLink
+                                label="Consulter le calendrier"
+                                description="Vue globale des sessions."
+                                emoji="📅"
+                                link={PAGE_DASHBOARD_CALENDAR}
+                            />
+
+
+                            <QuickLink
+                                label="Paramétrer le profil"
+                                description="Toutes les préférences du compte"
+                                emoji="👥"
+                                link={PAGE_DASHBOARD_PROFILE}
+                            />
+
+
+                        </div>
+                    </div>
+                    
+
+                </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <Stack spacing={1}>
+                    <div className="side-col">
+                    <EvolutionListComponent />
+
+
+                    </div>
+                </Stack>
+            </Grid>
+        </Grid>
+        <style jsx>{`
+        .page {
+          min-height: 100vh;
+          background: radial-gradient(circle at top, #111827, #020617 55%);
+          background: transparent;
+          padding: 0px 0px;
+          color: #e5e7eb;
+          display: flex;
+          justify-content: center;
+        }
+  
+        .shell {
+          width: 100%;
+          max-width: 1280px;
+          border-radius: 10px;
+          border: 0.1px solid var(--card-border);
+          background: red;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+  
+        .layout {
+          display: grid;
+          grid-template-columns: 220px minmax(1fr, 1fr);
+          min-height: 520px;
+        }
+  
+        @media (max-width: 900px) {
+          .layout {
+            grid-template-columns: 1fr;
+          }
+        }
+  
+        .sidebar {
+          border-right: 1px solid #111827;
+          padding: 14px 10px 10px;
+          background: radial-gradient(circle at top, #020617, #020617 55%);
+        }
+  
+        @media (max-width: 900px) {
+          .sidebar {
+            display: none;
+          }
+        }
+  
+        .nav {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+  
+        .sidebar-footer {
+          margin-top: 18px;
+          font-size: 0.75rem;
+          color: #6b7280;
+        }
+  
+        .sidebar-hint span {
+          color: #e5e7eb;
+        }
+  
+        .content {
+          padding: 0;
+          background:blue;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+  
+        .content-header {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+  
+        .welcome-text {
+          margin: 0 0 4px;
+          font-size: 0.85rem;
+          color: ${ClassColor.GREY_LIGHT};
+        }
+  
+        h1 {
+          margin: 0;
+          font-size: 1.7rem;
+          color:var(--font-color);
+        }
+  
+        .muted {
+          margin: 4px 0 0;
+          font-size: 0.9rem;
+          color: #9ca3af;
+          max-width: 500px;
+        }
+  
+        .header-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+  
+        .btn {
+          border-radius: 999px;
+          padding: 8px 14px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+  
+        .btn.primary {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          border-color: transparent;
+        }
+  
+        .btn.ghost {
+          background: transparent;
+        }
+  
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px;
+        }
+  
+        @media (max-width: 900px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+  
+        @media (max-width: 650px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+  
+        .main-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+          gap: 14px;
+          margin-top: 4px;
+        }
+  
+        @media (max-width: 980px) {
+          .main-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+  
+        .main-col,
+        .side-col {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+  
+        .card {
+          background: var(--card-color);
+          border-radius: 10px;
+          border: 0.1px solid var(--card-border);
+          padding: 14px 14px 16px;
+        }
+  
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+          color:${ClassColor.GREY_LIGHT};
+        }
+  
+        .card-header h2 {
+          margin: 0;
+          font-size: 1.05rem;
+        }
+  
+        .link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          font-size: 0.8rem;
+          color: #60a5fa;
+          cursor: pointer;
+          color: var(--primary);
+        }
+  
+        .lesson-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+  
+        .lesson-item {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 12px;
+          border: 0.1px solid var(--card-border);
+          background: var(--card-color);
+          color: var(--font-color);
+          font-weight: 300;
+        }
+  
+        .lesson-title {
+          margin: 0 0 3px;
+          font-size: 0.95rem;
+        }
+  
+        .lesson-sub {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #9ca3af;
+        }
+  
+        .lesson-time {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #60a5fa;
+          color: var(--primary);
+        }
+  
+        .lesson-meta {
+          min-width: 90px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          justify-content: center;
+          gap: 2px;
+        }
+  
+        .lesson-counter {
+          margin: 0;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+  
+        .lesson-counter-sub {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #9ca3af;
+        }
+  
+        .mini-btn {
+          border-radius: 999px;
+          padding: 4px 10px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.75rem;
+          cursor: pointer;
+        }
+  
+        .quick-links {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+  
+        @media (max-width: 700px) {
+          .quick-links {
+            grid-template-columns: 1fr;
+          }
+        }
+  
+        .message-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+  
+        .system-list {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 8px;
+          font-size: 0.85rem;
+        }
+  
+        .system-list li {
+          margin-bottom: 4px;
+        }
+  
+        .system-list span {
+          color: #9ca3af;
+        }
+  
+        .system-note {
+          margin: 4px 0 0;
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+      `}</style>
+    </>);
+}
+export default function DashboardComponent() {
+    const { theme } = useThemeMode();
+    const { text } = theme.palette;
+    const { t } = useTranslation([NS_DASHBOARD_HOME]);
+    const now = new Date();
+    const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const { user, login, logout } = useAuth();
+    //static async create(data = {})
+    const [processing, setProcessing] = useState(false);
+
+
+    return (<>
+        <div className="page">
+            <DandelaDashboardHome />
+        </div>
+
+    </>)
+    /*
+    return (
+      <LoginPageWrapper>
+              <Typography>
+                Se connecter
+              </Typography>
+              <Stack spacing={1}>
+                <TextFieldComponent
+                  //label='email'
+                  name='email'
+                  icon={<IconEmail width={20} />}
+                  placeholder='adress'
+                  value={email}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setEmail(e.target.value);
+                  }}
+                  onClear={() => {
+                    setEmail('');
+                  }}
+  
+                />
+                <TextFieldPasswordComponent
+                  //label='email'
+                  name='password'
+                  placeholder='password'
+                  value={password}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setPassword(e.target.value);
+                  }}
+                  onClear={() => {
+                    setPassword('');
+                  }}
+  
+                />
+              </Stack>
+              <ButtonNextComponent 
+              label='Se connecter'
+              onClick={()=>{
+                login(email, password);
+              }}
+              />
+      </LoginPageWrapper>
+    );
+    */
+}

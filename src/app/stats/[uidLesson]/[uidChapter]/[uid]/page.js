@@ -22,9 +22,6 @@ import {
   CardContent,
   IconButton,
   CircularProgress,
-  LinearProgress,
-  ToggleButtonGroup,
-  ToggleButton,
 } from "@mui/material";
 
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -34,20 +31,20 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import { ClassLessonChapter, ClassLessonChapterTranslation } from "@/classes/lessons/ClassLessonChapter";
 import { useLanguage } from "@/contexts/LangProvider";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useLesson } from "@/contexts/LessonProvider";
 import { Trans, useTranslation } from "react-i18next";
 import { ClassLesson } from "@/classes/ClassLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBarChart, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconLineChart, IconList, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
-import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS } from "@/contexts/i18n/settings";
-import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
+import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_STATS_ONE } from "@/contexts/i18n/settings";
+import { PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import { ClassLessonChapterQuestion, ClassLessonChapterQuestionTranslation, ClassLessonChapterQuiz } from "@/classes/lessons/ClassLessonChapterQuiz";
 import CheckboxComponent from "@/components/elements/CheckboxComponent";
-import { addDaysToDate, formatChrono, getFormattedDateComplete, getFormattedDateCompleteNumeric, mixArray } from "@/contexts/functions";
+import { addDaysToDate, capitalizeFirstLetter, formatChrono, getFormattedDateComplete, getFormattedDateCompleteNumeric, mixArray } from "@/contexts/functions";
 import AlertComponent from "@/components/elements/AlertComponent";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -55,14 +52,10 @@ import CircularProgressWithLabelComponent from "@/components/elements/CircularPr
 import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
 import StatsListComponent from "@/components/stats/StatsListComponent";
 import { useStat } from "@/contexts/StatProvider";
+import OneStatComponent from "@/components/stats/OneStatComponent";
 import { useChapter } from "@/contexts/ChapterProvider";
-import SchoolIcon from "@mui/icons-material/School";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import InsightsIcon from "@mui/icons-material/Insights";
-import DashboardChartsComponent from "@/components/dashboard/DashboardChartsComponent";
-import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
-import StatsLineChart from "@/components/stats/StatsLineChart";
-import StatsBarChart from "@/components/stats/StatsBarChart";
+import SelectComponentDark from "@/components/elements/SelectComponentDark";
+import Link from "next/link";
 
 const CongratulationsComponent = ({ stat = null }) => {
   const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
@@ -459,134 +452,112 @@ const CongratulationsComponent = ({ stat = null }) => {
     `}</style>
   </>)
 }
-const CardHeader = ({ lesson = null, chapter = null }) => {
+const CardHeader = ({indexStat=-1}) => {
+  const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  const { stats } = useStat();
-  return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
+  const { lesson } = useLesson();
+  const { chapter } = useChapter();
+  const { stat, stats, setUidStat } = useStat();
+  const disabledBack = useMemo(() => {
+    return indexStat === 0;
+  }, [stats, stat]);
+  const disabledNext = useMemo(() => {
+    return indexStat === stats?.length - 1;
+  }, [stats, stat]);
+
+  return (<Stack sx={{ background: '', width: '100%' }}>
     <Grid container>
       <Grid size={{ xs: 12, sm: 6 }}>
         <Box>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-            {t('title')}
+            {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
           </Typography>
           <Typography variant="body1" sx={{ color: "text.secondary" }}>
-            {t('subtitle')}
+          {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)} • {capitalizeFirstLetter(t('quiz'))}{" n°"}{indexStat+1}
           </Typography>
+
+          <Stack spacing={1} direction={'row'} sx={{pt:1}} alignItems={'center'}>
+          <Link href={`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}`}>
+          <ButtonCancel label={t('btn-see-results')} />
+          </Link>
+          </Stack>
+
+          <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{
+            py: 1,
+            background: 'var(--primary-shadow)',
+            borderRadius: '10px',
+            my: 1.5,
+            py: 1.5,
+            px: 1,
+            color:'var(--primary-dark)'
+          }}>
+            <IconButton
+              disabled={disabledBack}
+              onClick={() => {
+                //const currentIndex = getOneStatIndex(stat?.uid);
+                const uid = stats?.[indexStat - 1]?.uid || "";
+                //setUidStat(uid);
+                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
+              }}
+              sx={{
+                color: !disabledBack ? 'var(--primary)' : ''
+              }}
+            >
+              <IconArrowBack />
+            </IconButton>
+            {
+              <Typography>{capitalizeFirstLetter(t('quiz'))} {indexStat + 1}{"/"}{stats?.length}</Typography>
+            }                <IconButton
+              disabled={disabledNext}
+              onClick={() => {
+                const uid = stats?.[indexStat + 1]?.uid || "";
+                //setUidStat(uid);
+                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
+              }}
+              sx={{
+                color: !disabledNext ? 'var(--primary)' : ''
+              }}
+            >
+              <IconArrowRight />
+            </IconButton>
+          </Stack>
         </Box>
       </Grid>
     </Grid>
   </Stack>)
 }
-function AvatarIcon({ children, sx }) {
-  return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 3,
-        display: "grid",
-        placeItems: "center",
-        bgcolor: "rgba(37,99,235,0.12)",
-        color: "#2563EB",
-        border: "1px solid rgba(37,99,235,0.18)",
-        ...sx,
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
-function clamp(v) {
-  const n = Number(v || 0);
-  return Math.max(0, Math.min(100, n));
-}
-function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 5,
-        p: 2.2,
-        py: 2,
-        px: 1.5,
-        //border: "0.1px solid var(--primary-shadow-sm)",
-        background: 'var(--primary-shadow)',
-        borderRadius: '10px',
-        color: "var(--font-color)",
-      }}
-    >
-      <Stack spacing={1.1}>
-        <Stack direction="row" spacing={1.2} alignItems="center">
-          <AvatarIcon>{icon}</AvatarIcon>
-          <Stack spacing={0.1} sx={{ minWidth: 0 }}>
-            <Typography variant="caption" color="var(--primary-dark)">
-              {title}
-            </Typography>
-            <Typography variant="h4" color="var(--primary)" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
-              {value}
-            </Typography>
-          </Stack>
-        </Stack>
 
-        <Typography variant="body2" color="var(--grey-dark)">
-          {subtitle}
-        </Typography>
-
-        <Grid container alignItems={'center'} spacing={1}>
-          <Grid size={'grow'}>
-            <LinearProgress
-              variant="determinate"
-              value={clamp(progress)}
-              sx={{
-                height: 10,
-                width: '100%',
-                borderRadius: 999,
-                bgcolor: "var(--primary-shadow-sm)",
-                "& .MuiLinearProgress-bar": {
-                  borderRadius: 999,
-                  bgcolor: "var(--primary)",
-                },
-              }}
-            />
-          </Grid>
-          {
-            total && <Grid size={'auto'} alignItems={'center'}>
-              <Typography variant="caption" sx={{ fontSize: '12px', width: 'auto', height: '100%' }}>{total}</Typography>
-            </Grid>
-          }
-        </Grid>
-      </Stack>
-    </Paper>
-  );
-}
-
-
-
-export default function ExcelBeginnerCoursePage() {
+export default function OneStatPage() {
+  const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  const { uidLesson,uidChapter, uid: uidStat } = useParams();
+  console.log("uid", uidStat)
   // const { lang } = useLanguage();
-  const [isOpenDetails, setIsOpenDetails] = useState(false);
-  const { lessons,lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-  const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
-  const { chapters, chapter, setUidChapter } = useChapter();
-  const [ viewMode, setViewMode ] = useState('list');
+  //const { user } = useAuth();
+  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+  const { chapter, setUidChapter } = useChapter();
 
-  const { score, countQuestions, percent, duration, durationTotal, countChapters, countChaptersTotal } = useMemo(() => {
-    return {
-      score: getGlobalScore(),
-      countQuestions: getGlobalCountQuestions(),
-      percent: getGlobalPercent(),
-      duration: getGlobalDuration(),
-      durationTotal: getGlobalDuration(),
-      countChapters: getGlobalCountChapters(),
-      countChaptersTotal: chapters.length,
-    };
+  const { stat, stats, setUidStat, isLoading: isLoadingStats } = useStat();
+  useEffect(() => {
+    for (const s of stats) {
+      router.prefetch(`${PAGE_STATS}/${uidLesson}/${uidChapter}/${s.uid}`);
+    }
   }, [stats]);
+  useEffect(() => {
+    setUidLesson(uidLesson);
+    setUidChapter(uidChapter);
+    setUidStat(uidStat);
+  }, [uidLesson,uidChapter,uidStat]);
+  const indexStat = useMemo(() => {
+    return stats.findIndex(s => s.uid === uidStat);
+  }, [stats, uidStat]);
 
   return (<DashboardPageWrapper
     titles={[
-      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: '' },
-      //{ name: lesson?.translate?.title, url: `${PAGE_LESSONS}/${lesson?.uid}` },
+      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
+      { name: lesson?.translate?.title, url: `${PAGE_STATS}/${lesson?.uid}` },
+      { name: chapter?.translate?.title, url: `${PAGE_STATS}/${lesson?.uid}/${chapter?.uid}` },
+      { name: `${capitalizeFirstLetter(t('quiz'))} n°${indexStat+1}`, url: `` },
       //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
       //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
     ]}
@@ -598,47 +569,10 @@ export default function ExcelBeginnerCoursePage() {
       {
         isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
           <Grid size={12}>
-            <CardHeader />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <KpiCard
-              icon={<InsightsIcon />}
-              title={t('global-rating')}
-              value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
-              subtitle={`${score}/${countQuestions} • ${stats.length} ${t('attempts')}`}
-              progress={percent}
-              total={`${score}/${countQuestions}`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <KpiCard
-              icon={<SchoolIcon />}
-              title={t('global-cover')}
-              value={`${countChapters} ${t('chapters')}`}
-              subtitle={`${countChapters}/${countChaptersTotal} ${t('chapters')} • ${stats.length} ${t('attempts')}`}
-              progress={Math.min(100, (countChapters / Math.max(1, countChaptersTotal)) * 100)}
-              total={`${countChapters}/${countChaptersTotal}`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <KpiCard
-              icon={<IconDuration />}
-              title={t('global-duration')}
-              value={formatChrono(duration)}
-              subtitle={t('duration')}
-              progress={Math.min(1000, (duration / Math.max(1, (durationTotal))) * 100)}
-              total={formatChrono(durationTotal)}
-            />
+            <CardHeader indexStat={indexStat} />
           </Grid>
           <Grid size={{ xs: 12, sm: 12 }}>
-            <StatsChartsComponent
-            listComponent={<StatsListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-            listAverageComponent={<StatsListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-            evolutionComponent={<StatsLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-            evolutionAverageComponent={<StatsLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-            compareComponent={<StatsBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-            compareAverageComponent={<StatsBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-            />
+            <OneStatComponent stat={stat} />
           </Grid>
         </Grid>
       }

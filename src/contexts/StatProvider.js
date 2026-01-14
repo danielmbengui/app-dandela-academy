@@ -30,14 +30,16 @@ export const useStat = () => useContext(StatContext);
 export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
-    const { lesson, lessons, setUidLesson, getOneLesson } = useLesson();
-    const { chapter, chapters, setUidChapter, getOneChapter } = useChapter();
+    const { lesson, lessons, getOneLesson } = useLesson();
+    const { chapter, chapters, getOneChapter } = useChapter();
+    //const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
+    //const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
     //if(!lesson || !chapter) return;
     useEffect(() => {
         async function init() {
             const _duration = await getLessonsEstimatedTime();
             setCountHourTotalLessons(_duration);
-            console.log("chapters stat provider", chapters)
+            //console.log("chapters stat provider", chapters)
         }
         init();
     }, []);
@@ -148,7 +150,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             }
             //_chapters = _chapters.sort((a, b) => a.uid_intern - b.uid_intern);
             _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-            console.log("stats provider STAT", lessons, chapters)
+            //console.log("stats provider STAT", lessons, chapters)
             //setChapters(_chapters);
             //setStats(_stats);
             //const _most_recent_stat = getMostRecentStat(chapter.uid_lesson, chapter.uid);
@@ -179,11 +181,11 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
                 return;
             }
             const _stat = snap.data();
-            setUidLesson(_stat.uid_lesson);
-            setUidChapter(_stat.uid_chapter);
+            //setUidLesson(_stat.uid_lesson);
+            //setUidChapter(_stat.uid_chapter);
             _stat.lesson = getOneLesson(_stat.uid_lesson);
             _stat.chapter = getOneChapter(_stat.uid_chapter);
-            console.log("ONE STAT", _stat, chapters);
+            //console.log("ONE STAT", _stat, chapters);
             //const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
             //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
@@ -236,16 +238,17 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         //const _stat = ;
         return stats.findIndex(item => item.uid === uid);
     }
-    function getGlobalScore(uidLesson = "", uidChapter = "") {
+    function getGlobalScore(uidLesson = "", uidChapter = "",statsParam = stats) {
         var total = 0;
         var scoreTotal = 0;
-        var filteredStats = [...stats];
+        //var filteredStats = [...stats];
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
         if (uidLesson && uidChapter) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidChapter === stat.uid_chapter);
         }
         for (const stat of filteredStats) {
             scoreTotal += stat.score;
@@ -270,16 +273,17 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return durationTotal;
     }
-    function getGlobalCountQuestions(uidLesson = "", uidChapter = "") {
+    function getGlobalCountQuestions(uidLesson = "", uidChapter = "",statsParam = stats) {
         var total = 0;
         var questionsTotal = 0;
-        var filteredStats = [...stats];
+        //var filteredStats = [...stats];
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
         if (uidLesson && uidChapter) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidChapter === stat.uid_chapter);
         }
         for (const stat of filteredStats) {
             questionsTotal += stat.answers.length;
@@ -287,34 +291,38 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return questionsTotal;
     }
-    function getGlobalPercent(uidLesson = "", uidChapter = "") {
+    function getGlobalPercent(uidLesson = "", uidChapter = "", statsParam = stats) {
         var total = 0;
         var percentTotal = 0;
-        var filteredStats = [...stats];
+        //var filteredStats = [...stats];
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
         if (uidLesson && uidChapter) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidChapter === stat.uid_chapter);
         }
+        
         for (const stat of filteredStats) {
             const percent = stat.answers.length > 0 ? (stat.score / stat.answers.length) * 100 : 0;
             percentTotal += percent;
             total++;
         }
+
         //console.log("wesh global", percentTotal,total, uidLesson,uidChapter,stats.length)
-        return (percentTotal / total);
+        return (total > 0 ? percentTotal / total : 0);
     }
-    function getGlobalCountQuiz(uidLesson = "", uidChapter = "") {
+    function getGlobalCountQuiz(uidLesson = "", uidChapter = "", statsParam = stats) {
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
         if (uidLesson && uidChapter) {
-            return stats.filter(stat => stat.uid_lesson === uidLesson && stat.uid_chapter === uidChapter).length || 0;
+            return [...filteredStats].filter(stat => stat.uid_lesson === uidLesson && stat.uid_chapter === uidChapter).length || 0;
         } else if (uidLesson) {
-            return stats.filter(stat => stat.uid_lesson === uidLesson).length || 0;
+            return [...filteredStats].filter(stat => stat.uid_lesson === uidLesson).length || 0;
         } else if (uidChapter) {
-            return stats.filter(stat => stat.uid_chapter === uidChapter).length || 0;
+            return [...filteredStats].filter(stat => stat.uid_chapter === uidChapter).length || 0;
         } else {
-            return stats.length;
+            return [...filteredStats].length;
         }
     }
     function getGlobalCountLesson() {
@@ -327,9 +335,14 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return new Set(stats.map(stat => stat.uid_lesson)).size || 0;
     }
-    function getGlobalCountChapters() {
-        return new Set(stats.map(stat => stat.uid_chapter)).size || 0;
+    function getGlobalCountChapters(uidLesson = "",) {
+        var filteredStats = [...stats];
+        if (uidLesson) {
+            filteredStats = [...stats].filter(s => s.uid_lesson === uidLesson);
+        }
+        return new Set(filteredStats.map(stat => stat.uid_chapter)).size || 0;
     }
+
     async function getLessonsEstimatedTime() {
         var total = 0;
         var timeTotal = 0;
@@ -362,89 +375,49 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         if (!sortedStats.length) return null;
         return sortedStats[0];
     }
-    function getBestStat(uidLesson = "", uidChapter = "") {
-        var total = 0;
-        var percentTotal = 0;
+    function getBestStat(uidLesson = "", uidChapter = "",statsParam = stats) {
         var maxScore = 0;
         var maxStat = null;
+        //var filteredStats = [...stats];
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
+        //console.log("getMostRecentStat", stats)
+        if (!filteredStats.length) return null;
         if (uidLesson && uidChapter) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
-                    if (stat.score > maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson) {
-                    if (stat.score > maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            for (const stat of stats) {
-                if (uidChapter === stat.uid_chapter) {
-                    if (stat.score > maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
-        } else {
-            for (const stat of stats) {
-                if (stat.score > maxScore) {
-                    maxScore = stat.score;
-                    maxStat = stat;
-                }
+            filteredStats = filteredStats.filter(stat => uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
+            if (stat.score > maxScore) {
+                maxScore = stat.score;
+                maxStat = stat;
             }
         }
         return maxStat;
     }
-    function getWorstStat(uidLesson = "", uidChapter = "") {
-        var total = 0;
-        var percentTotal = 0;
-        var maxScore = 1_000_000_000;
-        var maxStat = null;
+
+    function getWorstStat(uidLesson = "", uidChapter = "", statsParam = stats) {
+        var minScore = 1_000_000_000;
+        var minStat = null;
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
+        //console.log("getMostRecentStat", stats)
+        if (!filteredStats.length) return null;
         if (uidLesson && uidChapter) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter) {
-                    if (stat.score < maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = [...filteredStats].filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            for (const stat of stats) {
-                if (uidLesson === stat.uid_lesson) {
-                    if (stat.score < maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
+            filteredStats = [...filteredStats].filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            for (const stat of stats) {
-                if (uidChapter === stat.uid_chapter) {
-                    if (stat.score < maxScore) {
-                        maxScore = stat.score;
-                        maxStat = stat;
-                    }
-                }
-            }
-        } else {
-            for (const stat of stats) {
-                if (stat.score < maxScore) {
-                    maxScore = stat.score;
-                    maxStat = stat;
-                }
+            filteredStats = [...filteredStats].filter(stat => uidChapter === stat.uid_chapter);
+        }
+        for (const stat of filteredStats) {
+            if (stat.score < minScore) {
+                minScore = stat.score;
+                minStat = stat;
             }
         }
-        return maxStat;
+        return minStat;
     }
     // session
     function changeSession(uid = '', mode = '') {
@@ -500,6 +473,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         isLoading,
         isLoadingSlots,
         //setUidChapter,
+        //setUidLesson,
         setUidStat,
         stat,
         lastStat,

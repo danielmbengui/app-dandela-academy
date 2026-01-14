@@ -35,6 +35,7 @@ import Image from 'next/image';
 import { ClassLessonChapter } from '@/classes/lessons/ClassLessonChapter';
 import { ChapterProvider, useChapter } from '@/contexts/ChapterProvider';
 import { ClassLessonSubchapter } from '@/classes/lessons/ClassLessonSubchapter';
+import { useUsers } from '@/contexts/UsersProvider';
 
 
 const STATUS_CONFIG_1 = {
@@ -66,6 +67,7 @@ function LessonsComponent() {
   const [lessonsFilter, setLessonsFilter] = useState([]);
   //const [_, setLessons] = useState([]);
   const { lessons, changeLesson } = useLesson();
+  
 
   const [filter, setFilter] = useState({
     search: "",
@@ -117,7 +119,7 @@ function LessonsComponent() {
   }, []);
   useEffect(() => {
     console.log("search =", filter.search,lessons);
-    let list = [...lessons.filter(l=>l.enabled===true)];
+    let list = [...lessons];
     if (filter.search.length) {
       list = list.filter((u) => {
         const cond_title = u.translate.title.toLowerCase().includes(filter.search.toLowerCase());
@@ -126,7 +128,7 @@ function LessonsComponent() {
       });
     }
     setLessonsFilter(list);
-  }, [filter.search]);
+  }, [filter.search, lessons]);
   return (
     <div className="page">
       <main className="container">
@@ -368,16 +370,25 @@ function LessonRow({ lesson = null, lastChild = false }) {
   const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
   const roleCfg = FORMAT_CONFIG[lesson?.format];
   const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
-  console.log("LESSON", lesson)
+  console.log("LESSON", lesson);
+
+  const {minLevelId,minLevelValue, maxLevelId, maxLevelValue} = useMemo(() => {
+    return {
+      minLevelId:getMinLevel(lesson?.id)?.id,
+      minLevelValue:getMinLevel(lesson?.id)?.value,
+      maxLevelId:getMaxLevel(lesson?.id)?.id,
+      maxLevelValue:getMaxLevel(lesson?.id)?.value,
+    };
+}, [lesson]);
   return (
     <>
       <div className={`row ${lastChild ? 'last-child' : ''}`}>
         {/* Image */}
         <div className="cell cell-image">
           {
-            lesson?.photo_url && <Box sx={{ background: '', width: '50%' }}>
+            lesson?.translate?.photo_url && <Box sx={{ background: '', width: '50%' }}>
               <Image
-                src={lesson?.translate?.photo_url || '/'}
+                src={lesson?.translate?.photo_url}
                 alt={`lesson-${lesson?.uid}`}
                 quality={100}
                 width={300}
@@ -408,7 +419,9 @@ function LessonRow({ lesson = null, lastChild = false }) {
         <div className="cell cell-level">
           {lesson?.showAvatar?.({ size: 30, fontSize: '14px' })}
           <div className="user-text">
-            <p className="user-name">{t(getMinLevel())}-{t(getMaxLevel())}</p>
+          
+            <p className="user-name">{t(minLevelValue)}-{t(maxLevelValue)}</p>
+            <p className="user-id">{t('level')} : {minLevelId}-{maxLevelId}</p>
           </div>
         </div>
 

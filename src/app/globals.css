@@ -71,12 +71,12 @@
 
   --purple: #800080;
   --purple-dark: #4f004f;
-  --purple-shadow: rgba(128, 0, 128,0.05);
-  --purple-shadow-xs: rgba(128, 0, 128,0.15);
-  --purple-shadow-sm: rgba(128, 0, 128,0.25);
-  --purple-shadow-md: rgba(128, 0, 128,0.35);
-  --purple-shadow-lg: rgba(128, 0, 128,0.45);
-  --purple-shadow-xl: rgba(128, 0, 128,0.55);
+  --purple-shadow: rgba(128, 0, 128, 0.05);
+  --purple-shadow-xs: rgba(128, 0, 128, 0.15);
+  --purple-shadow-sm: rgba(128, 0, 128, 0.25);
+  --purple-shadow-md: rgba(128, 0, 128, 0.35);
+  --purple-shadow-lg: rgba(128, 0, 128, 0.45);
+  --purple-shadow-xl: rgba(128, 0, 128, 0.55);
 
   --background-footer: #0C0E2B;
 
@@ -87,14 +87,14 @@
   --grey-hyper-dark: #1c1c1c;
 
   --card-border: var(--grey-hyper-light);
-  --success: #2e7d32;
-  --success-dark: #133515;
-  --success-shadow: rgba(46, 125, 50, 0.05);
-  --success-shadow-xs: rgba(46, 125, 50, 0.15);
-  --success-shadow-sm: rgba(46, 125, 50, 0.25);
-  --success-shadow-md: rgba(46, 125, 50, 0.35);
-  --success-shadow-lg: rgba(46, 125, 50, 0.45);
-  --success-shadow-xl: rgba(46, 125, 50, 0.55);
+  --success: rgb(34, 197, 94);
+  --success-dark: rgb(9, 59, 28);
+  --success-shadow: rgba(34, 197, 94, 0.05);
+  --success-shadow-xs: rgba(34, 197, 94, 0.15);
+  --success-shadow-sm: rgba(34, 197, 94, 0.25);
+  --success-shadow-md: rgba(34, 197, 94, 0.35);
+  --success-shadow-lg: rgba(34, 197, 94, 0.45);
+  --success-shadow-xl: rgba(34, 197, 94, 0.55);
   --info: #0288d1;
   --info-dark: #004163;
   --info-shadow: rgba(2, 136, 209, 0.05);
@@ -227,8 +227,8 @@
 
 .dark {
   --blackColor: #1c1c1c;
-  --background-menu:#000000;
-  --background-menu: rgba(0,0,0,0.5);
+  --background-menu: #000000;
+  --background-menu: rgba(0, 0, 0, 0.5);
   --primary: #2676ff;
   --primary-dark: #000000;
   --primary-shadow: rgba(38, 118, 255, 0.45);

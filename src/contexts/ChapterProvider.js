@@ -142,22 +142,27 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         return snapshotChapters;
     }, [uidLesson]);
     const listenToOneChapter = useCallback((uidLesson = "", uidChapter = "") => {
-        if (!uidLesson || !uidChapter) {
+        if (!uidChapter) {
             setChapter(null);
             //setIsConnected(false);
             setIsLoading(false);
             return;
         }
         const uid = uidChapter;
-        const ref = ClassLessonChapter.docRef(uidLesson, uid);
-        const unsubscribe = onSnapshot(ref, async (snap) => {
-            if (!snap.exists()) {
+        const ref = ClassLessonChapter.colRef(); // par ex.;
+        const constraints = [where("uid", "==", uidChapter)];
+        if (uidLesson) {
+            constraints.push(where("uid_lesson", "==", uidLesson));
+        }
+        const q = query(ref, ...constraints);
+        const unsubscribe = onSnapshot(q, async (snap) => {
+            if (snap.empty) {
                 setChapter(null);
                 //setIsConnected(false);
                 setIsLoading(false);
                 return;
             }
-            const _chapter = snap.data();
+            const _chapter = snap.docs[0].data();
             //const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
             //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
@@ -255,32 +260,37 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setChapter(null);
         }
     }
-    function getMinLevel() {
+    function getMinLevel(uidLesson="") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length) return;
         const lastIndex = allLevels.length - 1;
         var minChapter = allLevels[lastIndex];
+        var chaptersFiletered = [...chapters];
+        if(uidLesson) {
+            chaptersFiletered = [...chapters].filter(c=>c.uid_lesson === uidLesson);
+        }
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
-        for (const c of chapters) {
+        for (const c of chaptersFiletered) {
             const levelChapter = allLevels.find(level => level.value === c.level);
             if (!levelChapter) return;
 
             if (levelChapter.id < minChapter.id) {
                 minChapter = levelChapter;
-
             }
         }
-       // console.log("min", minChapter.value);
-
-        return minChapter.value;
+        return {id:minChapter.id,value:minChapter.value};
     }
-    function getMaxLevel() {
+    function getMaxLevel(uidLesson="") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length) return;
         const lastIndex = allLevels.length - 1;
         var maxChapter = allLevels[lastIndex];
+        var chaptersFiletered = [...chapters];
+        if(uidLesson) {
+            chaptersFiletered = [...chapters].filter(c=>c.uid_lesson === uidLesson);
+        }
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
-        for (const c of chapters) {
+        for (const c of chaptersFiletered) {
             const levelChapter = allLevels.find(level => level.value === c.level);
             if (!levelChapter) continue;
             if (levelChapter.id >= maxChapter.id) {
@@ -289,7 +299,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         }
        // console.log("max", maxChapter.value);
 
-        return maxChapter.value;
+       return {id:maxChapter.id,value:maxChapter.value};
     }
     function getCountSubchapters() {
         var count = 0;

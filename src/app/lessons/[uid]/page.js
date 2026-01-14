@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthProvider";
 import LessonComponent from "@/components/dashboard/lessons/LessonComponent";
 import DialogSession from "@/components/dashboard/sessions/DialogSession";
 
-export default function DashboardOneLesson() {
+export default function DashboardOneLessonPage() {
     const params = useParams();
     const { uid: uidLesson } = params; // <- ici tu récupères l'uid
     const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_DASHBOARD_MENU]);
