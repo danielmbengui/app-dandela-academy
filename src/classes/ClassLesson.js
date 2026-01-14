@@ -371,7 +371,7 @@ export class ClassLesson {
         );
         cleaned.teacher = null;
         cleaned.translate = null;
-        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
+        //cleaned.translates = this._convertTranslatesToFirestore(this._translates);
         cleaned.title = null;
         cleaned.subtitle = null;
         cleaned.description = null;
@@ -620,7 +620,7 @@ export class ClassLesson {
         // const uid = newRef.id;
         //const uid_intern = idSchool;
         //this._enabled = false;
-        const newRef = doc(firestore, this.COLLECTION, this._uid).withConverter(this.converter);
+        const newRef = this.constructor.docRef(this._uid);
         this._created_time = new Date();
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
