@@ -256,16 +256,17 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return scoreTotal;
     }
-    function getGlobalDuration(uidLesson = "", uidChapter = "") {
+    function getGlobalDuration(uidLesson = "", uidChapter = "",statsParam = stats) {
         var total = 0;
         var durationTotal = 0;
-        var filteredStats = [...stats];
+        //var filteredStats = [...stats];
+        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
         if (uidLesson && uidChapter) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson && uidChapter === stat.uid_chapter);
         } else if (uidLesson) {
-            filteredStats = stats.filter(stat => uidLesson === stat.uid_lesson);
+            filteredStats = filteredStats.filter(stat => uidLesson === stat.uid_lesson);
         } else if (uidChapter) {
-            filteredStats = stats.filter(stat => uidChapter === stat.uid_chapter);
+            filteredStats = filteredStats.filter(stat => uidChapter === stat.uid_chapter);
         }
         for (const stat of filteredStats) {
             durationTotal += stat.duration;

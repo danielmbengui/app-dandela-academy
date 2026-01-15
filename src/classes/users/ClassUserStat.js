@@ -165,6 +165,18 @@ export class ClassUserStat {
             background_bar: "var(--error)",
             glow: "var(--error-shadow)",
         },
+        average: {
+            label: "good", // "Inscriptions ouvertes",
+            color: "var(--primary-dark)",
+            border: "var(--primary)",
+            background: "var(--primary-shadow-xs)",
+            background_icon: "var(--primary-shadow)",
+            background_bubble: "var(--primary-shadow-xs)",
+            color_icon: "var(--primary)",
+            border_icon: "var(--primary-shadow-sm)",
+            background_bar: "var(--primary)",
+            glow: "var(--primary-shadow)",
+        },
     });
     static ALL_STATUS = Object.values(ClassUserStat.STATUS).filter(v => v !== ClassUserStat.STATUS.UNKNOWN);
     constructor({

@@ -52,6 +52,7 @@ import QuizIcon from "@mui/icons-material/Quiz";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useStat } from "@/contexts/StatProvider";
 import { ClassLesson } from "@/classes/ClassLesson";
+import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
 
 function AvatarIcon({ children, sx }) {
   return (
@@ -497,6 +498,16 @@ export default function ExcelBeginnerCoursePage() {
         isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
           <Grid size={12}>
             <CardHeader />
+          </Grid>
+          <Grid size={12}>
+             <StatsChartsComponent
+                        listComponent={<StatsList stats={filteredStats} />}
+                       // listAverageComponent={<StatsLessonListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+                       // evolutionComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+                       // evolutionAverageComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+                       // compareComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+                       // compareAverageComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+                      />
           </Grid>
           {
             filteredStats.length === 0 && <Paper

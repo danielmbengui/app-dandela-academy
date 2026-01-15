@@ -117,10 +117,10 @@ const CardHeader = () => {
             {lesson?.translate?.subtitle}
           </Typography>
 
-          <Stack sx={{pt:1}} alignItems={'start'}>
-          <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
-          <ButtonCancel label={t('btn-see-lesson')} />
-          </Link>
+          <Stack sx={{ pt: 1 }} alignItems={'start'}>
+            <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
+              <ButtonCancel label={t('btn-see-lesson')} />
+            </Link>
           </Stack>
 
           <Stack spacing={1} alignItems={'start'} sx={{
@@ -381,6 +381,7 @@ export default function ExcelBeginnerCoursePage() {
   const { uidLesson } = useParams();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   // const { lang } = useLanguage();
+  const [isOpenDetails, setIsOpenDetails] = useState(false);
   //const { user } = useAuth();
   const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
   const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
@@ -393,15 +394,15 @@ export default function ExcelBeginnerCoursePage() {
     return filtered;
   }, [uidLesson, stats]);
 
-  const { score, countQuestions, percent, duration, durationTotal, countChapters,countChaptersTotal } = useMemo(() => {
+  const { score, countQuestions, percent, duration, durationTotal, countChapters, countChaptersTotal } = useMemo(() => {
     return {
       score: getGlobalScore(uidLesson),
       countQuestions: getGlobalCountQuestions(uidLesson),
       percent: getGlobalPercent(uidLesson),
       duration: getGlobalDuration(uidLesson),
       durationTotal: getGlobalDuration(),
-      countChapters:getGlobalCountChapters(),
-      countChaptersTotal:chapters.length,
+      countChapters: getGlobalCountChapters(),
+      countChaptersTotal: chapters.length,
     };
   }, [uidLesson, statsFiltered]);
 
@@ -454,11 +455,12 @@ export default function ExcelBeginnerCoursePage() {
           </Grid>
           <Grid size={{ xs: 12, sm: 12 }}>
             <StatsChartsComponent
-            listComponent={<StatsLessonListComponent />}
-            evolutionComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-            evolutionAverageComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-            compareComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-            compareAverageComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              listComponent={<StatsLessonListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              listAverageComponent={<StatsLessonListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              evolutionComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              evolutionAverageComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              compareComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              compareAverageComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
             />
           </Grid>
 
