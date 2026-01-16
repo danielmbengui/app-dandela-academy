@@ -8,7 +8,7 @@ import { useChapter } from "@/contexts/ChapterProvider";
 import { useUserDevice } from "@/contexts/UserDeviceProvider";
 
 const COLORS_STATS = ClassUserStat.STATUS_CONFIG;
-function getLabelsScore() {
+function GetLabelsScore() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { chapter } = useChapter();
     const { stats, getOneStatIndex } = useStat();
@@ -19,7 +19,7 @@ function getLabelsScore() {
     });
     return labels;
 }
-function getDatasetsScore() {
+function GetDatasetsScore() {
     const { chapter } = useChapter();
     const { stats, getOneStatIndex } = useStat();
     const sortedStats = [...stats].filter(s => s.uid_chapter === chapter?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
@@ -40,7 +40,7 @@ function getDatasetsScore() {
         });
     });
     const datasets = [...sortedStats].map((stat, i) => {
-        const labels = getLabelsScore();
+        const labels = GetLabelsScore();
         console.log("statttts lenght", [...sortedStats].length)
         //const uidIntern = getOneStatIndex(stat.uid, sortedStats) + 1;
         var statsMap = [{ x: labels[i], y: stat.score > 0 ? stat.score : 0.1 }];
@@ -75,7 +75,7 @@ function getDatasetsScore() {
     })
     return datasets;
 }
-function getTooltipScore() {
+function GetTooltipScore() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { getOneStat, stats } = useStat();
     const tooltip = {
@@ -128,13 +128,13 @@ function getTooltipScore() {
     }
     return tooltip;
 }
-function getLabelsAverage() {
+function GetLabelsAverage() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const ALL_STATUS = [...ClassUserStat.ALL_STATUS].reverse();
     const labels = ALL_STATUS.map(status => t(status));
     return labels;
 }
-function getDatasetsAverage() {
+function GetDatasetsAverage() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { chapter, chapters } = useChapter();
     const ALL_STATUS = [...ClassUserStat.ALL_STATUS].reverse();
@@ -201,7 +201,7 @@ function getDatasetsAverage() {
         })
     });
 }
-function getTooltipAverage() {
+function GetTooltipAverage() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { getGlobalCountQuiz,getOneStat,getOneStatIndex, stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getWorstStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
 
@@ -290,6 +290,12 @@ function getTooltipAverage() {
     }
     return tooltip;
 }
+function NoStatsComponent() {
+    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+    return (<Stack sx={{ p: 1.5, my: 1, border: '0.1px solid var(--card-border)' }} alignItems={'start'}>
+        <Typography>{t('no-result')}</Typography>
+    </Stack>)
+}
 export default function StatsChapterBarChart({ viewMode = ClassUserStat.VIEW_MODE_SCORE }) {
     const isViewScore = viewMode === ClassUserStat.VIEW_MODE_SCORE;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION])
@@ -309,13 +315,13 @@ export default function StatsChapterBarChart({ viewMode = ClassUserStat.VIEW_MOD
     }, [stats]);
     const sortedStats = [...stats].sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
     const statsDate = Array.from(new Set(sortedStats.map(s => s.end_date)));
-    var labels = getLabelsScore();
-    var datasets = getDatasetsScore();
-    var tooltip = getTooltipScore();
+    var labels = GetLabelsScore();
+    var datasets = GetDatasetsScore();
+    var tooltip = GetTooltipScore();
     if (!isViewScore) {
-        labels = getLabelsAverage();
-        datasets = getDatasetsAverage();
-        tooltip = getTooltipAverage();
+        labels = GetLabelsAverage();
+        datasets = GetDatasetsAverage();
+        tooltip = GetTooltipAverage();
     }
     const data = {
         //labels: coursesResults.map(c => c.title),
@@ -381,10 +387,4 @@ export default function StatsChapterBarChart({ viewMode = ClassUserStat.VIEW_MOD
         return (<NoStatsComponent />)
     }
     return <Bar data={data} options={options} />;
-}
-function NoStatsComponent() {
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    return (<Stack sx={{ p: 1.5, my: 1, border: '0.1px solid var(--card-border)' }} alignItems={'start'}>
-        <Typography>{t('no-result')}</Typography>
-    </Stack>)
 }

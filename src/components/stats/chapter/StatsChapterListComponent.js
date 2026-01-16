@@ -53,7 +53,7 @@ function NoStatsComponent() {
     </Stack>)
   }
 function ViewScoreComponent({ chapter = null }) {
-    if (!chapter) return;
+   // if (!chapter) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const router = useRouter();
     const { stats, getOneStatIndex } = useStat();
@@ -155,7 +155,7 @@ function ViewScoreComponent({ chapter = null }) {
     </Grid>)
 }
 function ViewAverageComponent({ chapter = null, lesson = null }) {
-    if (!lesson || !chapter) return;
+    //if (!lesson || !chapter) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { getGlobalCountQuiz, stats, getGlobalDuration, getGlobalPercent, getGlobalScore, getGlobalCountQuestions, getBestStat, getWorstStat } = useStat();
