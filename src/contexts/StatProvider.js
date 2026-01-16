@@ -224,19 +224,21 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         return unsubscribe;
     }, [user, uidStat]);
 
-    function getOneStat(uid = '') {
+    function getOneStat(uid = '',statsParam = stats) {
         if (!uid || uid === '' || uid === null) {
             return null;
         }
-        const _stat = stats.find(item => item.uid === uid);
+        var filteredStats = [...statsParam];
+        const _stat = filteredStats.find(item => item.uid === uid);
         return _stat;
     }
-    function getOneStatIndex(uid = '') {
+    function getOneStatIndex(uid = '',statsParam = stats) {
         if (!uid || uid === '' || uid === null) {
             return -1;
         }
         //const _stat = ;
-        return stats.findIndex(item => item.uid === uid);
+        var filteredStats = [...statsParam];
+        return filteredStats.findIndex(item => item.uid === uid);
     }
     function getGlobalScore(uidLesson = "", uidChapter = "",statsParam = stats) {
         var total = 0;
@@ -380,7 +382,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         var maxScore = 0;
         var maxStat = null;
         //var filteredStats = [...stats];
-        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
+        var filteredStats = [...statsParam];
         //console.log("getMostRecentStat", stats)
         if (!filteredStats.length) return null;
         if (uidLesson && uidChapter) {
@@ -402,7 +404,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     function getWorstStat(uidLesson = "", uidChapter = "", statsParam = stats) {
         var minScore = 1_000_000_000;
         var minStat = null;
-        var filteredStats = [...statsParam].sort((a, b) => b.created_time.getTime() - a.created_time.getTime());
+        var filteredStats = [...statsParam];
         //console.log("getMostRecentStat", stats)
         if (!filteredStats.length) return null;
         if (uidLesson && uidChapter) {

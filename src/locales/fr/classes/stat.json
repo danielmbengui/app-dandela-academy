@@ -11,8 +11,8 @@
   "lesson": "Cours",
   "lessons": "Cours",
   "all": "Tous",
-  "quiz": "questionnaire",
-  "quizs": "questionnaire(s)",
+  "quiz": "qQuestionnaire",
+  "quizs": "Questionnaire(s)",
   "global-rating": "Performance moyenne",
   "global-cover": "Couverture",
   "global-duration": "Temps total",
@@ -78,6 +78,7 @@
   "view": {
     "list": "Liste",
     "evolution": "Évolution",
-    "compare": "Comparaison"
+    "compare": "Comparaison",
+    "not-enabled":"Cette vue n'est pas disponible"
   }
 }

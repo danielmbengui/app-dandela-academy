@@ -119,7 +119,8 @@ function LinearProgressChapter({ label = "", percent = 0, value = 0, status }) {
 function ViewScoreComponent({ lesson = null }) {
     if (!lesson) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { getGlobalCountQuiz, stats, getGlobalScore, getGlobalCountQuestions, getBestStat, getWorstStat } = useStat();
+    const router = useRouter();
+    const { getGlobalCountQuiz, stats, getGlobalScore, getGlobalCountQuestions, getGlobalDuration, getBestStat, getWorstStat } = useStat();
     const { chapters } = useChapter();
     const { statsFiltered, chaptersFiltered } = useMemo(() => {
         const chaptersFiltered = chapters.filter(c => c.uid_lesson === lesson?.uid);
@@ -129,66 +130,71 @@ function ViewScoreComponent({ lesson = null }) {
             chaptersFiltered,
         };
     }, [lesson, stats, chapters]);
-    return (<Stack spacing={1} sx={{ py: 1 }}>
+    return (<Grid container spacing={1}>
         {
             chaptersFiltered.map((chapter, i) => {
-                const countQuiz = getGlobalCountQuiz(lesson?.uid, chapter.uid);
-                const chapterStats = [...statsFiltered].filter(s => s.uid_chapter === chapter.uid);
-                const hasStats = chapterStats.length > 0;
-                return (<Stack key={`score-${chapter.uid}`} spacing={1} sx={{ border: `0.1px solid var(--card-border)`, px: 1.5, py: 1, borderRadius: '5px' }}>
-                    <Typography>{`${chapter.uid_intern}. ${chapter.translate?.title} ${hasStats ? `→ ${countQuiz} ${t('quizs')}` : ''}`}</Typography>
-                    {
-                        !hasStats && <Typography variant="caption">{t('no-result')}</Typography>
-                    }
-                    {
-                        hasStats && <Grid container spacing={1}>
-                            {
-                                chapterStats.map((stat, i) => {
-                                    const hasMaxStats = stat?.score === stat?.answers?.length;
-                                    const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
-                                    const colorBest = STATUS_CONFIG[stat?.status];
-                                    return (<Grid key={`${stat.uid}`} size={'auto'}>
-                                        <Stack justifyContent={'center'} alignItems={'center'} spacing={0.5}
-                                            sx={{
-                                                py: 1,
-                                                px: 1.5,
-                                                border: '0.1px solid var(--card-border)',
-                                                borderRadius: '10px',
-                                            }}>
-                                            {
-                                                hasMaxStats ?
-                                                    <EmojiEventsIcon sx={{ color: colorBest?.color_icon, fontSize: '30px' }} /> :
-                                                    <IconCharts height={30} width={30} color={colorBest?.color_icon} />
+                const _stats = [...statsFiltered].filter(s => s.uid_chapter === chapter.uid);
+                const hasStats = _stats.length > 0;
 
-                                            }
-                                            <Typography>{i + 1}</Typography>
-                                            <CircularProgressStatComponent
-                                                score={stat?.score}
-                                                questions={stat?.answers?.length}
-                                                percent={stat?.score / stat?.answers?.length * 100}
-                                                showPercent={false}
-                                                duration={stat?.duration}
-                                                //progress={42} 
-                                                //stat={stat}
-                                                size="small"
-                                                status={stat?.status}
-                                            />
-                                            <Chip size="small" label={getFormattedDateNumeric(stat?.end_date)} sx={{
-                                                fontWeight: 950,
-                                                bgcolor: colorBest?.background_bubble,
-                                                color: colorBest?.color,
-                                                border: `1px solid ${colorBest?.border}`,
-                                            }} />
-                                        </Stack>
-                                    </Grid>);
-                                })
+                const score = getGlobalScore(chapter.uid_lesson, chapter.uid, _stats);
+                const countQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, _stats);
+                const duration = getGlobalDuration(chapter.uid_lesson, chapter.uid, _stats);
+
+                const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
+                const colorStat = ClassUserStat.getPercentageColor(score / countQuestions);
+                const status = ClassUserStat.getStatusFromPercentage(score / countQuestions);
+                return (<Grid key={`${chapter.uid}`} size={'auto'}>
+                    <Stack justifyContent={'center'} alignItems={'center'} spacing={0.5}
+                        onClick={() => {
+                            if (hasStats) {
+                                router.push(`${PAGE_STATS}/${chapter.uid_lesson}/${chapter.uid}`);
                             }
-                        </Grid>
-                    }
-                </Stack>)
+                        }}
+                        sx={{
+                            py: 1,
+                            px: 1.5,
+                            border: '0.1px solid var(--card-border)',
+                            borderRadius: '10px',
+                            cursor: hasStats ? 'pointer' : 'default'
+                        }}>
+                        <Typography>{chapter.uid_intern}. {chapter.translate.title} {status}</Typography>
+                        {
+                            !hasStats && <Typography variant="caption">{t('no-result')}</Typography>
+                        }
+                        {
+                            hasStats && <>
+                                {
+                                    status === ClassUserStat.STATUS.MAX ?
+                                        <EmojiEventsIcon sx={{ color: colorStat?.color_icon, fontSize: '30px' }} /> :
+                                        <IconCharts height={30} width={30} color={colorStat?.color_icon} />
+
+                                }
+                                <Stack spacing={1}>
+                                    <CircularProgressStatComponent
+                                        score={score}
+                                        questions={countQuestions}
+                                        percent={score / countQuestions * 100}
+                                        showPercent={false}
+                                        duration={duration}
+                                        //progress={42} 
+                                        //stat={stat}
+                                        size="large"
+                                        status={status}
+                                    />
+                                    <Chip size="small" label={t(status)} sx={{
+                                        fontWeight: 950,
+                                        bgcolor: colorStat?.background_bubble,
+                                        color: colorStat?.color,
+                                        border: `1px solid ${colorStat?.border}`,
+                                    }} />
+                                </Stack>
+                            </>
+                        }
+                    </Stack>
+                </Grid>)
             })
         }
-    </Stack>)
+    </Grid>)
 }
 function ViewAverageComponent({ lesson = null }) {
     if (!lesson) return;
@@ -207,121 +213,122 @@ function ViewAverageComponent({ lesson = null }) {
         };
     }, [lesson, stats, chapters]);
     const colorAverage = STATUS_CONFIG['average'];
-    return (<Stack spacing={1} sx={{ py: 1 }}>
-        {
-            chaptersFiltered.map((chapter, i) => {
-                const countQuiz = getGlobalCountQuiz(chapter.uid_lesson, chapter.uid);
-                const chapterStats = [...statsFiltered].filter(s => s.uid_chapter === chapter.uid);
-                const hasStats = chapterStats.length > 0;
-                const countScore = getGlobalScore(chapter.uid_lesson, chapter.uid, chapterStats);
-                const countQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, chapterStats);
-                const totalDuration = getGlobalDuration(chapter.uid_lesson, chapter.uid, chapterStats);
-                const percent = getGlobalPercent(chapter.uid_lesson, chapter.uid, chapterStats);
+    const countQuiz = getGlobalCountQuiz(lesson.uid, "");
+    const lessonStats = [...statsFiltered].filter(s => s.uid_lesson === lesson.uid);
+    const hasStats = lessonStats.length > 0;
+    const countScore = getGlobalScore(lesson.uid, "", lessonStats);
+    const countQuestions = getGlobalCountQuestions(lesson.uid, "", lessonStats);
+    const totalDuration = getGlobalDuration(lesson.uid, "", lessonStats);
+    const percent = getGlobalPercent(lesson.uid,"", lessonStats);
 
-                return (<Stack key={`score-${chapter.uid}`} spacing={1} sx={{ border: `0.1px solid var(--card-border)`, px: 1.5, py: 1, borderRadius: '5px' }}>
-                    <Typography>{`${chapter.uid_intern}. ${chapter.translate?.title} ${hasStats ? `→ ${countQuiz} ${t('quizs')}` : ''}`}</Typography>
-                    {
-                        !hasStats && <Typography variant="caption">{t('no-result')}</Typography>
-                    }
-                    {
-                        hasStats && <Grid direction="row" container spacing={1} sx={{
-                            background: '', justifyContent: "center",
-                            alignItems: "stretch",
-                        }}>
-                            <Grid size={{ xs: 12, sm: 3 }} sx={{ height: '100%', background: '' }}>
-                                <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                                    sx={{
-                                        py: 1,
-                                        px: 1.5,
-                                        border: '0.1px solid var(--card-border)',
-                                        borderRadius: '10px',
-                                    }}>
-                                    <Chip size="small" label={t('average')} sx={{
-                                        fontWeight: 950,
-                                        bgcolor: colorAverage.background_bubble,
-                                        color: colorAverage.color_icon,
-                                        border: colorAverage.border,
-                                    }} />
-                                    <CircularProgressChapter
-                                        score={countScore}
-                                        questions={countQuestions}
-                                        percent={percent}
-                                        duration={totalDuration}
-                                        size="large"
-                                        status={'average'}
-                                    />
-                                </Stack>
-                            </Grid>
-                            <Grid size={'grow'}>
-                                <Stack spacing={1}>
-                                    <Grid container spacing={1}>
-                                        {
-                                            statusTab.map((status, i) => {
-                                                const _stats = [...chapterStats].filter(stat => stat.status === status);
-                                                const sizeStats = _stats.length;
-                                                const percent = sizeStats / countQuiz * 100;
-                                                //const percent = getGlobalPercent(chapter.uid_lesson, chapter.uid, _stats);
-                                                const countScore = getGlobalScore(chapter.uid_lesson, chapter.uid, _stats);
-                                                const countQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, _stats);
-                                                const duration = getGlobalDuration(chapter.uid_lesson, chapter.uid, _stats);
-                                                const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
-                                                const colorBest = STATUS_CONFIG[status];
-                                                return (<Grid size={{ xs: 12, sm: 'auto' }} key={`${status}`}>
-                                                    <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                                                        sx={{
-                                                            py: 1,
-                                                            px: 1.5,
-                                                            border: '0.1px solid var(--card-border)',
-                                                            borderRadius: '10px',
-                                                        }}>
-                                                        <Chip size="small" label={t(status)} sx={{
-                                                            fontWeight: 950,
-                                                            bgcolor: colorBest.background_bubble,
-                                                            color: colorBest.color_icon,
-                                                            border: colorBest.border,
-                                                        }} />
-                                                        <CircularProgressChapter
-                                                            score={countScore}
-                                                            questions={countQuestions}
-                                                            percent={percent}
-                                                            duration={duration}
-                                                            size="small"
-                                                            status={status}
-                                                        />
-                                                    </Stack>
-                                                </Grid>)
-                                            })
-                                        }
-
-                                    </Grid>
-                                    <AverageComponent chapter={chapter} />
-                                </Stack>
-                            </Grid>
-                        </Grid>
-                    }
-                </Stack>)
-            })
+    return (<>
+{
+            !hasStats && <Typography variant="caption">{t('no-result')}</Typography>
         }
-    </Stack>)
+        {
+            hasStats && <Grid direction="row" container spacing={1} sx={{
+                background: '', justifyContent: "center",
+                alignItems: "stretch",
+            }}>
+                <Grid size={{ xs: 12, sm: 3 }} sx={{ height: '100%', background: '' }}>
+                    <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
+                        sx={{
+                            py: 1,
+                            px: 1.5,
+                            border: '0.1px solid var(--card-border)',
+                            borderRadius: '10px',
+                        }}>
+                        <Chip size="small" label={t('average')} sx={{
+                            fontWeight: 950,
+                            bgcolor: colorAverage.background_bubble,
+                            color: colorAverage.color_icon,
+                            border: colorAverage.border,
+                        }} />
+                        <CircularProgressChapter
+                            score={countScore}
+                            questions={countQuestions}
+                            percent={percent}
+                            duration={totalDuration}
+                            size="large"
+                            status={'average'}
+                        />
+                    </Stack>
+                </Grid>
+                <Grid size={'grow'}>
+                    <Stack spacing={1}>
+                        <Grid container spacing={1}>
+                            {
+                                statusTab.map((status, i) => {
+                                    const _stats = [...lessonStats].filter(stat => stat.status === status);
+                                    const sizeStats = _stats.length;
+                                    const percent = sizeStats / countQuiz * 100;
+                                    //const percent = getGlobalPercent(lesson.uid, chapter.uid, _stats);
+                                    const countScore = getGlobalScore(lesson.uid, "", _stats);
+                                    const countQuestions = getGlobalCountQuestions(lesson.uid, "", _stats);
+                                    const duration = getGlobalDuration(lesson.uid, "", _stats);
+                                    const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
+                                    const colorBest = STATUS_CONFIG[status];
+                                    return (<Grid size={{ xs: 12, sm: 'auto' }} key={`${status}`}>
+                                        <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
+                                            sx={{
+                                                py: 1,
+                                                px: 1.5,
+                                                border: '0.1px solid var(--card-border)',
+                                                borderRadius: '10px',
+                                            }}>
+                                            <Chip size="small" label={t(status)} sx={{
+                                                fontWeight: 950,
+                                                bgcolor: colorBest.background_bubble,
+                                                color: colorBest.color_icon,
+                                                border: colorBest.border,
+                                            }} />
+                                            <CircularProgressChapter
+                                                score={countScore}
+                                                questions={countQuestions}
+                                                percent={percent}
+                                                duration={duration}
+                                                size="small"
+                                                status={status}
+                                            />
+                                        </Stack>
+                                    </Grid>)
+                                })
+                            }
+
+                        </Grid>
+                        <AverageComponent lesson={lesson} />
+                    </Stack>
+                </Grid>
+            </Grid>
+        }        
+    </>)
 }
-function AverageComponent({ chapter = null }) {
-    if (!chapter) return;
+function AverageComponent({ lesson = null}) {
+    if (!lesson) return;
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { getGlobalCountQuiz, stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getWorstStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+    const router = useRouter();
+    const {getOneChapter} = useChapter();
+    const { getOneStatIndex, getGlobalCountQuiz, stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getWorstStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
     const { statsFiltered,
         averageQuestions, averagePercent, averageDuration, averageScore,
-        bestStat, worstStat,
+        bestStat,bestChapter,bestUidIntern,
+         worstStat,worstChapter,worstUidIntern,
         colorBest, colorWorst } = useMemo(() => {
-            const filtered_stats = [...stats].filter(s => s.uid_chapter === chapter?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
-            const averageQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const averagePercent = getGlobalPercent(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const averageDuration = getGlobalDuration(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const totalScore = getGlobalScore(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const totalQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, filtered_stats);
+            const filtered_stats = [...stats].filter(s => s.uid_lesson === lesson?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
+            const averageQuestions = getGlobalCountQuestions(lesson.uid, "", filtered_stats);
+            const averagePercent = getGlobalPercent(lesson.uid, "", filtered_stats);
+            const averageDuration = getGlobalDuration(lesson.uid, "", filtered_stats);
+            const totalScore = getGlobalScore(lesson.uid, "", filtered_stats);
+            const totalQuestions = getGlobalCountQuestions(lesson.uid, "", filtered_stats);
             const averageScore = totalScore;
-            const bestStat = getBestStat(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const worstStat = getWorstStat(chapter.uid_lesson, chapter.uid, filtered_stats);
+            const bestStat = getBestStat(lesson.uid, "", filtered_stats);
+            const bestChapter = getOneChapter(bestStat.uid_chapter);
+            const bestUidIntern = getOneStatIndex(bestStat.uid, filtered_stats);
+            
+            const worstStat = getWorstStat(lesson.uid, "", filtered_stats);
+            const worstChapter = getOneChapter(worstStat.uid_chapter);
+            const worstUidIntern = getOneStatIndex(worstStat.uid, filtered_stats);
             const colorBest = STATUS_CONFIG[bestStat?.status];
             const colorWorst = STATUS_CONFIG[worstStat?.status];
             return {
@@ -331,23 +338,29 @@ function AverageComponent({ chapter = null }) {
                 averageDuration,
                 averageScore,
                 bestStat,
+                bestChapter,
+                bestUidIntern,
                 worstStat,
+                worstChapter,
+                worstUidIntern,
                 colorBest,
                 colorWorst
             };
-        }, [chapter]);
+        }, [lesson]);
 
     return (<Grid container
         alignItems={'center'}
         justifyContent={'start'}
         spacing={2}>
-        <Grid size={{ xs: 12, sm: 'auto' }} alignItems={'center'}>
+        <Grid size={{ xs: 12, sm: 6 }} alignItems={'center'}>
             <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
+            onClick={()=>router.push(ClassUserStat.createUrl(worstStat.uid_lesson,worstStat.uid_chapter,worstStat.uid))}
                 sx={{
                     py: 1,
                     px: 1.5,
                     border: '0.1px solid var(--card-border)',
                     borderRadius: '10px',
+                    cursor:'pointer'
                 }}>
                 <Typography>{t('worst')}</Typography>
                 {
@@ -364,7 +377,11 @@ function AverageComponent({ chapter = null }) {
                     size="medium"
                     status={worstStat?.status}
                 />
-                <Typography sx={{ color: colorWorst?.color }}>{t(worstStat?.status)?.toUpperCase()}</Typography>
+               <Stack alignItems={'center'} spacing={0.5}>
+               <Typography sx={{fontWeight:500, color: colorWorst?.color }}>{worstChapter?.uid_intern}. {worstChapter?.translate?.title}</Typography>
+               <Typography sx={{fontWeight:300, color: colorWorst?.color }}>{t('quiz')} n°{worstUidIntern}</Typography>
+               </Stack>
+                
                 <Chip size="small" label={getFormattedDateNumeric(worstStat?.end_date)} sx={{
                     fontWeight: 950,
                     bgcolor: colorWorst?.background_bubble,
@@ -373,13 +390,15 @@ function AverageComponent({ chapter = null }) {
                 }} />
             </Stack>
         </Grid>
-        <Grid size={{ xs: 12, sm: 'auto' }} alignItems={'center'}>
+        <Grid size={{ xs: 12, sm: 6 }} alignItems={'center'}>
             <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
+             onClick={()=>router.push(ClassUserStat.createUrl(bestStat.uid_lesson,bestStat.uid_chapter,bestStat.uid))}
                 sx={{
                     py: 1,
                     px: 1.5,
                     border: '0.1px solid var(--card-border)',
                     borderRadius: '10px',
+                    cursor:'pointer'
                 }}>
                 <Typography>{t('best')}</Typography>
                 {
@@ -397,7 +416,10 @@ function AverageComponent({ chapter = null }) {
                     size="medium"
                     status={bestStat?.status}
                 />
-                <Typography sx={{ color: colorBest?.color }}>{t(bestStat?.status)?.toUpperCase()}</Typography>
+                <Stack alignItems={'center'} spacing={0.5}>
+                <Typography sx={{fontWeight:500, color: colorBest?.color }}>{bestChapter?.uid_intern}. {bestChapter?.translate?.title}</Typography>
+                <Typography sx={{fontWeight:300, color: colorBest?.color }}>{t('quiz')} n°{bestUidIntern}</Typography>
+                </Stack>
                 <Chip size="small" label={getFormattedDateNumeric(bestStat?.end_date)} sx={{
                     fontWeight: 950,
                     bgcolor: colorBest?.background_bubble,
@@ -496,9 +518,6 @@ function CourseResultsBlock({ lesson = null, isOpenDetails = false, setIsOpenDet
                     }}
                 />
                 <Stack>
-
-
-
                     {
                         !isOpenDetails && <Typography onClick={() => { setSelectedUid(lesson.uid); setIsOpenDetails(true); }} variant="caption" color="var(--primary)" sx={{ cursor: 'pointer' }}>{t('btn-see-details')}</Typography>
                     }

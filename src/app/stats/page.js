@@ -605,7 +605,7 @@ export default function ExcelBeginnerCoursePage() {
               icon={<InsightsIcon />}
               title={t('global-rating')}
               value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
-              subtitle={`${score}/${countQuestions} • ${stats.length} ${t('attempts')}`}
+              subtitle={`${t('score')} : ${score}/${countQuestions}`}
               progress={percent}
               total={`${score}/${countQuestions}`}
             />
@@ -625,7 +625,7 @@ export default function ExcelBeginnerCoursePage() {
               icon={<IconDuration />}
               title={t('global-duration')}
               value={formatChrono(duration)}
-              subtitle={t('duration')}
+              subtitle={`${t('duration')} : ${formatChrono(duration)}`}
               progress={Math.min(1000, (duration / Math.max(1, (durationTotal))) * 100)}
               total={formatChrono(durationTotal)}
             />

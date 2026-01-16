@@ -12,7 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
-import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { IconBarChart, IconLineChart, IconList } from "@/assets/icons/IconsComponent";
 import { useTranslation } from "react-i18next";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
@@ -69,10 +69,14 @@ const VIEW_MODE_AVERAGE = "view.average";
 export default function StatsChartsComponent({
   listComponent = <></>,
   listAverageComponent = <></>,
+  showList = true,
   evolutionComponent = <></>,
   evolutionAverageComponent = <></>,
+  showEvolution = true,
+  showEvolutionAverage = true,
   compareComponent = <></>,
   compareAverageComponent = <></>,
+  showCompare = true,
 }) {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   const [view, setView] = useState(VIEW_LIST);
@@ -159,34 +163,54 @@ export default function StatsChartsComponent({
         />
       </Stack>
 
-      <Stack sx={{ px: 1.5, py: 1, height: { xs: '80vh', sm: '100%' }, minHeight: '80vh', width: '100%' }}>
+      <Stack alignItems={'start'} sx={{ px: 1.5, py: 1, height: { xs: '80vh', sm: '100%' }, minHeight: '80vh', width: '100%' }}>
         {
-          view === VIEW_LIST && <>
-          {
-            viewMode===VIEW_MODE_SCORE && listComponent
-          }
-          {
-            viewMode===VIEW_MODE_AVERAGE && listAverageComponent
-          }
+          view === VIEW_LIST && showList && <>
+            {
+              viewMode === VIEW_MODE_SCORE && listComponent
+            }
+            {
+              viewMode === VIEW_MODE_AVERAGE && listAverageComponent
+            }
           </>
         }
         {view === VIEW_EVOLUTION && <>
           {
-            viewMode===VIEW_MODE_SCORE && evolutionComponent
+            viewMode === VIEW_MODE_SCORE && <>
+            {
+              showEvolution && evolutionComponent
+            }
+            {
+              !showEvolution && <NoViewComponent />
+            }
+            </>
           }
           {
-            viewMode===VIEW_MODE_AVERAGE && evolutionAverageComponent
+            viewMode === VIEW_MODE_AVERAGE && <>
+            {
+              showEvolutionAverage && evolutionAverageComponent
+            }
+            {
+              !showEvolutionAverage && <NoViewComponent />
+            }
+            </>
           }
         </>}
-        {view === VIEW_COMPARE && <>
+        {view === VIEW_COMPARE && showCompare && <>
           {
-            viewMode===VIEW_MODE_SCORE && compareComponent
+            viewMode === VIEW_MODE_SCORE && compareComponent
           }
           {
-            viewMode===VIEW_MODE_AVERAGE && compareAverageComponent
+            viewMode === VIEW_MODE_AVERAGE && compareAverageComponent
           }
         </>}
       </Stack>
     </div>
   );
+}
+function NoViewComponent() {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  return(<Stack sx={{p:1.5, my:1, border:'0.1px solid var(--card-border)'}} alignItems={'start'}>
+    <Typography>{t('view.not-enabled')}</Typography>
+  </Stack>)
 }

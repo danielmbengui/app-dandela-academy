@@ -19,6 +19,7 @@ import { ClassSchool } from "../ClassSchool";
 import { ClassHardware } from "../ClassDevice";
 import { ClassUser } from "./ClassUser";
 import { addDaysToDate } from "@/contexts/functions";
+import { PAGE_STATS } from "@/contexts/constants/constants_pages";
 
 export class ClassUserStat {
     static COLLECTION = "STATS";
@@ -37,23 +38,29 @@ export class ClassUserStat {
         //{ bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
         //{ bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
         //{ bg: "--success-shadow-xs", border: "--success", bgHover: "--success" },
+        { bg: "rgba(217,70,239,0.15)", border: "#D946EF", bgHover: "#D946EF" }, // fuchsia
+        { bg: "rgba(6,182,212,0.15)",  border: "#06B6D4", bgHover: "#06B6D4" }, // cyan
+
+        { bg: "rgba(14,165,233,0.15)", border: "#0EA5E9", bgHover: "#0EA5E9" }, // sky
+        { bg: "rgba(20,184,166,0.15)", border: "#14B8A6", bgHover: "#14B8A6" }, // teal
+        { bg: "rgba(236,72,153,0.15)", border: "#EC4899", bgHover: "#EC4899" }, // pink
+        { bg: "rgba(249,115,22,0.15)", border: "#F97316", bgHover: "#F97316" }, // orange
+        { bg: "rgba(132,204,22,0.15)", border: "#84CC16", bgHover: "#84CC16" }, // lime
+
+        { bg: "rgba(99,102,241,0.15)", border: "#6366F1", bgHover: "#6366F1" }, // indigo
+
+        { bg: "rgba(251,191,36,0.15)", border: "#FBBF24", bgHover: "#FBBF24" }, // yellow
+        { bg: "rgba(16,185,129,0.15)", border: "#10B981", bgHover: "#10B981" }, // emerald
+
         { bg: "rgba(59,130,246,0.15)", border: "#3B82F6", bgHover: "#3B82F6" }, // blue
         { bg: "rgba(34,197,94,0.15)",  border: "#22C55E", bgHover: "#22C55E" }, // green
         { bg: "rgba(245,158,11,0.15)", border: "#F59E0B", bgHover: "#F59E0B" }, // amber
         { bg: "rgba(239,68,68,0.15)",  border: "#EF4444", bgHover: "#EF4444" }, // red
         { bg: "rgba(168,85,247,0.15)", border: "#A855F7", bgHover: "#A855F7" }, // purple
       
-        { bg: "rgba(14,165,233,0.15)", border: "#0EA5E9", bgHover: "#0EA5E9" }, // sky
-        { bg: "rgba(20,184,166,0.15)", border: "#14B8A6", bgHover: "#14B8A6" }, // teal
-        { bg: "rgba(236,72,153,0.15)", border: "#EC4899", bgHover: "#EC4899" }, // pink
-        { bg: "rgba(249,115,22,0.15)", border: "#F97316", bgHover: "#F97316" }, // orange
-        { bg: "rgba(132,204,22,0.15)", border: "#84CC16", bgHover: "#84CC16" }, // lime
+
       
-        { bg: "rgba(99,102,241,0.15)", border: "#6366F1", bgHover: "#6366F1" }, // indigo
-        { bg: "rgba(217,70,239,0.15)", border: "#D946EF", bgHover: "#D946EF" }, // fuchsia
-        { bg: "rgba(6,182,212,0.15)",  border: "#06B6D4", bgHover: "#06B6D4" }, // cyan
-        { bg: "rgba(251,191,36,0.15)", border: "#FBBF24", bgHover: "#FBBF24" }, // yellow
-        { bg: "rgba(16,185,129,0.15)", border: "#10B981", bgHover: "#10B981" }, // emerald
+
       
         { bg: "rgba(244,63,94,0.15)",  border: "#F43F5E", bgHover: "#F43F5E" }, // rose
         { bg: "rgba(139,92,246,0.15)", border: "#8B5CF6", bgHover: "#8B5CF6" }, // violet
@@ -394,6 +401,18 @@ export class ClassUserStat {
         });
     }
 
+    static createUrl(uidLesson="",uidChapter="", uidStat="") {
+        var url = PAGE_STATS;
+        if(uidLesson && uidChapter && uidStat) {
+            url += `/${uidLesson}/${uidChapter}/${uidStat}`;
+        } else if(uidLesson && uidChapter) {
+            url += `/${uidLesson}/${uidChapter}`;
+        } else if(uidLesson) {
+            url += `/${uidLesson}`;
+        }
+        return url;
+    }
+
     static getStatsByDate(stats = [], date = null) {
         const dateString = date.toString();
         if (!(new Date(dateString) instanceof Date)) return [];
@@ -406,6 +425,10 @@ export class ClassUserStat {
         endDay.setMinutes(59);
         endDay.setSeconds(59);
         return stats.filter(s => s.end_date.getTime() >= startDay.getTime() && s.end_date <= endDay.getTime());
+    }
+    static getStatsByStatus(stats = [], status = "") {
+        if (!status || status === "") return [];
+        return stats.filter(s => s.status === status);
     }
 
     static getStatusFromPercentage(percentage) {

@@ -53,6 +53,117 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useStat } from "@/contexts/StatProvider";
 import { ClassLesson } from "@/classes/ClassLesson";
 import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
+import StatsChapterListComponent from "@/components/stats/chapter/StatsChapterListComponent";
+import StatsChapterLineChart from "@/components/stats/chapter/StatsChapterLineChart";
+import StatsChapterBarChart from "@/components/stats/chapter/StatsChapterBarChart";
+
+
+export default function ExcelBeginnerCoursePage() {
+  const router = useRouter();
+  const { uidLesson, uidChapter } = useParams();
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  //console.log("uid", uidStat)
+  // const { lang } = useLanguage();
+  //const { user } = useAuth();
+  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
+  const { getGlobalCountQuiz,stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+  const { chapters, chapter, setUidChapter } = useChapter();
+  useEffect(() => {
+    for (const c of chapters) {
+      router.prefetch(`${PAGE_STATS}/${uidLesson}/${c.uid}`);
+    }
+  }, [chapters]);
+  useEffect(() => {
+    setUidLesson(uidLesson);
+    setUidChapter(uidChapter);
+  }, [uidLesson, uidChapter]);
+
+  const filteredStats = useMemo(() => {
+    const filtered = stats.filter(s => s.uid_lesson === uidLesson && s.uid_chapter===uidChapter);
+    return filtered;
+  }, [uidLesson,uidChapter, stats]);
+
+  const { countQuestions, score, percent, duration, durationTotal,countStats,countStatsTotal,countChapters } = useMemo(() => {
+    const countStats = getGlobalCountQuiz(uidLesson, uidChapter, filteredStats);
+    const countStatsTotal = getGlobalCountQuiz(uidLesson, "");
+    const countChapters = new Set([...filteredStats].map(s=>s.uid_chapter)).size;
+    return {
+      score: getGlobalScore(uidLesson, uidChapter, filteredStats),
+      countQuestions: getGlobalCountQuestions(uidLesson, uidChapter, filteredStats),
+      percent: getGlobalPercent(uidLesson, uidChapter, filteredStats),
+      duration: getGlobalDuration(uidLesson, uidChapter, filteredStats),
+      durationTotal: getGlobalDuration(uidLesson),
+      countStats,
+      countStatsTotal,
+      countChapters
+    };
+  }, [uidLesson, uidChapter, filteredStats]);
+
+  return (<DashboardPageWrapper
+    titles={[
+      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
+      { name: `${lesson?.uid_intern}. ${lesson?.translate?.title}`, url: `${PAGE_STATS}/${lesson?.uid}` },
+      { name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: `` },
+      //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
+      //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
+    ]}
+    //title={`Cours / ${lesson?.title}`}
+    //subtitle={lesson?.translate?.subtitle}
+    icon={<IconStats height={18} width={18} />}
+  >
+    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+      {
+        isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
+          <Grid size={12}>
+            <CardHeader />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <KpiCard
+              icon={<InsightsIcon />}
+              title={t('global-rating')}
+              value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
+              subtitle={`${t('score')} : ${score}/${countQuestions}`}
+              progress={percent}
+              total={`${score}/${countQuestions}`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <KpiCard
+              icon={<SchoolIcon />}
+              title={t('global-cover')}
+              value={`${countStats} ${t('quizs')}`}
+              subtitle={`${t('attempts')} : ${countStats}/${countStatsTotal}`}
+             progress={Math.min(100, (countStats / Math.max(1, countStatsTotal)) * 100)}
+             total={`${countStats}/${countStatsTotal}`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <KpiCard
+              icon={<IconDuration />}
+              title={t('global-duration')}
+              value={formatChrono(duration)}
+              subtitle={`${t('duration')} : ${formatChrono(duration)}`}
+              progress={Math.min(1000, (duration / Math.max(1, (durationTotal))) * 100)}
+              total={formatChrono(durationTotal)}
+            />
+          </Grid>
+          <Grid size={12}>
+            <StatsChartsComponent
+              listComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              listAverageComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              evolutionComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              evolutionAverageComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              //showEvolution={false}
+              showEvolutionAverage={false}
+              compareComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              compareAverageComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            />
+          </Grid>
+        </Grid>
+      }
+    </Container>
+  </DashboardPageWrapper>);
+}
 
 function AvatarIcon({ children, sx }) {
   return (
@@ -85,19 +196,19 @@ const CardHeader = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Box>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-          {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
+            {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
           </Typography>
           <Typography variant="body1" sx={{ color: "text.secondary" }}>
-          {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)}
+            {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)}
           </Typography>
 
-          <Stack spacing={1} direction={'row'} sx={{pt:1}} alignItems={'center'}>
-          <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
-          <ButtonCancel label={t('btn-see-lesson')} />
-          </Link>
-          <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}/${chapter?.uid}`}>
-          <ButtonCancel label={t('btn-see-chapter')} />
-          </Link>
+          <Stack spacing={1} direction={'row'} sx={{ pt: 1 }} alignItems={'center'}>
+            <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
+              <ButtonCancel label={t('btn-see-lesson')} />
+            </Link>
+            <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}/${chapter?.uid}`}>
+              <ButtonCancel label={t('btn-see-chapter')} />
+            </Link>
           </Stack>
 
           <Stack spacing={1} alignItems={'start'} sx={{
@@ -126,267 +237,11 @@ const CardHeader = () => {
     </Grid>
   </Stack>)
 }
-function StatsList({ stats = [] }) {
-  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  const { chapters } = useChapter();
-  const { getBestStat } = useStat();
-  const [direction, setDirection] = useState('asc');
-  const [sort, setSort] = useState('date');
-  const SORTS = [
-    { id: "date", value: t('sort.date') },
-    { id: "score", value: t('sort.score') },
-    { id: "duration", value: t('sort.duration') },
-  ];
-  const statsFiltered = useMemo(() => {
-    var filtered = stats.sort((a, b) => b.score - a.score);
-    if (sort === 'date') {
-      if (direction === 'asc') {
-        return stats.sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
-      }
-      return stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-    }
-    if (sort === 'score') {
-      if (direction === 'asc') {
-        return stats.sort((a, b) => a.score - b.score);
-      }
-      return stats.sort((a, b) => b.score - a.score);
-    }
-    if (sort === 'duration') {
-      if (direction === 'asc') {
-        return stats.sort((a, b) => a.duration - b.duration);
-      }
-      return stats.sort((a, b) => b.duration - a.duration);
-    }
-    return filtered;
-  }, [stats, sort, direction]);
-  return (<Grid container spacing={1} sx={{ background: '', width: '100%', }}>
-    <Grid size={12}>
-      <Stack spacing={1} alignItems={'center'} sx={{ background: '' }} direction={'row'}>
-        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ background: 'var(--primary-shadow)', py: 1, px: 1.5, borderRadius: '10px' }}>
-          <SelectComponentDark
-            name={'sort'}
-            value={sort}
-            values={SORTS}
-            onChange={(e) => {
-              const { value } = e.target;
-              setSort(value);
-            }}
-            hasNull={false}
-          />
-          <Stack direction={'row'} alignItems={'center'}>
-            <Box
-              onClick={() => setDirection('asc')}
-              sx={{
-                color: direction === 'asc' ? 'var(--primary)' : '',
-                cursor: 'pointer'
-              }}
-            >
-              <IconArrowUp />
-            </Box>
-            <Box
-              onClick={() => setDirection('desc')}
-              sx={{
-                color: direction === 'desc' ? 'var(--primary)' : '',
-                cursor: 'pointer'
-              }}
-            >
-              <IconArrowDown />
-            </Box>
-          </Stack>
-        </Stack>
-        <Typography variant="caption">{stats.length} {t('attempts')}</Typography>
-      </Stack>
-    </Grid>
-    {
-      statsFiltered?.map((stat, i) => {
-        return (<Grid size={'auto'} key={`${stat.uid}`}>
-          <StatCard
-            uidLesson={stat.uid_lesson}
-            uidChapter={stat.uid_chapter}
-            title="Meilleur résultat"
-            icon={stat.score === stat.answers.length ? <EmojiEventsIcon /> : <IconStar />}
-            //attempt={filteredStats.best}
-            tone="good"
-            //status={bestStat?.status}
-            stat={stat}
-          />
-        </Grid>)
-      })
-    }
-  </Grid>)
-}
-function StatCard({ title, tone, stat = null, uidLesson = "", uidChapter = "" }) {
-  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  const router = useRouter();
-  const { getOneLesson } = useLesson();
-  const { getOneChapter, chapters } = useChapter();
-  const [lesson, setLesson] = useState(stat?.lesson);
-  const [chapter, setChapter] = useState(stat?.chapter);
-  const good = tone === "good";
-  const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
-  const color = STATUS_CONFIG[stat?.status] || {
-    background: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
-    background_icon: good ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
-    glow: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
-    color: good ? "#15803D" : "#B45309",
-    border: "rgba(15, 23, 42, 0.10)",
-    border_icon: "rgba(15, 23, 42, 0.10)",
-    color_icon: good ? "#15803D" : "#B45309",
-    background_bar: good ? "#15803D" : "#B45309",
-  };
-  var icon = <IconProgressUp />;
-  var background = "";
-  var border = "0.1px solid var(--card-border)";
-  var borderIcon = "0.1px solid transparent";
-  var fontColor = "var(--font-color)";
-  var borderChip = "1px solid var(--card-border)";
-  var backgroundChip = "transparent";
-  var colorChip = "var(--font-color)";
-  var fontWeight = 500;
-  if (stat.status === ClassUserStat.STATUS.MAX) {
-    icon = <EmojiEventsIcon />;
-    background = color?.background;
-    border = `0.1px solid ${color?.border}`;
-    borderIcon = `0.1px solid ${color?.border}`;
-    fontColor = color?.color;
-    borderChip = `1px solid ${color?.border}`;
-    backgroundChip = color?.background_bubble;
-    colorChip = color?.color;
-    fontWeight = 950;
-  } else if (stat.status === ClassUserStat.STATUS.EXCELLENT || stat.status === ClassUserStat.STATUS.GOOD) {
-    icon = <IconStar />;
-  } else {
-    icon = <IconProgressUp />;
-  }
-  //console.log("COLORS", color);
-  useEffect(() => {
-    if (stat) {
-      const _lesson = getOneLesson(uidLesson);
-      const _chapter = getOneChapter(uidChapter);
-      setLesson(stat?.lesson);
-      setChapter(stat?.chapter);
-      console.log("HSPTER", stat.uid_lesson, stat.uid_chapter, chapters)
-    } else {
-      setLesson(null);
-      setChapter(null);
-    }
-  }, [uidLesson, uidChapter, stat?.uid_lesson, stat?.uid_chapter]);
-  if (!stat) {
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: 5,
-          p: 2.2,
-          border: "1px solid rgba(15, 23, 42, 0.10)",
-        }}
-      >
-        <Typography variant="h5" noWrap sx={{ fontWeight: 950 }}>
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t('no-result')}
-        </Typography>
-      </Paper>
-    );
-  }
-  //const p = percent(attempt);
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 5,
-        p: 2,
-        border: border,
-        bgcolor: background,
-        maxWidth: '350px',
-        cursor: 'pointer'
-      }}
-      onClick={() => router.push(`${PAGE_STATS}/${stat.uid_lesson}/${stat.uid_chapter}/${stat.uid}`)}
-    >
-      <Stack spacing={1} sx={{ width: '100%' }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ color: color?.color }}>
-            <AvatarIcon
-              sx={{
-                bgcolor: color?.background_icon,
-                color: color?.color_icon,
-                border: borderIcon
-              }}
-            >
-              {icon}
-            </AvatarIcon>
-            <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
-              {t(stat?.status)}
-            </Typography>
-          </Stack>
-          <Chip
-            size="small"
-            label={`${parseInt((stat?.score / stat?.answers?.length) * 100)}%`}
-            sx={{
-              fontWeight: 950,
-              bgcolor: color?.background_bubble,
-              color: color?.color,
-              border: `1px solid ${color?.border}`,
-            }}
-          />
-        </Stack>
-
-        <Typography variant="body2" color={fontColor}>
-          <b>{lesson?.translate?.title}</b>
-        </Typography>
-        <Typography variant="caption" color={fontColor}>
-          {chapter?.translate?.title}
-        </Typography>
-
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          <Chip size="small"
-            label={`${stat?.score}/${stat?.answers?.length}`} sx={{
-              fontWeight: fontWeight,
-              bgcolor: backgroundChip,
-              color: colorChip,
-              border: borderChip,
-            }} />
-          <Chip size="small"
-            label={formatChrono(stat?.duration)} sx={{
-              fontWeight: fontWeight,
-              bgcolor: backgroundChip,
-              color: colorChip,
-              border: borderChip,
-            }} />
-          <Chip size="small"
-            label={getFormattedDateNumeric(stat?.end_date)} sx={{
-              fontWeight: fontWeight,
-              bgcolor: backgroundChip,
-              color: colorChip,
-              border: borderChip,
-            }} />
-        </Stack>
-
-        <LinearProgress
-          variant="determinate"
-          value={clamp((stat?.score / stat?.answers?.length) * 100)}
-          sx={{
-            height: 10,
-            borderRadius: 999,
-            bgcolor: color?.background_bubble,
-            border: `0.1px solid ${color?.background_bubble}`,
-            "& .MuiLinearProgress-bar": {
-              borderRadius: 999,
-              bgcolor: color?.background_bar,
-            },
-          }}
-        />
-      </Stack>
-    </Paper>
-  );
-}
 
 function clamp(v) {
   const n = Number(v || 0);
   return Math.max(0, Math.min(100, n));
 }
-
 function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
   return (
     <Paper
@@ -445,117 +300,4 @@ function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
       </Stack>
     </Paper>
   );
-}
-export default function ExcelBeginnerCoursePage() {
-  const router = useRouter();
-  const { uidLesson, uidChapter } = useParams();
-  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  const { uid: uidStat } = useParams();
-  //console.log("uid", uidStat)
-  // const { lang } = useLanguage();
-  //const { user } = useAuth();
-  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-  const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
-  const { chapters, chapter, setUidChapter } = useChapter();
-  useEffect(() => {
-    for (const c of chapters) {
-      router.prefetch(`${PAGE_STATS}/${uidLesson}/${c.uid}`);
-    }
-  }, [chapters]);
-  useEffect(() => {
-    setUidLesson(uidLesson);
-    setUidChapter(uidChapter);
-  }, [uidLesson, uidChapter]);
-
-  const filteredStats = useMemo(() => {
-    return stats.filter(s => s.uid_chapter === uidChapter);
-  }, [uidChapter, stats]);
-
-  const { countQuestions, score, percent, duration, durationTotal } = useMemo(() => {
-    return {
-      score: getGlobalScore(uidLesson, uidChapter),
-      countQuestions: getGlobalCountQuestions(uidLesson, uidChapter),
-      percent: getGlobalPercent(uidLesson, uidChapter),
-      duration: getGlobalDuration(uidLesson, uidChapter),
-      durationTotal: getGlobalDuration(uidLesson),
-    };
-  }, [uidLesson, uidChapter, filteredStats]);
-
-  return (<DashboardPageWrapper
-    titles={[
-      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
-      { name: `${lesson?.uid_intern}. ${lesson?.translate?.title}`, url: `${PAGE_STATS}/${lesson?.uid}` },
-      { name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: `` },
-      //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
-      //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
-    ]}
-    //title={`Cours / ${lesson?.title}`}
-    //subtitle={lesson?.translate?.subtitle}
-    icon={<IconStats height={18} width={18} />}
-  >
-    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
-      {
-        isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
-          <Grid size={12}>
-            <CardHeader />
-          </Grid>
-          <Grid size={12}>
-             <StatsChartsComponent
-                        listComponent={<StatsList stats={filteredStats} />}
-                       // listAverageComponent={<StatsLessonListComponent isOpenDetails={isOpenDetails} setIsOpenDetails={setIsOpenDetails} viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-                       // evolutionComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-                       // evolutionAverageComponent={<StatsLessonLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-                       // compareComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-                       // compareAverageComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-                      />
-          </Grid>
-          {
-            filteredStats.length === 0 && <Paper
-              elevation={0}
-              sx={{
-                borderRadius: 5,
-                p: 2.2,
-                border: "1px solid rgba(15, 23, 42, 0.10)",
-              }}
-            >
-              <Typography variant="h5" noWrap sx={{ fontWeight: 950 }}>
-                {chapter?.translate?.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t('no-result')}
-              </Typography>
-            </Paper>
-          }
-
-          {
-            filteredStats.length > 0 && <>
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <KpiCard
-                  icon={<InsightsIcon />}
-                  title={t('global-rating')}
-                  value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
-                  subtitle={`${score}/${countQuestions} • ${filteredStats.length} ${t('attempts')}`}
-                  progress={percent}
-                  total={`${score}/${countQuestions}`}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <KpiCard
-                  icon={<IconDuration />}
-                  title={t('global-duration')}
-                  value={formatChrono(duration)}
-                  subtitle={t('duration')}
-                  progress={Math.min(1000, (duration / Math.max(1, (durationTotal))) * 100)}
-                  total={formatChrono(durationTotal)}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 12 }}>
-                <StatsList stats={filteredStats} />
-              </Grid>
-            </>
-          }
-        </Grid>
-      }
-    </Container>
-  </DashboardPageWrapper>);
 }
