@@ -554,7 +554,7 @@ function AverageComponent({ chapter = null }) {
     </Grid>)
 }
 function ChapterResultCard({selectedUid, setSelectedUid, chapter, isOpenDetails = false, setIsOpenDetails = null, isViewScore = true }) {
-    if (!chapter) return;
+   // if (!chapter) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { getOneLesson } = useLesson();
     const { stats, getGlobalCountQuiz, getGlobalPercent, getBestStat, getWorstStat, getMostRecentStat, getGlobalCountQuestions, getGlobalScore, getGlobalDuration } = useStat();

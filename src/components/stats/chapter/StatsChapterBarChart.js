@@ -6,6 +6,7 @@ import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useTranslation } from "react-i18next";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { useUserDevice } from "@/contexts/UserDeviceProvider";
+import { Stack, Typography } from "@mui/material";
 
 const COLORS_STATS = ClassUserStat.STATUS_CONFIG;
 function GetLabelsScore() {
