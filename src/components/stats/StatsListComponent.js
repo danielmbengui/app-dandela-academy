@@ -117,7 +117,7 @@ function LinearProgressChapter({ label = "", percent = 0, value = 0, status }) {
 }
 
 function ViewScoreComponent({ lesson = null }) {
-    if (!lesson) return;
+    //if (!lesson) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const router = useRouter();
     const { getGlobalCountQuiz, stats, getGlobalScore, getGlobalCountQuestions, getGlobalDuration, getBestStat, getWorstStat } = useStat();
@@ -197,7 +197,7 @@ function ViewScoreComponent({ lesson = null }) {
     </Grid>)
 }
 function ViewAverageComponent({ lesson = null }) {
-    if (!lesson) return;
+    //if (!lesson) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { getGlobalCountQuiz, stats, getGlobalDuration, getGlobalPercent, getGlobalScore, getGlobalCountQuestions, getBestStat, getWorstStat } = useStat();

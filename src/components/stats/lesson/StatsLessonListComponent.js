@@ -331,7 +331,7 @@ function ViewScoreComponent({ chapter = null }) {
 }
 
 function ViewAverageComponent({ chapter = null, lesson = null }) {
-    if (!lesson || !chapter) return;
+    //if (!lesson || !chapter) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { getGlobalCountQuiz, stats, getGlobalDuration, getGlobalPercent, getGlobalScore, getGlobalCountQuestions, getBestStat, getWorstStat } = useStat();
@@ -439,7 +439,7 @@ function ViewAverageComponent({ chapter = null, lesson = null }) {
     </Stack>)
 }
 function AverageComponent({ chapter = null }) {
-    if (!chapter) return;
+    //if (!chapter) return;
     const router = useRouter();
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
