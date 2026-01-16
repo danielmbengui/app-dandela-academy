@@ -31,7 +31,7 @@ ChartJS.register(
 const COLORS = ClassUserStat.GRAPH_COLORS;
 const COLORS_STATS = ClassUserStat.STATUS_CONFIG;
 
-function getLabelsScore() {
+function GetLabelsScore() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { chapter } = useChapter();
     const { stats, getOneStatIndex } = useStat();
@@ -42,7 +42,7 @@ function getLabelsScore() {
     });
     return labels;
 }
-function getDatasetsScore() {
+function GetDatasetsScore() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { chapter } = useChapter();
     const { stats, getOneStatIndex } = useStat();
@@ -64,7 +64,7 @@ function getDatasetsScore() {
         });
     });
     const datasets = [...sortedStats].map((stat, i) => {
-        const labels = getLabelsScore();
+        const labels = GetLabelsScore();
         console.log("statttts lenght", [...sortedStats].length)
         //const uidIntern = getOneStatIndex(stat.uid, sortedStats) + 1;
         var statsMap = [{ x: labels[i], y: stat.score }];
@@ -99,7 +99,7 @@ function getDatasetsScore() {
     })
     return datasets;
 }
-function getTooltipScore() {
+function GetTooltipScore() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { getOneStat, stats } = useStat();
     const tooltip = {
@@ -152,8 +152,7 @@ function getTooltipScore() {
     }
     return tooltip;
 }
-
-function getLabelsAverage() {
+function GetLabelsAverage() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const ALL_STATUS = [...ClassUserStat.ALL_STATUS].reverse();
     const labels = ALL_STATUS.map(status => t(status));
@@ -203,16 +202,16 @@ export default function StatsChapterLineChart({ viewMode = ClassUserStat.VIEW_MO
     const statsDate = Array.from(new Set(sortedStats.map(s => s.end_date)));
     const statsDateLabel = Array.from(new Set(statsDate.map(d => getFormattedDateNumeric(d))));
 
-    var labels = getLabelsScore();
-    var datasets = getDatasetsScore();
-    var tooltip = getTooltipScore();
+    var labels = GetLabelsScore();
+    var datasets = GetDatasetsScore();
+    var tooltip = GetTooltipScore();
     var filteredStats = [...sortedStats];
     console.log("labeeeeel", labels);
     if (!hasStats) {
         return (<NoStatsComponent />);
     }
     if (!isViewScore) {
-        labels = getLabelsAverage();
+        labels = GetLabelsAverage();
         filteredStats = [...ALL_STATUS];
         datasets = filteredStats.map((status, i) => {
             const chaptersStats = ClassUserStat.getStatsByStatus(sortedStats, status);

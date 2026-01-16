@@ -304,7 +304,7 @@ function ViewAverageComponent({ lesson = null }) {
     </>)
 }
 function AverageComponent({ lesson = null}) {
-    if (!lesson) return;
+   // if (!lesson) return;
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const router = useRouter();

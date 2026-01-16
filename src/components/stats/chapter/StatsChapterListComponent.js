@@ -15,9 +15,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useLesson } from "@/contexts/LessonProvider";
 import { useTranslation } from "react-i18next";
-import { IconArrowBack, IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp, IconBookOpen, IconCertificate, IconCharts, IconDuration, IconLessons, IconObjective, IconProgressUp, IconQuizz, IconStar, IconStats } from "@/assets/icons/IconsComponent";
-import { PAGE_CHAPTERS, PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
-import { addDaysToDate, capitalizeFirstLetter, formatChrono, getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedDateNumeric, mixArray } from "@/contexts/functions";
+import { IconArrowDown, IconArrowUp, IconCharts, IconProgressUp, IconStar } from "@/assets/icons/IconsComponent";
+import { PAGE_STATS } from "@/contexts/constants/constants_pages";
+import {capitalizeFirstLetter, formatChrono, getFormattedDateNumeric } from "@/contexts/functions";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useChapter } from "@/contexts/ChapterProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
@@ -26,26 +26,6 @@ import { useStat } from "@/contexts/StatProvider";
 import CircularProgressStatComponent from "@/components/elements/CircularProgressStatComponent";
 import CircularProgressChapter from "../CircularProgressChapter";
 
-export default function StatsChapterListComponent({ stats = [], isOpenDetails = false, setIsOpenDetails = null, viewMode = ClassUserStat.VIEW_MODE_SCORE }) {
-    const isViewScore = viewMode === ClassUserStat.VIEW_MODE_SCORE;
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { lesson, } = useLesson();
-    const { chapter, chapters } = useChapter();
-    const { getBestStat } = useStat();
-
-    return (<Grid container spacing={1} sx={{ background: '', width: '100%', }}>
-
-        {
-            isViewScore && <ViewScoreComponent chapter={chapter} />
-        }
-
-        <Grid size={12}>
-            {
-                !isViewScore && <ViewAverageComponent lesson={lesson} chapter={chapter} />
-            }
-        </Grid>
-    </Grid>)
-}
 function NoStatsComponent() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     return(<Stack sx={{p:1.5, my:1, border:'0.1px solid var(--card-border)'}} alignItems={'start'}>
@@ -264,7 +244,7 @@ function ViewAverageComponent({ chapter = null, lesson = null }) {
     </Stack>)
 }
 function AverageComponent({ chapter = null }) {
-    if (!chapter) return;
+    //if (!chapter) return;
     const router = useRouter();
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
@@ -567,4 +547,24 @@ function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "",
 function clamp(v) {
     const n = Number(v || 0);
     return Math.max(0, Math.min(100, n));
+}
+export default function StatsChapterListComponent({ stats = [], isOpenDetails = false, setIsOpenDetails = null, viewMode = ClassUserStat.VIEW_MODE_SCORE }) {
+    const isViewScore = viewMode === ClassUserStat.VIEW_MODE_SCORE;
+    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+    const { lesson, } = useLesson();
+    const { chapter, chapters } = useChapter();
+    const { getBestStat } = useStat();
+
+    return (<Grid container spacing={1} sx={{ background: '', width: '100%', }}>
+
+        {
+            isViewScore && <ViewScoreComponent chapter={chapter} />
+        }
+
+        <Grid size={12}>
+            {
+                !isViewScore && <ViewAverageComponent lesson={lesson} chapter={chapter} />
+            }
+        </Grid>
+    </Grid>)
 }

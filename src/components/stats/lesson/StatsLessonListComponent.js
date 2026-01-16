@@ -270,7 +270,7 @@ export default function StatsLessonListComponent({ isOpenDetails = false, setIsO
 
 
 function ViewScoreComponent({ chapter = null }) {
-    if (!chapter) return;
+    //if (!chapter) return;
     const {t} = useTranslation([ClassUserStat.NS_COLLECTION]);
     const router = useRouter();
     const { stats } = useStat();
