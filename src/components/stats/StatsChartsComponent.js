@@ -70,6 +70,7 @@ export default function StatsChartsComponent({
   listComponent = <></>,
   listAverageComponent = <></>,
   showList = true,
+  showListAverage = true,
   evolutionComponent = <></>,
   evolutionAverageComponent = <></>,
   showEvolution = true,
@@ -77,6 +78,7 @@ export default function StatsChartsComponent({
   compareComponent = <></>,
   compareAverageComponent = <></>,
   showCompare = true,
+  showCompareAverage = true,
 }) {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   const [view, setView] = useState(VIEW_LIST);
@@ -136,21 +138,27 @@ export default function StatsChartsComponent({
             },
           }}
         >
-          <ToggleButton value={VIEW_LIST}>
+          {
+            (showList || showListAverage) && <ToggleButton value={VIEW_LIST}>
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
               <IconList /> <span>{t(VIEW_LIST)}</span>
             </Stack>
           </ToggleButton>
-          <ToggleButton value={VIEW_EVOLUTION}>
+          }
+          {
+            (showEvolution || showEvolutionAverage) && <ToggleButton value={VIEW_EVOLUTION}>
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
               <IconLineChart /> <span>{t(VIEW_EVOLUTION)}</span>
             </Stack>
           </ToggleButton>
-          <ToggleButton value={VIEW_COMPARE}>
+          }
+          {
+            (showCompare || showCompareAverage) && <ToggleButton value={VIEW_COMPARE}>
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
               <IconBarChart /> <span>{t(VIEW_COMPARE)}</span>
             </Stack>
           </ToggleButton>
+          }
         </ToggleButtonGroup>
         <SelectComponentDark
           value={viewMode}
@@ -165,43 +173,71 @@ export default function StatsChartsComponent({
 
       <Stack alignItems={'start'} sx={{ px: 1.5, py: 1, height: { xs: '80vh', sm: '100%' }, minHeight: '80vh', width: '100%' }}>
         {
-          view === VIEW_LIST && showList && <>
+          view === VIEW_LIST && <>
             {
-              viewMode === VIEW_MODE_SCORE && listComponent
+              viewMode === VIEW_MODE_SCORE && <>
+                {
+                  showList && listComponent
+                }
+                {
+                  !showList && <NoViewComponent />
+                }
+              </>
             }
             {
-              viewMode === VIEW_MODE_AVERAGE && listAverageComponent
+              viewMode === VIEW_MODE_AVERAGE && <>
+                {
+                  showListAverage && listAverageComponent
+                }
+                {
+                  !showListAverage && <NoViewComponent />
+                }
+              </>
             }
           </>
         }
         {view === VIEW_EVOLUTION && <>
           {
             viewMode === VIEW_MODE_SCORE && <>
-            {
-              showEvolution && evolutionComponent
-            }
-            {
-              !showEvolution && <NoViewComponent />
-            }
+              {
+                showEvolution && evolutionComponent
+              }
+              {
+                !showEvolution && <NoViewComponent />
+              }
             </>
           }
           {
             viewMode === VIEW_MODE_AVERAGE && <>
-            {
-              showEvolutionAverage && evolutionAverageComponent
-            }
-            {
-              !showEvolutionAverage && <NoViewComponent />
-            }
+              {
+                showEvolutionAverage && evolutionAverageComponent
+              }
+              {
+                !showEvolutionAverage && <NoViewComponent />
+              }
             </>
           }
         </>}
         {view === VIEW_COMPARE && showCompare && <>
           {
-            viewMode === VIEW_MODE_SCORE && compareComponent
+            viewMode === VIEW_MODE_SCORE && <>
+              {
+                compareComponent && compareComponent
+              }
+              {
+                !compareComponent && <NoViewComponent />
+              }
+            </>
           }
           {
-            viewMode === VIEW_MODE_AVERAGE && compareAverageComponent
+            viewMode === VIEW_MODE_AVERAGE && <>
+              {
+                showCompareAverage && compareAverageComponent
+              }
+              {
+                !showCompareAverage && <NoViewComponent />
+              }
+            </>
           }
         </>}
       </Stack>
@@ -210,7 +246,7 @@ export default function StatsChartsComponent({
 }
 function NoViewComponent() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  return(<Stack sx={{p:1.5, my:1, border:'0.1px solid var(--card-border)'}} alignItems={'start'}>
+  return (<Stack sx={{ p: 1.5, my: 1, border: '0.1px solid var(--card-border)' }} alignItems={'start'}>
     <Typography>{t('view.not-enabled')}</Typography>
   </Stack>)
 }

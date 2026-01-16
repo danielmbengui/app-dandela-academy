@@ -44,7 +44,7 @@ const {blueDark, text, cardColor} = theme.palette;
                     }
                     {
                         values.map((item, i) => {
-                            return (<option key={`${item.id}-${i}`} value={item.id}>
+                            return (<option disabled={item.disabled} key={`${item.id}-${i}`} value={item.id}>
                                 {item.value}
                             </option>)
                         })

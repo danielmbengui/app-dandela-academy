@@ -201,6 +201,7 @@ export class ClassUserStat {
         end_date = null,
         duration = 0,
         status = ClassUserStat.STATUS.UNKNOWN,
+        percentage=0,
         next_trying_date = null,
         created_time = new Date(),
         last_edit_time = new Date(),
@@ -218,6 +219,7 @@ export class ClassUserStat {
 
         this._duration = duration;
         this._status = status;
+        this._percentage =percentage;
 
         // data
         this._answers = Array.isArray(answers) ? answers : [];
@@ -339,7 +341,13 @@ export class ClassUserStat {
     set status(v) {
         this._status = v || ClassUserStat.STATUS.UNKNOWN;
     }
-
+    get percentage() {
+        return this._percentage;
+    }
+    set percentage(v) {
+        this._percentage = v;
+    }
+    
     get next_trying_date() {
         return this._next_trying_date;
     }
@@ -374,11 +382,13 @@ export class ClassUserStat {
         cleaned.chapter = null;
         cleaned.score = null;
         cleaned.duration = null;
+        cleaned.percentage =null;
         delete cleaned.user;
         delete cleaned.lesson;
         delete cleaned.chapter;
         delete cleaned.score;
         delete cleaned.duration;
+        delete cleaned.percentage;
         //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
         //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
         return cleaned;
@@ -398,6 +408,7 @@ export class ClassUserStat {
             chapter: this._chapter,
             score: this._score,
             duration: this._duration,
+            percentage:this._percentage,
         });
     }
 
@@ -457,6 +468,12 @@ export class ClassUserStat {
             return this.STATUS_CONFIG[ClassUserStat.STATUS.NOT_GOOD];
         }
     }
+    static getStatusColor(status) {
+        if(ClassUserStat.ALL_STATUS.includes(status) || status === 'average') {
+            return this.STATUS_CONFIG[status];
+        }
+        return null;
+    }
 
 
     // ---------- Converter intégré ----------
@@ -488,8 +505,8 @@ export class ClassUserStat {
 
                 const score = data.answers?.filter?.(item => item.uid_answer === item.uid_proposal)?.length || 0;
                 const duration = parseInt((end_date.getTime() - start_date.getTime()) / 1000);
-                const percentage = (score / data.answers?.length);
-                const status = ClassUserStat.getStatusFromPercentage(percentage);
+                const percentage = (score / data.answers?.length) * 100;
+                const status = ClassUserStat.getStatusFromPercentage(percentage/100);
 
                 /*
                     EXCELLENT: 'excellent', // bureautique
@@ -498,7 +515,7 @@ export class ClassUserStat {
         NOT_GOOD: 'not-good',
                 */
                 //console.log("fromFirestore", score)
-                return ClassUserStat.makeUserStat(uid, { ...data, score, start_date, end_date, duration, status, next_trying_date, created_time, last_edit_time });
+                return ClassUserStat.makeUserStat(uid, { ...data, score, start_date, end_date, duration, status,percentage, next_trying_date, created_time, last_edit_time });
             },
         };
     }

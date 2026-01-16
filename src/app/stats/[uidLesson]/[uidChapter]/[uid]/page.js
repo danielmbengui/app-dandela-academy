@@ -38,7 +38,7 @@ import { ClassLesson } from "@/classes/ClassLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import { ClassLessonSubchapterTranslation } from "@/classes/lessons/ClassLessonSubchapter";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
+import { IconArrowBack, IconArrowLeft, IconArrowRight, IconBookOpen, IconCalendar, IconCertificate, IconDuration, IconLessons, IconLevel, IconObjective, IconQuizz, IconStats } from "@/assets/icons/IconsComponent";
 import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_STATS_ONE } from "@/contexts/i18n/settings";
 import { PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
@@ -56,7 +56,10 @@ import OneStatComponent from "@/components/stats/OneStatComponent";
 import { useChapter } from "@/contexts/ChapterProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
 import Link from "next/link";
-
+import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import StatsOneStatListComponent from "@/components/stats/stat/StatsOneStatListComponent";
+import StatsOneStatBarChart from "@/components/stats/stat/StatsOneStatBarChart";
 const CongratulationsComponent = ({ stat = null }) => {
   const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
   // score: `${stat?.score}/${stat?.answers?.length}`,
@@ -482,14 +485,15 @@ const CardHeader = ({indexStat=-1}) => {
           </Link>
           </Stack>
 
-          <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{
+          <Stack maxWidth={'xl'} direction={'row'} spacing={1} alignItems={'center'} sx={{
             py: 1,
             background: 'var(--primary-shadow)',
             borderRadius: '10px',
             my: 1.5,
             py: 1.5,
             px: 1,
-            color:'var(--primary-dark)'
+            color:'var(--primary-dark)',
+            width:{xs:'100%', sm:'50%'}
           }}>
             <IconButton
               disabled={disabledBack}
@@ -526,7 +530,46 @@ const CardHeader = ({indexStat=-1}) => {
     </Grid>
   </Stack>)
 }
-
+function MiniStat({ label, value, icon }) {
+  return (
+      <Paper
+          elevation={0}
+          sx={{
+              borderRadius: '10px',
+              p: 1.6,
+              bgcolor: "rgba(255,255,255,0.12)",
+              bgcolor: "var(--primary-shadow)",
+              border: "0.1px solid var(--primary-shadow-xs)",
+              color: "white",
+          }}
+      >
+          <Stack direction="row" spacing={1.1} alignItems="center">
+              <Box
+                  sx={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 3,
+                      display: "grid",
+                      placeItems: "center",
+                      bgcolor: "var(--primary-shadow-xs)",
+                      coor: "var(--primary)",
+                      border: "1px solid var(--primary-shadow-xs)",
+                  }}
+              >
+                  {icon}
+              </Box>
+              <Stack spacing={0.1} sx={{ minWidth: 0 }}>
+                  <Typography variant="caption" sx={{ color: "var(--primary-dark)", opacity: 0.9 }}>
+                      {label}
+                  </Typography>
+                  <Typography variant="h6" sx={{ color: "var(--primary)", fontWeight: 950, lineHeight: 1.05 }} noWrap title={String(value)}>
+                      {value}
+                  </Typography>
+              </Stack>
+          </Stack>
+      </Paper>
+  );
+}
 export default function OneStatPage() {
   const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
@@ -536,8 +579,8 @@ export default function OneStatPage() {
   //const { user } = useAuth();
   const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
   const { chapter, setUidChapter } = useChapter();
+  const { getOneStatIndex,getGlobalCountQuiz, stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getWorstStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
 
-  const { stat, stats, setUidStat, isLoading: isLoadingStats } = useStat();
   useEffect(() => {
     for (const s of stats) {
       router.prefetch(`${PAGE_STATS}/${uidLesson}/${uidChapter}/${s.uid}`);
@@ -548,9 +591,24 @@ export default function OneStatPage() {
     setUidChapter(uidChapter);
     setUidStat(uidStat);
   }, [uidLesson,uidChapter,uidStat]);
-  const indexStat = useMemo(() => {
-    return stats.findIndex(s => s.uid === uidStat);
-  }, [stats, uidStat]);
+  const {indexStat, level, score, countQuestions,average, duration, endDate} = useMemo(() => {
+    const indexStat = getOneStatIndex(uidStat, stats);
+    const level = chapter?.level;
+    const score = stat?.score;
+    const countQuestions = stat?.answers?.length;
+    const average = stat?.percentage;
+    const duration = stat?.duration;
+    const endDate = stat?.end_date;
+    return {
+      indexStat,
+      level,
+      score,
+      countQuestions,
+      average,
+      duration,
+      endDate
+    }
+  }, [chapter,stats, uidStat]);
 
   return (<DashboardPageWrapper
     titles={[
@@ -571,8 +629,40 @@ export default function OneStatPage() {
           <Grid size={12}>
             <CardHeader indexStat={indexStat} />
           </Grid>
-          <Grid size={{ xs: 12, sm: 12 }}>
-            <OneStatComponent stat={stat} />
+          <Stack sx={{ background: '' }} alignItems={'start'} maxWidth={'md'} spacing={1.5}>
+                        {/* Quick stats */}
+                        <Grid container spacing={1} sx={{ width: '100%', background: '' }}>
+                            <Grid size={{ xs: 6, sm: 'auto' }}>
+                                <MiniStat label={t('level')} value={`${t(level)}`} icon={<IconLevel height={25} width={25} color="var(--primary)" />} />
+                            </Grid>
+                            <Grid size={{ xs: 6, sm: 'auto' }}>
+                                <MiniStat label={t('score')} value={`${score}/${countQuestions}`} icon={<EmojiEventsIcon height={15} fontSize="small" sx={{ color: "var(--primary)" }} />} />
+                            </Grid>
+                            <Grid size={{ xs: 6, sm: 'auto' }}>
+                                <MiniStat label={t('average')} value={`${parseInt(average)}%`} icon={<IconStats height={15} fontSize="small" color="var(--primary)" />} />
+                            </Grid>
+
+                            <Grid size={{ xs: 6, sm: 'auto' }}>
+                                <MiniStat label={t('duration_short')} value={formatChrono(duration)} icon={<IconDuration color="var(--primary)" fontSize="small" />} />
+                            </Grid>
+                            <Grid size={{ xs: 6, sm: 'auto' }}>
+                                <MiniStat label={t('date')} value={getFormattedDateCompleteNumeric(endDate)} icon={<IconCalendar color="var(--primary)" fontSize="small" />} />
+                            </Grid>
+                        </Grid>
+                    </Stack>
+          <Grid size={12}>
+            <StatsChartsComponent
+              listComponent={<OneStatComponent stat={stat} viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              listAverageComponent={<StatsOneStatListComponent viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              //listAverageComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              //evolutionComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              //evolutionAverageComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              showEvolution={false}
+              showEvolutionAverage={false}
+              compareComponent={<StatsOneStatBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+              compareAverageComponent={<StatsOneStatBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+              //={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+            />
           </Grid>
         </Grid>
       }

@@ -109,30 +109,7 @@ export default function OneStatComponent() {
         <Stack spacing={1}>
             <Box sx={{ bgcolor: "", minHeight: "100vh" }}>
                 <Stack sx={{ background: '', }} spacing={2}>
-                    <Stack sx={{ background: '' }} alignItems={'start'} maxWidth={'md'} spacing={1.5}>
-                        {/* Quick stats */}
-                        <Grid container spacing={1} sx={{ width: '100%', background: '' }}>
-                            <Grid size={{ xs: 6, sm: 'auto' }}>
-                                <MiniStat label={t('level')} value={`${t(chapter?.level)}`} icon={<IconLevel height={25} width={25} color="var(--primary)" />} />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 'auto' }}>
-                                <MiniStat label={t('score')} value={`${attempt.score}/${attempt.total}`} icon={<EmojiEventsIcon height={15} fontSize="small" sx={{ color: "var(--primary)" }} />} />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 'auto' }}>
-                                <MiniStat label={t('average')} value={`${percent}%`} icon={<IconStats height={15} fontSize="small" color="var(--primary)" />} />
-                            </Grid>
-
-                            <Grid size={{ xs: 6, sm: 'auto' }}>
-                                <MiniStat label={t('duration_short')} value={formatChrono(attempt.duration_sec)} icon={<IconDuration color="var(--primary)" fontSize="small" />} />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 'auto' }}>
-                                <MiniStat label={t('date')} value={attempt.date} icon={<IconCalendar color="var(--primary)" fontSize="small" />} />
-                            </Grid>
-                        </Grid>
-                    </Stack>
-
-                    {
-                        <Grid container spacing={1} sx={{ width: '100%' }}>
+                <Grid container spacing={1} sx={{ width: '100%' }}>
                             <Grid size={{ xs: 12, sm: 3.5 }}>
                                 <Stack spacing={1}>
                                     {
@@ -218,7 +195,7 @@ export default function OneStatComponent() {
                                     }}
                                 >
                                     <Stack spacing={1.2}>
-                                        <Stack direction="row" justifyContent="space-between" alignItems="start" spacing={1}>
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
                                             <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
                                                 {t('questions')}
                                             </Typography>
@@ -300,8 +277,6 @@ export default function OneStatComponent() {
                                 </Paper>
                             </Grid>
                         </Grid>
-
-                    }
                 </Stack>
             </Box>
         </Stack>

@@ -1200,7 +1200,7 @@ const CardQuizz = ({
                             }
                             <Grid container spacing={{ xs: 0.5, sm: 1 }} alignItems={'start'} sx={{ background: '', width: '100%', maxWidth: '100vw', }}>
                                 {
-                                    index > 0 &&
+                                    index >= 0 &&
                                     <NewQuizComponent />
                                 }
                             </Grid>
