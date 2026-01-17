@@ -17,7 +17,7 @@ import { useSession } from '@/contexts/SessionProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_USERS, PAGE_LESSONS, PAGE_STATS } from '@/contexts/constants/constants_pages';
-import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, useFormatDateToRelative } from '@/contexts/functions';
+import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, formatDateToRelative } from '@/contexts/functions';
 import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
 import { useStat } from '@/contexts/StatProvider';
 import { ClassUserStat } from '@/classes/users/ClassUserStat';
@@ -131,7 +131,7 @@ function EvolutionCard({ stat = null, previousStat = null }) {
         <div className="dash-body">
           <Stack className="dash-header" direction={'row'} alignItems={'start'} spacing={1} justifyContent={'space-between'}>
             <span className="dash-from">{text}</span>
-            <Typography variant='caption' noWrap style={{ fontSize: '12px' }}>{useFormatDateToRelative(stat.end_date)}</Typography>
+            <Typography variant='caption' noWrap style={{ fontSize: '12px' }}>{formatDateToRelative(stat.end_date)}</Typography>
           </Stack>
           <Stack sx={{ width: '100%', background: '' }} spacing={0.5}>
             <Typography variant='caption' fontSize={'0.8rem'}>{lesson?.uid_intern}{". "}{lesson?.translate?.title}</Typography>
