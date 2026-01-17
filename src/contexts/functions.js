@@ -8,7 +8,7 @@ import { validatePassword } from 'firebase/auth';
 import { auth } from './firebase/config';
 import { useTranslation } from 'react-i18next';
 
-export const formatDateToRelative = (date=new Date(), lang=defaultLanguage) => {
+export const useFormatDateToRelative = (date=new Date()) => {
   if(!(date instanceof Date)) return null;
   const {t} = useTranslation([NS_DAYS]);
   const today = new Date();
