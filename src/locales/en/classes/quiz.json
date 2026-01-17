@@ -11,17 +11,18 @@
   "competent": "Competent",
   "advanced": "Advanced",
   "expert": "Expert",
-  "max-score": "You achieved the maximum score for this quiz—well done!",
-  "btn-back": "Back to course",
+  "max-score": "You achieved the maximum score for this quiz, well done!",
+  "btn-back": "Back to the course",
   "btn-start": "Start the quiz",
-  "btn-see-answers": "View my answers",
+  "btn-see-answers": "See my answers",
+  "choices": "Options",
   "finished": {
     "title": "<b>Congratulations on completing the quiz!</b>",
     "score": "You scored: <caption>{{score}}</caption>",
     "percentage": "Correct answers: <caption>{{percentage}}%</caption>",
-    "time": "Quiz duration: <caption>{{duration}}</caption>",
+    "time": "Test duration: <caption>{{duration}}</caption>",
     "next-trying-date": "You must wait before trying again! Next attempt: <b>{{nextDate}}</b>",
-    "congrats": "Well done!",
+    "congrats": "Congratulations!",
     "max-score": "You achieved the maximum score for this quiz!",
     "max-answer": "{{score}} / {{total}}"
   }

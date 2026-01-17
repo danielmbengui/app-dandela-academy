@@ -15,6 +15,7 @@
   "btn-back": "Retour au cours",
   "btn-start": "Démarrer le quiz",
   "btn-see-answers": "Voir mes réponses",
+  "choices": "Propositions",
   "finished": {
     "title": "<b>Bravo pour avoir terminé le quiz !</b>",
     "score": "Tu as obtenu : <caption>{{score}}</caption>",

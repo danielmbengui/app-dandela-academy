@@ -20,7 +20,7 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small', ...props }) {
+export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small',sx={}, ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight, text } = theme.palette;
   return (<Button
@@ -56,6 +56,7 @@ export default function ButtonCancel({variant="contained", label = 'Annuler', lo
         bgcolor: greyLight.main,
         color: background.main,
       },
+      ...sx
     }}
     {...props}>
     {label}

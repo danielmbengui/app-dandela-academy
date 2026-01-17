@@ -21,7 +21,7 @@ import React from "react";
         }
 */
 export default function ButtonConfirm({ label = 'Confirmer', color = 'primary', loading = false, disabled = false, onClick = null, fullWidth = false, size = 'small',
-  variant = 'contained', ...props }) {
+  variant = 'contained',sx={}, ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight } = theme.palette;
   return (<Button
@@ -60,6 +60,7 @@ export default function ButtonConfirm({ label = 'Confirmer', color = 'primary', 
         bgcolor: greyLight.main,
         color: background.main,
       },
+      ...sx
     }}
     {...props}>
     {label}

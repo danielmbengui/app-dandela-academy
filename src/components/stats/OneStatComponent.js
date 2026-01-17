@@ -745,7 +745,7 @@ function MiniStat({ label, value, icon }) {
 function QuestionCard({ stat = null, q, index, isCorrect = false }) {
     //const isCorrect = !!q.is_correct;
     //const {stat} = useStat();
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+    const { t } = useTranslation([ClassUserStat.NS_COLLECTION, ClassLessonChapterQuiz.NS_COLLECTION]);
 
     return (
         <Paper
@@ -755,6 +755,7 @@ function QuestionCard({ stat = null, q, index, isCorrect = false }) {
                 p: 1.8,
                 border: `0.1px solid ${isCorrect ? "var(--success-shadow-sm)" : "var(--error-shadow-sm)"}`,
                 bgcolor: isCorrect ? "var(--success-shadow)" : "var(--error-shadow)",
+                color:'black'
             }}
         >
             <Stack spacing={1.1}>
@@ -778,8 +779,8 @@ function QuestionCard({ stat = null, q, index, isCorrect = false }) {
 
                 {/* Choices */}
                 {<Stack spacing={0.6}>
-                    <Typography variant="caption" color="var(--grey-light)">
-                        {t('choices')}
+                    <Typography variant="caption" color={isCorrect ? "var(--success-dark)" : "var(--error-dark)"}>
+                        {t('choices', {ns:ClassLessonChapterQuiz.NS_COLLECTION})} {":"}
                     </Typography>
                     <Grid container spacing={1}>
                         {q.translate?.proposals?.map((c) => {
@@ -794,13 +795,13 @@ function QuestionCard({ stat = null, q, index, isCorrect = false }) {
                                         sx={{
                                             fontWeight: 800,
                                             borderRadius: 3,
-                                            border: "1px solid rgba(15,23,42,0.10)",
+                                            border: `0.1px solid ${isRight ? "var(--success)" : isUser ? "var(--error)" : isCorrect ? "var(--success-shadow-xl)" : "var(--error-shadow-xl)"}`,
                                             bgcolor: isRight
-                                                ? "rgba(34,197,94,0.12)"
+                                                ? "var(--success-shadow-xs)"
                                                 : isUser
                                                     ? "var(--error-shadow-xs)"
-                                                    : "rgba(15,23,42,0.04)",
-                                            color: isRight ? "var(--success)" : isUser ? "var(--error)" : "#0B1B4D",
+                                                    : "transparent",
+                                            color: isRight ? "var(--success)" : isUser ? "var(--error)" : isCorrect ? "var(--success-dark)" : "var(--error-dark)",
                                             "& .MuiChip-icon": { color: isRight ? "var(--success)" : "var(--error)" },
                                             maxWidth: "100%",
                                             minWidth: 0,
@@ -844,15 +845,15 @@ function InfoBox({ label, value, tone }) {
             sx={{
                 borderRadius: 4,
                 p: 1.3,
-                border: "1px solid rgba(15,23,42,0.10)",
-                bgcolor: isGood ? "rgba(34,197,94,0.06)" : isBad ? "rgba(239,68,68,0.06)" : "rgba(15,23,42,0.04)",
+                border: `0.1px solid ${isGood ? 'var(--success-shadow-sm)' : 'var(--error-shadow-sm)'}`,
+                bgcolor: isGood ? 'var(--success-shadow)' : 'var(--error-shadow)',
             }}
         >
             <Stack spacing={0.3}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 900 }}>
+                <Typography variant="caption" color={isGood ? 'var(--success-dark)' : 'var(--error-dark)'} sx={{ fontWeight: 600 }}>
                     {label}
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 900, color: "#0B1B4D" }} noWrap title={String(value)}>
+                <Typography variant="body2" color={isGood ? 'var(--success)' : 'var(--error)'} sx={{ fontWeight: 900, }} noWrap title={String(value)}>
                     {value}
                 </Typography>
             </Stack>

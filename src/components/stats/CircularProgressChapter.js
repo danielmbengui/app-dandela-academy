@@ -33,9 +33,9 @@ function CircularProgressWithLabel({ stat = null, average = 0,
   };
 
   const sizeCircular = size === 'small' ? '5rem' : size === 'medium' ? '7.5rem' : size === 'large' ? '10rem' : '7.5rem';
-  const sizeScore = size === 'small' ? '0.7rem' : size === 'medium' ? '0.85rem' : size === 'large' ? '1rem' : '0.85rem';
-  const sizePercent = size === 'small' ? '0.6rem' : size === 'medium' ? '0.75rem' : size === 'large' ? '0.9rem' : '0.75rem';
-  const sizeDuration = size === 'small' ? '0.6rem' : size === 'medium' ? '0.75rem' : size === 'large' ? '0.9rem' : '0.75rem';
+  const sizeScore = size === 'small' ? '0.7rem' : size === 'medium' ? '0.85rem' : size === 'large' ? '1.5rem' : '0.85rem';
+  const sizePercent = size === 'small' ? '0.6rem' : size === 'medium' ? '0.75rem' : size === 'large' ? '1.15rem' : '0.75rem';
+  const sizeDuration = size === 'small' ? '0.6rem' : size === 'medium' ? '0.75rem' : size === 'large' ? '1rem' : '0.75rem';
   //const score = stat ? stat.score : 0;
   //const questions = stat ? stat.answers?.length : 0;
   //const average = stat ? (stat.score / stat.answers?.length) * 100 : 0;
