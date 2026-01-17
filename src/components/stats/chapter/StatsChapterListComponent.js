@@ -423,11 +423,10 @@ function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "",
     //console.log("COLORS", color);
     useEffect(() => {
         if (stat) {
-            const _lesson = getOneLesson(uidLesson);
-            const _chapter = getOneChapter(uidChapter);
-            setLesson(stat?.lesson);
-            setChapter(stat?.chapter);
-            console.log("HSPTER", stat.uid_lesson, stat.uid_chapter, chapters)
+            const _lesson = getOneLesson(stat?.uid_lesson);
+            const _chapter = getOneChapter(stat?.uid_chapter);
+            setLesson(_lesson);
+            setChapter(_chapter);
         } else {
             setLesson(null);
             setChapter(null);

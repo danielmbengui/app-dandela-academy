@@ -4,7 +4,7 @@
   "title": "Painel de controlo",
   "subtitle": "Acompanha os teus cursos, mensagens, professores e resultados num relance.",
   "welcome": "Olá {{name}}",
-  "welcome-1": "Bem-vindo ao teu dashboard 👋",
+  "welcome-1": "Bem-vindo ao teu painel 👋",
   "lesson-start": "Cursos iniciados",
   "lesson-completed": "Cursos concluídos",
   "chapter-start": "Capítulos iniciados",
@@ -30,7 +30,7 @@
     },
     "calendar": {
       "title": "Consultar o calendário",
-      "subtitle": "Vista geral das sessões."
+      "subtitle": "Vista geral das sessões"
     },
     "profile": {
       "title": "Configurar o perfil",
@@ -38,6 +38,7 @@
     }
   },
   "events": {
+    "completed-quiz": "Concluíste um questionário",
     "new-quiz": "Concluíste um novo questionário",
     "max-quiz": "Obtiveste a pontuação máxima",
     "good-quiz": "A tua pontuação é excelente",

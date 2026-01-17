@@ -129,6 +129,11 @@ const LoginPageWrapper = ({ children }) => {
   if (isLoading) {
     return (<Preloader />);
   }
+  useEffect(() => {
+    if (user && user.uid) {
+      router.push(PAGE_DASHBOARD_HOME);
+    }
+  }, [user]);
   return (<Stack 
     alignItems={'center'} justifyContent={'center'}
     //spacing={3}

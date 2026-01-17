@@ -53,9 +53,10 @@ export function LessonProvider({ children, uidTeacher = null }) {
     const listenToLessons = useCallback((uidTeacher) => {
         //if(!user) return;
         const colRef = ClassLesson.colRef(); // par ex.
-        const constraints = [];
-        if (user && !(user instanceof ClassUserAdministrator)) {
-            constraints.push(where("enabled", "==", true));
+        var constraints = [where("enabled", "==", true)];
+        if (user && user instanceof ClassUserAdministrator) {
+            constraints = constraints.slice(0, -1);
+            //constraints.push(where("enabled", "==", true));
             //console.log("is not admin")
             //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
         }

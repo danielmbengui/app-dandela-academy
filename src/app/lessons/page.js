@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { IconCertificate, IconDashboard, IconLessons, } from "@/assets/icons/IconsComponent";
+import { IconCertificate, IconDashboard, IconLessons, IconSearch, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
 import { NS_COMMON, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_LESSONS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -67,6 +67,7 @@ function LessonsComponent() {
   const [lessonsFilter, setLessonsFilter] = useState([]);
   //const [_, setLessons] = useState([]);
   const { lessons, changeLesson } = useLesson();
+
   
 
   const [filter, setFilter] = useState({
@@ -75,50 +76,11 @@ function LessonsComponent() {
 
   useEffect(() => {
     //let list = [...lessons];
-    /*
-        if (roleFilter !== "all") {
-          list = list.filter((u) => u.role === roleFilter);
-        }
-        if (statusFilter !== "all") {
-          list = list.filter((u) => u.status === statusFilter);
-        }
-    
-        if (search.trim()) {
-          const s = search.toLowerCase();
-          list = list.filter((u) => {
-            const completeName = `${u.completeName?.()}`.toLowerCase() || '';
-            const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-            return (
-              u.completeName?.().includes(s) ||
-              u.first_name?.toLowerCase().includes(s) ||
-              u.last_name?.toLowerCase().includes(s) ||
-              u.display_name?.toLowerCase().includes(s) ||
-              u.email?.toLowerCase().includes(s) ||
-              u.email_academy?.toLowerCase().includes(s) ||
-              fullName.includes(s) ||
-              u.username?.toLowerCase().includes(s) ||
-              u.email?.toLowerCase().includes(s) ||
-              u.schoolEmail?.toLowerCase().includes(s)
-            );
-          });
-        }
-    
-        if (sortBy === "name") {
-          list.sort((a, b) =>
-            `${a.lastName} ${a.firstName}`.localeCompare(
-              `${b.lastName} ${b.firstName}`
-            )
-          );
-        } else if (sortBy === "role") {
-          list.sort((a, b) => t(a.role).localeCompare(t(b.role)));
-        }
-        */
-    //const ok = ClassLesson.translate();
-
-    // setUsers(list);
-  }, []);
+    for(const lesson of lessons) {
+      router.prefetch(`${PAGE_LESSONS}/${lesson.uid}`);
+    }
+  }, [lessons]);
   useEffect(() => {
-    console.log("search =", filter.search,lessons);
     let list = [...lessons];
     if (filter.search.length) {
       list = list.filter((u) => {
@@ -142,6 +104,7 @@ function LessonsComponent() {
               placeholder={t('placeholder_search', { ns: NS_LESSONS })}
               fullWidth
               type='text'
+              icon={<IconSearch width={18} />}
               onChange={(e) => {
                 e.preventDefault();
                 setFilter(prev => ({
@@ -370,7 +333,7 @@ function LessonRow({ lesson = null, lastChild = false }) {
   const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
   const roleCfg = FORMAT_CONFIG[lesson?.format];
   const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
-  console.log("LESSON", lesson);
+  //console.log("LESSON", lesson);
 
   const {minLevelId,minLevelValue, maxLevelId, maxLevelValue} = useMemo(() => {
     return {
@@ -386,7 +349,7 @@ function LessonRow({ lesson = null, lastChild = false }) {
         {/* Image */}
         <div className="cell cell-image">
           {
-            lesson?.translate?.photo_url && <Box sx={{ background: '', width: '50%' }}>
+            lesson?.translate?.photo_url && <Box sx={{ background: '', width: {sm:'50%'} }}>
               <Image
                 src={lesson?.translate?.photo_url}
                 alt={`lesson-${lesson?.uid}`}
@@ -562,11 +525,11 @@ function LessonRow({ lesson = null, lastChild = false }) {
             padding: 10px 10px;
             border-radius: 12px;
             margin-bottom: 8px;
-            border: 1px solid #111827;
+            border: 0.1px solid var(--card-border);
           }
 
-          .row.last-child {
-          border: 1px solid #111827;
+        .row.last-child {
+          border: 0.1px solid var(--card-border);
         }
 
           .cell-email,
@@ -598,50 +561,4 @@ export default function LessonsPage() {
       <LessonsComponent />
     </Stack>
   </DashboardPageWrapper>)
-  /*
-  return (
-    <LoginPageWrapper>
-            <Typography>
-              Se connecter
-            </Typography>
-            <Stack spacing={1}>
-              <TextFieldComponent
-                //label='email'
-                name='email'
-                icon={<IconEmail width={20} />}
-                placeholder='adress'
-                value={email}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setEmail(e.target.value);
-                }}
-                onClear={() => {
-                  setEmail('');
-                }}
-
-              />
-              <TextFieldPasswordComponent
-                //label='email'
-                name='password'
-                placeholder='password'
-                value={password}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setPassword(e.target.value);
-                }}
-                onClear={() => {
-                  setPassword('');
-                }}
-
-              />
-            </Stack>
-            <ButtonNextComponent 
-            label='Se connecter'
-            onClick={()=>{
-              login(email, password);
-            }}
-            />
-    </LoginPageWrapper>
-  );
-  */
 }

@@ -80,18 +80,9 @@ function AvatarIcon({ children, sx }) {
   );
 }
 const CardHeader = () => {
-  const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   const { lesson, lessons, setUidLesson } = useLesson();
-  const { chapters, chapter, setUidChapter } = useChapter();
-  const { stat, stats, setUidStat } = useStat();
-  useEffect(() => {
-    if (chapters.length > 0) {
-      // setUidChapter(chapters[0].uid);
-    }
-  }, [chapters]);
-
-
+  const { stat, stats } = useStat();
   const indexStat = useMemo(() => {
     return stats.findIndex(s => s.uid === stat?.uid);
   }, [stats, stat]);
@@ -101,11 +92,6 @@ const CardHeader = () => {
   const disabledNext = useMemo(() => {
     return indexStat === stats?.length - 1;
   }, [stats, stat]);
-
-
-  useEffect(() => {
-    console.log("Chaptereeeeer", chapter)
-  })
   return (<Stack sx={{ color: 'var(--font-color)', width: '100%' }}>
     <Grid container>
       <Grid size={{ xs: 12, sm: 6 }}>

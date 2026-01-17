@@ -247,17 +247,6 @@ export default function StatsLineChart({ viewMode = ClassUserStat.VIEW_MODE_SCOR
                             borderRadius: 0,
                         };
                     },
-                    labelTextColor: function (tooltipItem) {
-                        //return '#543453';
-                        // tooltipItem.datasetIndex et tooltipItem.dataIndex disponibles
-                        // Si c'est beforeLabel
-                        console.log("chart tooltip raw line", tooltipItem)
-                        if (tooltipItem.raw === '2') return getCSSVar("--grey-light");
-                        // Si c'est afterLabel
-                        if (tooltipItem.rawLine === 'afterLabel') return 'yellow';
-                        // Sinon (label)
-                        //return getCSSVar("--primary");
-                    }
                 },
 
 

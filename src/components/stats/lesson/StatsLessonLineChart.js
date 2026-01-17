@@ -70,17 +70,9 @@ export default function StatsLessonLineChart({ viewMode = ClassUserStat.VIEW_MOD
         bgHover: getCSSVar(COLORS[i].bgHover),
         //border: randomColor(1),
     }));
-    const lessonColors = lessons.map((_, i) => ({
-        bg: getCSSVar(COLORS[i].bg),
-        border: getCSSVar(COLORS[i].border),
-        bgHover: getCSSVar(COLORS[i].bgHover),
-        //border: randomColor(1),
-    }));
     const sortedStats = [...stats].sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
-    const labelsDate = stats.sort((a, b) => a.end_date.getTime() - b.end_date.getTime()).map(s => getFormattedDateCompleteNumeric(s.end_date));
     const statsDate = Array.from(new Set(sortedStats.map(s => s.end_date)));
     const statsDateLabel = Array.from(new Set(statsDate.map(d => getFormattedDateNumeric(d))));
-    console.log("Staaaats by date", statsDate[0], getStatsByDate(stats, statsDate[1]));
     const datas = {
         labels: statsDateLabel,
         datasets: chapters.map((chapter, i) => {

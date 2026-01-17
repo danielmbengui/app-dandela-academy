@@ -15,15 +15,13 @@ import { ClassLesson } from "@/classes/ClassLesson";
 const CardHeader = () => {
     const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
     //const { stats, stat, getOneStatIndex } = useStat();
-    const { lesson, setUidLesson } = useLesson();
+    const { lesson } = useLesson();
     const chipHeader = {
         color: "var(--font-color)",
         bgcolor: "rgba(255,255,255,0.12)",
         borderColor: "var(--card-border)",
         fontWeight: 900,
     };
-    console.log("LEEEES", lesson)
-
     return (<Stack sx={{ background: '', width: '100%' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 6 }}>

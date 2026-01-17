@@ -73,7 +73,7 @@ export function UsersProvider({ children}) {
             }
             
             var _users = snap.docs.map(doc => doc.data());
-            console.log("is not empty", _users[2]);
+            //console.log("is not empty", _users[2]);
             //_users =_users.sort((a, b) => a.first_name?.localeCompare(b.first_name));
             setUsers(_users);
             //console.log("ROOMS provider", _rooms);

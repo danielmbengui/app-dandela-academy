@@ -167,7 +167,6 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
             const translate = _chapter.translates?.find(trans => trans.lang === lang);
-            console.log("Weeeeesh translate", _chapter)
             _chapter.translate = translate;
             const _subchapters = _chapter.subchapters?.map(sub => {
                 sub.translate = sub.getTranslate(lang);

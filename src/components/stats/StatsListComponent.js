@@ -442,9 +442,6 @@ function CourseResultsBlock({ lesson = null, isOpenDetails = false, setIsOpenDet
         const filtered_stats = stats.filter(s => s.uid_lesson === lesson?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
         const bestStat = getBestStat(lesson?.uid, "", filtered_stats);
         const worstStat = getWorstStat(lesson?.uid, "", filtered_stats);
-
-        console.log("Beeeest", bestStat)
-
         return {
             statsFiltered: filtered_stats,
             chaptersFiltered: filtered_chapters,

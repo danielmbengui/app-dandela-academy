@@ -227,10 +227,6 @@ export default function StatsLessonListComponent({ isOpenDetails = false, setIsO
     const uidMemo = useMemo(()=>{
         return selectedUid;
     }, [selectedUid]);
-    useEffect(()=>{
-        //setSelectedUid(prev=>prev);
-        console.log("iddddd", uidMemo)
-    }, [uidMemo])
     
     return (
         <Stack spacing={2}>

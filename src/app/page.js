@@ -20,15 +20,6 @@ import { ClassColor } from '@/classes/ClassColor';
 import HomeComponent from '@/components/home/HomeComponent';
 
 export default function Home() {
-  const router = useRouter();
-  const { user } = useAuth();
-  
-  useEffect(() => {
-    if (user && user.uid) {
-      router.push(PAGE_DASHBOARD_HOME);
-    }
-  }, [user]);
-
   return (<LoginPageWrapper>
     <HomeComponent />
   </LoginPageWrapper>);

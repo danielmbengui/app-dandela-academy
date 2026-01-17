@@ -7,29 +7,7 @@ import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useTranslation } from "react-i18next";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { useUserDevice } from "@/contexts/UserDeviceProvider";
-const coursesResults = [
-    {
-        id: "excel",
-        title: "Excel – Fondamentaux",
-        history: [
-            { date: "01/01", score: 20 },
-            { date: "10/01", score: 45 },
-            { date: "20/01", score: 70 },
-        ],
-        progress: 70,
-        level: "Intermédiaire",
-    },
-    {
-        id: "it_intro",
-        title: "Introduction à l’informatique",
-        history: [
-            { date: "05/01", score: 30 },
-            { date: "18/01", score: 60 },
-        ],
-        progress: 60,
-        level: "Débutant",
-    },
-];
+
 const COLORS = ClassUserStat.GRAPH_COLORS;
 
 export default function StatsLessonBarChart({ viewMode = ClassUserStat.VIEW_MODE_SCORE }) {
@@ -141,8 +119,6 @@ export default function StatsLessonBarChart({ viewMode = ClassUserStat.VIEW_MODE
                 callbacks: {
                     // Titre du tooltip
                     title: (tooltipItems) => {
-                        // tooltipItems est un array, prend le premier
-                        console.log("chart tooltip", tooltipItems[0])
                         return tooltipItems[0].dataset.label; // nom de la leçon
                     },
                     afterTitle: (tooltipItems) => {
@@ -223,17 +199,6 @@ export default function StatsLessonBarChart({ viewMode = ClassUserStat.VIEW_MODE
                             borderRadius: 0,
                         };
                     },
-                    labelTextColor: function (tooltipItem) {
-                        //return '#543453';
-                        // tooltipItem.datasetIndex et tooltipItem.dataIndex disponibles
-                        // Si c'est beforeLabel
-                        console.log("chart tooltip raw line", tooltipItem)
-                        if (tooltipItem.raw === '2') return getCSSVar("--grey-light");
-                        // Si c'est afterLabel
-                        if (tooltipItem.rawLine === 'afterLabel') return 'yellow';
-                        // Sinon (label)
-                        //return getCSSVar("--primary");
-                    }
                 },
             },
         },

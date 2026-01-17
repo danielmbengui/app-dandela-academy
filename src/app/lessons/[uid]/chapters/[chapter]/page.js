@@ -58,422 +58,6 @@ import { ClassUser } from "@/classes/users/ClassUser";
 import CircularProgressChapter from "@/components/stats/CircularProgressChapter";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
-const CongratulationsComponent1 = ({ stat = null, setIndexSub = null }) => {
-    const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
-    // score: `${stat?.score}/${stat?.answers?.length}`,
-    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-    //duration: formatChrono(duration),
-    return (<>
-        <div className="results-summary-container" sx={{ borderRadius: '10px', width: { xs: '100%', sm: '400px' }, border: '0.1px solid var(--card-border)' }}>
-            <div className="confetti">
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-            </div>
-            <div className="results-summary-container__result" style={{ zIndex: 1_001 }}>
-                <EmojiEventsIcon />
-                <CircularProgressChapter
-                    score={stat?.score}
-                    questions={stat?.answers?.length}
-                    percent={parseInt(stat?.percentage)}
-                    size={'large'}
-                    duration={stat?.duration}
-                    status={stat?.status}
-                />
-                <div className="result-box">
-                    <div className="heading-primary">
-                        {stat?.score}/{stat?.answers?.length}
-                    </div>
-                    <p className="result">
-                        {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
-                    </p>
-                    <p className="time">
-                        {`${formatChrono(stat?.duration)}`}
-                    </p>
-                </div>
-                <div className="result-text-box">
-                    <div className="heading-secondary">{t('finished.congrats')}</div>
-                    <p className="paragraph">
-                        {t('finished.max-score')}
-                    </p>
-                </div>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={'center'} sx={{ py: 1.5 }}>
-                    <ButtonCancel label={t('btn-back')} onClick={() => setIndexSub(prev => prev - 1)} />
-                    <Link href={ClassUserStat.createUrl(stat?.uid_lesson, stat?.uid_chapter, stat?.uid)}>
-                        <ButtonConfirm label={t('btn-see-answers')} />
-                    </Link>
-
-                </Stack>
-                <div className="summary__cta" style={{ marginTop: '10px' }}>
-
-
-                </div>
-            </div>
-        </div>
-        <style jsx>{`
-.results-summary-container {
-  font-family: "Hanken Grotesk", sans-serif;
-  display: flex;
-  width: 100%;
-  max-width:100%;
-  border-radius: 30px;
-  border:0.1px solid var(--card-border);
-}
-@media (min-width: 600px) {
-  .results-summary-container {
-    width: 330px;
-  }
-}
-
-.heading-primary,
-.heading-secondary,
-.heading-tertiary {
-  color: var(--grey-dark);
-  text-transform: capitalize;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.heading-primary {
-  font-size: 2rem;
-  font-weight: 600;
-  background-image: linear-gradient(to right, var(--success), var(--success));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  transform: scale(1.6);
-}
-
-.heading-secondary {
-  font-size: 20px;
-  font-weight: 600;
-  margin-top: 20px;
-  letter-spacing: 1px;
-  
-    white-space: nowrap;   
-  overflow: hidden;     
-  text-overflow: ellipsis; 
-}
-
-.heading-tertiary {
-  font-size: 20px;
-  font-weight: 500;
-  color: hsl(221, 100%, 96%);
-}
-
-.paragraph {
-  font-size: 17px;
-  line-height: 1.4;
-  color: var(--grey-light);
-}
-
-.paragraph-text-box {
-  width: 100%;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.margin-1 {
-  margin-bottom: 10px;
-}
-
-.results-summary-container__result {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  border-radius: 5px;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-
-
-  .result-box {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background-image: linear-gradient(-45deg, var(--success), var(--success-shadow));
-    background-image: var(--card-color);
-    background-color: var(--card-color);
-    border: 0.1px solid var(--success);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    
-   }
-
-    .result {
-    margin-top: -8px;
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--font-color);
-    }
-    .time {
-    margin-top: 5px;
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--grey-light);
-    }
-}
-
-.btn {
-  width: 240px;
-  padding: 10px;
-  color: #ffffff;
-  background-image: linear-gradient(to right, #aa076b, #61045f);
-  border: none;
-  border-radius: 100px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  font-weight: 500;
-  cursor: pointer;
-  margin: 20px 0 2px 0;
-  transition: all 0.3s;
-}
-
-.btn:hover {
-  transform: translateY(5px);
-  background-image: linear-gradient(to left, #aa076b, #61045f);
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 0% 95%;
-    background-image: linear-gradient(45deg, var(--card-color),var(--card-color));
-  }
-
-  50% {
-        background-position: 0% 95%;
-    background-image: linear-gradient(to bottom, var(--card-color),var(--card-color));
-  }
-
-  100% {
-    background-position: 0% 95%;
-    background-image: linear-gradient(to bottom, var(--card-color),var(--card-color),var(--card-color));
-  }
-}
-
-.confetti {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  width: 300px;
-  height: 60%;
-  overflow: hidden;
-}
-
-.confetti-piece {
-  position: absolute;
-  width: 10px;
-  height: 20px;
-  background-color: hsl(39, 100%, 56%);
-  top: 0;
-  opacity: 0;
-  animation: makeItRain 3000ms infinite linear;
-}
-
-.confetti-piece:nth-child(1) {
-  left: 7%;
-  transform: rotate(-10deg);
-  animation-delay: 182ms;
-  animation-duration: 2000ms;
-}
-
-.confetti-piece:nth-child(2) {
-  left: 14%;
-  transform: rotate(20deg);
-  animation-delay: 161ms;
-  animation-duration: 2076ms;
-}
-
-.confetti-piece:nth-child(3) {
-  left: 21%;
-  transform: rotate(-51deg);
-  animation-delay: 481ms;
-  animation-duration: 2103ms;
-}
-
-.confetti-piece:nth-child(4) {
-  left: 28%;
-  transform: rotate(61deg);
-  animation-delay: 334ms;
-  animation-duration: 1008ms;
-}
-
-.confetti-piece:nth-child(5) {
-  left: 35%;
-  transform: rotate(-52deg);
-  animation-delay: 302ms;
-  animation-duration: 1776ms;
-}
-
-.confetti-piece:nth-child(6) {
-  left: 42%;
-  transform: rotate(38deg);
-  animation-delay: 180ms;
-  animation-duration: 1168ms;
-}
-
-.confetti-piece:nth-child(7) {
-  left: 49%;
-  transform: rotate(11deg);
-  animation-delay: 395ms;
-  animation-duration: 1200ms;
-}
-
-.confetti-piece:nth-child(8) {
-  left: 56%;
-  transform: rotate(49deg);
-  animation-delay: 14ms;
-  animation-duration: 1887ms;
-}
-
-.confetti-piece:nth-child(9) {
-  left: 63%;
-  transform: rotate(-72deg);
-  animation-delay: 149ms;
-  animation-duration: 1805ms;
-}
-
-.confetti-piece:nth-child(10) {
-  left: 70%;
-  transform: rotate(10deg);
-  animation-delay: 351ms;
-  animation-duration: 2059ms;
-}
-
-.confetti-piece:nth-child(11) {
-  left: 77%;
-  transform: rotate(4deg);
-  animation-delay: 307ms;
-  animation-duration: 1132ms;
-}
-
-.confetti-piece:nth-child(12) {
-  left: 84%;
-  transform: rotate(42deg);
-  animation-delay: 464ms;
-  animation-duration: 1776ms;
-}
-
-.confetti-piece:nth-child(13) {
-  left: 91%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 1818ms;
-}
-
-.confetti-piece:nth-child(14) {
-  left: 94%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 818ms;
-}
-
-.confetti-piece:nth-child(15) {
-  left: 96%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(16) {
-  left: 98%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(17) {
-  left: 50%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(18) {
-  left: 60%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 1818ms;
-}
-
-.confetti-piece:nth-child(odd) {
-  background-color: hsl(0, 100%, 67%);
-}
-
-.confetti-piece:nth-child(even) {
-  z-index: 1;
-}
-
-.confetti-piece:nth-child(4n) {
-  width: 6px;
-  height: 14px;
-  animation-duration: 4000ms;
-  background-color: #c33764;
-}
-
-.confetti-piece:nth-child(5n) {
-  width: 3px;
-  height: 10px;
-  animation-duration: 4000ms;
-  background-color: #b06ab3;
-}
-
-.confetti-piece:nth-child(3n) {
-  width: 4px;
-  height: 12px;
-  animation-duration: 2500ms;
-  animation-delay: 3000ms;
-  background-color: #dd2476;
-}
-
-.confetti-piece:nth-child(3n-7) {
-  background-color: hsl(166, 100%, 37%);
-}
-
-@keyframes makeItRain {
-  from {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    transform: translateY(250px);
-  }
-}
-
-    `}</style>
-    </>)
-}
 const CongratulationsComponent = ({ stat = null, setIndexSub = null }) => {
     const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
     const router = useRouter();
@@ -548,7 +132,7 @@ const CongratulationsComponent = ({ stat = null, setIndexSub = null }) => {
                     <Typography fontSize={'20px'} sx={{ textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, color: 'var(--grey-dark)' }}>{t('finished.congrats')}</Typography>
                     <Typography sx={{ color: 'var(--grey-light)' }}>{t('finished.max-score')}</Typography>
                 </Stack>
-                <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{zIndex:1_000_000}}>
                     <ButtonCancel onClick={goBack} label={t('btn-back')} />
                     <ButtonConfirm onClick={goAnswer} label={t('btn-see-answers')} />
                 </Stack>
@@ -1129,7 +713,6 @@ const CardSubChaptersContent = ({
         </Grid>
     </Stack>)
 }
-
 const NewQuizComponent = ({ setIndexSub = null }) => {
     const router = useRouter();
     const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION, NS_BUTTONS]);
@@ -1158,7 +741,6 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
             //setHasStat(stats.length > 0);
             setMostResentStat(_most_recent_stat);
             setBestStat(_best_stat);
-            console.log("most recent", stats, _most_recent_stat, _best_stat)
         }
         if (user && lesson && chapter && !isLoadingStats) {
             init();
@@ -1223,7 +805,6 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
             setQuestion(null);
             setProposals([]);
         }
-        // console.log("WUESTTTTIONS", questions)
     }, [index, questions]);
     const goBack = () => {
         setIndex(prev => prev - 1);
@@ -1252,7 +833,6 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
             });
             
             const user_stat = await stat.createFirestore();
-            console.log("STAT", "SCORE", user_stat.clone());
             setStat(user_stat.clone());
             setFinished(true);
         } catch (error) {
@@ -1271,7 +851,6 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
                     }
                     {
                         proposals?.map?.((proposal, i) => {
-                            //console.log("PROP", proposal)
                             return (<CheckboxComponent
                                 checked={answers[index].uid_proposal === proposal.uid_intern}
                                 onChange={(e) => {
@@ -1479,7 +1058,6 @@ const CardQuizz = ({
             } else if (_best_stat && _best_stat.score < _best_stat.answers?.length) {
                 setCanStartQuiz(true);
             }
-            //console.log("most recent", stats, _most_recent_stat, _best_stat);
             setShowComponent(true);
         }
         if (user && lesson && chapter && !isLoadingStats) {
@@ -1527,7 +1105,6 @@ const CardQuizz = ({
             setQuestion(null);
             setProposals([]);
         }
-        // console.log("WUESTTTTIONS", questions)
     }, [index, questions]);
     const goBackSub = () => {
         setIndexSub(prev => prev - 1);
@@ -1717,114 +1294,49 @@ const CardQuizz = ({
         </Grid>
     </Stack>)
 }
-
 export default function ExcelBeginnerCoursePage() {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     //const { lang } = useLanguage();
     const { uid: uidLess, chapter: uidChapter } = useParams();
     //const { user } = useAuth();
-    const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-    const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, isLoading: isLoadingChapters } = useChapter();
+    const { lesson, setUidLesson,} = useLesson();
+    const { chapter, chapters, subchapters, setUidChapter, setSubchapter, isLoading: isLoadingChapters } = useChapter();
     //const [chapter, setChapter] = useState();
     //const [subchapters, setSubChapters] = useState([]);
     //const [subchapter, setSubchapter] = useState(null);
-    const { stats, setUidStat, getMostRecentStat, getBestStat, isLoading: isLoadingStats } = useStat();
+    const { stats,isLoading: isLoadingStats } = useStat();
     const [showComponent, setShowComponent] = useState(false);
     //const hasPreviousStats = i === 0 ? true : i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0;
     const [hasPreviousStats, setHasPreviousStats] = useState(false);
     const [previousChapter, setPreviousChapter] = useState(null);
-    const [process, setProcess] = useState(false);
     const [indexSub, setIndexSub] = useState(0);
-    const onTranslate = async () => {
-        try {
-            setProcess(true);
-            const INDEX_SUB = 8;
-            const quiz = chapter.quiz || [];
-            var questions = quiz?.questions || [];
-            const trans = questions?.[INDEX_SUB].getTranslate('fr');
-            const qs = encodeURIComponent(JSON.stringify(trans));
-            //console.log("fect", qs);
-            const fetchTranslate = await fetch(`/api/test?lang=fr&translations=${qs}`);
-            const result = await fetchTranslate.json();
-            const translates = Object.values(result)?.map?.(trans => new ClassLessonChapterQuestionTranslation(trans));
-            questions[INDEX_SUB].translates = translates;
-            questions = questions.map((q, i) => {
-                const final = q;
-                const qTrans = q.translates.map(_trans => {
-                    var answer = _trans.answer;
-                    const proposals = _trans.proposals.map((prop, i) => {
-                        var propReturn = {};
-                        if (prop.uid_intern) {
-                            propReturn = prop;
-                        } else {
-                            propReturn = { value: prop, uid_intern: i + 1 };
-                        }
-
-                        if (!answer.uid_intern && propReturn.value === answer) {
-                            answer = { uid_intern: i + 1, value: propReturn.value }
-                        }
-                        return propReturn;
-                    });
-                    _trans.proposals = proposals;
-                    _trans.answer = answer;
-                    return (_trans);
-                });
-
-                const trans = q._convertTranslatesToFirestore(qTrans);
-                final.translates = trans;
-                //final.translates
-                return final.toJSON();
-            });
-            quiz.questions = questions;
-
-            const _patch = await chapter?.updateFirestore({ quiz: quiz.toJSON() });
-            console.log("RESUULT", quiz)
-        } catch (error) {
-            console.log("ERRROR", error);
-        } finally {
-            setProcess(false);
-        }
-    }
     useEffect(() => {
-        //console.log("CHapters", subchapters);
         if (chapter && indexSub >= 0 && indexSub < subchapters.length) {
             setSubchapter(chapter.subchapters?.[indexSub] || null);
         }
     }, [indexSub]);
 
     useEffect(() => {
-        //console.log("laaaaast stat", uidLess);
         setUidLesson(uidLess);
-        //console.log("LESSSSSSON", lesson)
         setUidChapter(uidChapter);
     }, [uidLess, uidChapter]);
     useEffect(() => {
         if (chapter && !isLoadingChapters && !isLoadingStats) {
-            // console.log("new chapter", chapter);
             if (chapter?.uid_intern === 1) {
                 setHasPreviousStats(true);
                 setPreviousChapter(chapter);
-                //  console.log("first so true");
             } else {
                 const indexChapter = chapters.findIndex(c => c.uid_intern === chapter.uid_intern);
                 const _previous = chapters[indexChapter - 1];
                 setPreviousChapter(_previous);
                 if (stats?.filter(s => s.uid_chapter === _previous.uid)?.length > 0) {
-                    // console.log("completed previous");
                     setHasPreviousStats(true);
                 } else {
-                    //  console.log("NOT completed previous");
                     setHasPreviousStats(false);
                 }
             }
         }
         setShowComponent(true);
-
-        //const hasPreviousStats = i === 0 ? true : i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0;
-
-        //setUidLesson(uidLess);
-        //console.log("LESSSSSSON", lesson)
-        //setUidChapter(uidChapter);
     }, [chapter, isLoadingChapters, isLoadingStats]);
     return (<DashboardPageWrapper
         titles={[
@@ -1903,14 +1415,6 @@ export default function ExcelBeginnerCoursePage() {
                     </Grid>
                 }
             </Grid>
-            {/* HEADER / HERO */}
-            <Box component={Paper} elevation={2} sx={{ p: 3, mb: 4, borderRadius: 3, display: 'none' }}>
-                <ButtonConfirm
-                    label="Translate"
-                    loading={process}
-                    onClick={onTranslate}
-                />
-            </Box>
         </Container>
     </DashboardPageWrapper>);
 }

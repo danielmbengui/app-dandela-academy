@@ -574,9 +574,6 @@ export default function OneStatPage() {
   const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   const { uidLesson,uidChapter, uid: uidStat } = useParams();
-  console.log("uid", uidStat)
-  // const { lang } = useLanguage();
-  //const { user } = useAuth();
   const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
   const { chapter, setUidChapter } = useChapter();
   const { getOneStatIndex,getGlobalCountQuiz, stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getWorstStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();

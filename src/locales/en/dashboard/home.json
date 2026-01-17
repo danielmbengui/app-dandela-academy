@@ -29,8 +29,8 @@
       "subtitle": "Explore all detailed results"
     },
     "calendar": {
-      "title": "View the calendar",
-      "subtitle": "Overall view of sessions."
+      "title": "View calendar",
+      "subtitle": "Overall view of sessions"
     },
     "profile": {
       "title": "Set up profile",
@@ -38,6 +38,7 @@
     }
   },
   "events": {
+    "completed-quiz": "You completed a quiz",
     "new-quiz": "You completed a new quiz",
     "max-quiz": "You achieved the highest score",
     "good-quiz": "Your score is excellent",

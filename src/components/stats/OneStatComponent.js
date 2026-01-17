@@ -52,14 +52,6 @@ export default function OneStatComponent() {
     const { stats, isLoading: isLoadingStats, stat, getOneStatIndex, setUidStat } = useStat();
     const { chapters, setUidChapter, chapter } = useChapter();
     const router = useRouter();
-
-    const statsFiltered = useMemo(() => {
-        var _stats = [...stats].filter(s => s.uid_chapter === stat?.uid_chapter);
-        console.log("????????", _stats)
-        return _stats;
-    }, [stats, stat]);
-
-
     // ---- MOCK (remplace par Firestore) ----
     const attempt = useMemo(
         () => ({
@@ -100,11 +92,6 @@ export default function OneStatComponent() {
         if (filter === "wrong") return _questions.filter((q) => !q.is_correct);
         return _questions;
     }, [attempt.uid, attempt.questions, filter]);
-
-    useEffect(() => {
-        console.log("filtereeeeeeed", questionsFiltered)
-    }, [stat])
-
     return (
         <Stack spacing={1}>
             <Box sx={{ bgcolor: "", minHeight: "100vh" }}>

@@ -1,10 +1,10 @@
 {
     "title-page": "Tableau de bord - Dandela Academy",
-    "description-page": "La page d'accueuil du tableau de bord de la plateforme Dandela Academy",
+    "description-page": "La page d’accueil du tableau de bord de la plateforme Dandela Academy",
     "title": "Tableau de bord",
-    "subtitle": "Survole tes cours, messages, professeurs et tes résultats en un coup d'œil.",
-    "welcome":"Salut {{name}}",
-    "welcome-1":"Bienvenue sur ton dashboard 👋",
+    "subtitle": "Survole tes cours, messages, professeurs et résultats en un coup d’œil.",
+    "welcome": "Salut {{name}}",
+    "welcome-1": "Bienvenue sur ton tableau de bord 👋",
     "lesson-start": "Cours entamés",
     "lesson-completed": "Cours terminés",
     "chapter-start": "Chapitres entamés",
@@ -20,36 +20,38 @@
     "see-more": "Voir plus",
     "see-less": "Voir moins",
     "links": {
-        "lessons": {
-            "title": "Accéder aux cours",
-            "subtitle": "Suivre un cours en ligne ou présentiel"
-        },
-        "results": {
-            "title": "Voir tous tes résultats",
-            "subtitle": "Explorer tous les résultats détaillés"
-        },
-        "calendar": {
-            "title": "Consulter le calendrier",
-            "subtitle": "Vue globale des sessions."
-        },
-        "profile": {
-            "title": "Paramétrer le profil",
-            "subtitle": "Toutes les préférences du compte"
-        }
+      "lessons": {
+        "title": "Accéder aux cours",
+        "subtitle": "Suivre un cours en ligne ou en présentiel"
+      },
+      "results": {
+        "title": "Voir tous tes résultats",
+        "subtitle": "Explorer tous les résultats détaillés"
+      },
+      "calendar": {
+        "title": "Consulter le calendrier",
+        "subtitle": "Vue globale des sessions"
+      },
+      "profile": {
+        "title": "Paramétrer le profil",
+        "subtitle": "Toutes les préférences du compte"
+      }
     },
     "events": {
-        "new-quiz": "Tu as terminé un nouveau questionnaire",
-        "max-quiz": "Tu as obtenu le meilleur score",
-        "good-quiz": "Ton score est excellent",
-        "worst-quiz": "Tu as obtenu zéro point à ton test",
-        "not-good-quiz": "Tu peux mieux faire !",
-        "has-progress-quiz": "Tu as amélioré ton score précédent",
-        "score":"Score",
-        "previous":"Précédent",
-        "evolution":"Évolution",
-        "progress":"Progression"
+      "completed-quiz": "Tu as terminé un questionnaire",
+      "new-quiz": "Tu as terminé un nouveau questionnaire",
+      "max-quiz": "Tu as obtenu le meilleur score",
+      "good-quiz": "Ton score est excellent",
+      "worst-quiz": "Tu as obtenu zéro point à ton test",
+      "not-good-quiz": "Tu peux mieux faire !",
+      "has-progress-quiz": "Tu as amélioré ton score précédent",
+      "score": "Score",
+      "previous": "Précédent",
+      "evolution": "Évolution",
+      "progress": "Progression"
     },
     "enrolled-lessons": "Cours inscrits",
     "active-lessons": "Cours actifs",
     "completed-lessons": "Cours terminés"
-}
+  }
+  

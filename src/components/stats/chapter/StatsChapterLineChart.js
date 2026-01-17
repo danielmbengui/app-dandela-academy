@@ -43,19 +43,12 @@ function GetLabelsScore() {
     return labels;
 }
 function GetDatasetsScore() {
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const { chapter } = useChapter();
-    const { stats, getOneStatIndex } = useStat();
+    const { stats } = useStat();
     const sortedStats = [...stats].filter(s => s.uid_chapter === chapter?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
     const statsColors = [...sortedStats].map((stat, i) => {
-        // const colors = COLORS;
-        //const color = COLORS[i];
-        //const colors = Object.values(COLORS);
-        //  const color = colors[i];
         const colors = Object.values(COLORS_STATS);
         const color = colors.find(c => c.label === stat.status);
-
-        console.log("statsColors", color, color.background_bubble)
         return ({
             bg: color.background_bubble?.startsWith('var') ? convertToCSSChart(color.background_bubble) : color.background_bubble,
             border: color.border?.startsWith('var') ? convertToCSSChart(color.border) : color.border,
@@ -65,8 +58,6 @@ function GetDatasetsScore() {
     });
     const datasets = [...sortedStats].map((stat, i) => {
         const labels = GetLabelsScore();
-        console.log("statttts lenght", [...sortedStats].length)
-        //const uidIntern = getOneStatIndex(stat.uid, sortedStats) + 1;
         var statsMap = [{ x: labels[i], y: stat.score }];
         return ({
             label: labels[i],
@@ -190,7 +181,6 @@ export default function StatsChapterLineChart({ viewMode = ClassUserStat.VIEW_MO
     const chaptersColors = ALL_STATUS.map((status, i) => {
         const colors = Object.values(COLORS_STATS);
         const color = colors.find(c => c.label === status);
-        console.log("length coors", color.color, convertToCSSChart(color.color))
         return ({
             bg: convertToCSSChart(color.background_bubble),
             border: convertToCSSChart(color.border),
@@ -206,7 +196,6 @@ export default function StatsChapterLineChart({ viewMode = ClassUserStat.VIEW_MO
     var datasets = GetDatasetsScore();
     var tooltip = GetTooltipScore();
     var filteredStats = [...sortedStats];
-    console.log("labeeeeel", labels);
     if (!hasStats) {
         return (<NoStatsComponent />);
     }

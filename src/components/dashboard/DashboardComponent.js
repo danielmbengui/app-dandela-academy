@@ -26,7 +26,7 @@ import { useChapter } from '@/contexts/ChapterProvider';
 import { useRouter } from 'next/navigation';
 import { t } from 'i18next';
 
-const formatDateToRelative = (date = new Date()) => {
+function formatDateToRelative (date = new Date())  {
   const { t } = useTranslation([NS_DAYS]);
   if (!(date instanceof Date)) return null;
   const today = new Date();
@@ -44,7 +44,7 @@ const formatDateToRelative = (date = new Date()) => {
   if (seconds < STEP_MINUTES) return t('now'); // moins d'une minute
   if (seconds < STEP_HOUR) return t('less-one-hour'); // moins d'une heure
   const _hour = parseInt(seconds / STEP_HOUR);
-  console.log("OOOOOK", t('upon-hour'), translateWithVars(t('upon-hour'), { hour: _hour }));
+  //console.log("OOOOOK", t('upon-hour'), translateWithVars(t('upon-hour'), { hour: _hour }));
   if (seconds < STEP_DAY) return translateWithVars(t('upon-hour'), { hour: _hour }); // moins de 24h
   const _day = parseInt(seconds / STEP_DAY);
   if (seconds <= STEP_DAY * 6) return translateWithVars(t('upon-day'), { day: _day }); // jusqua 6j
@@ -145,20 +145,21 @@ function QuickLink({ emoji, label, description, link = "" }) {
     </>
   );
 }
-function EvolutionCard({ stat = null, previousStat = null, onClick=()=>{} }) {
+function EvolutionCard({ stat = null, previousStat = null, onClick = () => { } }) {
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
+
   const { getOneLesson } = useLesson();
   const { getOneChapter } = useChapter();
   const { emoji, text, lesson, chapter, percentStat, percentPreviousStat, progressScore } = useMemo(() => {
     var emoji = "ℹ️";
-    var text = t('events.new-quiz');
+    var text = t('events.completed-quiz');
     const lesson = getOneLesson(stat.uid_lesson);
     const chapter = getOneChapter(stat.uid_chapter);
     const percentPreviousStat = (previousStat?.score / previousStat?.answers?.length) * 100;
     const percentStat = (stat?.score / stat?.answers?.length) * 100;
     const progressScore = stat?.score - previousStat?.score;
     if (stat.isFirst) {
-      emoji = "1️⃣";
+      emoji = "💼";
       text = t('events.new-quiz');
     } else if (stat.isBest) {
       emoji = "🏆";
@@ -181,7 +182,7 @@ function EvolutionCard({ stat = null, previousStat = null, onClick=()=>{} }) {
 
   return (
     <>
-      <div className="dash-msg"  onClick={onClick}>
+      <div className="dash-msg" onClick={onClick}>
         <div className="dash-emoji">{emoji}</div>
         <div className="dash-body">
           <Stack className="dash-header" direction={'row'} alignItems={'start'} spacing={1} justifyContent={'space-between'}>
@@ -338,11 +339,14 @@ function EvolutionListComponent({ stats = [] }) {
       //const max = getBestStat(stat.uid_lesson, stat.uid_chapter);
       //const min = getWorstStat(stat.uid_lesson, stat.uid_chapter);
       const score = stat.answers.filter(a => a.uid_answer === a.uid_proposal).length;
-      const previousStat = i > 0 ? array.length > 1 ? array[i - 1] : null : null;
+      const chapterStats = _stats.filter(s => s.uid_chapter === stat.uid_chapter);
+      const chapterIndex = chapterStats.findIndex(s => s.uid === stat.uid);
+      const previousStat = chapterIndex > 0 ? chapterStats[chapterIndex - 1] : null;
+      //const previousStat = i > 0 ? array.length > 1 ? array[i - 1] : null : null;
       return ({
         ...stat.toJSON(),
         score,
-        isFirst: i === 0,
+        isFirst: chapterIndex === 0,
         isBest: score === stat.answers.length,
         isGood: stat.status === ClassUserStat.STATUS.GOOD || stat.status === ClassUserStat.STATUS.EXCELLENT,
         isNotGood: stat.status === ClassUserStat.STATUS.NOT_GOOD,
@@ -351,18 +355,20 @@ function EvolutionListComponent({ stats = [] }) {
         hasProgress: previousStat ? score > previousStat.score : false,
       })
     });
+    _stats = [..._stats].sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
     if (filter === 'part') {
       return _stats.slice(0, DEFAULT_VIEW);
     }
     return _stats;
-  }, [filter]);
+  }, [stats, filter]);
   useEffect(() => {
+    if (!stats.length) return;
     stats.forEach(stat => {
       router.prefetch(
         ClassUserStat.createUrl(stat.uid_lesson, stat.uid_chapter, stat.uid)
       );
     });
-  }, []);
+  }, [stats, router]);
 
 
   return (<>
@@ -443,6 +449,7 @@ function EvolutionListComponent({ stats = [] }) {
 
 export default function DashboardComponent({ stats = [] }) {
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
+  
   return (<>
     <Grid container spacing={1}>
       <Grid size={{ xs: 12, sm: 6 }}>

@@ -39,6 +39,7 @@ import { formatChrono } from "@/contexts/functions";
 import Link from "next/link";
 import { PAGE_CHAPTERS, PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import AlertComponent from "../elements/AlertComponent";
+import { NS_COMMON } from "@/contexts/i18n/settings";
 
 const ROYAL = "#2563EB";
 const NAVY = "#0B1B4D";
@@ -64,108 +65,8 @@ function ChapterComponent() {
     const [selectedLevel, setSelectedLevel] = useState(ClassLessonChapter.ALL_LEVELS[0]); // Débutant | Intermédiaire | Avancé
     const { lesson } = useLesson();
     const { stats, getGlobalPercent } = useStat();
-    const [percent, setPercent] = useState(0);
-    const { chapters, estimateChapterTimes, chapter, setUidChapter } = useChapter();
-    useEffect(() => {
-        if (chapters.length > 0 && (!chapter || chapter === null)) {
-            //setUidChapter(chapters[0].uid);
+    const { chapters, estimateChapterTimes, chapter } = useChapter();
 
-        }
-
-    }, [chapters.length]);
-
-    useEffect(() => {
-        if (chapter && lesson) {
-            setPercent(getGlobalPercent(lesson.uid, chapter.uid));
-        }
-        console.log("STATTS", stats)
-    }, [chapter, lesson, stats?.length])
-    // console.log("levels", ClassLessonChapter.ALL_LEVELS);
-    const filteredChapters = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        const _chapters = chapters.filter(c => c.level === selectedLevel);
-        //if (!q) return currentLevel.chapters;
-        return _chapters;
-    }, [chapters, selectedLevel]);
-    const filteredSubchapters = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        const _chapters = [...filteredChapters];
-        const uids = Array.from(new Set(_chapters.map(c => c.uid)));
-        const _subchapters = [];
-        for (const c of _chapters) {
-            const time = estimateChapterTimes({
-                totalMinHours: c.estimated_start_duration,
-                totalMaxHours: c.estimated_end_duration,
-                chapterCount: c.subchapters?.length,
-                level: c.level,
-            });
-            console.log("YAAAA", time);
-            if (uids.includes(c.uid)) {
-                _subchapters.push(...c.subchapters);
-            }
-        }
-        //if (!q) return currentLevel.chapters;
-        return _subchapters;
-    }, [filteredChapters, selectedLevel]);
-    // --- MOCK: 5 chapitres par niveau ---
-    const course = useMemo(
-        () => ({
-            uid: "lesson_excel_101",
-            code: "EXCEL",
-            title: "Excel",
-            subtitle: "Apprends Excel étape par étape, avec exercices et quiz.",
-            levels: [
-                {
-                    key: "Débutant",
-                    progress: 60, // %
-                    chapters: [
-                        { uid: "b1", index: 1, title: "Introduction & interface", duration_min: 12, status: "done" },
-                        { uid: "b2", index: 2, title: "Cellules, lignes, colonnes", duration_min: 15, status: "done" },
-                        { uid: "b3", index: 3, title: "Saisie & formats (nombres, dates)", duration_min: 18, status: "current" },
-                        { uid: "b4", index: 4, title: "Formules simples (SOMME, MOYENNE)", duration_min: 20, status: "locked" },
-                        { uid: "b5", index: 5, title: "Mise en forme conditionnelle", duration_min: 16, status: "locked" },
-                    ],
-                },
-                {
-                    key: "Intermédiaire",
-                    progress: 20,
-                    chapters: [
-                        { uid: "i1", index: 1, title: "Références relatives/absolues", duration_min: 18, status: "done" },
-                        { uid: "i2", index: 2, title: "Fonctions SI & logique", duration_min: 22, status: "current" },
-                        { uid: "i3", index: 3, title: "Tri, filtres, tableaux", duration_min: 24, status: "locked" },
-                        { uid: "i4", index: 4, title: "RechercheV / XLOOKUP", duration_min: 26, status: "locked" },
-                        { uid: "i5", index: 5, title: "Graphiques & mise en page", duration_min: 20, status: "locked" },
-                    ],
-                },
-                {
-                    key: "Avancé",
-                    progress: 0,
-                    chapters: [
-                        { uid: "a1", index: 1, title: "Tableaux croisés dynamiques", duration_min: 28, status: "locked" },
-                        { uid: "a2", index: 2, title: "Power Query (nettoyage)", duration_min: 30, status: "locked" },
-                        { uid: "a3", index: 3, title: "Modèle de données (Power Pivot)", duration_min: 30, status: "locked" },
-                        { uid: "a4", index: 4, title: "Dashboards & KPIs", duration_min: 35, status: "locked" },
-                        { uid: "a5", index: 5, title: "Mini-projet final", duration_min: 40, status: "locked" },
-                    ],
-                },
-            ],
-        }),
-        []
-    );
-    const currentLevel = useMemo(
-        () => course.levels.find((l) => l.key === level) || course.levels[0],
-        [course.levels, level]
-    );
-    const chaptersFiltered = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        if (!q) return currentLevel.chapters;
-        return currentLevel.chapters.filter((c) => c.title.toLowerCase().includes(q));
-    }, [currentLevel.chapters, query]);
-    const handleOpenChapter = (chapter) => {
-        if (chapter.status === "locked") return;
-        // adapte vers ta page chapitre existante :
-        router.push(`/dashboard/lessons/${course.uid}/chapters/${chapter.uid}`);
-    };
     return (
         <Stack spacing={3} sx={{ bgcolor: "var(--card-color)", borderRadius: '10px', minHeight: "100vh", px: 1.5, py: 2 }}>
             <Stack sx={{ width: { xs: '100%', sm: '70%' } }}>
@@ -192,8 +93,6 @@ function ChapterComponent() {
                                 const hasStats = stats?.filter(s => s.uid_chapter === _chapter.uid)?.length > 0 || false;
                                 const hasPreviousStats = i === 0 ? true : i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0;
                                 const firstStats = hasStats ? stats?.filter(s => s.uid_chapter === _chapter.uid)?.[0] : null;
-                                const hasCompletedPrevious = i > 0 && stats?.filter(s => s.uid_chapter === chapters[i - 1].uid)?.length > 0 ? true : false || true;
-                                console.log("has stat", i, hasPreviousStats);
                                 return (<AccordionComponent
                                     disabled={!hasPreviousStats}
                                     title={
@@ -214,8 +113,8 @@ function ChapterComponent() {
                                     <Grid container sx={{ px: 1, py: 1.5 }} spacing={1} justifyContent={'space-between'}>
                                         <Grid size={{ xs: 12, sm: 8 }}>
                                             <Stack>
-                                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} flexWrap="wrap">
-                                                    <Chip label={`${t(_chapter?.level)} • ${_chapter?.subchapters?.length} chapitres`} variant="outlined" sx={chipHeader} />
+                                                <Stack alignItems={{xs:'start',sm:'center'}} direction={{ xs: 'column', sm: 'row' }} spacing={1} flexWrap="wrap">
+                                                    <Chip label={`${t(_chapter?.level)} • ${_chapter?.subchapters?.length} ${t('chapters', {ns:NS_COMMON})}`} variant="outlined" sx={chipHeader} />
                                                     {
                                                         hasStats && <Chip label={`${t('progression')}: ${percent.toFixed(2)}%`} variant="outlined" sx={chipHeader} />
                                                     }
@@ -276,7 +175,7 @@ function ChapterComponent() {
                                                     </Stack>
                                                 }
                                                 {
-                                                    hasPreviousStats && <Stack alignItems={'center'} direction={'row'} spacing={1}>
+                                                    hasPreviousStats && <Stack alignItems={{sm:'center'}} direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                                                         {
                                                             hasStats && <ButtonCancel label={t('btn-see-stats')} onClick={() => {
                                                                 router.push(`${PAGE_STATS}/${firstStats.uid}`);
@@ -357,189 +256,6 @@ function ChapterComponent() {
         </Stack>
     );
 }
-
-/* -------------------- Components -------------------- */
-
-function SubchapterCard({ subchapter = null, onOpen }) {
-    const locked = subchapter?.status === "locked";
-    const done = subchapter?.status === "done";
-    const current = subchapter?.status === "current";
-    //console.log("SUB",subchapter)
-    return (
-        <Paper
-            elevation={0}
-            onClick={() => !locked && onOpen()}
-            sx={{
-                borderRadius: 5,
-                p: 2.0,
-                border: "0.1px solid var(--card-border)",
-                cursor: locked ? "not-allowed" : "pointer",
-                opacity: locked ? 0.7 : 1,
-                position: "relative",
-                overflow: "hidden",
-                "&:hover": locked
-                    ? {}
-                    : {
-                        borderColor: "rgba(37,99,235,0.35)",
-                        boxShadow: "0 16px 40px rgba(2,6,23,0.08)",
-                        transform: "translateY(-1px)",
-                    },
-                transition: "all .18s ease",
-            }}
-        >
-            {/* subtle gradient accent */}
-            <Box
-                sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background: current
-                        ? "linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(96,165,250,0.05) 55%, rgba(255,255,255,0) 100%)"
-                        : "linear-gradient(135deg, rgba(11,27,77,0.06) 0%, rgba(37,99,235,0.04) 55%, rgba(255,255,255,0) 100%)",
-                    pointerEvents: "none",
-                }}
-            />
-
-            <Stack spacing={1.1} sx={{ position: "relative" }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
-                    <Stack spacing={0.2} sx={{ minWidth: 0 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 900 }}>
-                            Chapitre {subchapter?.uid_intern}
-                        </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: NAVY, lineHeight: 1.1 }} noWrap>
-                            {subchapter?.translate?.title}
-                        </Typography>
-                    </Stack>
-
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        {done ? <Chip size="small" icon={<CheckCircleIcon />} label="Terminé" sx={chipDone} /> : null}
-                        {current ? <Chip size="small" label="En cours" sx={chipCurrent} /> : null}
-                        {locked ? <Chip size="small" icon={<LockIcon />} label="Verrouillé" sx={chipLocked} /> : null}
-                    </Stack>
-                </Stack>
-
-                <Divider sx={{ borderColor: "rgba(15,23,42,0.08)" }} />
-
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Chip
-                        size="small"
-                        icon={<AccessTimeIcon />}
-                        label={`${subchapter?.duration} min`}
-                        sx={chipMeta}
-                    />
-
-                    <Button
-                        endIcon={<ArrowForwardIcon />}
-                        variant="text"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (!locked) onOpen();
-                        }}
-                        sx={{
-                            fontWeight: 950,
-                            textTransform: "none",
-                            borderRadius: 3,
-                            color: locked ? "rgba(11,27,77,0.45)" : ROYAL,
-                        }}
-                        disabled={locked}
-                    >
-                        Ouvrir
-                    </Button>
-                </Stack>
-            </Stack>
-        </Paper>
-    );
-}
-
-function ChapterCard({ chapter, onOpen }) {
-    const locked = chapter.status === "locked";
-    const done = chapter.status === "done";
-    const current = chapter.status === "current";
-
-    return (
-        <Paper
-            elevation={0}
-            onClick={() => !locked && onOpen()}
-            sx={{
-                borderRadius: 5,
-                p: 2.0,
-                border: "1px solid rgba(15,23,42,0.10)",
-                cursor: locked ? "not-allowed" : "pointer",
-                opacity: locked ? 0.7 : 1,
-                position: "relative",
-                overflow: "hidden",
-                "&:hover": locked
-                    ? {}
-                    : {
-                        borderColor: "rgba(37,99,235,0.35)",
-                        boxShadow: "0 16px 40px rgba(2,6,23,0.08)",
-                        transform: "translateY(-1px)",
-                    },
-                transition: "all .18s ease",
-            }}
-        >
-            {/* subtle gradient accent */}
-            <Box
-                sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background: current
-                        ? "linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(96,165,250,0.05) 55%, rgba(255,255,255,0) 100%)"
-                        : "linear-gradient(135deg, rgba(11,27,77,0.06) 0%, rgba(37,99,235,0.04) 55%, rgba(255,255,255,0) 100%)",
-                    pointerEvents: "none",
-                }}
-            />
-
-            <Stack spacing={1.1} sx={{ position: "relative" }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
-                    <Stack spacing={0.2} sx={{ minWidth: 0 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 900 }}>
-                            Chapitre {chapter.index}
-                        </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 950, color: NAVY, lineHeight: 1.1 }} noWrap title={chapter.title}>
-                            {chapter.title}
-                        </Typography>
-                    </Stack>
-
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        {done ? <Chip size="small" icon={<CheckCircleIcon />} label="Terminé" sx={chipDone} /> : null}
-                        {current ? <Chip size="small" label="En cours" sx={chipCurrent} /> : null}
-                        {locked ? <Chip size="small" icon={<LockIcon />} label="Verrouillé" sx={chipLocked} /> : null}
-                    </Stack>
-                </Stack>
-
-                <Divider sx={{ borderColor: "rgba(15,23,42,0.08)" }} />
-
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Chip
-                        size="small"
-                        icon={<AccessTimeIcon />}
-                        label={`${chapter.duration_min} min`}
-                        sx={chipMeta}
-                    />
-
-                    <Button
-                        endIcon={<ArrowForwardIcon />}
-                        variant="text"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (!locked) onOpen();
-                        }}
-                        sx={{
-                            fontWeight: 950,
-                            textTransform: "none",
-                            borderRadius: 3,
-                            color: locked ? "rgba(11,27,77,0.45)" : ROYAL,
-                        }}
-                        disabled={locked}
-                    >
-                        Ouvrir
-                    </Button>
-                </Stack>
-            </Stack>
-        </Paper>
-    );
-}
-
 /* -------------------- Styles -------------------- */
 
 const chipHeader = {

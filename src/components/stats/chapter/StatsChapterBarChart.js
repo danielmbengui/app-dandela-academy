@@ -31,8 +31,6 @@ function GetDatasetsScore() {
         //  const color = colors[i];
         const colors = Object.values(COLORS_STATS);
         const color = colors.find(c => c.label === stat.status);
-
-        console.log("statsColors", color, color.background_bubble)
         return ({
             bg: color.background_bubble?.startsWith('var') ? convertToCSSChart(color.background_bubble) : color.background_bubble,
             border: color.border?.startsWith('var') ? convertToCSSChart(color.border) : color.border,
@@ -42,8 +40,6 @@ function GetDatasetsScore() {
     });
     const datasets = [...sortedStats].map((stat, i) => {
         const labels = GetLabelsScore();
-        console.log("statttts lenght", [...sortedStats].length)
-        //const uidIntern = getOneStatIndex(stat.uid, sortedStats) + 1;
         var statsMap = [{ x: labels[i], y: stat.score > 0 ? stat.score : 0.1 }];
         return ({
             label: labels[i],
@@ -148,8 +144,6 @@ function GetDatasetsAverage() {
         //  const color = colors[i];
         const colors = Object.values(COLORS_STATS);
         const color = colors.find(c => c.label === status);
-
-        console.log("statsColors", color, color.background_bubble)
         return ({
             bg: color.background_bubble?.startsWith('var') ? convertToCSSChart(color.background_bubble) : color.background_bubble,
             border: color.border?.startsWith('var') ? convertToCSSChart(color.border) : color.border,
@@ -167,9 +161,7 @@ function GetDatasetsAverage() {
             const quiz = getGlobalCountQuiz(s.uid_lesson, s.uid_chapter, chaptersStats);
             
             const score = getGlobalScore(s.uid_lesson, s.uid_chapter, chaptersStats);
-            const questions = getGlobalCountQuestions(s.uid_lesson, s.uid_chapter, chaptersStats);
-            
-            console.log("Staaaats by date", percent);
+            const questions = getGlobalCountQuestions(s.uid_lesson, s.uid_chapter, chaptersStats);            
             return ({ x: t(s.status), y: percent, length: chaptersStats.length, score, questions,quiz })
         });
         //
@@ -221,8 +213,6 @@ function GetTooltipAverage() {
         callbacks: {
             // Titre du tooltip
             title: (tooltipItems) => {
-                // tooltipItems est un array, prend le premier
-                console.log("chart tooltip", tooltipItems[0])
                 return tooltipItems[0].dataset.label; // nom de la leçon
             },
             // Texte du tooltip
@@ -276,17 +266,6 @@ function GetTooltipAverage() {
                     borderRadius: 0,
                 };
             },
-            labelTextColor: function (tooltipItem) {
-                //return '#543453';
-                // tooltipItem.datasetIndex et tooltipItem.dataIndex disponibles
-                // Si c'est beforeLabel
-                console.log("chart tooltip raw line", tooltipItem)
-                if (tooltipItem.raw === '2') return getCSSVar("--grey-light");
-                // Si c'est afterLabel
-                if (tooltipItem.rawLine === 'afterLabel') return 'yellow';
-                // Sinon (label)
-                //return getCSSVar("--primary");
-            }
         },
     }
     return tooltip;

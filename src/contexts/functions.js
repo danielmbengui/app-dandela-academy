@@ -379,7 +379,5 @@ export function convertToCSSChart(name) {
   if(transform.split('var').length < 2) return undefined;
   var withoutVar = transform.split('var')[1];
   const result = withoutVar.replace("(", "").replace(")", "");
-
-  console.log("Connnnvert to css chart", transform,getCSSVar(result));
   return transform,getCSSVar(result);
 }

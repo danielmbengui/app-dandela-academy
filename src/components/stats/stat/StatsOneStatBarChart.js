@@ -49,14 +49,9 @@ function GetDatasetsScore() {
         });
     });
     const datasets = [...labels].map((uid_question, i) => {
-
-        //const filteredAnswers = [..._answers].filter(item=>item.label === label);
         const answer = answers?.[i];
         const isCorrect = answer.uid_answer === answer.uid_proposal;
         const text = isCorrect ? TRANSLATE_CORRECT : TRANSLATE_WRONG;
-
-        console.log("statttts lenght", i)
-        //const uidIntern = getOneStatIndex(stat.uid, sortedStats) + 1;
         var statsMap = [{ x: uid_question, y: isCorrect ? 1 : 0.1 }];
         const color = colors.find(c => c.label === text);
         return ({
@@ -117,7 +112,6 @@ function GetTooltipScore() {
             },
             label: (tooltipItem) => {
                 const item = tooltipItem;
-                console.log("tooltipscore", item);
                 return ` ${t(item.dataset.value)}`;
             },
             labelColor: function (tooltipItem) {
@@ -176,10 +170,6 @@ function GetDatasetsAverage() {
             })
         }).filter(answer => answer.text === status);
         const percent = filteredAnswers.length / answers.length * 100;
-
-
-        console.log("statttts lenght", i, filteredAnswers)
-        //const uidIntern = getOneStatIndex(stat.uid, sortedStats) + 1;
         var statsMap = filteredAnswers.map(answer => ({ x: answer.text, y: percent, uid_question: answer.uid }));
         const color = colors.find(c => c.label === status);
         //
@@ -232,15 +222,12 @@ function GetTooltipAverage() {
         callbacks: {
             // Titre du tooltip
             title: (tooltipItems) => {
-                // tooltipItems est un array, prend le premier
-                console.log("chart tooltip", tooltipItems[0])
                 return tooltipItems[0].dataset.label; // nom de la leçon
             },
 
             // Texte du tooltip
             label: (tooltipItem) => {
                 const item = tooltipItem.raw;
-                console.log("value label ", item)
                 const uid = item.uid_question;
                 return ` ${t('question')} n°${uid}`;
             },
@@ -339,7 +326,6 @@ export default function StatsOneStatBarChart({ viewMode = ClassUserStat.VIEW_MOD
                     color: '#666',
                     //callback: value => `${value}%`,
                     callback: value => {
-                        console.log("value ticks x", value)
                         return isViewScore ? `${t('question')} n°${labels[value]}` : `${!isViewScore ? t(labels[value]) : ''}`
                     },
                 },
@@ -365,7 +351,6 @@ export default function StatsOneStatBarChart({ viewMode = ClassUserStat.VIEW_MOD
                     //precision: 0,   // sécurité pour éviter les décimales
                     callback: value => {
                         const color = colorsScore.find(c => c.value === value);
-                        console.log("valuuue ticks y", color);
                         const result = value > 1 ? '' : color?.label;
                         return isViewScore ? `${t(result)}` : `${t(value)}%`;
                     },
