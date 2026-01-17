@@ -4,7 +4,7 @@ import { IconCertificate, IconDashboard, IconDuration, IconLessons, IconLogoImag
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
 import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
@@ -2678,8 +2678,9 @@ function DandelaDashboardHome() {
     `}</style>
   </div>);
 }
-const CardHeader = () => {
-  const { user } = useAuth();
+const CardHeader = ({user=null}) => {
+  const { t } = useTranslation([NS_DASHBOARD_HOME]);
+  //const { user } = useAuth();
   return (<Stack sx={{ color: 'var(--font-color)', width: '100%' }} maxWidth={'md'}>
     <Grid container alignItems={'center'}>
       <Grid size={{ xs: 12, sm: 6 }}>
@@ -2687,10 +2688,16 @@ const CardHeader = () => {
           <IconLogoImage height={30} width={30} color='var(--primary-shadow-xl)' />
           <Box>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-              {`Salut ${user?.first_name},`}
+              <Trans
+                t={t}
+                i18nKey={'welcome'}
+                values={{
+                  name: user?.first_name
+                }}
+              />{","}
             </Typography>
             <Typography variant="body1" sx={{ color: "text.secondary" }}>
-              {`Bienvenue sur ton dashboard 👋`}
+              {t('welcome-1')}
             </Typography>
           </Box>
         </Stack>
@@ -2826,56 +2833,55 @@ export default function DashboardHomePage() {
   const { user, login, logout } = useAuth();
   //static async create(data = {})
   const [processing, setProcessing] = useState(false);
-  const {lessons} = useLesson();
-  const {chapters} = useChapter();
-  const {stats,getGlobalPercent,getGlobalDuration,getGlobalCountChapters} = useStat();
-
-  const {
-    countCompletedChapters,
-    countStats,
-    countLessons,countChapters,
-    countStartedLessons,countCompletedLessons,
-    countCertifiedLessons,countCertification,countCertifiationAttempts,
-    averageScore,duration} = useMemo(() => {
-      const filteredStats = [...stats];
-      const countStartedLessons = new Set(stats.map(s=>s.uid_lesson)).size;
-      const countCompletedChapters =new Set(stats.map(s=>s.uid_chapter)).size;
+  const { lessons, isLoading:isLoadingLessons } = useLesson();
+  const { chapters, isLoading:isLoadingChapters } = useChapter();
+  const { stats, getGlobalPercent, getGlobalDuration, getGlobalCountChapters, isLoading:isLoadingStats } = useStat();
+  const countLessons = useMemo(()=>{
+    return lessons.length;
+  }, [lessons]);
+  const countChapters = useMemo(()=>{
+    return chapters.length;
+  }, [chapters]);
+  const {countStartedLessons,countCompletedChapters, countStats, averageScore, duration} = useMemo(()=>{
+    const countStats = stats.length;
+    const countStartedLessons= new Set(stats.map(s => s.uid_lesson)).size;
+    const countCompletedChapters = new Set(stats.map(s => s.uid_chapter)).size;
+    const averageScore= getGlobalPercent();
+    const duration= getGlobalDuration();
+    return{
+      countStartedLessons,
+      countCompletedChapters,
+      countStats,
+      averageScore, duration
+    }
+  }, [stats]);
+  const countCompletedLessons = useMemo(() => {
+      if(countStats===0) return 0;
       var countCompletedLessons = 0;
-      for(const lesson of lessons) {
-        const filteredChapters = chapters.filter(c=>c.uid_lesson===lesson.uid);
-        const filteredStats = stats.filter(s=>s.uid_lesson===lesson.uid);
-        const sizeStats = new Set(filteredStats.map(s=>s.uid_chapter)).size;
-        if(filteredChapters.length === sizeStats) {
+      for (const lesson of lessons) {
+        const filteredChapters = chapters.filter(c => c.uid_lesson === lesson.uid);
+        const filteredStats = stats.filter(s => s.uid_lesson === lesson.uid);
+        const sizeStats = new Set(filteredStats.map(s => s.uid_chapter)).size;
+        if (filteredChapters.length === sizeStats) {
           countCompletedLessons += 1;
         }
-        console.log("Siiiiiiize stats", filteredChapters.length, sizeStats)
       }
-      const startedLessonsSet = new Set(stats.map(s=>s.uid_lesson));
-      var countCompleted=0;
-      for(const lesson of lessons) {
-        const filteredChapters = chapters.filter(c=>c.uid_lesson === lesson.uid);
-        const countComplete = getGlobalCountChapters(lesson.uid);
-        if(filteredChapters.length === countComplete) {
-          countCompleted++;
-        }
-      }
-    //lessons
-    return {
-      countStats:stats.length,
-      countLessons:lessons.length,
-      countChapters:chapters.length,
-      countStartedLessons,
-      countCompletedLessons,
-      countCompletedChapters,
-      countCertifiedLessons:0,
-      countCertification:0,
-      countCertifiationAttempts:0,
-      averageScore:getGlobalPercent(),
-      duration:getGlobalDuration(),
-    };
-  }, [stats, lessons, chapters]);
+      return (countCompletedLessons);
+    }, [countStats]);
 
-
+if(isLoadingLessons || isLoadingChapters || isLoadingStats) {
+  return(<DashboardPageWrapper
+    titles={[
+      { name: t('dashboard', { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME },
+      //{ name: lesson?.translate?.title, url: '' }
+    ]}
+    //title={`Cours / ${lesson?.title}`}
+    //subtitle={lesson?.translate?.subtitle}
+    icon={<IconDashboard />}
+  >
+    <CircularProgress size={'20px'} />
+  </DashboardPageWrapper>)
+}
   return (<DashboardPageWrapper
     titles={[
       { name: t('dashboard', { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME },
@@ -2887,8 +2893,9 @@ export default function DashboardHomePage() {
   >
     <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
       <Grid container spacing={1}>
+        
         <Grid size={12}>
-          <CardHeader />
+          <CardHeader user={user} />
         </Grid>
         <Grid size={{ xs: 12, sm: 'auto' }}>
           <KpiCard
@@ -2921,55 +2928,9 @@ export default function DashboardHomePage() {
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 12 }}>
-          <DashboardComponent />
+          <DashboardComponent stats={stats} />
         </Grid>
       </Grid>
     </Container>
   </DashboardPageWrapper>)
-  /*
-  return (
-    <LoginPageWrapper>
-            <Typography>
-              Se connecter
-            </Typography>
-            <Stack spacing={1}>
-              <TextFieldComponent
-                //label='email'
-                name='email'
-                icon={<IconEmail width={20} />}
-                placeholder='adress'
-                value={email}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setEmail(e.target.value);
-                }}
-                onClear={() => {
-                  setEmail('');
-                }}
-
-              />
-              <TextFieldPasswordComponent
-                //label='email'
-                name='password'
-                placeholder='password'
-                value={password}
-                onChange={(e) => {
-                  e.preventDefault();
-                  setPassword(e.target.value);
-                }}
-                onClear={() => {
-                  setPassword('');
-                }}
-
-              />
-            </Stack>
-            <ButtonNextComponent 
-            label='Se connecter'
-            onClick={()=>{
-              login(email, password);
-            }}
-            />
-    </LoginPageWrapper>
-  );
-  */
 }

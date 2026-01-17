@@ -279,9 +279,8 @@ function ProfilePage() {
             </main>
 
             <style jsx>{`
-        .page {
-          min-height: 100vh;
-          padding: 20px 0px;
+        .page {          
+          padding: 0;
           color: var(--font-color);
           display: flex;
           justify-content: center;
@@ -289,6 +288,7 @@ function ProfilePage() {
 
         .container {
           width: 100%;
+          height:100%;
           padding:0px;
         }
 

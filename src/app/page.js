@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconEmail, IconLogo, IconLogoImage, IconTiktok } from "@/assets/icons/IconsComponent";
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
@@ -15,11 +15,20 @@ import ButtonNextComponent from '@/components/elements/ButtonNextComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { useRouter } from 'next/navigation';
-import { PAGE_ACTIVE_ACCOUNT, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
+import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
 import { ClassColor } from '@/classes/ClassColor';
 import HomeComponent from '@/components/home/HomeComponent';
 
 export default function Home() {
+  const router = useRouter();
+  const { user } = useAuth();
+  
+  useEffect(() => {
+    if (user && user.uid) {
+      router.push(PAGE_DASHBOARD_HOME);
+    }
+  }, [user]);
+
   return (<LoginPageWrapper>
     <HomeComponent />
   </LoginPageWrapper>);

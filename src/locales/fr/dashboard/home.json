@@ -3,6 +3,8 @@
     "description-page": "La page d'accueuil du tableau de bord de la plateforme Dandela Academy",
     "title": "Tableau de bord",
     "subtitle": "Survole tes cours, messages, professeurs et tes résultats en un coup d'œil.",
+    "welcome":"Salut {{name}}",
+    "welcome-1":"Bienvenue sur ton dashboard 👋",
     "lesson-start": "Cours entamés",
     "lesson-completed": "Cours terminés",
     "chapter-start": "Chapitres entamés",

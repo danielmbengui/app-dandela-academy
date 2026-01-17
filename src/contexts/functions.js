@@ -6,64 +6,7 @@ import { getExampleNumber } from 'libphonenumber-js'
 import { ClassCountry } from '@/classes/ClassCountry';
 import { validatePassword } from 'firebase/auth';
 import { auth } from './firebase/config';
-import { useTranslation } from 'react-i18next';
 
-export const formatDateToRelative = (date=new Date()) => {
-  const {t} = useTranslation([NS_DAYS]);
-  if(!(date instanceof Date)) return null;
-  const today = new Date();
-  const timeToday = today.getTime();
-  const timePast = date.getTime();
-  if(timePast > timeToday) return 0;
-  //const STEP_SECONDS = 60;
-  const STEP_MINUTES = 60;
-  const STEP_HOUR = STEP_MINUTES * 60;
-  const STEP_DAY = STEP_HOUR * 24;
-  const STEP_WEEK = STEP_DAY * 7;
-  const STEP_MONTH = STEP_DAY * 30;
-  const STEP_YEAR = STEP_DAY * 365;
-  const seconds = (timeToday-timePast) / 1000;
-  if (seconds < STEP_MINUTES) return t('now'); // moins d'une minute
-  if (seconds < STEP_HOUR) return t('less-one-hour'); // moins d'une heure
-  const _hour = parseInt(seconds / STEP_HOUR);
-  console.log("OOOOOK", t('upon-hour'), translateWithVars('upon-hour', {hour:_hour}));
-  if (seconds < STEP_DAY) return translateWithVars('upon-hour', {hour:_hour}); // moins de 24h
-  const _day = parseInt(seconds / STEP_DAY);
-  if (seconds <= STEP_DAY * 6) return translateWithVars('upon-day', {day:_day}); // jusqua 6j
-  if (seconds < STEP_WEEK) return translateWithVars('upon-week', {week:1}); // moins de 7j
-  if (seconds <= STEP_DAY * 13) return translateWithVars('upon-day', {day:_day}); // jusqua 13j
-  if (seconds < STEP_WEEK * 2) return translateWithVars('upon-week', {week:2}); // moins de deux semaines
-  //if (seconds <= STEP_DAY * 20) return `Il ya ${_day} jour(s)`; // jusqau 21j
-  if (seconds < STEP_WEEK * 3) return translateWithVars('upon-week', {week:3}); // moins de trois semaines
-  if (seconds < STEP_MONTH) return translateWithVars('upon-month', {month:1}); // moins d'un mois
-  if (seconds < STEP_MONTH * 3) return translateWithVars('upon-month', {month:3}); // moins d'un mois
-  if (seconds < STEP_MONTH * 6) return translateWithVars('upon-month', {month:6}); // moins d'un mois
-  if (seconds < STEP_MONTH * 9) return translateWithVars('upon-month', {month:9}); // moins d'un mois
-  if (seconds < STEP_YEAR) return translateWithVars('upon-year', {year:1}); // moins d'un an
-  if (seconds < STEP_YEAR * 2) t('more-year'); // moins d'un mois
-  const _year = parseInt(seconds / STEP_YEAR);
-  return  translateWithVars('more-years', {years:_year}); // moins d'un mois
-
-  /*
-  
-  if (seconds < STEP_HOUR) {
-    const _minutes = parseInt(seconds / STEP_MINUTES);
-    const _seconds = parseInt(seconds % STEP_MINUTES);
-    return `${_minutes}min${_seconds > 0 ? ` ${_seconds}s` : ''}`;
-  }
-  if (seconds < STEP_DAY) {
-    const _hours = parseInt(seconds / STEP_HOUR);
-    const _minutes = parseInt((seconds % STEP_HOUR) / STEP_MINUTES);
-    const _seconds = parseInt((seconds % STEP_HOUR) % STEP_MINUTES);
-    return `${_hours}h ${_minutes ? `${_minutes}min` : ''} ${_seconds ? `${_seconds}s` : ''}`;
-  }
-  const _days = parseInt(seconds / STEP_DAY);
-  const _hours = parseInt((seconds % STEP_DAY) / STEP_HOUR);
-  const _minutes = parseInt(((seconds % STEP_DAY) % STEP_HOUR) / STEP_MINUTES);
-  const _seconds = parseInt(((seconds % STEP_DAY) % STEP_HOUR) % STEP_MINUTES);
-  return `${_days}j ${_hours}h ${_minutes}min ${_seconds}s`;
-  */
-}
 export const formatPrice = (amount, currency = "CHF") => {
   const localeByCurrency = {
     CHF: "fr-CH",

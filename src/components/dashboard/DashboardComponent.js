@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import ComputersComponent from '@/components/dashboard/computers/ComputersComponent';
-import { Box, Button, Chip, Grid, Stack, Typography } from '@mui/material';
+import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
@@ -17,7 +17,7 @@ import { useSession } from '@/contexts/SessionProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_USERS, PAGE_LESSONS, PAGE_STATS } from '@/contexts/constants/constants_pages';
-import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, formatDateToRelative } from '@/contexts/functions';
+import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from '@/contexts/functions';
 import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
 import { useStat } from '@/contexts/StatProvider';
 import { ClassUserStat } from '@/classes/users/ClassUserStat';
@@ -26,7 +26,62 @@ import { useChapter } from '@/contexts/ChapterProvider';
 import { useRouter } from 'next/navigation';
 import { t } from 'i18next';
 
+const formatDateToRelative = (date = new Date()) => {
+  const { t } = useTranslation([NS_DAYS]);
+  if (!(date instanceof Date)) return null;
+  const today = new Date();
+  const timeToday = today.getTime();
+  const timePast = date.getTime();
+  if (timePast > timeToday) return 0;
+  //const STEP_SECONDS = 60;
+  const STEP_MINUTES = 60;
+  const STEP_HOUR = STEP_MINUTES * 60;
+  const STEP_DAY = STEP_HOUR * 24;
+  const STEP_WEEK = STEP_DAY * 7;
+  const STEP_MONTH = STEP_DAY * 30;
+  const STEP_YEAR = STEP_DAY * 365;
+  const seconds = (timeToday - timePast) / 1000;
+  if (seconds < STEP_MINUTES) return t('now'); // moins d'une minute
+  if (seconds < STEP_HOUR) return t('less-one-hour'); // moins d'une heure
+  const _hour = parseInt(seconds / STEP_HOUR);
+  console.log("OOOOOK", t('upon-hour'), translateWithVars(t('upon-hour'), { hour: _hour }));
+  if (seconds < STEP_DAY) return translateWithVars(t('upon-hour'), { hour: _hour }); // moins de 24h
+  const _day = parseInt(seconds / STEP_DAY);
+  if (seconds <= STEP_DAY * 6) return translateWithVars(t('upon-day'), { day: _day }); // jusqua 6j
+  if (seconds < STEP_WEEK) return translateWithVars(t('upon-week'), { week: 1 }); // moins de 7j
+  if (seconds <= STEP_DAY * 13) return translateWithVars(t('upon-day'), { day: _day }); // jusqua 13j
+  if (seconds < STEP_WEEK * 2) return translateWithVars(t('upon-week'), { week: 2 }); // moins de deux semaines
+  //if (seconds <= STEP_DAY * 20) return `Il ya ${_day} jour(s)`; // jusqau 21j
+  if (seconds < STEP_WEEK * 3) return translateWithVars(t('upon-week'), { week: 3 }); // moins de trois semaines
+  if (seconds < STEP_MONTH) return translateWithVars(t('upon-month'), { month: 1 }); // moins d'un mois
+  if (seconds < STEP_MONTH * 3) return translateWithVars(t('upon-month'), { month: 3 }); // moins d'un mois
+  if (seconds < STEP_MONTH * 6) return translateWithVars(t('upon-month'), { month: 6 }); // moins d'un mois
+  if (seconds < STEP_MONTH * 9) return translateWithVars(t('upon-month'), { month: 9 }); // moins d'un mois
+  if (seconds < STEP_YEAR) return translateWithVars(t('upon-year'), { year: 1 }); // moins d'un an
+  if (seconds < STEP_YEAR * 2) t('more-year'); // moins d'un mois
+  const _year = parseInt(seconds / STEP_YEAR);
+  return translateWithVars(t('more-years'), { years: _year }); // moins d'un mois
 
+  /*
+  
+  if (seconds < STEP_HOUR) {
+    const _minutes = parseInt(seconds / STEP_MINUTES);
+    const _seconds = parseInt(seconds % STEP_MINUTES);
+    return `${_minutes}min${_seconds > 0 ? ` ${_seconds}s` : ''}`;
+  }
+  if (seconds < STEP_DAY) {
+    const _hours = parseInt(seconds / STEP_HOUR);
+    const _minutes = parseInt((seconds % STEP_HOUR) / STEP_MINUTES);
+    const _seconds = parseInt((seconds % STEP_HOUR) % STEP_MINUTES);
+    return `${_hours}h ${_minutes ? `${_minutes}min` : ''} ${_seconds ? `${_seconds}s` : ''}`;
+  }
+  const _days = parseInt(seconds / STEP_DAY);
+  const _hours = parseInt((seconds % STEP_DAY) / STEP_HOUR);
+  const _minutes = parseInt(((seconds % STEP_DAY) % STEP_HOUR) / STEP_MINUTES);
+  const _seconds = parseInt(((seconds % STEP_DAY) % STEP_HOUR) % STEP_MINUTES);
+  return `${_days}j ${_hours}h ${_minutes}min ${_seconds}s`;
+  */
+}
 /** Carte “accès rapide” */
 function QuickLink({ emoji, label, description, link = "" }) {
   return (
@@ -90,7 +145,7 @@ function QuickLink({ emoji, label, description, link = "" }) {
     </>
   );
 }
-function EvolutionCard({ stat = null, previousStat = null }) {
+function EvolutionCard({ stat = null, previousStat = null, onClick=()=>{} }) {
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
   const { getOneLesson } = useLesson();
   const { getOneChapter } = useChapter();
@@ -126,7 +181,7 @@ function EvolutionCard({ stat = null, previousStat = null }) {
 
   return (
     <>
-      <div className="dash-msg">
+      <div className="dash-msg"  onClick={onClick}>
         <div className="dash-emoji">{emoji}</div>
         <div className="dash-body">
           <Stack className="dash-header" direction={'row'} alignItems={'start'} spacing={1} justifyContent={'space-between'}>
@@ -223,6 +278,10 @@ function EvolutionCard({ stat = null, previousStat = null }) {
             border-radius: 10px;
             border: 0.1px solid var(--card-border);
             color:var(--font-color);
+            cursor: pointer;
+          }
+          .dash-msg:hover {
+            border: 0.1px solid var(--primary);
           }
   
           .dash-emoji {
@@ -257,21 +316,24 @@ function EvolutionCard({ stat = null, previousStat = null }) {
     </>
   );
 }
-function EvolutionListComponent() {
-  const { t } = useTranslation([NS_DASHBOARD_HOME]);
-  const DEFAULT_VIEW = 1;
+function EvolutionListComponent({ stats = [] }) {
+  const DEFAULT_VIEW = 3;
   const router = useRouter();
-  const { stats, getBestStat, getWorstStat } = useStat();
-  const [countView, setCountView] = useState(DEFAULT_VIEW);
+  const { t } = useTranslation([NS_DASHBOARD_HOME]);
+  const [filter, setFilter] = useState('part');
+
   const seeMore = () => {
-    setCountView(stats.length);
+    //setCountView(stats.length);
+    setFilter('all')
   }
   const seeLess = () => {
-    setCountView(DEFAULT_VIEW);
+    //setCountView(DEFAULT_VIEW);
+    setFilter('part');
   }
   const statsFiltered = useMemo(() => {
     var _stats = [...stats].sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
-    _stats = _stats.map((stat, i) => {
+
+    _stats = [..._stats].map((stat, i) => {
       const array = [..._stats].filter(s => s.uid_chapter === stat.uid_chapter);
       //const max = getBestStat(stat.uid_lesson, stat.uid_chapter);
       //const min = getWorstStat(stat.uid_lesson, stat.uid_chapter);
@@ -289,52 +351,59 @@ function EvolutionListComponent() {
         hasProgress: previousStat ? score > previousStat.score : false,
       })
     });
-    //console.log("STTTTAS", _stats);
-    _stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-    for (const stat of _stats) {
-      router.prefetch(ClassUserStat.createUrl(stat.uid_lesson, stat.uid_chapter, stat.uid));
+    if (filter === 'part') {
+      return _stats.slice(0, DEFAULT_VIEW);
     }
-    return _stats.slice(0, countView);
-  }, [stats, countView]);
+    return _stats;
+  }, [filter]);
+  useEffect(() => {
+    stats.forEach(stat => {
+      router.prefetch(
+        ClassUserStat.createUrl(stat.uid_lesson, stat.uid_chapter, stat.uid)
+      );
+    });
+  }, []);
+
+
   return (<>
     <div className="card">
       <div className="card-header">
         <h2>{t('recent-actualities')}</h2>
-        <Link href={PAGE_STATS}>
-          <button className="link-btn">{t('see-all')}</button>
+        <Link href={PAGE_STATS} >
+          <span className="link-btn">{t('see-all')}</span>
         </Link>
       </div>
       <Stack spacing={1}>
         {statsFiltered.map((stat) => (
-          <Link key={stat.uid} href={ClassUserStat.createUrl(stat.uid_lesson, stat.uid_chapter, stat.uid)}>
-            <EvolutionCard stat={stat} previousStat={stat.previousStat} />
-          </Link>
+          <EvolutionCard key={stat.uid} stat={stat} previousStat={stat.previousStat} onClick={() => router.push(ClassUserStat.createUrl(stat.uid_lesson, stat.uid_chapter, stat.uid))} />
         ))}
       </Stack>
-      <Stack sx={{ background: 'yellow', color: 'var(--primary)', py: 0.5 }} justifyContent={'center'} alignItems={'center'} spacing={0.5}>
-        {
-          countView < stats.length && <Stack
-            onClick={seeMore}
-            direction={'row'} sx={{ cursor: 'pointer', background: 'yellow', color: 'var(--primary)', py: 1 }} justifyContent={'center'} alignItems={'center'} spacing={0.5}>
-            <IconDropDown height={12} width={12} color='inherit' />
-            <Typography variant='caption' sx={{ color: 'inherit' }}>{`Voir plus`}</Typography>
-          </Stack>
-        }
-        {
-          countView === stats.length && <Stack
-            onClick={seeLess}
-            direction={'row'} sx={{ cursor: 'pointer', background: 'yellow', color: 'var(--primary)', py: 1 }} justifyContent={'center'} alignItems={'center'} spacing={0.5}>
-            <IconDropUp height={12} width={12} color='inherit' />
-            <Typography variant='caption' sx={{ color: 'inherit' }}>{`Voir moins`}</Typography>
-          </Stack>
-        }
-      </Stack>
+      {
+        statsFiltered.length > 0 && <Stack sx={{ background: '', color: 'var(--primary)', py: 0.5 }} justifyContent={'center'} alignItems={'center'} spacing={0.5}>
+          {
+            filter === 'part' && <Stack
+              onClick={seeMore}
+              direction={'row'} sx={{ cursor: 'pointer', background: '', color: 'var(--primary)', py: 1 }} justifyContent={'center'} alignItems={'center'} spacing={0.5}>
+              <IconDropDown height={12} width={12} color='inherit' />
+              <Typography variant='caption' sx={{ color: 'inherit' }}>{t('see-more')}</Typography>
+            </Stack>
+          }
+          {
+            filter === 'all' && <Stack
+              onClick={seeLess}
+              direction={'row'} sx={{ cursor: 'pointer', background: '', color: 'var(--primary)', py: 1 }} justifyContent={'center'} alignItems={'center'} spacing={0.5}>
+              <IconDropUp height={12} width={12} color='inherit' />
+              <Typography variant='caption' sx={{ color: 'inherit' }}>{t('see-less')}</Typography>
+            </Stack>
+          }
+        </Stack>
+      }
     </div>
     <style jsx>{`  
         .card {
           background: var(--card-color);
           border-radius: 10px;
-          border: 0.1px solid var(--card-border);
+          border: 0.1px solid var(--card-color);
           padding: 14px 14px 16px;
         }
   
@@ -371,48 +440,9 @@ function EvolutionListComponent() {
       `}</style>
   </>)
 }
-function DandelaDashboardHome() {
+
+export default function DashboardComponent({ stats = [] }) {
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
-  const [activeMenu, setActiveMenu] = useState("accueil");
-  const { sessions, slots } = useSession();
-  const [countObj, setCountObj] = useState({
-    students: 0,
-    teachers: 0,
-    devices: 0,
-    sessions: 0,
-    slots: 0
-  });
-  useEffect(() => {
-    async function init() {
-      const results = await Promise.allSettled([
-        ClassUserStudent.count(),
-        ClassUserTeacher.count(),
-        ClassHardware.count(),
-      ]);
-      const count_sessions = sessions.length || 0;
-      const count_slots = slots.length || 0;
-
-      setCountObj(prev => ({
-        ...prev,
-        sessions: count_sessions,
-        slots: count_slots
-      }))
-
-      results.forEach((res, index) => {
-        if (res.status === 'fulfilled') {
-          //console.log('OK', index, res.value, res);
-          setCountObj(prev => ({
-            ...prev,
-            [Object.keys(prev)[index]]: res.value
-          }))
-        } else {
-          console.error('ERROR', index, res.reason);
-        }
-      });
-    }
-    init();
-  }, [sessions])
-
   return (<>
     <Grid container spacing={1}>
       <Grid size={{ xs: 12, sm: 6 }}>
@@ -436,7 +466,7 @@ function DandelaDashboardHome() {
               />
               <QuickLink
                 label={t('links.calendar.title')}
-                description={t('links.calendat.subtitle')}
+                description={t('links.calendar.subtitle')}
                 emoji="📅"
                 link={PAGE_DASHBOARD_CALENDAR}
               />
@@ -454,9 +484,9 @@ function DandelaDashboardHome() {
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <Stack spacing={1}>
-          <div className="side-col">
-            <EvolutionListComponent />
-          </div>
+          {
+            <EvolutionListComponent stats={stats} />
+          }
         </Stack>
       </Grid>
     </Grid>
@@ -623,7 +653,7 @@ function DandelaDashboardHome() {
         .card {
           background: var(--card-color);
           border-radius: 10px;
-          border: 0.1px solid var(--card-border);
+          border: 0.1px solid var(--card-color);
           padding: 14px 14px 16px;
         }
   
@@ -759,23 +789,4 @@ function DandelaDashboardHome() {
         }
       `}</style>
   </>);
-}
-export default function DashboardComponent() {
-  const { theme } = useThemeMode();
-  const { text } = theme.palette;
-  const { t } = useTranslation([NS_DASHBOARD_HOME]);
-  const now = new Date();
-  const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { user, login, logout } = useAuth();
-  //static async create(data = {})
-  const [processing, setProcessing] = useState(false);
-
-
-  return (<>
-    <div className="page">
-      <DandelaDashboardHome />
-    </div>
-  </>)
 }

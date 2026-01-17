@@ -2,15 +2,17 @@
   "title-page": "Painel de controlo - Dandela Academy",
   "description-page": "A página inicial do painel da plataforma Dandela Academy",
   "title": "Painel de controlo",
-  "subtitle": "Consulta os teus cursos, mensagens, professores e resultados num piscar de olhos.",
+  "subtitle": "Acompanha os teus cursos, mensagens, professores e resultados num relance.",
+  "welcome": "Olá {{name}}",
+  "welcome-1": "Bem-vindo ao teu dashboard 👋",
   "lesson-start": "Cursos iniciados",
   "lesson-completed": "Cursos concluídos",
   "chapter-start": "Capítulos iniciados",
   "chapter-completed": "Capítulos concluídos",
-  "average": "Média geral",
+  "average": "Média global",
   "attempt": "Tentativa",
   "attempts": "Tentativa(s)",
-  "duration": "Tempo gasto nos testes",
+  "duration": "Tempo passado nos testes",
   "duration_short": "Duração",
   "fast-access": "Acesso rápido",
   "recent-actualities": "Notícias recentes",
@@ -20,7 +22,7 @@
   "links": {
     "lessons": {
       "title": "Aceder aos cursos",
-      "subtitle": "Frequentar um curso online ou presencial"
+      "subtitle": "Fazer um curso online ou presencial"
     },
     "results": {
       "title": "Ver todos os teus resultados",
@@ -28,7 +30,7 @@
     },
     "calendar": {
       "title": "Consultar o calendário",
-      "subtitle": "Visão global das sessões."
+      "subtitle": "Vista geral das sessões."
     },
     "profile": {
       "title": "Configurar o perfil",
@@ -37,9 +39,9 @@
   },
   "events": {
     "new-quiz": "Concluíste um novo questionário",
-    "max-quiz": "Obtiveste a melhor pontuação",
+    "max-quiz": "Obtiveste a pontuação máxima",
     "good-quiz": "A tua pontuação é excelente",
-    "worst-quiz": "Obtiveste zero pontos no teste",
+    "worst-quiz": "Obtiveste zero pontos no teu teste",
     "not-good-quiz": "Podes fazer melhor!",
     "has-progress-quiz": "Melhoraste a tua pontuação anterior",
     "score": "Pontuação",

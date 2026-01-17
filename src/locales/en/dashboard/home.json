@@ -1,12 +1,14 @@
 {
   "title-page": "Dashboard - Dandela Academy",
-  "description-page": "The homepage of the Dandela Academy platform dashboard",
+  "description-page": "The dashboard homepage of the Dandela Academy platform",
   "title": "Dashboard",
-  "subtitle": "Overview your courses, messages, teachers, and results at a glance.",
-  "lesson-start": "Started courses",
-  "lesson-completed": "Completed courses",
-  "chapter-start": "Started chapters",
-  "chapter-completed": "Completed chapters",
+  "subtitle": "Get an overview of your courses, messages, teachers, and results at a glance.",
+  "welcome": "Hi {{name}}",
+  "welcome-1": "Welcome to your dashboard 👋",
+  "lesson-start": "Courses started",
+  "lesson-completed": "Courses completed",
+  "chapter-start": "Chapters started",
+  "chapter-completed": "Chapters completed",
   "average": "Overall average",
   "attempt": "Attempt",
   "attempts": "Attempt(s)",
@@ -20,7 +22,7 @@
   "links": {
     "lessons": {
       "title": "Access courses",
-      "subtitle": "Follow an online or in-person course"
+      "subtitle": "Take an online or on-site course"
     },
     "results": {
       "title": "View all your results",
@@ -31,15 +33,15 @@
       "subtitle": "Overall view of sessions."
     },
     "profile": {
-      "title": "Configure profile",
+      "title": "Set up profile",
       "subtitle": "All account preferences"
     }
   },
   "events": {
     "new-quiz": "You completed a new quiz",
-    "max-quiz": "You achieved the best score",
+    "max-quiz": "You achieved the highest score",
     "good-quiz": "Your score is excellent",
-    "worst-quiz": "You scored zero points on your test",
+    "worst-quiz": "You scored zero on your test",
     "not-good-quiz": "You can do better!",
     "has-progress-quiz": "You improved your previous score",
     "score": "Score",
