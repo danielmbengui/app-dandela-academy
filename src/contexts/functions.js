@@ -1,14 +1,16 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { defaultLanguage } from "./i18n/settings";
+import { defaultLanguage, NS_DAYS } from "./i18n/settings";
 //import allExamples from 'libphonenumber-js/examples.json'; // tous les types
 import allExamples from 'libphonenumber-js/mobile/examples';
 import { getExampleNumber } from 'libphonenumber-js'
 import { ClassCountry } from '@/classes/ClassCountry';
 import { validatePassword } from 'firebase/auth';
 import { auth } from './firebase/config';
+import { useTranslation } from 'react-i18next';
 
-export const formatDateToRelative = (date=new Date()) => {
+export const formatDateToRelative = (date=new Date(), lang=defaultLanguage) => {
   if(!(date instanceof Date)) return null;
+  const {t} = useTranslation([NS_DAYS]);
   const today = new Date();
   const timeToday = today.getTime();
   const timePast = date.getTime();
@@ -21,26 +23,26 @@ export const formatDateToRelative = (date=new Date()) => {
   const STEP_MONTH = STEP_DAY * 30;
   const STEP_YEAR = STEP_DAY * 365;
   const seconds = (timeToday-timePast) / 1000;
-  if (seconds < STEP_MINUTES) return `À l'instant`; // moins d'une minute
-  if (seconds < STEP_HOUR) return `Moins d'une heure`; // moins d'une heure
+  if (seconds < STEP_MINUTES) return t('now'); // moins d'une minute
+  if (seconds < STEP_HOUR) return t('less-one-hour'); // moins d'une heure
   const _hour = parseInt(seconds / STEP_HOUR);
-  if (seconds < STEP_DAY) return `Il ya ${_hour} heure(s)`; // moins de 24h
+  console.log("OOOOOK", t('upon-hour'), translateWithVars('upon-hour', {hour:_hour}));
+  if (seconds < STEP_DAY) return translateWithVars('upon-hour', {hour:_hour}); // moins de 24h
   const _day = parseInt(seconds / STEP_DAY);
-  if (seconds <= STEP_DAY * 6) return `Il ya ${_day} jour(s)`; // jusqua 6j
-  if (seconds < STEP_WEEK) return `Il ya moins d'une semaine`; // moins de 7j
-  if (seconds <= STEP_DAY * 13) return `Il ya ${_day} jour(s)`; // jusqua 13j
-  if (seconds < STEP_WEEK * 2) return `Moins de deux semaines`; // moins de deux semaines
+  if (seconds <= STEP_DAY * 6) return translateWithVars('upon-day', {day:_day}); // jusqua 6j
+  if (seconds < STEP_WEEK) return translateWithVars('upon-week', {week:1}); // moins de 7j
+  if (seconds <= STEP_DAY * 13) return translateWithVars('upon-day', {day:_day}); // jusqua 13j
+  if (seconds < STEP_WEEK * 2) return translateWithVars('upon-week', {week:2}); // moins de deux semaines
   //if (seconds <= STEP_DAY * 20) return `Il ya ${_day} jour(s)`; // jusqau 21j
-  if (seconds < STEP_WEEK * 3) return `Moins de trois semaines`; // moins de trois semaines
-  if (seconds < STEP_MONTH) return `Moins d'un mois`; // moins d'un mois
-  if (seconds < STEP_MONTH * 3) return `Moins de 3 mois`; // moins d'un mois
-  if (seconds < STEP_MONTH * 6) return `Moins de 6 mois`; // moins d'un mois
-  if (seconds <= STEP_MONTH * 8.99) return `Plus de 6 mois`; // moins d'un mois
-  if (seconds < STEP_MONTH * 9) return `Moins de 9 mois`; // moins d'un mois
-  if (seconds < STEP_YEAR) return `Moins d'un an`; // moins d'un mois
-  if (seconds < STEP_YEAR * 2) return `Il ya plus d'un an`; // moins d'un mois
+  if (seconds < STEP_WEEK * 3) return translateWithVars('upon-week', {week:3}); // moins de trois semaines
+  if (seconds < STEP_MONTH) return translateWithVars('upon-month', {month:1}); // moins d'un mois
+  if (seconds < STEP_MONTH * 3) return translateWithVars('upon-month', {month:3}); // moins d'un mois
+  if (seconds < STEP_MONTH * 6) return translateWithVars('upon-month', {month:6}); // moins d'un mois
+  if (seconds < STEP_MONTH * 9) return translateWithVars('upon-month', {month:9}); // moins d'un mois
+  if (seconds < STEP_YEAR) return translateWithVars('upon-year', {year:1}); // moins d'un an
+  if (seconds < STEP_YEAR * 2) t('more-year'); // moins d'un mois
   const _year = parseInt(seconds / STEP_YEAR);
-  return `Il ya plus de ${_year} ans`; // moins d'un mois
+  return  translateWithVars('more-years', {years:_year}); // moins d'un mois
 
   /*
   

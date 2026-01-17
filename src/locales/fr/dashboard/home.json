@@ -1,9 +1,53 @@
 {
-    "title-page":"Tableau de bord - Dandela Academy",
-    "description-page":"La page d'accueuil du tableau de bord de la plateforme Dandela Academy",
-    "title":"Tableau de bord",
-    "subtitle":"Survole tes cours, messages, professeurs et tes résultats en un coup d'œil.",
-    "enrolled-lessons":"Cours inscrits",
-    "active-lessons":"Cours actifs",
-    "completed-lessons":"Cours terminés"
+    "title-page": "Tableau de bord - Dandela Academy",
+    "description-page": "La page d'accueuil du tableau de bord de la plateforme Dandela Academy",
+    "title": "Tableau de bord",
+    "subtitle": "Survole tes cours, messages, professeurs et tes résultats en un coup d'œil.",
+    "lesson-start": "Cours entamés",
+    "lesson-completed": "Cours terminés",
+    "chapter-start": "Chapitres entamés",
+    "chapter-completed": "Chapitres terminés",
+    "average": "Moyenne globale",
+    "attempt": "Tentative",
+    "attempts": "Tentative(s)",
+    "duration": "Temps passé sur les tests",
+    "duration_short": "Durée",
+    "fast-access": "Accès rapide",
+    "recent-actualities": "Actualités récentes",
+    "see-all": "Tout voir",
+    "see-more": "Voir plus",
+    "see-less": "Voir moins",
+    "links": {
+        "lessons": {
+            "title": "Accéder aux cours",
+            "subtitle": "Suivre un cours en ligne ou présentiel"
+        },
+        "results": {
+            "title": "Voir tous tes résultats",
+            "subtitle": "Explorer tous les résultats détaillés"
+        },
+        "calendar": {
+            "title": "Consulter le calendrier",
+            "subtitle": "Vue globale des sessions."
+        },
+        "profile": {
+            "title": "Paramétrer le profil",
+            "subtitle": "Toutes les préférences du compte"
+        }
+    },
+    "events": {
+        "new-quiz": "Tu as terminé un nouveau questionnaire",
+        "max-quiz": "Tu as obtenu le meilleur score",
+        "good-quiz": "Ton score est excellent",
+        "worst-quiz": "Tu as obtenu zéro point à ton test",
+        "not-good-quiz": "Tu peux mieux faire !",
+        "has-progress-quiz": "Tu as amélioré ton score précédent",
+        "score":"Score",
+        "previous":"Précédent",
+        "evolution":"Évolution",
+        "progress":"Progression"
+    },
+    "enrolled-lessons": "Cours inscrits",
+    "active-lessons": "Cours actifs",
+    "completed-lessons": "Cours terminés"
 }

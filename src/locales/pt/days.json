@@ -11,5 +11,13 @@
   "monthly": "Mês",
   "yearly": "Ano",
   "today": "Hoje",
-  "now": "Agora"
+  "now": "Agora",
+  "less-one-hour": "Menos de uma hora",
+  "upon-hour": "Há {{hour}} hora(s)",
+  "upon-day": "Há {{day}} dia(s)",
+  "upon-week": "Há menos de {{week}} semana(s)",
+  "upon-month": "Há menos de {{month}} mês(es)",
+  "upon-year": "Há menos de {{year}} ano(s)",
+  "more-year": "Há mais de um ano",
+  "more-years": "Há mais de {{years}} anos"
 }

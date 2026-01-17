@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from 'react';
-import { IconDashboard, IconDuration, IconLogoImage, } from "@/assets/icons/IconsComponent";
+import { IconCertificate, IconDashboard, IconDuration, IconLessons, IconLogoImage, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
 import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -197,7 +197,6 @@ const mockCertificates = [
     date: "05.11.2025",
   },
 ];
-
 function DashboardPage() {
   const [timeRange, setTimeRange] = useState("30j"); // 7j | 30j | all
 
@@ -922,7 +921,6 @@ function DashboardPage() {
     </div>
   );
 }
-
 // Mock user connecté
 const mockUser = {
   id: "user_1",
@@ -949,7 +947,6 @@ const initialTeacher = {
   notificationsSms: false,
   theme: "dark",
 };
-
 function TeacherProfilePage() {
   const [teacher, setTeacher] = useState(initialTeacher);
   const [isEditing, setIsEditing] = useState(false);
@@ -1809,7 +1806,6 @@ function TeacherProfilePage() {
     </div>
   );
 }
-
 /** Nav item dans la sidebar */
 function NavItem({ label, icon, active, onClick }) {
   return (
@@ -1856,7 +1852,6 @@ function NavItem({ label, icon, active, onClick }) {
     </>
   );
 }
-
 /** Carte de stats */
 function StatCard({ label, value, helper, barValue }) {
   return (
@@ -1919,7 +1914,6 @@ function StatCard({ label, value, helper, barValue }) {
     </>
   );
 }
-
 /** Carte “accès rapide” */
 function QuickLink({ emoji, label, description, link = "" }) {
   return (
@@ -1983,7 +1977,6 @@ function QuickLink({ emoji, label, description, link = "" }) {
     </>
   );
 }
-
 /** Messages dans le panneau “Activité récente” */
 function DashboardMessage({ msg }) {
   const typeConfig = {
@@ -2046,7 +2039,6 @@ function DashboardMessage({ msg }) {
     </>
   );
 }
-
 function DandelaDashboardHome() {
   const [activeMenu, setActiveMenu] = useState("accueil");
   const { sessions, slots } = useSession();
@@ -2695,7 +2687,7 @@ const CardHeader = () => {
           <IconLogoImage height={30} width={30} color='var(--primary-shadow-xl)' />
           <Box>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-              {`Dandela Academy`}
+              {`Salut ${user?.first_name},`}
             </Typography>
             <Typography variant="body1" sx={{ color: "text.secondary" }}>
               {`Bienvenue sur ton dashboard 👋`}
@@ -2725,174 +2717,6 @@ function AvatarIcon({ children, sx }) {
     </Box>
   );
 }
-/*
-function StatCard({ title, tone, stat = null, uidLesson = "", uidChapter = "" }) {
-  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  const router = useRouter();
-  const { getOneLesson } = useLesson();
-  const { getOneChapter, chapters } = useChapter();
-  const [lesson, setLesson] = useState(stat?.lesson);
-  const [chapter, setChapter] = useState(stat?.chapter);
-  const good = tone === "good";
-  const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
-  const color = STATUS_CONFIG[stat?.status] || {
-    background: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
-    background_icon: good ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
-    glow: good ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.07)",
-    color: good ? "#15803D" : "#B45309",
-    border: "rgba(15, 23, 42, 0.10)",
-    border_icon: "rgba(15, 23, 42, 0.10)",
-    color_icon: good ? "#15803D" : "#B45309",
-    background_bar: good ? "#15803D" : "#B45309",
-  };
-  var icon = <IconProgressUp />;
-  var background = "";
-  var border = "0.1px solid var(--card-border)";
-  var borderIcon = "0.1px solid transparent";
-  var fontColor = "var(--font-color)";
-  var borderChip = "1px solid var(--card-border)";
-  var backgroundChip = "transparent";
-  var colorChip = "var(--font-color)";
-  var fontWeight = 500;
-  if (stat.status === ClassUserStat.STATUS.MAX) {
-    icon = <EmojiEventsIcon />;
-    background = color?.background;
-    border = `0.1px solid ${color?.border}`;
-    borderIcon = `0.1px solid ${color?.border}`;
-    fontColor = color?.color;
-    borderChip = `1px solid ${color?.border}`;
-    backgroundChip = color?.background_bubble;
-    colorChip = color?.color;
-    fontWeight = 950;
-  } else if (stat.status === ClassUserStat.STATUS.EXCELLENT || stat.status === ClassUserStat.STATUS.GOOD) {
-    icon = <IconStar />;
-  } else {
-    icon = <IconProgressUp />;
-  }
-  //console.log("COLORS", color);
-  useEffect(() => {
-    if (stat) {
-      const _lesson = getOneLesson(uidLesson);
-      const _chapter = getOneChapter(uidChapter);
-      setLesson(stat?.lesson);
-      setChapter(stat?.chapter);
-      console.log("HSPTER", stat.uid_lesson, stat.uid_chapter, chapters)
-    } else {
-      setLesson(null);
-      setChapter(null);
-    }
-  }, [uidLesson, uidChapter, stat?.uid_lesson, stat?.uid_chapter]);
-  if (!stat) {
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: 5,
-          p: 2.2,
-          border: "1px solid rgba(15, 23, 42, 0.10)",
-        }}
-      >
-        <Typography variant="h5" noWrap sx={{ fontWeight: 950 }}>
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t('no-result')}
-        </Typography>
-      </Paper>
-    );
-  }
-  //const p = percent(attempt);
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 5,
-        p: 2,
-        border: border,
-        bgcolor: background,
-        maxWidth: '350px',
-        cursor: 'pointer'
-      }}
-      onClick={() => router.push(`${PAGE_STATS}/${stat.uid_lesson}/${stat.uid_chapter}/${stat.uid}`)}
-    >
-      <Stack spacing={1} sx={{ width: '100%' }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ color: color?.color }}>
-            <AvatarIcon
-              sx={{
-                bgcolor: color?.background_icon,
-                color: color?.color_icon,
-                border: borderIcon
-              }}
-            >
-              {icon}
-            </AvatarIcon>
-            <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
-              {t(stat?.status)}
-            </Typography>
-          </Stack>
-          <Chip
-            size="small"
-            label={`${parseInt((stat?.score / stat?.answers?.length) * 100)}%`}
-            sx={{
-              fontWeight: 950,
-              bgcolor: color?.background_bubble,
-              color: color?.color,
-              border: `1px solid ${color?.border}`,
-            }}
-          />
-        </Stack>
-
-        <Typography variant="body2" color={fontColor}>
-          <b>{lesson?.translate?.title}</b>
-        </Typography>
-        <Typography variant="caption" color={fontColor}>
-          {chapter?.translate?.title}
-        </Typography>
-
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          <Chip size="small"
-            label={`${stat?.score}/${stat?.answers?.length}`} sx={{
-              fontWeight: fontWeight,
-              bgcolor: backgroundChip,
-              color: colorChip,
-              border: borderChip,
-            }} />
-          <Chip size="small"
-            label={formatChrono(stat?.duration)} sx={{
-              fontWeight: fontWeight,
-              bgcolor: backgroundChip,
-              color: colorChip,
-              border: borderChip,
-            }} />
-          <Chip size="small"
-            label={getFormattedDateNumeric(stat?.end_date)} sx={{
-              fontWeight: fontWeight,
-              bgcolor: backgroundChip,
-              color: colorChip,
-              border: borderChip,
-            }} />
-        </Stack>
-
-        <LinearProgress
-          variant="determinate"
-          value={clamp((stat?.score / stat?.answers?.length) * 100)}
-          sx={{
-            height: 10,
-            borderRadius: 999,
-            bgcolor: color?.background_bubble,
-            border: `0.1px solid ${color?.background_bubble}`,
-            "& .MuiLinearProgress-bar": {
-              borderRadius: 999,
-              bgcolor: color?.background_bar,
-            },
-          }}
-        />
-      </Stack>
-    </Paper>
-  );
-}
-*/
 function clamp(v) {
   const n = Number(v || 0);
   return Math.max(0, Math.min(100, n));
@@ -3007,10 +2831,25 @@ export default function DashboardHomePage() {
   const {stats,getGlobalPercent,getGlobalDuration,getGlobalCountChapters} = useStat();
 
   const {
+    countCompletedChapters,
     countStats,
-    countLessons,countStartedLessons,countCompletedLessons,
+    countLessons,countChapters,
+    countStartedLessons,countCompletedLessons,
     countCertifiedLessons,countCertification,countCertifiationAttempts,
     averageScore,duration} = useMemo(() => {
+      const filteredStats = [...stats];
+      const countStartedLessons = new Set(stats.map(s=>s.uid_lesson)).size;
+      const countCompletedChapters =new Set(stats.map(s=>s.uid_chapter)).size;
+      var countCompletedLessons = 0;
+      for(const lesson of lessons) {
+        const filteredChapters = chapters.filter(c=>c.uid_lesson===lesson.uid);
+        const filteredStats = stats.filter(s=>s.uid_lesson===lesson.uid);
+        const sizeStats = new Set(filteredStats.map(s=>s.uid_chapter)).size;
+        if(filteredChapters.length === sizeStats) {
+          countCompletedLessons += 1;
+        }
+        console.log("Siiiiiiize stats", filteredChapters.length, sizeStats)
+      }
       const startedLessonsSet = new Set(stats.map(s=>s.uid_lesson));
       var countCompleted=0;
       for(const lesson of lessons) {
@@ -3024,8 +2863,10 @@ export default function DashboardHomePage() {
     return {
       countStats:stats.length,
       countLessons:lessons.length,
-      countStartedLessons:startedLessonsSet.size,
-      countCompletedLessons:countCompleted,
+      countChapters:chapters.length,
+      countStartedLessons,
+      countCompletedLessons,
+      countCompletedChapters,
       countCertifiedLessons:0,
       countCertification:0,
       countCertifiationAttempts:0,
@@ -3044,10 +2885,6 @@ export default function DashboardHomePage() {
     //subtitle={lesson?.translate?.subtitle}
     icon={<IconDashboard />}
   >
-    <DialogCompleteProfile
-      isOpen={user?.status === ClassUser.STATUS.FIRST_CONNEXION}
-    />
-
     <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
       <Grid container spacing={1}>
         <Grid size={12}>
@@ -3055,20 +2892,20 @@ export default function DashboardHomePage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 'auto' }}>
           <KpiCard
-            icon={<IconDuration />}
-            title={t('cours entamés')}
+            icon={<IconLessons />}
+            title={t('lesson-start')}
             value={`${countStartedLessons}/${countLessons}`}
-            subtitle={`${t('chapitres termninés')} : 2/5`}
+            subtitle={`${t('chapter-completed')} : ${countCompletedChapters}/${countChapters}`}
             progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
             total={formatChrono(310)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 'auto' }}>
           <KpiCard
-            icon={<IconDuration />}
-            title={t('cours terminés')}
+            icon={<IconCertificate />}
+            title={t('lesson-completed')}
             value={`${countCompletedLessons}/${countLessons}`}
-            subtitle={`${t('moyenne globale')} : ${parseInt(averageScore)}%`}
+            subtitle={`${t('average')} : ${parseInt(averageScore)}%`}
             progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
             total={formatChrono(310)}
           />
@@ -3076,9 +2913,9 @@ export default function DashboardHomePage() {
         <Grid size={{ xs: 12, sm: 'auto' }}>
           <KpiCard
             icon={<IconDuration />}
-            title={t('temps passé sur les tests')}
+            title={t('duration')}
             value={`${formatChrono(duration)}`}
-            subtitle={`${countStats} tentatives`}
+            subtitle={`${countStats} ${t('attempts')}`}
             progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
             total={formatChrono(310)}
           />

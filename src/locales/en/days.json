@@ -11,5 +11,13 @@
   "monthly": "Month",
   "yearly": "Year",
   "today": "Today",
-  "now": "Now"
+  "now": "Now",
+  "less-one-hour": "Less than one hour",
+  "upon-hour": "{{hour}} hour(s) ago",
+  "upon-day": "{{day}} day(s) ago",
+  "upon-week": "Less than {{week}} week(s) ago",
+  "upon-month": "Less than {{month}} month(s) ago",
+  "upon-year": "Less than {{year}} year(s) ago",
+  "more-year": "More than one year ago",
+  "more-years": "More than {{years}} years ago"
 }

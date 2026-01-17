@@ -11,5 +11,13 @@
   "monthly": "Mois",
   "yearly": "Année",
   "today": "Aujourd'hui",
-  "now": "Maintenant"
+  "now": "Maintenant",
+  "less-one-hour":"Moins d'une heure",
+  "upon-hour":"Il y'a {{hour}} heure(s)",
+  "upon-day":"Il y'a {{day}} jour(s)",
+  "upon-week":"Il ya moins de {{week}} semaine(s)",
+  "upon-month":"Il ya moins de {{month}} mois",
+  "upon-year":"Il ya moins de {{year}} année(s)",
+  "more-year":"Il ya plus d'un an",
+  "more-years":"Il ya plus de {{years}} ans"
 }
