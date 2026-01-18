@@ -338,6 +338,7 @@ export function AuthProvider({ children }) {
                 setTextErrorSignIn(error.message || 'Erreur de connexion');
                 setProvider('');
             }
+            console.log("Error", error)
         }
     };
     const login = async (email, password) => {

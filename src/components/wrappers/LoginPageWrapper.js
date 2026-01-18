@@ -120,20 +120,14 @@ const LoginPageWrapper = ({ children }) => {
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
   const { user, isLoading, logout } = useAuth();
   const LANGS = ClassLang.ALL_LANGUAGES;
-  useEffect(()=>{
-    async function init() {
-      //await logout();
-    }
-    //init()
-  })
-  if (isLoading) {
-    return (<Preloader />);
-  }
   useEffect(() => {
     if (user && user.uid) {
       router.push(PAGE_DASHBOARD_HOME);
     }
   }, [user]);
+  if (isLoading) {
+    return (<Preloader />);
+  }
   return (<Stack 
     alignItems={'center'} justifyContent={'center'}
     //spacing={3}

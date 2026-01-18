@@ -26,7 +26,7 @@ import { useChapter } from '@/contexts/ChapterProvider';
 import { useRouter } from 'next/navigation';
 import { t } from 'i18next';
 
-function formatDateToRelative (date = new Date())  {
+function FormatDateToRelative (date = new Date())  {
   const { t } = useTranslation([NS_DAYS]);
   if (!(date instanceof Date)) return null;
   const today = new Date();
@@ -187,7 +187,7 @@ function EvolutionCard({ stat = null, previousStat = null, onClick = () => { } }
         <div className="dash-body">
           <Stack className="dash-header" direction={'row'} alignItems={'start'} spacing={1} justifyContent={'space-between'}>
             <span className="dash-from">{text}</span>
-            <Typography variant='caption' noWrap style={{ fontSize: '12px' }}>{formatDateToRelative(stat.end_date)}</Typography>
+            <Typography variant='caption' noWrap style={{ fontSize: '12px' }}>{FormatDateToRelative(stat.end_date)}</Typography>
           </Stack>
           <Stack sx={{ width: '100%', background: '' }} spacing={0.5}>
             <Typography variant='caption' fontSize={'0.8rem'}>{lesson?.uid_intern}{". "}{lesson?.translate?.title}</Typography>
