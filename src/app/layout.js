@@ -46,6 +46,7 @@ export default async function RootLayout({ children }) {
     <html lang={lng} dir={getDir(lng)} className={`${hind.variable}`} >
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+        <meta name="facebook-domain-verification" content="dnjoslx7s8on3rsrvv1saefxgzfqts" />
       </head>
       <body
         className={`relativez-0  ${inter.className}`}
