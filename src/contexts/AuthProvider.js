@@ -22,6 +22,7 @@ import {
     verifyBeforeUpdateEmail,
     EmailAuthProvider,
     reauthenticateWithCredential,
+    FacebookAuthProvider,
 } from 'firebase/auth';
 
 import {
@@ -115,7 +116,7 @@ export function AuthProvider({ children }) {
     const [provider, setProvider] = useState('');
 
     // ✅ presence
-   // usePresenceRTDB(user?.uid);
+    // usePresenceRTDB(user?.uid);
 
     useEffect(() => {
         if (user) {
@@ -123,11 +124,6 @@ export function AuthProvider({ children }) {
         }
     }, [user]);
 
-    useEffect(() => {
-        if (auth) {
-            auth.languageCode = lang;
-        }
-    }, [lang]);
 
     usePageActivity({
         onVisible: async () => {
@@ -144,7 +140,7 @@ export function AuthProvider({ children }) {
                 return prev.clone();
             });
             */
-           // await setPresence(user.uid, ClassUser.STATUS.ONLINE);
+            // await setPresence(user.uid, ClassUser.STATUS.ONLINE);
         },
         onHidden: async () => {
             // la page n'est plus visible → on arrête le chrono
@@ -183,6 +179,7 @@ export function AuthProvider({ children }) {
 
     // écoute du doc utilisateur
     const listenToUser = useCallback((fbUser) => {
+        console.log("AUUUUUUTH new user", fbUser);
         const { uid } = fbUser;
         const ref = ClassUser.docRef(uid);
         const unsubscribe = onSnapshot(ref, async (snap) => {
@@ -308,39 +305,59 @@ export function AuthProvider({ children }) {
     };
     const signIn = async (providerName = '') => {
         if (!providerName) return;
-        let prov = null;
-        if (providerName === 'apple') {
-            prov = new OAuthProvider('apple.com');
-            prov.addScope('email');
-            prov.addScope('name');
-        } else if (providerName === 'google') {
-            prov = new GoogleAuthProvider();
-        } else if (providerName === 'twitter') {
-            prov = new TwitterAuthProvider();
-        } else {
-            throw new Error('Provider non supporté');
-        }
-
+      
+        let provider;
+      
         try {
-            await signInWithPopup(auth, prov);
-            setIsErrorSignIn(false);
-            setTextErrorSignIn('');
-            setProvider(providerName);
+          if (providerName === 'apple') {
+            provider = new OAuthProvider('apple.com');
+            provider.addScope('email');
+            provider.addScope('name');
+          } else if (providerName === 'google') {
+            provider = new GoogleAuthProvider();
+          }else if (providerName === 'facebook') {
+            provider = new FacebookAuthProvider();
+          } else if (providerName === 'twitter') {
+            provider = new TwitterAuthProvider();
+          } else {
+            throw new Error('Provider non supporté');
+          }
+      
+          console.log('Opening popup for', providerName);
+      
+          const result = await signInWithPopup(auth, provider);
+      
+          console.log('✅ user connected', result);
+      
+          const credential = result.credential;
+          const token = result._tokenResponse.idToken;
+          const user = result.user;
+      
+          console.log('cerdential:', credential);
+          console.log('User:', user);
+          console.log('Token:', token);
+      
+          setProvider(providerName);
+      
         } catch (error) {
-            if (error.code === 'auth/account-exists-with-different-credential') {
-                const email = error.customData?.email;
-                const methods = await fetchSignInMethodsForEmail(auth, email);
-                setIsErrorSignIn(true);
-                setTextErrorSignIn(`${email} est déjà associée à ${methods[0]?.split('.')[0]} !`);
-                setProvider(methods[0]?.split('.')[0] ?? '');
-            } else {
-                setIsErrorSignIn(true);
-                setTextErrorSignIn(error.message || 'Erreur de connexion');
-                setProvider('');
-            }
-            console.log("Error", error)
+          console.error('❌ Auth error', error);
+      
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            const email = error.customData?.email;
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            setIsErrorSignIn(true);
+            setTextErrorSignIn(
+              `${email} est déjà associée à ${methods[0]?.split('.')[0]}`
+            );
+            setProvider(methods[0]?.split('.')[0] ?? '');
+          } else {
+            setIsErrorSignIn(true);
+            setTextErrorSignIn(error.message || 'Erreur de connexion');
+            setProvider('');
+          }
         }
-    };
+      };
+      
     const login = async (email, password) => {
         //e?.preventDefault?.();
         try {

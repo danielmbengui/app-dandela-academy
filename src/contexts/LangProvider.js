@@ -8,6 +8,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { IMAGE_BRITISH_FLAG, IMAGE_FRENCH_FLAG, IMAGE_PORTUGUESE_FLAG } from '@/contexts/constants/constants_images';
 import { ClassLang } from '@/classes/ClassLang';
 import { initI18next } from '@/contexts/i18n/init';
+import { auth } from './firebase/config';
 const LangContext = createContext(null);
 
 export function useLanguage() {
@@ -27,7 +28,11 @@ export function LangProvider({ children }) {
         new ClassLang({ id: ClassLang.LANGUAGE_PORTUGUESE, name: 'Portugais', flag: IMAGE_PORTUGUESE_FLAG }),
         //new ClassLang({ id: 'de', name: 'Allemand', flag: IMAGE_GERMAN_FLAG }),
     ]
-
+    useEffect(() => {
+        if (auth) {
+            auth.languageCode = lang;
+        }
+    }, [lang, auth]);
     const changeLang = (newLang) => {
         //document.documentElement.lang = newLang; // Applique la classe du thème
 

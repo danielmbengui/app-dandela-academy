@@ -162,7 +162,8 @@ export default function RegisterComponent() {
     }
     return (<Stack spacing={3} sx={{ color: "var(--font-color)", width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
        
-       <ButtonConfirm label="test" onClick={()=>signIn('google')} />
+       <ButtonConfirm label="google" onClick={()=>signIn('google')} />
+       <ButtonConfirm label="facebook" onClick={()=>signIn('facebook')} />
         <Stack spacing={3} direction={'row'} justifyContent={'space-between'} alignItems={'start'}>
             <Stack sx={{ width: '70%' }} spacing={0.5}>
                 <Typography variant="h4">{t('title')}</Typography>
