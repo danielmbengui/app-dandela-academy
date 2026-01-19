@@ -79,8 +79,8 @@ export default function OneStatComponent() {
     const questionsFiltered = useMemo(() => {
         var _questions = attempt.questions.map(q => {
             const _answer = attempt.answers.find(a => a.uid_question === q.uid_intern);
-            const _proposal_text = q.translate?.proposals.find(p => p.uid_intern === _answer.uid_proposal);
-            const _answer_text = q.translate?.proposals.find(p => p.uid_intern === _answer.uid_answer);
+            const _proposal_text = q.translate?.proposals.find(p => p.uid_intern === _answer?.uid_proposal);
+            const _answer_text = q.translate?.proposals.find(p => p.uid_intern === _answer?.uid_answer);
             q.answer = _answer;
             q.answer_text = _answer_text?.value;
             q.proposal_text = _proposal_text?.value;
