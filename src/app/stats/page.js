@@ -565,12 +565,15 @@ function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
 export default function ExcelBeginnerCoursePage() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   // const { lang } = useLanguage();
+  const {user} = useAuth();
   const [isOpenDetails, setIsOpenDetails] = useState(false);
   const { lessons,lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-  const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+  const { setUidUser,stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
   const { chapters, chapter, setUidChapter } = useChapter();
   const [ viewMode, setViewMode ] = useState('list');
-
+  useEffect(()=>{
+    setUidUser(user?.uid || "");
+  }, [user])
   const { score, countQuestions, percent, duration, durationTotal, countChapters, countChaptersTotal } = useMemo(() => {
     return {
       score: getGlobalScore(),

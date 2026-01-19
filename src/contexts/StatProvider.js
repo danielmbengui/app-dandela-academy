@@ -45,24 +45,19 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     }, []);
     /*
     useEffect(()=>{
-        if(uidLesson) {
-            setUidLesson(uidLesson);
-        } else {
-            setUidLesson('')
+        if(user) {
+            setUidUser(user.uid);
         }
-        if(uidChapter) {
-            setUidChapter(uidChapter);
-        } else {
-            setUidChapter('');
-        }
-    }, [uidLesson, uidChapter]);
+    }, [user]);
     */
+    
     const [countHourTotalLessons, setCountHourTotalLessons] = useState(0);
     //const { t } = useTranslation([ClassSession.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     //const [uidChapter, setUidChapter] = useState(null);           // ton user métier (ou snapshot)
     //const [chapter, setChapter] = useState(null);           // ton user métier (ou snapshot)
     //const [chapters, setChapters] = useState([]);           // ton user métier (ou snapshot)
+    const [uidUser, setUidUser] = useState("");           // ton user métier (ou snapshot)
     const [subchapters, setSubchapters] = useState([]);           // ton user métier (ou snapshot)
     const [subchapter, setSubchapter] = useState([]);           // ton user métier (ou snapshot)
     const [uidStat, setUidStat] = useState(null);           // ton user métier (ou snapshot)
@@ -84,10 +79,10 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
         if (user && lessons.length > 0 && chapters.length > 0) {
-            const listener = listenToStats(uidLesson, uidChapter);
+            const listener = listenToStats(uidUser, uidLesson, uidChapter);
             return () => listener?.();
         }
-    }, [user, uidLesson, uidChapter, lessons, chapters]);
+    }, [user, uidUser, uidLesson, uidChapter, lessons, chapters]);
     useEffect(() => {
         if (user && uidStat) {
             const _stat = getOneStat(uidStat);
@@ -101,13 +96,18 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     }, [user, uidStat]);
 
     // écoute du doc utilisateur
-    const listenToStats = useCallback((uidLesson = "", uidChapter = "") => {
+    const listenToStats = useCallback((uidUser="",uidLesson = "", uidChapter = "") => {
         if (!user || user === null) return;
-        const colRef = ClassUserStat.colRef(user.uid); // par ex.
+        //const colRef = ClassUserStat.colRef(user.uid); // par ex.
         const ref = collectionGroup(firestore, ClassUserStat.COLLECTION)
             .withConverter(ClassUserStat.converter);
         //const colRef = collection(firestore, ClassUser.COLLECTION, uid_user, this.COLLECTION).withConverter(this.converter);
         const constraints = [];
+        
+        if (uidUser) {
+            constraints.push(where("uid_user", "==", uidUser));
+            //constraints.push(where("status", "in", [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED]));
+        }
         if (uidLesson) {
             constraints.push(where("uid_lesson", "==", uidLesson));
             //constraints.push(where("status", "in", [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED]));
@@ -163,7 +163,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             //setIsLoadingSlots(false);
         });
         return snapshotStats;
-    }, [user, uidLesson, uidChapter, lessons, chapters]);
+    }, [user, uidUser,uidLesson, uidChapter, lessons, chapters]);
     const listenToOneStat = useCallback((uidStat = "") => {
         if (!user || !uidStat) {
             setStat(null);
@@ -447,6 +447,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         //success,
         //setSuccess,
         //textSuccess,
+        setUidUser,
         chapters,
         //chapter,
         //setChapter,
