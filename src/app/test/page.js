@@ -1,156 +1,222 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line, Bar } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Tooltip,
-  Legend
-);
-
-/* ---------------- MOCK DATA ---------------- */
-
-const coursesResults = [
+const SLIDES = [
   {
-    id: "excel",
-    title: "Excel – Fondamentaux",
-    history: [
-      { date: "01/01", score: 20 },
-      { date: "10/01", score: 45 },
-      { date: "20/01", score: 70 },
-    ],
-    progress: 70,
-    level: "Intermédiaire",
+    title: "Bienvenue sur Dandela Academy",
+    description:
+      "Une plateforme moderne pour apprendre, progresser et certifier tes compétences professionnelles.",
+    image: "/onboarding/welcome.svg",
   },
   {
-    id: "it_intro",
-    title: "Introduction à l’informatique",
-    history: [
-      { date: "05/01", score: 30 },
-      { date: "18/01", score: 60 },
-    ],
-    progress: 60,
-    level: "Débutant",
+    title: "Explore tes cours",
+    description:
+      "Accède à des cours structurés par niveaux, chapitres et objectifs clairs.",
+    image: "/onboarding/courses.svg",
+  },
+  {
+    title: "Suis ta progression",
+    description:
+      "Visualise tes résultats par chapitre, par cours et globalement avec des statistiques claires.",
+    image: "/onboarding/stats.svg",
+  },
+  {
+    title: "Apprends avec des experts",
+    description:
+      "Chaque cours est animé par des professeurs qualifiés et expérimentés.",
+    image: "/onboarding/teachers.svg",
+  },
+  {
+    title: "Obtiens ta certification",
+    description:
+      "Valide tes compétences avec des certifications reconnues par Dandela Academy.",
+    image: "/onboarding/certificate.svg",
   },
 ];
 
-/* ---------------- PAGE ---------------- */
+export default function OnboardingCarousel({ onFinish }) {
+  const [index, setIndex] = useState(0);
 
-export default function ResultsPage() {
-  const [view, setView] = useState("line");
+  const isLast = index === SLIDES.length - 1;
+
+  const next = () => {
+    if (!isLast) setIndex((i) => i + 1);
+    else onFinish?.();
+  };
+
+  const skip = () => {
+    onFinish?.();
+  };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>📊 Résultats & progression</h1>
-      <p>Visualise ton évolution et tes performances par cours.</p>
+    <div className="overlay">
+      <div className="carousel">
+        {/* Skip */}
+        <button className="skip-btn" onClick={skip}>
+          Passer
+        </button>
 
-      {/* Sélecteur de vue */}
-      <div style={{ margin: "16px 0", display: "flex", gap: 8 }}>
-        <button onClick={() => setView("line")}>📈 Évolution</button>
-        <button onClick={() => setView("bar")}>📊 Comparaison</button>
-        <button onClick={() => setView("list")}>📋 Liste</button>
+        {/* Slide */}
+        <div className="slide">
+          <div className="image-wrapper">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={SLIDES[index].image} alt="" />
+          </div>
+
+          <h2>{SLIDES[index].title}</h2>
+          <p>{SLIDES[index].description}</p>
+        </div>
+
+        {/* Progress */}
+        <div className="progress">
+          {SLIDES.map((_, i) => (
+            <span
+              key={i}
+              className={`dot ${i === index ? "active" : ""}`}
+            />
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div className="actions">
+          <button className="btn ghost" onClick={skip}>
+            Ignorer
+          </button>
+          <button className="btn primary" onClick={next}>
+            {isLast ? "Entrer dans l’app" : "Suivant"}
+          </button>
+        </div>
       </div>
 
-      {view === "line" && <LineChartView />}
-      {view === "bar" && <BarChartView />}
-      {view === "list" && <ListView />}
-    </div>
-  );
-}
-function LineChartView() {
-  const labels = Array.from(
-    new Set(
-      coursesResults.flatMap(course =>
-        course.history.map(h => h.date)
-      )
-    )
-  );
+      <style jsx>{`
+        .overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(2, 6, 23, 0.92);
+          backdrop-filter: blur(6px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
 
-  const data = {
-    labels,
-    datasets: coursesResults.map(course => ({
-      label: course.title,
-      data: labels.map(label => {
-        const point = course.history.find(h => h.date === label);
-        return point ? point.score : null;
-      }),
-      tension: 0.4,
-    })),
-  };
+        .carousel {
+          width: 100%;
+          max-width: 420px;
+          background: radial-gradient(circle at top, #111827, #020617);
+          border: 1px solid #1f2937;
+          border-radius: 20px;
+          padding: 20px 18px 22px;
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          text-align: center;
+        }
 
-  const options = {
-    responsive: true,
-    scales: {
-      y: {
-        min: 0,
-        max: 100,
-        title: {
-          display: true,
-          text: "Progression (%)",
-        },
-      },
-    },
-  };
+        .skip-btn {
+          position: absolute;
+          top: 12px;
+          right: 14px;
+          background: none;
+          border: none;
+          color: #9ca3af;
+          font-size: 0.8rem;
+          cursor: pointer;
+        }
 
-  return <Line data={data} options={options} />;
-}
-function BarChartView() {
-  const data = {
-    labels: coursesResults.map(c => c.title),
-    datasets: [
-      {
-        label: "Progression (%)",
-        data: coursesResults.map(c => c.progress),
-      },
-    ],
-  };
+        .slide {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          animation: fade 0.3s ease;
+        }
 
-  const options = {
-    responsive: true,
-    scales: {
-      y: {
-        min: 0,
-        max: 100,
-      },
-    },
-  };
+        @keyframes fade {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
-  return <Bar data={data} options={options} />;
-}
-function ListView() {
-  return (
-    <div style={{ marginTop: 16 }}>
-      {coursesResults.map(course => (
-        <div
-          key={course.id}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: 8,
-            padding: 16,
-            marginBottom: 12,
-          }}
-        >
-          <h3>{course.title}</h3>
-          <p>Niveau atteint : {course.level}</p>
-          <p>Progression : {course.progress}%</p>
-          <progress value={course.progress} max={100} />
-        </div>
-      ))}
+        .image-wrapper {
+          width: 160px;
+          height: 160px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .image-wrapper img {
+          max-width: 100%;
+          max-height: 100%;
+        }
+
+        h2 {
+          margin: 0;
+          font-size: 1.35rem;
+        }
+
+        p {
+          margin: 0;
+          font-size: 0.9rem;
+          color: #cbd5f5;
+          line-height: 1.35rem;
+        }
+
+        .progress {
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+          margin-top: 4px;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 999px;
+          background: #334155;
+        }
+
+        .dot.active {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          width: 18px;
+        }
+
+        .actions {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          margin-top: 6px;
+        }
+
+        .btn {
+          flex: 1;
+          border-radius: 999px;
+          padding: 8px 14px;
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+
+        .ghost {
+          background: transparent;
+          border: 1px solid #1f2937;
+          color: #e5e7eb;
+        }
+
+        .primary {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          border: none;
+          color: white;
+        }
+      `}</style>
     </div>
   );
 }

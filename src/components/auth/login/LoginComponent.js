@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Alert, Stack, Typography } from "@mui/material";
-import { IconEmail } from "@/assets/icons/IconsComponent";
+import { Alert, Button, Divider, Stack, Typography } from "@mui/material";
+import { IconEmail, IconGoogleColor } from "@/assets/icons/IconsComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { set } from "zod";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -26,7 +26,7 @@ export default function LoginComponent() {
     }
     const { theme } = useThemeMode();
     const { text, primary } = theme.palette;
-    const { user, login, logout } = useAuth();
+    const { user, login, logout, signIn } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMail, setErrorMail] = useState('');
@@ -52,7 +52,7 @@ export default function LoginComponent() {
                 <p className="link">{t('create-account')}</p>
             </Link>
         </Stack>
-        <Stack spacing={1} alignItems={'end'} sx={{ width: '100%' }}>
+        <Stack spacing={0} alignItems={'end'} sx={{ width: '100%' }}>
             <Stack sx={{ width: '100%' }} spacing={2}>
                 <FieldComponent
                     label={labels.email}
@@ -103,7 +103,7 @@ export default function LoginComponent() {
             </Stack>
             {
                 !isLoading && <Link href={PAGE_FORGOT_PASSWORD} style={{ color: ClassColor.GREY_LIGHT }}>
-                    <p className="link">{t('btn-forgot-password')}</p>
+                    <p className="link" style={{fontWeigth:500}}>{t('btn-forgot-password')}</p>
                 </Link>
             }
         </Stack>
@@ -112,7 +112,8 @@ export default function LoginComponent() {
         }
 
         {
-            !isErrorActivate && !isLoading && <ButtonConfirm
+            !isErrorActivate && !isLoading && <Stack spacing={2}>
+                <ButtonConfirm
                 loading={isLoading}
                 label={t('btn-connect')}
                 disabled={email === '' || password === '' || isErrorActivate}
@@ -164,7 +165,18 @@ export default function LoginComponent() {
                     }
                 }}
             />
+                    <Divider>
+                    <Typography variant="caption">{t('other-method')}</Typography>
+                </Divider>
+                <Button 
+                variant={'outlined'} 
+                size="small"
+                onClick={()=>signIn('google')}
+                sx={{minHeight:'30px', border:'0.1px solid var(--card-border)', borderRadius:'20px', textTransform:'none',color:'var(--font-color)'}}
+                startIcon={<IconGoogleColor height={20} />}>{"Google"}</Button>
+            </Stack>
         }
+
 
         {
             !isErrorActivate && !isLoading && <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>

@@ -1,6 +1,6 @@
 {
-    "title-page": "Créer un compte - App Dandela Academy",
-    "description-page": "Créer un nouveau compte dédié à la plateforme de Dandela Academy",
+    "title-page": "Créer un compte – App Dandela Academy",
+    "description-page": "Créer un nouveau compte dédié à la plateforme Dandela Academy",
     "title": "Créer un compte",
     "subtitle": "Crée un nouveau compte et profite des avantages de la plateforme",
     "label-email": "Adresse e-mail",
@@ -10,25 +10,27 @@
     "placeholder-password": "Saisis un mot de passe",
     "placeholder-password-repeat": "Répète le mot de passe",
     "btn-forgot-password": "Mot de passe oublié ?",
-    "btn-create":"Créer mon compte",
-    "btn-connect":"Connexion",
-    "want-active": "Tu n'as pas encore activer ton compte ?",
-    "active-account":"Activer",
+    "btn-create": "Créer mon compte",
+    "btn-connect": "Connexion",
+    "other-method": "Autres méthodes",
+    "want-active": "Tu n’as pas encore activé ton compte ?",
+    "active-account": "Activer",
     "want-create": "Tu as déjà un compte ?",
-    "create-account":"Se connecter",
-    "processing":"Création du compte...",
-    "btn-home":"Aller à la page description connexion",
+    "create-account": "Se connecter",
+    "processing": "Création du compte...",
+    "btn-home": "Aller à la page de connexion",
     "success-message": "Un e-mail de réinitialisation du mot de passe a été envoyé à ton adresse e-mail.",
     "error-message": "Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.",
-    "errors":{
-        "email-not-valid":"Veuiller entrer un email valide",
-        "email-not-dandela-academy":"Veuiller entrer un email terminant par : @dandela-academy.com",
-        "email-not-found":"Aucun compte n'est associé à cette adresse e-mail",
-        "email-already-exists":"Un compte est déjà associé à cette adresse e-mail, connecte-toi",
-        "email-not-activated":"Ton compte n'est pas encore actif",
-        "password-not-valid":"Le mot de passe ne respecte pas les règles",
-        "password-repeat":"Les mots de passe ne correspondent pas",
-        "before-continue":"Veuiller corriger les erreurs avant de continuer",
-        "main":"Une erreur est survenue. Veuillez réessayer plus tard."
+    "errors": {
+      "email-not-valid": "Veuillez entrer une adresse e-mail valide",
+      "email-not-dandela-academy": "Veuillez entrer une adresse e-mail se terminant par : @dandela-academy.com",
+      "email-not-found": "Aucun compte n’est associé à cette adresse e-mail",
+      "email-already-exists": "Un compte est déjà associé à cette adresse e-mail, connecte-toi",
+      "email-not-activated": "Ton compte n’est pas encore actif",
+      "password-not-valid": "Le mot de passe ne respecte pas les règles",
+      "password-repeat": "Les mots de passe ne correspondent pas",
+      "before-continue": "Veuillez corriger les erreurs avant de continuer",
+      "main": "Une erreur est survenue. Veuillez réessayer plus tard."
     }
-}
+  }
+  

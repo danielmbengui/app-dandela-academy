@@ -433,3 +433,10 @@ export const IconLineChart = ({ width = 24, height = 24, color = '' }) => {
 export const IconList = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="ic:round-list" width={width} height={height} color={color} />)
 }
+export const IconUpload = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="material-symbols:upload" width={width} height={height} color={color} />)
+}
+export const IconGoogleColor = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="material-icon-theme:google" width={width} height={height} color={color} />)
+}
+

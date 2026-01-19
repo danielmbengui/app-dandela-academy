@@ -12,7 +12,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Breadcrumbs, Button, Container, Grid, Stack } from '@mui/material';
+import { Backdrop, Breadcrumbs, Button, Container, Grid, Stack } from '@mui/material';
 import { IconDropDown, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
@@ -28,8 +28,59 @@ import LoginComponent from '../auth/login/LoginComponent';
 import OtherPageWrapper from './OtherPageWrapper';
 import NotAuthorizedComponent from '../auth/NotAuthorizedComponent';
 import { PAGE_NOT_AUTHORIZED } from '@/contexts/constants/constants_pages';
+import { useTheme } from '@mui/material/styles';
+import MobileStepper from '@mui/material/MobileStepper';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import FirstConnexionComponent from '../auth/FirstConnexionComponent';
+import { ClassUser } from '@/classes/users/ClassUser';
+import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 
 const drawerWidth = 240;
+
+
+function DotsMobileStepper() {
+    const theme = useTheme();
+    const [activeStep, setActiveStep] = React.useState(0);
+
+    const handleNext = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
+
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+
+    return (
+        <MobileStepper
+            variant="dots"
+            steps={6}
+            position="static"
+            activeStep={activeStep}
+            sx={{ maxWidth: 400, flexGrow: 1 }}
+            nextButton={
+                <Button size="small" onClick={handleNext} disabled={activeStep === 5}>
+                    Next
+                    {theme.direction === 'rtl' ? (
+                        <KeyboardArrowLeft />
+                    ) : (
+                        <KeyboardArrowRight />
+                    )}
+                </Button>
+            }
+            backButton={
+                <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+                    {theme.direction === 'rtl' ? (
+                        <KeyboardArrowRight />
+                    ) : (
+                        <KeyboardArrowLeft />
+                    )}
+                    Back
+                </Button>
+            }
+        />
+    );
+}
 
 function DashboardPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU]);
@@ -172,7 +223,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         await logout();
                     }}
                 >
-                    {t('disconnect', {ns:NS_BUTTONS})}
+                    {t('disconnect', { ns: NS_BUTTONS })}
                 </Button>
             </Stack>
         </Stack>
@@ -205,13 +256,12 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     }
     if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
     return (
-        <Box sx={{ display: 'flex', background: 'var(--background-menu)', overflow: 'hidden', height: '100vh' }}>
-
+        <Box sx={{ display: 'flex', background: 'var(--background-menu)', overflow: 'hidden', height: '100vh', }}>
             <AppBar
                 elevation={0}
                 position="fixed"
                 sx={{
-                    background: 'var(--background-menu)', 
+                    background: 'var(--background-menu)',
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
@@ -290,7 +340,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             </Box>
             <Box
                 component="main"
-                sx={{background: 'var(--background-menu)', width: '100vw', position: 'relative' }}
+                sx={{ background: 'var(--background-menu)', width: '100vw', position: 'relative', }}
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }} />
                 <Container disableGutters maxWidth={'xl'} sx={{
@@ -303,7 +353,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                     width: '100%',
                     py: 1,
                     px: { xs: 1, sm: 2 },
-                    background: 'var(--background)', 
+                    background: 'var(--background)',
                     mt: 0,
                     borderTopLeftRadius: { xs: 0, sm: '15px' }
                 }}>
@@ -359,8 +409,8 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                             overflowY: 'auto',
                             //overflowY: 'auto', 
                             background: '', minHeight: 0,
-                            width: '100%', 
-                            minWidth:'100%',
+                            width: '100%',
+                            minWidth: '100%',
                             height: '100vh', py: 1,
                             width: "100%",
                             flex: 1,          // prend le reste
@@ -393,6 +443,24 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
 
                 </Container>
             </Box>
+            {
+                user?.status === ClassUser.STATUS.FIRST_CONNEXION && <Backdrop
+                    sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
+                    open={true}>
+                    <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%' }}>
+                        <FirstConnexionComponent />
+                    </Stack>
+                </Backdrop>
+            }
+            {
+                user?.status === ClassUser.STATUS.MUST_COMPLETE_PROFILE && <Backdrop
+                    sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
+                    open={true}>
+                    <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%' }}>
+                        <CompleteProfileComponent />
+                    </Stack>
+                </Backdrop>
+            }
         </Box>
     );
 }

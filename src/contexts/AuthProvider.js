@@ -41,7 +41,7 @@ import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
 import { auth, firestore, database } from '@/contexts/firebase/config';
-import { PAGE_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
+import { PAGE_DASHBOARD_HOME, PAGE_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
 //import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
@@ -179,7 +179,6 @@ export function AuthProvider({ children }) {
 
     // écoute du doc utilisateur
     const listenToUser = useCallback((fbUser) => {
-        console.log("AUUUUUUTH new user", fbUser);
         const { uid } = fbUser;
         const ref = ClassUser.docRef(uid);
         const unsubscribe = onSnapshot(ref, async (snap) => {
@@ -192,10 +191,9 @@ export function AuthProvider({ children }) {
             const data = snap.data();
             const { email_verified, status } = data;
             if (email_verified !== fbUser.emailVerified) {
-                //await updateDoc(ref, { email_verified: fbUser.emailVerified });
+                await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             const _user = data;
-            //setUser(_user);
             setUser(prev => {
                 if (!prev || prev === null) return _user.clone();
                 prev.update(_user.toJSON());
@@ -305,59 +303,64 @@ export function AuthProvider({ children }) {
     };
     const signIn = async (providerName = '') => {
         if (!providerName) return;
-      
+
         let provider;
-      
+        
+        router.prefetch(PAGE_DASHBOARD_HOME);
         try {
-          if (providerName === 'apple') {
-            provider = new OAuthProvider('apple.com');
-            provider.addScope('email');
-            provider.addScope('name');
-          } else if (providerName === 'google') {
-            provider = new GoogleAuthProvider();
-          }else if (providerName === 'facebook') {
-            provider = new FacebookAuthProvider();
-          } else if (providerName === 'twitter') {
-            provider = new TwitterAuthProvider();
-          } else {
-            throw new Error('Provider non supporté');
-          }
-      
-          console.log('Opening popup for', providerName);
-      
-          const result = await signInWithPopup(auth, provider);
-      
-          console.log('✅ user connected', result);
-      
-          const credential = result.credential;
-          const token = result._tokenResponse.idToken;
-          const user = result.user;
-      
-          console.log('cerdential:', credential);
-          console.log('User:', user);
-          console.log('Token:', token);
-      
-          setProvider(providerName);
-      
+            if (providerName === 'apple') {
+                provider = new OAuthProvider('apple.com');
+                provider.addScope('email');
+                provider.addScope('name');
+            } else if (providerName === 'google') {
+                provider = new GoogleAuthProvider();
+            } else if (providerName === 'facebook') {
+                provider = new FacebookAuthProvider();
+            } else if (providerName === 'twitter') {
+                provider = new TwitterAuthProvider();
+            } else {
+                throw new Error('Provider non supporté');
+            }
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            const { uid, email, emailVerified, phoneNumber, photoURL } = user;
+            
+            setIsLoading(true);
+            var student = await ClassUserStudent.fetchFromFirestore(uid);
+            if(!student) {
+                student = new ClassUserStudent({
+                    uid: uid,
+                    email: email,
+                    email_verified: emailVerified,
+                    preferred_language: lang,
+                    status: ClassUser.STATUS.FIRST_CONNEXION,
+                    phone_number: phoneNumber || "",
+                    photo_url: photoURL || "",
+                });
+                await student.createFirestore();
+            }
+            setProvider(providerName);
+            setIsLoading(false);
+            router.replace(PAGE_DASHBOARD_HOME);
         } catch (error) {
-          console.error('❌ Auth error', error);
-      
-          if (error.code === 'auth/account-exists-with-different-credential') {
-            const email = error.customData?.email;
-            const methods = await fetchSignInMethodsForEmail(auth, email);
-            setIsErrorSignIn(true);
-            setTextErrorSignIn(
-              `${email} est déjà associée à ${methods[0]?.split('.')[0]}`
-            );
-            setProvider(methods[0]?.split('.')[0] ?? '');
-          } else {
-            setIsErrorSignIn(true);
-            setTextErrorSignIn(error.message || 'Erreur de connexion');
-            setProvider('');
-          }
+            console.error('❌ Auth error', error);
+
+            if (error.code === 'auth/account-exists-with-different-credential') {
+                const email = error.customData?.email;
+                const methods = await fetchSignInMethodsForEmail(auth, email);
+                setIsErrorSignIn(true);
+                setTextErrorSignIn(
+                    `${email} est déjà associée à ${methods[0]?.split('.')[0]}`
+                );
+                setProvider(methods[0]?.split('.')[0] ?? '');
+            } else {
+                setIsErrorSignIn(true);
+                setTextErrorSignIn(error.message || 'Erreur de connexion');
+                setProvider('');
+            }
         }
-      };
-      
+    };
+
     const login = async (email, password) => {
         //e?.preventDefault?.();
         try {
@@ -405,9 +408,9 @@ export function AuthProvider({ children }) {
         }
     };
     const logout = async () => {
+        router.prefetch(PAGE_LOGIN);
         const uid = auth.currentUser.uid || '';
         setIsLoading(true);
-        await signOut(auth);
         await ClassUser.update(uid, {
             last_connexion_time: new Date(),
             status: ClassUser.STATUS.OFFLINE,
@@ -418,6 +421,7 @@ export function AuthProvider({ children }) {
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
         setIsLoading(false);
+        await signOut(auth);
         router.replace(PAGE_LOGIN);
     };
     const editEmail = async (e, newEmail) => {

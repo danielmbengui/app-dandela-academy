@@ -14,6 +14,7 @@ import FieldComponent from "@/components/elements/FieldComponent";
 import AlertComponent from "@/components/elements/AlertComponent";
 import ButtonNextComponent from "@/components/elements/ButtonNextComponent";
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
+import { ClassColor } from "@/classes/ClassColor";
 export default function ActiveAccountComponent({ setIsLogin = null }) {
     const router = useRouter();
     const { theme } = useThemeMode();

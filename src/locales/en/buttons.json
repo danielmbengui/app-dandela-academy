@@ -1,9 +1,11 @@
 {
   "know-more": "Learn more",
+  "import": "Import",
+  "choose-photo": "Choose an image",
   "see-profile": "View profile",
   "contact": "Contact",
   "subscribe": "Sign up",
-  "connect": "Connect",
+  "connect": "Log in",
   "signup": "Create an account",
   "disconnect": "Log out",
   "space-members": "Members area",

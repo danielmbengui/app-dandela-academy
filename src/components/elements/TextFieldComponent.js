@@ -138,7 +138,7 @@ export default function TextFieldComponent({
         fullWidth={fullWidth}
         value={value}
         error={error}
-        //helperText={error ? error : ''}
+        helperText={helperText}
         //helperText={isErrorCompany ? `Le nom doit contenir entre ${MIN_LENGTH_COMPANY} et ${MAX_LENGTH_COMPANY}` : ''}
         placeholder={placeholder}
         onChange={onChangeValue}

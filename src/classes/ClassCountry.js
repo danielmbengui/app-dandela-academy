@@ -4601,12 +4601,12 @@ export class ClassCountry {
         return new ClassCountry(this.toJSON());
     }
 
-    static getCountryByCode(code="") {
+    static getCountryByCode(code = "") {
         const _countries = ClassCountry.COUNTRIES;
         var i = 0;
-        while(i < _countries.length) {
+        while (i < _countries.length) {
             const _country = _countries[i];
-            if(_country.code === code) {
+            if (_country.code === code) {
                 return new ClassCountry(_country);
             }
             i++;
@@ -4614,16 +4614,46 @@ export class ClassCountry {
         return null;
     }
 
+    static getPrefixes() {
+        return this.COUNTRIES.flatMap(country => country.prefixes.map(prefixe => ({
+            code: country.code,
+            flag: country.flags.png,
+            prefixe: `+${prefixe}`,
+        })))
+    }
+    static extractCodeCountryFromPhoneNumber(phoneNumber = "") {
+        if(!phoneNumber)return "";
+        const prefixes = this.getPrefixes();
+        for (const item of prefixes) {
+            const prefixe = item.prefixe;
+            const code = item.code;
+            if (phoneNumber.startsWith(`${prefixe}`)) {
+                return `${code}`;
+            }
+        }
+        return "";
+    }
+    static extractPrefixeFromPhoneNumber(phoneNumber = "") {
+        if(!phoneNumber)return "";
+        const prefixes = this.getPrefixes();
+        for (const item of prefixes) {
+            const prefixe = item.prefixe;
+            if (phoneNumber.startsWith(`${prefixe}`)) {
+                return `${prefixe}`;
+            }
+        }
+        return "";
+    }
     static getAllPrefixes() {
         const prefixes = [];
 
-        for(const _country of ClassCountry.COUNTRIES) {
+        for (const _country of ClassCountry.COUNTRIES) {
             const _prefixes = _country.prefixes;
-            for(const _prefixe of _prefixes) {
+            for (const _prefixe of _prefixes) {
                 prefixes.push({
-                    code:_country.code,
-                    flag:_country.flags.png,
-                    prefixe:`+${_prefixe}`,
+                    code: _country.code,
+                    flag: _country.flags.png,
+                    prefixe: `+${_prefixe}`,
                 });
             }
         }

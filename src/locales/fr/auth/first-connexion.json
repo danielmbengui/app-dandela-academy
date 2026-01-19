@@ -1,0 +1,28 @@
+{
+    "slides": {
+        "slide1": {
+            "title": "Bienvenue sur Dandela Academy",
+            "description": "Une plateforme moderne pour apprendre, progresser et certifier tes compétences professionnelles."
+        },
+        "slide2": {
+            "title": "Explore tes cours",
+            "description": "Accède à des cours structurés par niveaux, chapitres et objectifs clairs."
+        },
+        "slide3": {
+            "title": "Suis ta progression",
+            "description": "Visualise tes résultats par chapitre, par cours et globalement avec des statistiques claires."
+        },
+        "slide4": {
+            "title": "Apprends avec des experts",
+            "description": "Chaque cours est animé par des professeurs qualifiés et expérimentés."
+        },
+        "slide5": {
+            "title": "Obtiens ta certification",
+            "description": "Valide tes compétences avec des certifications reconnues par l'INEFOP."
+        }
+    },
+    "btn-skip": "Passer",
+    "btn-back": "Précédent",
+    "btn-next": "Suivant",
+    "btn-start": "Commencer"
+}

@@ -122,7 +122,7 @@ const LoginPageWrapper = ({ children }) => {
   const LANGS = ClassLang.ALL_LANGUAGES;
   useEffect(() => {
     if (user && user.uid) {
-      router.push(PAGE_DASHBOARD_HOME);
+      //router.push(PAGE_DASHBOARD_HOME);
     }
   }, [user]);
   if (isLoading) {

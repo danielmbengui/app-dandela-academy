@@ -16,7 +16,7 @@ export default function CheckboxComponent({type, name, checked, onChange, label,
         onChange={onChange}
         disabled={disabled}
         style={{ cursor: 'pointer' }}
-        className="h-4 w-4 text-blue-600 focus:ring-secondaryColor border-gray-300 rounded"
+        className="h-4 w-4 text-blue-600 focus:ring-secondaryColor border-gray-100 rounded"
       />
       {
         label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ cursor: 'pointer', fontSize: '0.9rem' }} onClick={(e) => {

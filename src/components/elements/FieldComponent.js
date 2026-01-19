@@ -27,7 +27,9 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     disablePast = false,
     disableFuture = false,
     prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required = false,
-    editable = false, resetable = false, removable = false, onRemove = () => { }, onSubmit = () => { }, onCancel = () => { }, autoComplete = [], ...props }) {
+    editable = false, resetable = false, removable = false, onRemove = () => { }, onSubmit = () => { }, onCancel = () => { }, autoComplete = [], 
+    sx={},
+    ...props }) {
     //console.log("FILED", name, type)
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
@@ -35,7 +37,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     const { primary, primaryShadow, background } = theme.palette;
     const [processing, setProcessing] = useState(false);
     return (
-        <div>
+        <Stack alignItems={'start'}>
             {
                 label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ fontSize: '0.9rem', marginBottom: '7px' }}>
                     {label}{required && <b style={{ color: 'red' }}>*</b>}
@@ -293,6 +295,6 @@ export default function FieldComponent({ label, name, value, disabled = false, o
             </Stack>
 
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-        </div>
+        </Stack>
     );
 }

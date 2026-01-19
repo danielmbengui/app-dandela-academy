@@ -18,7 +18,7 @@ import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
-import { getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
+import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
 
@@ -107,10 +107,12 @@ export class ClassUser {
     });
     static STATUS = Object.freeze({
         FIRST_CONNEXION: 'first-connexion',
+        MUST_COMPLETE_PROFILE: 'must-complete-profile',
+        MUST_ACTIVATE: 'must-activate',
         ONLINE: 'online',
         OFFLINE: 'offline',
         AWAY: 'away',
-        MUST_ACTIVATE: 'must-activate',
+        
         UNKNOWN: 'unknown',
 
         CREATED: 'CREATED',
@@ -299,12 +301,28 @@ export class ClassUser {
     showAvatar({ size = 30, fontSize = '14px' }) {
         return (<Avatar
             sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: size, height: size }}
-            alt={this.getCompleteName()}
-            src={this._photo_url}
+            alt={this.getInitials()}
+            src={this._photo_url || ""}
         >
             <Typography fontSize={fontSize}>{this.getInitials()}</Typography>
         </Avatar>)
     }
+    static createAvatarPhoto({first_name="", last_name="", photo_url="", size = 30, fontSize = '14px' }) {
+        return (<Avatar
+            sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: size, height: size, objectFit:'contain' }}
+            alt={this.createInitials({first_name, last_name})}
+            src={photo_url || ""}
+        >
+            <Typography fontSize={fontSize}>{this.createInitials({first_name, last_name})}</Typography>
+        </Avatar>)
+    }
+    static createInitials({first_name="", last_name=""}) {
+        const firstNames = first_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
+        const lastNames = last_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
+        const result = `${firstNames?.slice(0, 1).toLowerCase() || ""}${lastNames?.slice(0, 1).toLowerCase() || ""}`;
+        return (result.slice(0, 4).toUpperCase());
+    }
+    
     // --- GETTER utils ---
     getCompleteName() {
         return (`${this._first_name} ${this.last_name?.toUpperCase()}`)
@@ -314,6 +332,16 @@ export class ClassUser {
         const lastNames = this._last_name.replace(/-/g, " ").split(/\s+/).join("");
         const result = `${firstNames?.toLowerCase() || ""}${lastNames?.toLowerCase() || ""}`;
         return (result.slice(0, ClassUser.MAX_LENGTH_DISPLAY_NAME));
+    }
+    capitalizeName(value) {
+        if(!value || value.length===0) return "";
+        const array = value.split(" ");
+        const arrayCapitalize = [];
+        for (const n of array) {
+            const name = capitalizeFirstLetter(n);
+            arrayCapitalize.push(name);
+        }
+        return arrayCapitalize.join(" ").trim();
     }
     getInitials() {
         const firstNames = this._first_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
@@ -347,34 +375,34 @@ export class ClassUser {
         if (!(object instanceof ClassUser)) {
             return false;
         }
-        if (this._uid.trim() !== object.uid.trim()) {
+        if (this._uid?.trim() !== object.uid.trim()) {
             return false;
         }
-        if (this._type.trim() !== object.type.trim()) {
+        if (this._type?.trim() !== object.type.trim()) {
             return false;
         }
         if (this._verified_by_team !== object.verified_by_team) {
             return false;
         }
-        if (this._first_name.trim() !== object.first_name.trim()) {
+        if (this._first_name?.trim() !== object.first_name.trim()) {
             return false;
         }
-        if (this._last_name.trim() !== object.last_name.trim()) {
+        if (this._last_name?.trim() !== object.last_name.trim()) {
             return false;
         }
-        if (this._display_name.trim() !== object.display_name.trim()) {
+        if (this._display_name?.trim() !== object.display_name.trim()) {
             return false;
         }
-        if (this._photo_url.trim() !== object.photo_url.trim()) {
+        if (this._photo_url?.trim() !== object.photo_url.trim()) {
             return false;
         }
-        if (this._email.trim() !== object.email.trim()) {
+        if (this._email?.trim() !== object.email.trim()) {
             return false;
         }
-        if (this._email_academy.trim() !== object.email_academy.trim()) {
+        if (this._email_academy?.trim() !== object.email_academy.trim()) {
             return false;
         }
-        if (this._phone_number.trim() !== object.phone_number.trim()) {
+        if (this._phone_number?.trim() !== object.phone_number?.trim()) {
             return false;
         }
         if (this._email_verified !== object.email_verified) {
@@ -389,8 +417,8 @@ export class ClassUser {
         if (this._notif_by_email !== object.notif_by_email) {
             return false;
         }
-        const jsonDay = getStartOfDay(this._birthday).getTime();
-        const objectDay = getStartOfDay(object.birthday).getTime();
+        const jsonDay = getStartOfDay(this._birthday)?.getTime();
+        const objectDay = getStartOfDay(object.birthday)?.getTime();
         if (jsonDay !== objectDay) {
             return false;
         }
@@ -400,6 +428,9 @@ export class ClassUser {
         for (const key in props) {
             if (Object.prototype.hasOwnProperty.call(this, `_${key}`) && props[key] !== undefined) {
                 this[`_${key}`] = props[key];
+                if (key === "first_name" || key === "last_name") {
+                    this._display_name = this.createDisplayName();
+                }
             }
         }
     }
@@ -466,8 +497,10 @@ export class ClassUser {
     isErrorPhoneNumber(codeCountry = "") {
         //if (!prefixe || prefixe.length === 0) return (true);
         //console.log("YEEEES",this._last_name)
+        if(!this._phone_number) return (false);
+        if (this._phone_number.length > 0 && codeCountry.length === 0) return (true);
         if (this._phone_number.length > 0 && codeCountry.length > 0 && !parseAndValidatePhone(`${this._phone_number}`, codeCountry).is_valid) return (true);
-        return (false)
+        return (false);
     }
     validPhoneNumber(codeCountry = "") {
         //if (!prefixe || prefixe.length === 0) return (false);
@@ -499,23 +532,23 @@ export class ClassUser {
     /**************** MENU ****************/
     menuDashboard() {
         return [
-        {
-            name: "dashboard",
-            path: PAGE_DASHBOARD_HOME,
-            icon: <IconDashboard width={18} height={18} />,
-        },
-        /*
-        {
-            name: "calendar",
-            path: PAGE_DASHBOARD_CALENDAR,
-            icon: <IconCalendar width={18} height={18} />,
-            subs: [{
-                name: "lessons",
+            {
+                name: "dashboard",
                 path: PAGE_DASHBOARD_HOME,
-                icon: <IconLessons width={18} height={18} />,
-            }]
-        },
-        */
+                icon: <IconDashboard width={18} height={18} />,
+            },
+            /*
+            {
+                name: "calendar",
+                path: PAGE_DASHBOARD_CALENDAR,
+                icon: <IconCalendar width={18} height={18} />,
+                subs: [{
+                    name: "lessons",
+                    path: PAGE_DASHBOARD_HOME,
+                    icon: <IconLessons width={18} height={18} />,
+                }]
+            },
+            */
             {
                 name: "lessons",
                 path: PAGE_LESSONS,
@@ -526,7 +559,7 @@ export class ClassUser {
                 path: PAGE_STATS,
                 icon: <IconStats width={16} height={16} />,
             },
-            
+
             /*
             {
                 name: "computers",
@@ -728,13 +761,12 @@ export class ClassUser {
         const newRef = doc(this.constructor.colRef(), finalUid);
 
         this._uid = finalUid;
-        this._created_time = new Date();
+        this._created_time = this._created_time? this._created_time : new Date();
         this._last_edit_time = new Date();
 
         const data = this.toJSON();
-        await setDoc(newRef, data);
-
-        return this.constructor.makeUserInstance(this._uid, data);
+        await setDoc(newRef, data, {merge:true});
+        return this.constructor.fetchFromFirestore(this._uid);
     }
 
     // Mettre à jour un module
@@ -758,19 +790,19 @@ export class ClassUser {
     async updateFirestore() {
         try {
             const ref = this.constructor.docRef(this._uid);
-            this._uid = this._uid.trim();
-            this._first_name = this._first_name.trim();
-            this._last_name = this._last_name.trim();
-            this._display_name = this._display_name.trim();
-            this._email = this._email.trim();
-            this._email_academy = this._email_academy.trim();
-            this._status = this._status.trim();
+            this._uid = this._uid?.trim();
+            this._first_name = this.capitalizeName(this._first_name);
+            this._last_name = this.capitalizeName(this._last_name);
+            this._display_name = this._display_name?.trim();
+            this._email = this._email?.trim();
+            this._email_academy = this._email_academy?.trim();
+            this._status = this._status?.trim();
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
             await updateDoc(ref, this.toJSON(), { merge: true });
             //console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
-            return this.constructor.makeUserInstance(this._uid, this.toJSON()); // -> ClassModule
+            return this.constructor.fetchFromFirestore(this._uid); // -> ClassModule
         } catch (e) {
             console.log("ERRROR", e)
             return null;

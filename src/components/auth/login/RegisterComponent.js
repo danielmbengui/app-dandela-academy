@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Alert, CircularProgress, Stack, Typography } from "@mui/material";
-import { IconEmail } from "@/assets/icons/IconsComponent";
+import { Alert, Button, Chip, CircularProgress, Divider, Stack, Typography } from "@mui/material";
+import { IconEmail, IconGoogleColor } from "@/assets/icons/IconsComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
@@ -161,11 +161,6 @@ export default function RegisterComponent() {
         }
     }
     return (<Stack spacing={3} sx={{ color: "var(--font-color)", width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
-       
-       <Stack sx={{display:'none'}} spacing={1}>
-       <ButtonConfirm label="google" onClick={()=>signIn('google')} />
-       <ButtonConfirm label="facebook" onClick={()=>signIn('facebook')} />
-       </Stack>
         <Stack spacing={3} direction={'row'} justifyContent={'space-between'} alignItems={'start'}>
             <Stack sx={{ width: '70%' }} spacing={0.5}>
                 <Typography variant="h4">{t('title')}</Typography>
@@ -240,12 +235,23 @@ export default function RegisterComponent() {
                     </Alert>)
 
                 }
+                <Stack spacing={2}>
                 <ButtonConfirm
                     loading={isLoading}
                     label={t('btn-create')}
                     disabled={!form.email || !form.password || !form.password_repeat || isLoading || errors.main}
                     onClick={onSubmit}
                 />
+                <Divider>
+                    <Typography variant="caption">{t('other-method')}</Typography>
+                </Divider>
+                <Button 
+                variant={'outlined'} 
+                size="small"
+                onClick={()=>signIn('google')}
+                sx={{minHeight:'30px', border:'0.1px solid var(--card-border)', borderRadius:'20px', textTransform:'none',color:'var(--font-color)'}}
+                startIcon={<IconGoogleColor height={20} />}>{"Google"}</Button>
+                </Stack>
                 <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
                     {t('want-create')} <Link href={PAGE_LOGIN} style={{ color: primary.main }}>
                         <p className="link"> {t('create-account')}</p>
