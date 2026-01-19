@@ -420,9 +420,9 @@ export default function CompleteProfileComponent() {
   const SLIDES_LENGTH = 3;
 
   const SLIDES = [
-    <SlideInfos length={SLIDES_LENGTH} index={index} textNext={textNext} user={user} userEdit={userEdit} setIndex={setIndex} setUserEdit={setUserEdit} />,
-    <SlidePhoto length={SLIDES_LENGTH} index={index} textBack={textBack} textNext={textNext} files={files} setFiles={setFiles} user={user} userEdit={userEdit} setIndex={setIndex} setUserEdit={setUserEdit} />,
-    <SlideMarketing length={SLIDES_LENGTH} index={index} textBack={textBack} textNext={textJoin} files={files} setFiles={setFiles} user={user} userEdit={userEdit} setIndex={setIndex} setUserEdit={setUserEdit} />
+    <SlideInfos key={`slide-1`} length={SLIDES_LENGTH} index={index} textNext={textNext} user={user} userEdit={userEdit} setIndex={setIndex} setUserEdit={setUserEdit} />,
+    <SlidePhoto key={`slide-2`} length={SLIDES_LENGTH} index={index} textBack={textBack} textNext={textNext} files={files} setFiles={setFiles} user={user} userEdit={userEdit} setIndex={setIndex} setUserEdit={setUserEdit} />,
+    <SlideMarketing key={`slide-3`} length={SLIDES_LENGTH} index={index} textBack={textBack} textNext={textJoin} files={files} setFiles={setFiles} user={user} userEdit={userEdit} setIndex={setIndex} setUserEdit={setUserEdit} />
   ]
 
   useEffect(() => {
