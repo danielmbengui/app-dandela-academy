@@ -368,13 +368,14 @@ export default function ExcelBeginnerCoursePage() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   // const { lang } = useLanguage();
   const [isOpenDetails, setIsOpenDetails] = useState(false);
-  //const { user } = useAuth();
+  const { user } = useAuth();
   const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-  const { stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+  const { setUidUser,stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
   const { chapters, chapter, setUidChapter } = useChapter();
   useEffect(() => {
+    setUidUser(user?.uid || '');
     setUidLesson(uidLesson);
-  }, [uidLesson]);
+  }, [user, uidLesson]);
   const statsFiltered = useMemo(() => {
     const filtered = stats.filter(s => s.uid_lesson === lesson?.uid);
     return filtered;
