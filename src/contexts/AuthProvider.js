@@ -261,8 +261,6 @@ export function AuthProvider({ children }) {
         }
         return _updated;
     }
-
-    // actions
     const createAccount = async (e, email, password) => {
         e?.preventDefault?.();
         createUserWithEmailAndPassword(auth, email, password)
@@ -303,9 +301,7 @@ export function AuthProvider({ children }) {
     };
     const signIn = async (providerName = '') => {
         if (!providerName) return;
-
         let provider;
-        
         router.prefetch(PAGE_DASHBOARD_HOME);
         try {
             if (providerName === 'apple') {
@@ -337,14 +333,19 @@ export function AuthProvider({ children }) {
                     phone_number: phoneNumber || "",
                     photo_url: photoURL || "",
                 });
-                await student.createFirestore();
+            } else {
+                if(student.status !== ClassUser.STATUS.FIRST_CONNEXION && student.status !== ClassUser.STATUS.MUST_COMPLETE_PROFILE) {
+                    student.update({
+                        status: ClassUser.STATUS.ONLINE,
+                    });
+                }
             }
+            await student.createFirestore();
             setProvider(providerName);
             setIsLoading(false);
             router.replace(PAGE_DASHBOARD_HOME);
         } catch (error) {
             console.error('❌ Auth error', error);
-
             if (error.code === 'auth/account-exists-with-different-credential') {
                 const email = error.customData?.email;
                 const methods = await fetchSignInMethodsForEmail(auth, email);
@@ -360,7 +361,6 @@ export function AuthProvider({ children }) {
             }
         }
     };
-
     const login = async (email, password) => {
         //e?.preventDefault?.();
         try {
@@ -519,7 +519,6 @@ disabled: true,
         setTextErrorSignIn('');
         setProvider('');
     };
-
     const value = {
         userAuth,
         user,

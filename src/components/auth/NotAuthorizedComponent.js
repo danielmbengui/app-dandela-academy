@@ -66,10 +66,10 @@ components={{
 
             <Stack direction="row" spacing={2} alignItems={'center'} sx={{ mt: 1, }}>
                 <Link href={PAGE_DASHBOARD_HOME}>
-                <ButtonConfirm
+                <ButtonCancel
                     //onClick={handleLogout}
                     label={t('btn-back')}
-                    variant="outlined"
+                    //variant="outlined"
                     fullWidth
                 />
                 </Link>

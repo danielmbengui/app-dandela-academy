@@ -21,6 +21,7 @@
   "btn-home": "Ir para a página de login",
   "success-message": "Um e-mail de redefinição da palavra-passe foi enviado para o teu endereço de e-mail.",
   "error-message": "Ocorreu um erro ao redefinir a palavra-passe. Por favor, tenta novamente.",
+  "terms":"Ao criar uma conta, concorda com os nossos <a>termos de utilização</a> e com a nossa <a>política de privacidade</a>.",
   "errors": {
     "email-not-valid": "Por favor, introduz um endereço de e-mail válido",
     "email-not-dandela-academy": "Por favor, introduz um e-mail que termine com: @dandela-academy.com",

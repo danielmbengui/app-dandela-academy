@@ -6,7 +6,7 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
 import { PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_LOGIN, PAGE_REGISTER } from "@/contexts/constants/constants_pages";
 import { ClassColor } from "@/classes/ClassColor";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { NS_LOGIN, NS_REGISTER } from "@/contexts/i18n/settings";
 import { useRouter } from "next/navigation";
 import { isValidEmail, isValidPassword } from "@/contexts/functions";
@@ -251,7 +251,17 @@ export default function RegisterComponent() {
                 onClick={()=>signIn('google')}
                 sx={{minHeight:'30px', border:'0.1px solid var(--card-border)', borderRadius:'20px', textTransform:'none',color:'var(--font-color)'}}
                 startIcon={<IconGoogleColor height={20} />}>{"Google"}</Button>
+                <Typography variant="caption">
+                    <Trans
+                    t={t}
+                    i18nKey={'terms'}
+                    components={{
+                        a:<a style={{color:'var(--primary)', cursor:'pointer'}} />
+                    }}
+                    />
+                </Typography>
                 </Stack>
+                
                 <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
                     {t('want-create')} <Link href={PAGE_LOGIN} style={{ color: primary.main }}>
                         <p className="link"> {t('create-account')}</p>

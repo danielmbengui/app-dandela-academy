@@ -26,7 +26,7 @@ export default function TextFieldPasswordComponent({
     //multiline = false,
     minRows = 1,
     maxRows = 1,
-    maxHeight='2.5rem',
+    maxHeight = '1.9rem',
     onSubmit = () => { },
     ...props
 }) {
@@ -66,16 +66,16 @@ export default function TextFieldPasswordComponent({
                 '& fieldset': {
                     //borderColor: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
                     color: ClassColor.GREY_HYPER_LIGHT, // couleur par défaut
-                    border: `0.1px solid var(card-border)`,
+                    border: `0.1px solid var(--grey-hyper-light)`,
                 },
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
                     //color: 'red', // couleur par défaut
-                    border: `1px solid ${primary.main}`,
+                    border: `0.1px solid ${primary.main}`,
                 },
                 '&.Mui-focused fieldset': {
                     //borderColor: ClassColor.TRANSPARENT, // quand focus
-                    border: `2px solid ${primary.main}`,
+                    border: `1px solid ${primary.main}`,
                 },
                 '&.Mui-error fieldset': {
                     // borderColor: 'error.main', // en cas d'erreur
@@ -95,7 +95,7 @@ export default function TextFieldPasswordComponent({
                     cursor: 'not-allowed',      // curseur sur le texte aussi
                 },
                 '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
-                    color: 'red',
+                    //color: 'red',
                 },
             },
         }}
@@ -111,7 +111,7 @@ export default function TextFieldPasswordComponent({
                         color: 'error.main',
                     },
                     '&.Mui-disabled': {
-                        color: ClassColor.GREY_HYPER_LIGHT,
+                        color: 'var(--grey-light)',
                     },
                 }
             },
@@ -121,7 +121,7 @@ export default function TextFieldPasswordComponent({
                     background: cardColor.main,
                     //borderRadius:'20px',
                     fontSize: '14px',
-                    //maxHeight: maxHeight 
+                    maxHeight: maxHeight 
                 },
                 startAdornment:(
                     <InputAdornment position="start" sx={{ color: ClassColor.GREY_LIGHT }}>

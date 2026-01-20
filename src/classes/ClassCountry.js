@@ -18,6 +18,7 @@ export class ClassCountry {
             "flags": {
                 "svg": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_the_Taliban.svg/320px-Flag_of_the_Taliban.svg.png",
                 "png": IMAGE_AFGHANISTAN_FLAG,
+                "str": "🇦🇫"
             }
         },
         {
@@ -125,7 +126,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ao.svg",
-                "png": "https://flagcdn.com/w320/ao.png"
+                "png": "https://flagcdn.com/w320/ao.png",
+                "str":"🇦🇴"
             }
         },
         {
@@ -4622,7 +4624,7 @@ export class ClassCountry {
         })))
     }
     static extractCodeCountryFromPhoneNumber(phoneNumber = "") {
-        if(!phoneNumber)return "";
+        if (!phoneNumber) return "";
         const prefixes = this.getPrefixes();
         for (const item of prefixes) {
             const prefixe = item.prefixe;
@@ -4634,7 +4636,7 @@ export class ClassCountry {
         return "";
     }
     static extractPrefixeFromPhoneNumber(phoneNumber = "") {
-        if(!phoneNumber)return "";
+        if (!phoneNumber) return "";
         const prefixes = this.getPrefixes();
         for (const item of prefixes) {
             const prefixe = item.prefixe;

@@ -23,7 +23,8 @@ function SelectPrefixe({ codeCountry = "", setCodeCountry = null, setPrefixe = n
                 if (!_prefixes.includes(prefixe)) {
                     _prefixes.push({
                         code: country.code,
-                        prefixe: prefixe
+                        prefixe: prefixe,
+                        flag:country.flags.str || "",
                     });
                 }
             })
@@ -39,7 +40,7 @@ function SelectPrefixe({ codeCountry = "", setCodeCountry = null, setPrefixe = n
     };
     return (<SelectComponentDark
         value={codeCountry}
-        values={prefixes.map((item) => ({ id: item.code, value: `+${item.prefixe}` }))}
+        values={prefixes.map((item) => ({ id: item.code, value: `${item.flag} +${item.prefixe}` }))}
         disabled={disabled}
         onChange={handleChange}
         hasNull={false}
@@ -79,7 +80,7 @@ export default function TextFieldPhoneComponent({
     }, [codeCountry, phone, prefixe]);
     return (<Stack alignItems={'start'} sx={{ width: '100%' }}>
         <Stack alignItems={'center'} direction={'row'} sx={{ width: '100%' }} spacing={1}>
-            <Box sx={{ minWidth: '15%' }}>
+            <Box sx={{ minWidth: '20%' }}>
                 <SelectPrefixe disabled={disabled} codeCountry={codeCountry} setCodeCountry={setCodeCountry} setPrefixe={setPrefixe} />
             </Box>
             <TextFieldComponent

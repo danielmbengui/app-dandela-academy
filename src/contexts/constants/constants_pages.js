@@ -15,6 +15,8 @@ export const PAGE_DASHBOARD_PROFILE = "/profile";
 export const PAGE_LESSONS = "/lessons";
 export const PAGE_CHAPTERS = "/chapters";
 export const PAGE_STATS = "/stats";
+export const PAGE_TERMS_PRIVACY = "/terms/privacy";
+export const PAGE_TERMS_USAGE = "/terms/usage";
 
 export const PAGE_CONTACT = "/contact";
 

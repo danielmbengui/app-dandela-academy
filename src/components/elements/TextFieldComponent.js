@@ -21,7 +21,7 @@ export default function TextFieldComponent({
     fullWidth = false,
     onChange: onChangeValue = null,
     onClear = null,
-    maxHeight = '1.85rem',
+    maxHeight = '1.9rem',
     autoComplete = [],
     onSubmit = () => { },
     ...props

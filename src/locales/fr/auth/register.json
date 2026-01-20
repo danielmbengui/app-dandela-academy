@@ -21,6 +21,7 @@
     "btn-home": "Aller à la page de connexion",
     "success-message": "Un e-mail de réinitialisation du mot de passe a été envoyé à ton adresse e-mail.",
     "error-message": "Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.",
+    "terms":"En créant un compte, tu acceptes nos <a>conditions d’utilisation</a> et notre <a>politique de confidentialité</a>.",
     "errors": {
       "email-not-valid": "Veuillez entrer une adresse e-mail valide",
       "email-not-dandela-academy": "Veuillez entrer une adresse e-mail se terminant par : @dandela-academy.com",
