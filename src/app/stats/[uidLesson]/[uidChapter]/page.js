@@ -56,6 +56,7 @@ import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
 import StatsChapterListComponent from "@/components/stats/chapter/StatsChapterListComponent";
 import StatsChapterLineChart from "@/components/stats/chapter/StatsChapterLineChart";
 import StatsChapterBarChart from "@/components/stats/chapter/StatsChapterBarChart";
+import { user } from "@heroui/react";
 
 
 export default function ExcelBeginnerCoursePage() {
@@ -64,9 +65,9 @@ export default function ExcelBeginnerCoursePage() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   //console.log("uid", uidStat)
   // const { lang } = useLanguage();
-  //const { user } = useAuth();
+  const { user } = useAuth();
   const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-  const { getGlobalCountQuiz,stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+  const { setUidUser,getGlobalCountQuiz,stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
   const { chapters, chapter, setUidChapter } = useChapter();
   useEffect(() => {
     for (const c of chapters) {
@@ -74,9 +75,10 @@ export default function ExcelBeginnerCoursePage() {
     }
   }, [chapters]);
   useEffect(() => {
+    setUidUser(user?.uid || null);
     setUidLesson(uidLesson);
     setUidChapter(uidChapter);
-  }, [uidLesson, uidChapter]);
+  }, [user, uidLesson, uidChapter]);
 
   const filteredStats = useMemo(() => {
     const filtered = stats.filter(s => s.uid_lesson === uidLesson && s.uid_chapter===uidChapter);

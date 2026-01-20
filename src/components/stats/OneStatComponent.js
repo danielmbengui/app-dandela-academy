@@ -71,8 +71,8 @@ export default function OneStatComponent() {
     );
     const [filter, setFilter] = useState("all"); // all | correct | wrong
     const percent = attempt ? parseInt(attempt?.score / attempt.answers.length * 100) : 0;
-    const correctCount = attempt?.answers.filter((q) => q.uid_proposal === q.uid_answer).length || 0;
-    const wrongCount = attempt?.answers.filter((q) => q.uid_proposal !== q.uid_answer).length || 0;
+    const correctCount = attempt?.answers.filter((q) => q?.uid_proposal === q.uid_answer).length || 0;
+    const wrongCount = attempt?.answers.filter((q) => q?.uid_proposal !== q.uid_answer).length || 0;
     const hasMaxStat = correctCount === attempt?.answers.length;
     //const wrongCount = attempt.questions.filter((q) => !q.is_correct).length;
 
@@ -771,8 +771,8 @@ function QuestionCard({ stat = null, q, index, isCorrect = false }) {
                     </Typography>
                     <Grid container spacing={1}>
                         {q.translate?.proposals?.map((c) => {
-                            const isUser = c.uid_intern === q.answer.uid_proposal;
-                            const isRight = (isUser && c.uid_intern === q.answer.uid_answer) || stat?.status === ClassUserStat.STATUS.MAX;
+                            const isUser = c.uid_intern === q.answer?.uid_proposal;
+                            const isRight = (isUser && c.uid_intern === q.answer?.uid_answer) || stat?.status === ClassUserStat.STATUS.MAX;
                             //isRight || stat?.status === ClassUserStat.STATUS.MAX
                             return (
                                 <Grid size={{ xs: 12, sm: 'auto' }} key={c.uid_intern}>
