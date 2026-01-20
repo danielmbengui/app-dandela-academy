@@ -21,7 +21,7 @@
   "btn-home": "Go to login page",
   "success-message": "A password reset email has been sent to your email address.",
   "error-message": "An error occurred while resetting the password. Please try again.",
-  "terms":"By creating an account, you agree to our <a>terms of use</a> and our <a>privacy policy</a>.",
+  "terms":"By creating an account, you agree to our <a href='{{usage}}'>terms of use</a> and our <a href='{{privacy}}'>privacy policy</a>.",
   "errors": {
     "email-not-valid": "Please enter a valid email address",
     "email-not-dandela-academy": "Please enter an email ending with: @dandela-academy.com",

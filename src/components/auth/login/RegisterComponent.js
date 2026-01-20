@@ -4,7 +4,7 @@ import { IconEmail, IconGoogleColor } from "@/assets/icons/IconsComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
-import { PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_LOGIN, PAGE_REGISTER } from "@/contexts/constants/constants_pages";
+import { PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_LOGIN, PAGE_REGISTER, PAGE_TERMS_PRIVACY, PAGE_TERMS_USAGE } from "@/contexts/constants/constants_pages";
 import { ClassColor } from "@/classes/ClassColor";
 import { Trans, useTranslation } from "react-i18next";
 import { NS_LOGIN, NS_REGISTER } from "@/contexts/i18n/settings";
@@ -255,6 +255,10 @@ export default function RegisterComponent() {
                     <Trans
                     t={t}
                     i18nKey={'terms'}
+                    values={{
+                        usage: PAGE_TERMS_USAGE,
+                        privacy: PAGE_TERMS_PRIVACY
+                    }}
                     components={{
                         a:<a style={{color:'var(--primary)', cursor:'pointer'}} />
                     }}
