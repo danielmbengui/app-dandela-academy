@@ -20,7 +20,7 @@ const FooterComponent = () => {
   const now = new Date();
   const year = now.getFullYear() > WEBSITE_START_YEAR ? `${WEBSITE_START_YEAR}-${now.getFullYear()}` : WEBSITE_START_YEAR;
 
-  return (<Grid container spacing={1.5} sx={{background: '', width:'100%' }} justifyContent={'center'} alignItems={'center'}>
+  return (<Grid container spacing={1.5} sx={{background: '', width:'100%',py:{xs:5,sm:2.5} }} justifyContent={'center'} alignItems={'center'}>
     <Grid size={{ xs: 12, sm: 3 }}>
       <Stack sx={{ background: '' }} alignItems={{ xs: 'center', sm: 'start' }}>
         <div>
@@ -143,13 +143,13 @@ const OtherPageWrapper = ({ children }) => {
     backgroundSize: 'cover',        // l'image couvre tout l'écran
     backgroundPosition: 'center',   // centrée
     backgroundRepeat: 'no-repeat',  // pas de répétition
-    px:2,
+    px:{xs:0,sm:2},
     //py:3,
     //py:3,
     //background:'red'
   }}>
          <Stack alignItems={'center'} justifyContent={'center'} sx={{minHeight:'90vh'}}>
-           <Container maxWidth={'sm'} sx={{ width: '100%', bgcolor: '', pt:3 }} >
+           <Container maxWidth={'md'} sx={{ width: '100%', bgcolor: '', pt:3 }} >
         <Stack alignItems={'center'} spacing={2.5} sx={{width:'100%', color: ClassColor.WHITE }}>
           <Box sx={{ width: 'auto', height: '50px', background: '' }}>
             <IconLogo width={'100%'} height={'100%'} color={"var(--card-color)"} />

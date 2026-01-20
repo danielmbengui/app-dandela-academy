@@ -1,0 +1,104 @@
+{
+    "title-page": "Terms of Use - Dandela Academy",
+    "description-page": "The terms of use page of the Dandela Academy platform",
+    "title-terms": "Legal information",
+    "title-privacy": "Privacy Policy",
+    "title": "Terms of Use",
+    "subtitle": "Rules governing the use of the Dandela Academy platform",
+    "hero-description": "These terms of use define the rules for accessing and using the <b>Dandela Academy</b> platform. By using our services, you agree to these terms in full.",
+    "chapters": [
+      {
+        "title": "Purpose",
+        "subtitle": "Dandela Academy is a training platform offering courses, learning sessions, assessments, and certifications. These terms aim to define the conditions of use of these services.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Access to the platform",
+        "subtitle": "Access to certain features requires creating a user account. You agree to provide accurate information and keep your login credentials confidential.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "User accounts",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Management and security of user accounts:",
+            "content": [
+              "A user can only have one account",
+              "Account sharing is strictly prohibited",
+              "You are responsible for any activity performed from your account"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Roles and access",
+        "subtitle": "Certain pages or features are accessible only according to your role (student, teacher, administrator). Any unauthorized access attempt may result in account suspension or deletion.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Use of content",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Use of educational content on the platform:",
+            "content": [
+              "Educational content is for personal use only",
+              "Any reproduction or distribution without permission is prohibited",
+              "Materials remain the property of Dandela Academy or the instructors"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Course enrollment",
+        "subtitle": "Enrollment in a course or session is personal and non-transferable. Dandela Academy reserves the right to cancel a session in case of force majeure or insufficient participants.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Assessments and certifications",
+        "subtitle": "Grades, results, and certifications issued are strictly related to the user's actual performance. Any attempt at fraud will result in cancellation of the relevant results.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "User behavior",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Expected behavior on the platform:",
+            "content": [
+              "Respect instructors and other learners",
+              "Prohibition of offensive, discriminatory, or illegal comments",
+              "Fair use of the platform"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Suspension and termination",
+        "subtitle": "Dandela Academy reserves the right to suspend or delete an account for non-compliance with these terms, without notice or compensation.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Liability",
+        "subtitle": "Dandela Academy strives to ensure service availability and quality but cannot be held responsible for temporary interruptions or data loss beyond its control.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Changes to terms",
+        "subtitle": "These terms may be modified at any time. Users will be informed of significant changes. Continued use of the platform constitutes acceptance of the new terms.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Applicable law",
+        "subtitle": "These terms are governed by Swiss law. In case of dispute, the competent courts will be those at the Dandela Academy headquarters, unless otherwise legally required.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Contact",
+        "subtitle": "For any questions regarding the terms of use, you can contact us at: <a href=\"mailto:{{email}}?subject=Information request\">{{email}}</a>",
+        "subchapters": [{"title": "", "content": []}]
+      }
+    ]
+  }
+  

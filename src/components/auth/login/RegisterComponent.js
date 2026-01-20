@@ -251,7 +251,7 @@ export default function RegisterComponent() {
                 onClick={()=>signIn('google')}
                 sx={{minHeight:'30px', border:'0.1px solid var(--card-border)', borderRadius:'20px', textTransform:'none',color:'var(--font-color)'}}
                 startIcon={<IconGoogleColor height={20} />}>{"Google"}</Button>
-                <Typography variant="caption">
+                <Typography variant="caption" sx={{textAlign:'justify'}}>
                     <Trans
                     t={t}
                     i18nKey={'terms'}

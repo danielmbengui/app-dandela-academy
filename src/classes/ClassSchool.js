@@ -29,6 +29,8 @@ export class ClassSchool {
         name_normalized = "",
         photo_url = "",
         address = "",
+        emails=[],
+        phones=[],
         schedule = [
             { is_open: true, open_hour: 8, close_hour: 18 }, // lundi
             { is_open: true, open_hour: 8, close_hour: 18 },
@@ -46,6 +48,8 @@ export class ClassSchool {
         this._uid_intern = uid_intern;
         this._name = name;
         this._name_normalized = name_normalized;
+        this._emails=emails;
+        this._phones = phones;
         this._photo_url = photo_url;
         this._address = address;
         this._schedule = this._normalizeSchedule(schedule);
@@ -113,6 +117,13 @@ export class ClassSchool {
     get name_normalized() {
         return this._name_normalized;
     }
+    get emails() {
+        return this._emails;
+    }
+    get phones() {
+        return this._phones;
+    }
+
     get photo_url() {
         return this._photo_url;
     }
@@ -157,6 +168,15 @@ export class ClassSchool {
         this._name_normalized = value;
         this._touchLastEdit();
     }
+    set emails(value) {
+        this._emails = value;
+        this._touchLastEdit();
+    }
+    set phones(value) {
+        this._phones = value;
+        this._touchLastEdit();
+    }
+    
     set photo_url(value) {
         this._photo_url = value;
         this._touchLastEdit();

@@ -1,0 +1,104 @@
+{
+    "title-page": "Termos de Utilização - Dandela Academy",
+    "description-page": "A página de termos de utilização da plataforma Dandela Academy",
+    "title-terms": "Informações legais",
+    "title-privacy": "Política de Privacidade",
+    "title": "Termos de Utilização",
+    "subtitle": "Regras que regem o uso da plataforma Dandela Academy",
+    "hero-description": "Estes termos de utilização definem as regras de acesso e uso da plataforma <b>Dandela Academy</b>. Ao utilizar nossos serviços, você concorda com todos estes termos.",
+    "chapters": [
+      {
+        "title": "Objetivo",
+        "subtitle": "Dandela Academy é uma plataforma de formação que oferece cursos, sessões pedagógicas, avaliações e certificações. Estes termos têm como objetivo definir as condições de utilização destes serviços.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Acesso à plataforma",
+        "subtitle": "O acesso a certas funcionalidades requer a criação de uma conta de utilizador. Você compromete-se a fornecer informações corretas e a manter a confidencialidade das suas credenciais.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Contas de utilizador",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Gestão e segurança das contas de utilizador:",
+            "content": [
+              "Um utilizador só pode ter uma conta",
+              "Partilha de contas é estritamente proibida",
+              "Você é responsável por qualquer atividade realizada a partir da sua conta"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Funções e acesso",
+        "subtitle": "Certas páginas ou funcionalidades são acessíveis apenas de acordo com a sua função (aluno, professor, administrador). Qualquer tentativa de acesso não autorizado pode resultar na suspensão ou exclusão da conta.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Uso de conteúdos",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Uso dos conteúdos educativos da plataforma:",
+            "content": [
+              "Os conteúdos educativos destinam-se a uso pessoal",
+              "Qualquer reprodução ou distribuição sem autorização é proibida",
+              "Os materiais permanecem propriedade da Dandela Academy ou dos formadores"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Inscrição em cursos",
+        "subtitle": "A inscrição em um curso ou sessão é pessoal e intransferível. A Dandela Academy reserva-se o direito de cancelar uma sessão em caso de força maior ou número insuficiente de participantes.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Avaliações e certificações",
+        "subtitle": "Notas, resultados e certificações emitidas estão estritamente ligadas ao desempenho real do utilizador. Qualquer tentativa de fraude resultará na anulação dos resultados relevantes.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Comportamento dos utilizadores",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Comportamento esperado na plataforma:",
+            "content": [
+              "Respeitar os formadores e outros aprendentes",
+              "Proibição de comentários ofensivos, discriminatórios ou ilegais",
+              "Uso justo da plataforma"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Suspensão e rescisão",
+        "subtitle": "A Dandela Academy reserva-se o direito de suspender ou excluir uma conta em caso de não cumprimento destes termos, sem aviso prévio ou compensação.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Responsabilidade",
+        "subtitle": "A Dandela Academy esforça-se para garantir a disponibilidade e qualidade dos serviços, mas não pode ser responsabilizada por interrupções temporárias ou perda de dados fora do seu controlo.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Alterações aos termos",
+        "subtitle": "Estes termos podem ser modificados a qualquer momento. Os utilizadores serão informados sobre alterações importantes. O uso contínuo da plataforma constitui aceitação dos novos termos.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Legislação aplicável",
+        "subtitle": "Estes termos são regidos pela lei suíça. Em caso de litígio, os tribunais competentes serão os do escritório da Dandela Academy, salvo disposição legal em contrário.",
+        "subchapters": [{"title": "", "content": []}]
+      },
+      {
+        "title": "Contacto",
+        "subtitle": "Para qualquer questão relativa aos termos de utilização, pode contactar-nos através de: <a href=\"mailto:{{email}}?subject=Pedido de informação\">{{email}}</a>",
+        "subchapters": [{"title": "", "content": []}]
+      }
+    ]
+  }
+  

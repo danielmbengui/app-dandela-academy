@@ -1,0 +1,134 @@
+{
+    "title-page": "Privacy Policy - Dandela Academy",
+    "description-page": "The privacy policy page of the Dandela Academy platform",
+    "title-terms": "Legal information",
+    "title-usage": "Terms of use",
+    "title": "Privacy Policy",
+    "subtitle": "Protection and processing of your personal data",
+    "hero-description": "At <b>Dandela Academy</b>, protecting your personal data is a priority. This privacy policy explains what data we collect, how we use it, and what your rights are.",
+    "chapters": [
+      {
+        "title": "Data controller",
+        "subtitle": "The data controller is: <b>Dandela Academy</b>",
+        "subchapters": [
+          {
+            "title": "How to contact us:",
+            "content": [
+              "Email: <a href=\"mailto:{{email}}?subject=Information request\">{{email}}</a>",
+              "Phone: <a href=\"tel:{{phone}}\">{{phone}}</a>"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Collected data",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Categories of personal data collected:",
+            "content": [
+              "First and last name",
+              "Email address",
+              "Phone number",
+              "Postal address (if applicable)",
+              "Profile picture (optional)",
+              "Connection and platform usage data",
+              "Course, test, and certification results"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Purpose of processing",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Use of data as part of your learning journey:",
+            "content": [
+              "Creation and management of your user account",
+              "Access to courses and training sessions",
+              "Educational tracking and certification",
+              "Communication related to your training journey",
+              "Continuous improvement of the platform"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Legal basis",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "The processing of your data is based on:",
+            "content": [
+              "Your consent",
+              "Performance of a contract (access to training)",
+              "Compliance with legal obligations"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Data retention period",
+        "subtitle": "Your data is retained only for as long as necessary to fulfill the purposes for which it was collected, unless otherwise required by law.",
+        "subchapters": [],
+        "footer": ""
+      },
+      {
+        "title": "Data sharing",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Your data is <b>never sold</b>. It may only be shared with:",
+            "content": [
+              "Trainers and educational partners",
+              "Technical service providers (hosting, cloud tools)",
+              "Legal authorities if required by law"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Data security",
+        "subtitle": "Dandela Academy implements technical and organizational measures to protect your data against loss, unauthorized access, or disclosure.",
+        "subchapters": [],
+        "footer": ""
+      },
+      {
+        "title": "Your rights",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Your rights as a platform user:",
+            "content": [
+              "Right of access to your data",
+              "Right to rectification",
+              "Right to erasure",
+              "Right to restriction of processing",
+              "Right to object",
+              "Right to data portability"
+            ]
+          }
+        ],
+        "footer": "To exercise your rights, you can contact us at: <a href=\"mailto:{{email}}?subject=Information request\">{{email}}</a>"
+      },
+      {
+        "title": "Cookies",
+        "subtitle": "The platform may use cookies necessary for its proper functioning and to improve the user experience. You can manage your preferences via your browser.",
+        "subchapters": [],
+        "footer": ""
+      },
+      {
+        "title": "Changes",
+        "subtitle": "This privacy policy may be updated at any time. The current version is the one published on this page.",
+        "subchapters": [],
+        "footer": ""
+      }
+    ]
+  }
+  

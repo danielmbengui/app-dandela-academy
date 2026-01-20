@@ -1,0 +1,134 @@
+{
+    "title-page": "Politique de confidentialité - Dandela Academy",
+    "description-page": "La page de politique de confidentialité de la plateforme Dandela Academy",
+    "title-terms": "Informations légales",
+    "title-usage": "Conditions d’utilisation",
+    "title": "Politique de confidentialité",
+    "subtitle": "Protection et traitement de vos données personnelles",
+    "hero-description": "Chez <b>Dandela Academy</b>, la protection de vos données personnelles est une priorité. Cette politique de confidentialité explique quelles données nous collectons, comment nous les utilisons et quels sont vos droits.",
+    "chapters": [
+      {
+        "title": "Responsable du traitement",
+        "subtitle": "Le responsable du traitement des données est : <b>Dandela Academy</b>",
+        "subchapters": [
+          {
+            "title": "Pour nous contacter :",
+            "content": [
+              "E-mail : <a href=\"mailto:{{email}}?subject=Demande d'information\">{{email}}</a>",
+              "Téléphone : <a href=\"tel:{{phone}}\">{{phone}}</a>"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Données collectées",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Catégories de données personnelles collectées :",
+            "content": [
+              "Nom et prénom",
+              "Adresse e-mail",
+              "Numéro de téléphone",
+              "Adresse postale (le cas échéant)",
+              "Photo de profil (facultative)",
+              "Données de connexion et d’utilisation de la plateforme",
+              "Résultats des cours, tests et certifications"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Finalité du traitement",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Utilisation des données dans le cadre de votre parcours de formation :",
+            "content": [
+              "Création et gestion de votre compte utilisateur",
+              "Accès aux cours et aux sessions de formation",
+              "Suivi pédagogique et certification",
+              "Communication liée à votre parcours de formation",
+              "Amélioration continue de la plateforme"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Base légale",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Le traitement de vos données repose sur :",
+            "content": [
+              "Votre consentement",
+              "L’exécution d’un contrat (accès aux formations)",
+              "Le respect d’obligations légales"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Durée de conservation",
+        "subtitle": "Vos données sont conservées uniquement le temps nécessaire à la réalisation des finalités pour lesquelles elles ont été collectées, sauf obligation légale contraire.",
+        "subchapters": [],
+        "footer": ""
+      },
+      {
+        "title": "Partage des données",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Vos données ne sont <b>jamais vendues</b>. Elles peuvent être partagées uniquement avec :",
+            "content": [
+              "Les formateurs et intervenants pédagogiques",
+              "Les prestataires techniques (hébergement, outils cloud)",
+              "Les autorités légales si la loi l’exige"
+            ]
+          }
+        ],
+        "footer": ""
+      },
+      {
+        "title": "Sécurité des données",
+        "subtitle": "Dandela Academy met en œuvre des mesures techniques et organisationnelles afin de protéger vos données contre toute perte, accès non autorisé ou divulgation.",
+        "subchapters": [],
+        "footer": ""
+      },
+      {
+        "title": "Vos droits",
+        "subtitle": "",
+        "subchapters": [
+          {
+            "title": "Vos droits en tant qu’utilisateur de la plateforme :",
+            "content": [
+              "Droit d’accès à vos données",
+              "Droit de rectification",
+              "Droit à l’effacement",
+              "Droit à la limitation du traitement",
+              "Droit d’opposition",
+              "Droit à la portabilité"
+            ]
+          }
+        ],
+        "footer": "Pour exercer vos droits, vous pouvez nous contacter à : <a href=\"mailto:{{email}}?subject=Demande d'information\">{{email}}</a>"
+      },
+      {
+        "title": "Cookies",
+        "subtitle": "La plateforme peut utiliser des cookies nécessaires à son bon fonctionnement et à l’amélioration de l’expérience utilisateur. Vous pouvez gérer vos préférences via votre navigateur.",
+        "subchapters": [],
+        "footer": ""
+      },
+      {
+        "title": "Modifications",
+        "subtitle": "Cette politique de confidentialité peut être modifiée à tout moment. La version en vigueur est celle publiée sur cette page.",
+        "subchapters": [],
+        "footer": ""
+      }
+    ]
+  }
+  

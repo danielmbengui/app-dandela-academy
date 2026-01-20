@@ -29,35 +29,35 @@ export default function NotAuthorizedComponent() {
     }
     return (<Stack spacing={3} sx={{ color: "var(--font-color)", width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
         <Stack spacing={3} alignItems="center">
-            <Stack spacing={2} alignItems={'center'} sx={{textAlign:'center'}}>
-                 <Stack spacing={1} alignItems={'center'}>
-                <LockIcon sx={{ fontSize: 48 }} color="error" />
-                <Typography variant="h4" fontWeight={600}>
-                    {t('title')}
-                </Typography>
-                                     <Trans
-                     t={t}
-i18nKey={'subtitle'}
-values={{ email: user?.email}}
-components={{ 
-    span: <Typography variant="body2" color="text.secondary" />, 
-    b: <strong /> 
-}}
+            <Stack spacing={2} alignItems={'center'} sx={{ textAlign: 'center' }}>
+                <Stack spacing={1} alignItems={'center'}>
+                    <LockIcon sx={{ fontSize: 48 }} color="error" />
+                    <Typography variant="h4" fontWeight={600}>
+                        {t('title')}
+                    </Typography>
+                    <Trans
+                        t={t}
+                        i18nKey={'subtitle'}
+                        values={{ email: user?.email }}
+                        components={{
+                            span: <Typography variant="body2" color="text.secondary" />,
+                            b: <strong />
+                        }}
                     />
-            </Stack>
+                </Stack>
             </Stack>
 
             {(
-                <Stack spacing={1} alignItems="center" sx={{textAlign:'center'}}>
+                <Stack spacing={1} alignItems="center" sx={{ textAlign: 'center' }}>
                     <Typography variant="body2">
                         {t('role')}
                     </Typography>
                     <Chip
-                        label={t(user?.role, {ns:NS_ROLES})}
+                        label={t(user?.role, { ns: NS_ROLES })}
                         variant="outlined"
                         size="small"
                     />
-                    
+
                     <Typography variant="caption" color="text.secondary">
                         {t('error')}
                     </Typography>
@@ -66,12 +66,12 @@ components={{
 
             <Stack direction="row" spacing={2} alignItems={'center'} sx={{ mt: 1, }}>
                 <Link href={PAGE_DASHBOARD_HOME}>
-                <ButtonCancel
-                    //onClick={handleLogout}
-                    label={t('btn-back')}
-                    //variant="outlined"
-                    fullWidth
-                />
+                    <ButtonCancel
+                        //onClick={handleLogout}
+                        label={t('btn-back')}
+                        //variant="outlined"
+                        fullWidth
+                    />
                 </Link>
             </Stack>
         </Stack>
