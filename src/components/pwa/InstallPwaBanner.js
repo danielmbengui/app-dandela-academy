@@ -42,18 +42,18 @@ export default function InstallPwaBanner({skipAction=()=>{}}) {
                   <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                     <IconLogoImage /><h1 style={{ fontWeight: 500 }}>{`Dandela Academy App`}</h1>
                   </Stack>
-                  <p>Installe l'application pour une meilleure expérience utilisateur.</p>
+                  <p>{`Installe l'application pour une meilleure expérience utilisateur.`}</p>
                   <Typography style={{ color: 'var(--grey-light)' }}>{`⚡ Plus rapide 🔔 Notifications 📱 Expérience mobile native`}</Typography>
                   <Stack sx={{width:'100%',py:3}} spacing={1}>
                     <Stack spacing={1}>
                     <Typography fontWeight={500}>{`Étapes d’installation :`}</Typography>
                     <ol>
-                    <li>Appuyez sur l’icône <b>Partager</b> (⬆️)</li>
-                    <li>Sélectionnez <b>"Ajouter à l’écran d’accueil"</b></li>
+                    <li>{`Appuyez sur l’icône`} <b>Partager</b> (⬆️)</li>
+                    <li>Sélectionnez <b>{`"Ajouter à l’écran d’accueil"`}</b></li>
                     <li>Confirmez en appuyant sur <b>Ajouter</b></li>
                     </ol>
                     </Stack>
-                    <p>👉 L’application apparaîtra comme une app native sur votre écran d’accueil.</p>
+                    <p>{`👉 L’application apparaîtra comme une app native sur votre écran d’accueil.`}</p>
                   </Stack>
                   <Stack direction={'row'} spacing={1} alignItems={'center'}>
                     <ButtonCancel onClick={skipAction} label="Plus tard" />
@@ -65,18 +65,18 @@ export default function InstallPwaBanner({skipAction=()=>{}}) {
                   <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                     <IconLogoImage /><h1 style={{ fontWeight: 500 }}>{`Dandela Academy App`}</h1>
                   </Stack>
-                  <p>Installe l'application pour une meilleure expérience utilisateur.</p>
+                  <p>{`Installe l'application pour une meilleure expérience utilisateur.`}</p>
                   <Typography style={{ color: 'var(--grey-light)' }}>{`⚡ Plus rapide 🔔 Notifications 📱 Expérience mobile native`}</Typography>
                   <Stack sx={{width:'100%',py:3}} spacing={1}>
                     <Stack spacing={1}>
                     <Typography fontWeight={500}>{`Étapes d’installation :`}</Typography>
                     <ol>
                       <li>Dans la barre de menu, cliquez sur <b>Fichier</b> (📁)</li>
-                      <li>Sélectionnez <b>"Ajouter au Dock"</b></li>
-                      <li>Confirmez l’ajout</li>
+                      <li>Sélectionnez <b>{`"Ajouter au Dock"`}</b></li>
+                      <li>{`Confirmez l’ajout`}</li>
                     </ol>
                     </Stack>
-                    <p>👉 L’application s’ouvrira ensuite dans une fenêtre dédiée.</p>
+                    <p>{`👉 L’application s’ouvrira ensuite dans une fenêtre dédiée.`}</p>
                   </Stack>
                   <Stack direction={'row'} spacing={1} alignItems={'center'}>
                     <ButtonCancel onClick={skipAction} label="Plus tard" />
@@ -90,7 +90,7 @@ export default function InstallPwaBanner({skipAction=()=>{}}) {
               <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                 <IconLogoImage /><h1 style={{ fontWeight: 500 }}>{`Dandela Academy App`}</h1>
               </Stack>
-              <p>Installe l'application pour une meilleure expérience utilisateur.</p>
+              <p>{`Installe l'application pour une meilleure expérience utilisateur.`}</p>
               <Typography style={{ color: 'var(--grey-light)' }}>{`⚡ Plus rapide 🔔 Notifications 📱 Expérience mobile native`}</Typography>
               <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ pt: 2.5 }}>
                 <ButtonCancel label="Plus tard" onClick={skipAction} />
@@ -100,14 +100,6 @@ export default function InstallPwaBanner({skipAction=()=>{}}) {
           }
         </>
       }
-
-
-
-
-
-
-
-
 
       <button onClick={promptInstall}>
         Installer l’application
