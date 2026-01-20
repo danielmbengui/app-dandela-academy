@@ -21,6 +21,8 @@
   "score": "Pontuação",
   "date": "Data",
   "attempts": "Tentativas",
+  "no-stats-title":"Ainda não preencheu nenhum questionário.",
+  "no-stats-subtitle":"Após completar um ou mais questionários, poderá ver aqui os seus resultados.",
   "no-result": "Nenhum resultado por enquanto.",
   "status": "Estado",
   "max": "Máx",

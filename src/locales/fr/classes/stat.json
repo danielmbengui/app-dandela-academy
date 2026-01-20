@@ -21,6 +21,8 @@
   "score": "Score",
   "date": "Date",
   "attempts": "tentatives",
+  "no-stats-title": "Tu n'as terminé aucun questionnaire pour le moment.",
+  "no-stats-subtitle": "Lorsque tu auras terminé un ou plusieurs questionnaires, tu pourras voir tes résultats ici.",
   "no-result": "Aucun résultat pour l’instant.",
   "status": "Statut",
   "max": "Max",

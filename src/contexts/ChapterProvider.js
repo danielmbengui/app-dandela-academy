@@ -51,21 +51,13 @@ export function ChapterProvider({ children, uidLesson = "" }) {
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
         if (user) {
-            /*
-            async function init() {
-                const _chapters = await ClassLessonChapter.fetchListFromFirestore(lang);
-                setChapters(_chapters);
-                //console.log("LISTEN chapters init", _chapters)
-            }
-            init();
-            */
             const listener = listenToChapters(uidLesson);
             return () => listener?.();
         }
     }, [user, uidLesson]);
 
     useEffect(() => {
-        if (uidChapter) {
+        if (user && uidLesson && uidChapter) {
             const _chapter = getOneChapter(uidChapter);
             setChapter(_chapter);
             const listener = listenToOneChapter(uidLesson, uidChapter);
@@ -73,7 +65,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         } else {
             setChapter(null);
         }
-    }, [uidLesson, uidChapter]);
+    }, [user, uidLesson, uidChapter]);
 
     // écoute du doc utilisateur
     const listenToChapters = useCallback((uidLesson = "") => {

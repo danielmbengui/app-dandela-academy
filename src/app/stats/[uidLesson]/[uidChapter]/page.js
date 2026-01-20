@@ -59,7 +59,7 @@ import StatsChapterBarChart from "@/components/stats/chapter/StatsChapterBarChar
 import { user } from "@heroui/react";
 
 
-export default function ExcelBeginnerCoursePage() {
+export default function OneStatChapterPage() {
   const router = useRouter();
   const { uidLesson, uidChapter } = useParams();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
@@ -119,7 +119,12 @@ export default function ExcelBeginnerCoursePage() {
           <Grid size={12}>
             <CardHeader />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          {
+            stats.length === 0 && <NoStatComponent />
+          }
+          {
+            stats.length>0 && <>
+            <Grid size={{ xs: 12, sm: 4 }}>
             <KpiCard
               icon={<InsightsIcon />}
               title={t('global-rating')}
@@ -161,12 +166,21 @@ export default function ExcelBeginnerCoursePage() {
               compareAverageComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
             />
           </Grid>
+            </>
+          }
         </Grid>
       }
     </Container>
   </DashboardPageWrapper>);
 }
-
+function NoStatComponent() {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  return(<Grid size={12} sx={{py:1}}>
+    <Stack maxWidth={'sm'}>
+    <AlertComponent title={t('no-stats-title')} subtitle={t('no-stats-subtitle')} severity="info" />
+  </Stack>
+  </Grid>)
+}
 function AvatarIcon({ children, sx }) {
   return (
     <Box
@@ -213,27 +227,29 @@ const CardHeader = () => {
             </Link>
           </Stack>
 
-          <Stack spacing={1} alignItems={'start'} sx={{
-            background: 'var(--primary-shadow)',
-            borderRadius: '10px',
-            my: 1.5,
-            py: 1.5,
-            px: 1,
-          }}>
-            <Typography variant="body1" sx={{ color: "var(--primary-dark)" }}>
-              {t('chapters')}
-            </Typography>
-            <SelectComponentDark
-              value={chapter?.uid || ''}
-              values={chapters.map(c => ({ id: c.uid, value: c.translate?.title }))}
-              onChange={(e) => {
-                const { value: uidChapter } = e.target;
-                //setUidChapter(uidChapter);
-                router.push(`${PAGE_STATS}/${lesson?.uid}/${uidChapter}`);
-              }}
-              hasNull={false}
-            />
-          </Stack>
+          {
+            stats.length > 0 && <Stack spacing={1} alignItems={'start'} sx={{
+              background: 'var(--primary-shadow)',
+              borderRadius: '10px',
+              my: 1.5,
+              py: 1.5,
+              px: 1,
+            }}>
+              <Typography variant="body1" sx={{ color: "var(--primary-dark)" }}>
+                {t('chapters')}
+              </Typography>
+              <SelectComponentDark
+                value={chapter?.uid || ''}
+                values={chapters.map(c => ({ id: c.uid, value: c.translate?.title }))}
+                onChange={(e) => {
+                  const { value: uidChapter } = e.target;
+                  //setUidChapter(uidChapter);
+                  router.push(`${PAGE_STATS}/${lesson?.uid}/${uidChapter}`);
+                }}
+                hasNull={false}
+              />
+            </Stack>
+          }
         </Box>
       </Grid>
     </Grid>

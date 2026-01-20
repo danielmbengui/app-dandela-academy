@@ -35,6 +35,8 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import FirstConnexionComponent from '../auth/FirstConnexionComponent';
 import { ClassUser } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
+import InstallPwaBanner from '../pwa/InstallPwaBanner';
+import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
 
 const drawerWidth = 240;
 
@@ -90,7 +92,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     const { theme } = useThemeMode();
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, logout } = useAuth();
-    const [accordionMenu, setAccordionMenu] = useState('');
+    const [showPwaComponent, setShowPwaComponent] = useState(true);
     const router = useRouter();
     const path = usePathname();
     const handleDrawerClose = () => {
@@ -216,6 +218,10 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         }
                     </List>
                 </Stack>
+                <ButtonConfirm label='install app' onClick={() => {
+                    console.log("INSTALL PWA", showPwaComponent);
+                    setShowPwaComponent(true);
+                }} />
                 <Button
                     variant='contained'
                     //sx={{ color: backgroundMenu.main }}
@@ -460,6 +466,15 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         <CompleteProfileComponent />
                     </Stack>
                 </Backdrop>
+            }
+            {
+              showPwaComponent && <Backdrop
+               sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
+               open={showPwaComponent}>
+               <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%' }}>
+                   <InstallPwaBanner skipAction={()=>setShowPwaComponent(false)} />
+               </Stack>
+           </Backdrop> 
             }
         </Box>
     );

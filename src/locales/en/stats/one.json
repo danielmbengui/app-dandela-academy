@@ -3,5 +3,9 @@
   "description-page": "The student's results page",
   "title": "Test details",
   "subtitle": "",
-  "quiz": "Quiz"
+  "quiz": "Quiz",
+  "not-authorized-title": "Access denied",
+  "not-authorized-subtitle": "<span>You are logged in to Dandela Academy with your account <b>{{email}}</b>, but you are not allowed to access other students' results.</span>",
+  "not-authorized-error": "If you believe this is an error, please contact a platform administrator.",
+  "not-authorized-btn-back": "Back to results"
 }

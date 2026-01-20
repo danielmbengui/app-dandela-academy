@@ -109,25 +109,27 @@ const CardHeader = () => {
             </Link>
           </Stack>
 
-          <Stack spacing={1} alignItems={'start'} sx={{
-            background: 'var(--primary-shadow)',
-            borderRadius: '10px',
-            my: 1.5,
-            py: 1.5,
-            px: 1,
-          }}>
-            <Typography variant="body1" sx={{ color: "var(--primary-shadow-xl)" }}>
-              {t('lessons')}
-            </Typography>
-            <SelectComponentDark
-              value={lesson?.uid || ''}
-              values={lessons.map(c => ({ id: c.uid, value: c.translate?.title }))}
-              onChange={(e) => {
-                setUidLesson(e.target.value);
-              }}
-              hasNull={false}
-            />
-          </Stack>
+          {
+            stats.length>0 && <Stack spacing={1} alignItems={'start'} sx={{
+              background: 'var(--primary-shadow)',
+              borderRadius: '10px',
+              my: 1.5,
+              py: 1.5,
+              px: 1,
+            }}>
+              <Typography variant="body1" sx={{ color: "var(--primary-shadow-xl)" }}>
+                {t('lessons')}
+              </Typography>
+              <SelectComponentDark
+                value={lesson?.uid || ''}
+                values={lessons.map(c => ({ id: c.uid, value: c.translate?.title }))}
+                onChange={(e) => {
+                  setUidLesson(e.target.value);
+                }}
+                hasNull={false}
+              />
+            </Stack>
+          }
         </Box>
       </Grid>
     </Grid>
@@ -363,6 +365,14 @@ function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
     </Paper>
   );
 }
+function NoStatComponent() {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  return(<Grid size={12} sx={{py:1}}>
+    <Stack maxWidth={'sm'}>
+    <AlertComponent title={t('no-stats-title')} subtitle={t('no-stats-subtitle')} severity="info" />
+  </Stack>
+  </Grid>)
+}
 export default function ExcelBeginnerCoursePage() {
   const { uidLesson } = useParams();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
@@ -410,7 +420,12 @@ export default function ExcelBeginnerCoursePage() {
           <Grid size={12}>
             <CardHeader />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          {
+            stats.length === 0 && <NoStatComponent />
+          }
+          {
+            stats.length>0 && <>
+            <Grid size={{ xs: 12, sm: 4 }}>
             <KpiCard
               icon={<InsightsIcon />}
               title={t('global-rating')}
@@ -450,7 +465,8 @@ export default function ExcelBeginnerCoursePage() {
               compareAverageComponent={<StatsLessonBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
             />
           </Grid>
-
+            </>
+          }
         </Grid>
       }
     </Container>

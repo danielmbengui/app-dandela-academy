@@ -41,7 +41,7 @@ import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { translateWithVars } from '@/contexts/functions';
 import { auth, firestore, database } from '@/contexts/firebase/config';
-import { PAGE_DASHBOARD_HOME, PAGE_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
+import { PAGE_DASHBOARD_HOME, PAGE_HOME, PAGE_LOGIN, PAGE_REGISTER } from '@/contexts/constants/constants_pages';
 //import { usePageActivity } from './hooks/usePageActivity';
 
 // import { ClassUser } from '@/classes/ClassUser';
@@ -103,7 +103,7 @@ export function AuthProvider({ children }) {
     const router = useRouter();
     const { lang } = useLanguage();
     const { t } = useTranslation([NS_ERRORS]);
-    const { pathname } = usePathname();
+    const path = usePathname();
     const [userAuth, setUserAuth] = useState(null);           // ton user métier (ou snapshot)
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
@@ -320,10 +320,10 @@ export function AuthProvider({ children }) {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
             const { uid, email, emailVerified, phoneNumber, photoURL } = user;
-            
+
             setIsLoading(true);
             var student = await ClassUserStudent.fetchFromFirestore(uid);
-            if(!student) {
+            if (!student) {
                 student = new ClassUserStudent({
                     uid: uid,
                     email: email,
@@ -334,7 +334,7 @@ export function AuthProvider({ children }) {
                     photo_url: photoURL || "",
                 });
             } else {
-                if(student.status !== ClassUser.STATUS.FIRST_CONNEXION && student.status !== ClassUser.STATUS.MUST_COMPLETE_PROFILE) {
+                if (student.status !== ClassUser.STATUS.FIRST_CONNEXION && student.status !== ClassUser.STATUS.MUST_COMPLETE_PROFILE) {
                     student.update({
                         status: ClassUser.STATUS.ONLINE,
                     });
@@ -343,7 +343,10 @@ export function AuthProvider({ children }) {
             await student.createFirestore();
             setProvider(providerName);
             setIsLoading(false);
-            router.replace(PAGE_DASHBOARD_HOME);
+            if (path?.includes(PAGE_LOGIN) || path?.includes(PAGE_REGISTER)) {
+                router.replace(PAGE_DASHBOARD_HOME);
+                return;
+            }
         } catch (error) {
             console.error('❌ Auth error', error);
             if (error.code === 'auth/account-exists-with-different-credential') {
@@ -374,6 +377,10 @@ export function AuthProvider({ children }) {
             const _user = await ClassUser.fetchFromFirestore(uid);
             setUser(_user);
             setIsLoading(false);
+            if (path?.includes(PAGE_LOGIN) || path?.includes(PAGE_REGISTER)) {
+                router.replace(PAGE_DASHBOARD_HOME);
+                return;
+            }
             //setIsErrorSignIn(false);
             //setTextErrorSignIn(``);
             return ({
@@ -421,8 +428,8 @@ export function AuthProvider({ children }) {
         setIsErrorSignIn(false);
         setTextErrorSignIn(``);
         setIsLoading(false);
+        //router.replace(PAGE_LOGIN);
         await signOut(auth);
-        router.replace(PAGE_LOGIN);
     };
     const editEmail = async (e, newEmail) => {
         e?.preventDefault?.();
@@ -466,7 +473,7 @@ export function AuthProvider({ children }) {
         now.setMinutes(now.getMinutes() + (20 * 60));        // +20 min
         const actionCodeSettings = {
             // ✅ où l’utilisateur sera renvoyé après avoir cliqué sur le lien
-            url: `${window.location.origin}/auth?returnTo=${encodeURIComponent(`${window.location.pathname}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified
+            url: `${window.location.origin}/auth?returnTo=${encodeURIComponent(`${window.location.path}`)}&expiration=${now.toString()}`, // ex: https://tonsite.com/auth/verified
             // optionnel: true si tu veux gérer le lien dans l'app (mobile / custom flow)
             handleCodeInApp: false,
         };

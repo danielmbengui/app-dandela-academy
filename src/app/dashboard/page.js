@@ -152,34 +152,6 @@ const mockTeachers = [
   { id: 2, name: "João Pereira", specialty: "IA / Automatisation", courses: 3 },
   { id: 3, name: "Marie Dupont", specialty: "Bureautique avancée", courses: 2 },
 ];
-/*
-const mockMessages = [
-  {
-    id: 1,
-    from: "Ana Silva",
-    role: "Professeure",
-    time: "Il y a 2 h",
-    preview: "N’oublie pas de terminer l’exercice 3 avant la prochaine session...",
-    unread: true,
-  },
-  {
-    id: 2,
-    from: "Support Dandela Academy",
-    role: "Support",
-    time: "Hier",
-    preview: "Ton certificat pour le cours Excel – Débutant est disponible au téléchargement.",
-    unread: false,
-  },
-  {
-    id: 3,
-    from: "João Pereira",
-    role: "Professeur",
-    time: "Il y a 3 jours",
-    preview: "Bravo pour ta progression, tu es dans le top 10% de ta classe !",
-    unread: false,
-  },
-];
-*/
 const mockCertificates = [
   {
     id: 1,
@@ -2835,7 +2807,10 @@ export default function DashboardHomePage() {
   const [processing, setProcessing] = useState(false);
   const { lessons, isLoading:isLoadingLessons } = useLesson();
   const { chapters, isLoading:isLoadingChapters } = useChapter();
-  const { stats, getGlobalPercent, getGlobalDuration, getGlobalCountChapters, isLoading:isLoadingStats } = useStat();
+  const { setUidUser, stats, getGlobalPercent, getGlobalDuration, getGlobalCountChapters, isLoading:isLoadingStats } = useStat();
+  useEffect(()=>{
+setUidUser(user?.uid);
+  }, [user]);
   const countLessons = useMemo(()=>{
     return lessons.length;
   }, [lessons]);

@@ -565,9 +565,10 @@ export class ClassLessonChapter {
         //if(!uidLesson)return;
         //const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
-        //console.log("REEEF", ref)
+        if(qSnap.size === 0) return [];
+        console.log("REEEF", qSnap.size)
 
-        return qSnap.docs.map(docSnap => {
+        const chapters = qSnap.docs.map(docSnap => {
             const chapter = docSnap.data();
             const translate = chapter.translates?.find(item => item.lang === lang);
             chapter.translate = translate;
@@ -584,7 +585,7 @@ export class ClassLessonChapter {
             return chapter;
         });
 
-        //return [];
+        return chapters || [];
     }
     // Créer un user (avec option timestamps serveur)
     createRoomName(idRoom = '', isNormalized = false) {

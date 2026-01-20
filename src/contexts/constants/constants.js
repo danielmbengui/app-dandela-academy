@@ -1,5 +1,5 @@
 export const SCHOOL_NAME = "Dandela Academy";
-export const WEBSITE_NAME = "App Dandela Academy";
+export const WEBSITE_NAME = "Dandela Academy";
 export const WEBSITE_LOCATION = "Zango III, Luanda, Angola";
 export const WEBSITE_SCHEDULE = "Segundas - sábados 8h - 18h";
 export const WEBSITE_PHONE_NUMBER = "+244 974 502 709";

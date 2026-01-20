@@ -43,6 +43,7 @@
     "libphonenumber-js": "^1.12.12",
     "negotiator": "^1.0.0",
     "next": "15.4.9",
+    "next-pwa": "^5.6.0",
     "node": "22",
     "nodemailer": "^7.0.6",
     "openai": "^6.15.0",

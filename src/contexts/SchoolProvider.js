@@ -5,11 +5,13 @@ import {
     onSnapshot,
 } from 'firebase/firestore';
 import { ClassSchool } from '@/classes/ClassSchool';
+import { useAuth } from './AuthProvider';
 
 const SchoolContext = createContext(null);
 export const useSchool = () => useContext(SchoolContext);
 
 export function SchoolProvider({ children }) {
+    const {user}=useAuth();
     const [school, setSchool] = useState(null);           // ton user métier (ou snapshot)
     const [schools, setSchools] = useState([]);           // ton user métier (ou snapshot)
     const [isLoading, setIsLoading] = useState(true);
@@ -46,10 +48,12 @@ export function SchoolProvider({ children }) {
 
     // session
     useEffect(() => {
-        const listener = listenToShools();
+        if(user) {
+            const listener = listenToShools();
         //console.log("FFFF init user", fbUser);
         return () => listener?.();
-    }, []);
+        }
+    }, [user]);
 
     const value = {
         schools,

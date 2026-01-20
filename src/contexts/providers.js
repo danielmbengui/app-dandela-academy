@@ -2,6 +2,7 @@
 'use client';
 import { AuthProvider } from "./AuthProvider";
 import { LangProvider } from "./LangProvider";
+import PwaProvider from "./PwaProvider";
 import { SchoolProvider } from "./SchoolProvider";
 import { ThemeProvider } from "./ThemeProvider";
 import { UserDeviceProvider } from "./UserDeviceProvider";
@@ -13,6 +14,7 @@ import { UserDeviceProvider } from "./UserDeviceProvider";
 export default function Providers({ children }) {
     return (<ThemeProvider>
         <UserDeviceProvider>
+        <PwaProvider>
         <LangProvider>
            <AuthProvider>
            <SchoolProvider>
@@ -20,6 +22,7 @@ export default function Providers({ children }) {
            </SchoolProvider>
            </AuthProvider>
         </LangProvider>
+        </PwaProvider>
         </UserDeviceProvider>
     </ThemeProvider>);
 }

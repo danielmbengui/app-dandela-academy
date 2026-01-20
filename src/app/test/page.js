@@ -1,5 +1,6 @@
 "use client";
 
+import InstallPwaBanner from "@/components/pwa/InstallPwaBanner";
 import { useState } from "react";
 
 const SLIDES = [
@@ -51,7 +52,8 @@ export default function OnboardingCarousel({ onFinish }) {
 
   return (
     <div className="overlay">
-      <div className="carousel">
+      <InstallPwaBanner />
+      <div className="carousel" style={{display:'none'}}>
         {/* Skip */}
         <button className="skip-btn" onClick={skip}>
           Passer

@@ -21,6 +21,7 @@ import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
 import { ClassLesson } from '@/classes/ClassLesson';
 import { ClassSession } from '@/classes/ClassSession';
+import { useAuth } from './AuthProvider';
 
 // import { ClassUser } from '@/classes/ClassUser';
 
@@ -29,7 +30,7 @@ export const useTeachers = () => useContext(TeachersContext);
 
 export function TeachersProvider({ children }) {
     const router = useRouter();
-    const { lang } = useLanguage();
+    const { user } = useAuth();
     const { t } = useTranslation([NS_ERRORS])
 
     const [uidTeacher, setUidTeacher] = useState('');           // ton user métier (ou snapshot)
@@ -43,10 +44,18 @@ export function TeachersProvider({ children }) {
     const [provider, setProvider] = useState('');
 
     useEffect(() => {
-        const listener = listenToTeachers();
+        if(user) {
+            const listener = listenToTeachers();
         //console.log("uid school", uidSchool);
         return () => listener?.();
-    }, []);
+        }
+    }, [user]);
+    useEffect(() => {
+        if(user && uidTeacher) {
+            const unsubUser = listenToTeacher(uidTeacher);
+        return () => unsubUser?.();
+        }
+    }, [user, uidTeacher]);
     // écoute du doc utilisateur
     const listenToTeachers = useCallback(() => {
         const colRef = ClassUserTeacher.colRef(); // par ex.
@@ -127,10 +136,7 @@ export function TeachersProvider({ children }) {
         });
         return unsubscribe;
     }, []);
-    useEffect(() => {
-        const unsubUser = listenToTeacher(uidTeacher);
-        return () => unsubUser?.();
-    }, [uidTeacher]);
+    
 
     function getOneTeacher(uid = '') {
         if (!uid || uid === '' || uid === null) {

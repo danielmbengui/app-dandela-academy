@@ -38,6 +38,14 @@ export const generateMetadata = generatePageMetadata({
   // images: ["https://.../og-inscription.jpg"],
   // overrides: { openGraph: { type: "article" } },
 });
+/*
+export const metadata = {
+  title: "Dandela Academy",
+  description: "Plateforme de formation professionnelle",
+  manifest: "/manifest.json",
+  themeColor: "#2563eb",
+};
+*/
 
 export default async function RootLayout({ children }) {
   const locale = await getPreferredLocale();

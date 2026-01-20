@@ -561,7 +561,14 @@ function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
 }
 
 
-
+function NoStatComponent() {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  return(<Grid size={12} sx={{py:1}}>
+    <Stack maxWidth={'sm'}>
+    <AlertComponent title={t('no-stats-title')} subtitle={t('no-stats-subtitle')} severity="info" />
+  </Stack>
+  </Grid>)
+}
 export default function ExcelBeginnerCoursePage() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   // const { lang } = useLanguage();
@@ -598,12 +605,18 @@ export default function ExcelBeginnerCoursePage() {
     icon={<IconStats height={18} width={18} />}
   >
     <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+      
       {
         isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
           <Grid size={12}>
             <CardHeader />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          {
+        stats.length === 0 && <NoStatComponent />
+      }
+          {
+            stats.length>0 && <>
+            <Grid size={{ xs: 12, sm: 4 }}>
             <KpiCard
               icon={<InsightsIcon />}
               title={t('global-rating')}
@@ -643,6 +656,8 @@ export default function ExcelBeginnerCoursePage() {
             compareAverageComponent={<StatsBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
             />
           </Grid>
+            </>
+          }
         </Grid>
       }
     </Container>

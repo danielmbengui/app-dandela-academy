@@ -20,6 +20,7 @@ import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
 import { ClassSchool } from '@/classes/ClassSchool';
+import { useAuth } from './AuthProvider';
 
 // import { ClassUser } from '@/classes/ClassUser';
 
@@ -29,7 +30,7 @@ export const useRoom = () => useContext(RoomContext);
 
 export function RoomProvider({ children, uidSchool = '' }) {
     const router = useRouter();
-    const { lang } = useLanguage();
+    const { user } = useAuth();
     const { t } = useTranslation([NS_ERRORS])
 
     const [room, setRoom] = useState(null);           // ton user métier (ou snapshot)
@@ -37,20 +38,6 @@ export function RoomProvider({ children, uidSchool = '' }) {
     const [computers, setComputers] = useState([]);           // ton user métier (ou snapshot)
     const [filterTypeComputers, setFilterTypeComputers] = useState('all');
     const [filterStatusComputers, setFilterStatusComputers] = useState('all');
-
-    /*
-        if (uidRoom !== 'all') {
-          const indexRoom = ClassRoom.indexOf(rooms, uidRoom);
-          const _room = rooms[indexRoom];
-          //setRoom(_room);
-          _computers = _computers.filter(item => item.uid_room === uidRoom);
-        } else {
-          //setRoom(null);
-        }
-        if (filterStatus !== 'all') {
-          _computers = _computers.filter(item => item.status === filterStatus);
-        }
-    */
 
     const [isLoading, setIsLoading] = useState(true);
     const [isConnected, setIsConnected] = useState(false);
@@ -138,10 +125,12 @@ export function RoomProvider({ children, uidSchool = '' }) {
     }
     // session
     useEffect(() => {
-        const listener = listenToRooms(uidSchool);
-        //console.log("uid school", uidSchool);
-        return () => listener?.();
-    }, [uidSchool]);
+        if (user) {
+            const listener = listenToRooms(uidSchool);
+            //console.log("uid school", uidSchool);
+            return () => listener?.();
+        }
+    }, [user, uidSchool]);
     useEffect(() => {
         initComputers();
     }, [room, filterTypeComputers, filterStatusComputers]);
@@ -154,14 +143,9 @@ export function RoomProvider({ children, uidSchool = '' }) {
         }
         setRoom(_room);
     }
-
     async function updateComputersList() {
         await initComputers();
     }
-
-    // actions
-
-
     const value = {
         rooms,
         room,

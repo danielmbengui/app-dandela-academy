@@ -61,517 +61,8 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import StatsOneStatListComponent from "@/components/stats/stat/StatsOneStatListComponent";
 import StatsOneStatBarChart from "@/components/stats/stat/StatsOneStatBarChart";
 import OtherPageWrapper from "@/components/wrappers/OtherPageWrapper";
-import NotAuthorizedComponent from "@/components/auth/NotAuthorizedComponent";
-const CongratulationsComponent = ({ stat = null }) => {
-  const { t } = useTranslation([ClassLessonChapterQuiz.NS_COLLECTION]);
-  // score: `${stat?.score}/${stat?.answers?.length}`,
-  //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-  //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-  //duration: formatChrono(duration),
-  return (<>
-    <div className="results-summary-container">
-      <div className="confetti">
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-        <div className="confetti-piece"></div>
-      </div>
-      <div className="results-summary-container__result">
-        <div className="result-box">
-          <div className="heading-primary">
-            {stat?.score}/{stat?.answers?.length}
-          </div>
-          <p className="result">
-            {`${parseInt(stat?.score / stat?.answers?.length * 100)}%`}
-          </p>
-        </div>
-        <div className="result-text-box">
-          <div className="heading-secondary">{t('finished.congrats')}</div>
-          <p className="paragraph">
-            {t('finished.max-score')}
-          </p>
-        </div>
-        <div className="summary__cta" style={{ marginTop: '10px' }}>
-          <ButtonConfirm label={`Voir mes réponses`} />
+import NotAuthorizedStatComponent from "@/components/stats/NotAuthorizedStatComponent";
 
-        </div>
-      </div>
-    </div>
-    <style jsx>{`
-.results-summary-container {
-  font-family: "Hanken Grotesk", sans-serif;
-  display: flex;
-  width: 100%;
-  max-width:100%;
-  border-radius: 30px;
-  box-shadow: 10px 20px 20px rgba(120, 87, 255, 0.3);
-  box-shadow: none;
-  backface-visibility: hidden;
-}
-@media (min-width: 600px) {
-  .results-summary-container {
-    width: 330px;
-  }
-}
-
-.heading-primary,
-.heading-secondary,
-.heading-tertiary {
-  color: var(--grey-dark);
-  text-transform: capitalize;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.heading-primary {
-  font-size: 2rem;
-  font-weight: 600;
-  background-image: linear-gradient(to right, var(--success), var(--success));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  transform: scale(1.6);
-}
-
-.heading-secondary {
-  font-size: 20px;
-  font-weight: 600;
-  margin-top: 20px;
-  letter-spacing: 1px;
-  
-    white-space: nowrap;   
-  overflow: hidden;     
-  text-overflow: ellipsis; 
-}
-
-.heading-tertiary {
-  font-size: 20px;
-  font-weight: 500;
-  color: hsl(221, 100%, 96%);
-}
-
-.paragraph {
-  font-size: 17px;
-  line-height: 1.4;
-  color: var(--grey-light);
-}
-
-.paragraph-text-box {
-  width: 100%;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.margin-1 {
-  margin-bottom: 10px;
-}
-
-.results-summary-container__result {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  border-radius: 5px;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  background-image: linear-gradient(to bottom, var(--winner-shadow), var(--card-color));
-  animation: gradient 9s infinite alternate linear;
-
-  .result-box {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background-image: linear-gradient(-45deg, var(--success), var(--success-shadow));
-    background-image: var(--card-color);
-    background-color: var(--card-color);
-    border: 0.1px solid var(--success);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    
-   }
-
-.result {
-  margin-top: -8px;
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--success-shadow);
-}
-}
-
-.btn {
-  width: 240px;
-  padding: 10px;
-  color: #ffffff;
-  background-image: linear-gradient(to right, #aa076b, #61045f);
-  border: none;
-  border-radius: 100px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  font-weight: 500;
-  cursor: pointer;
-  margin: 20px 0 2px 0;
-  transition: all 0.3s;
-}
-
-.btn:hover {
-  transform: translateY(5px);
-  background-image: linear-gradient(to left, #aa076b, #61045f);
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 0% 95%;
-    background-image: linear-gradient(45deg, var(--card-color),var(--card-color));
-  }
-
-  50% {
-        background-position: 0% 95%;
-    background-image: linear-gradient(to bottom, var(--card-color),var(--card-color));
-  }
-
-  100% {
-    background-position: 0% 95%;
-    background-image: linear-gradient(to bottom, var(--card-color),var(--card-color),var(--card-color));
-  }
-}
-
-.confetti {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  width: 300px;
-  height: 60%;
-  overflow: hidden;
-  z-index: 1000;
-}
-
-.confetti-piece {
-  position: absolute;
-  width: 10px;
-  height: 20px;
-  background-color: hsl(39, 100%, 56%);
-  top: 0;
-  opacity: 0;
-  animation: makeItRain 3000ms infinite linear;
-}
-
-.confetti-piece:nth-child(1) {
-  left: 7%;
-  transform: rotate(-10deg);
-  animation-delay: 182ms;
-  animation-duration: 2000ms;
-}
-
-.confetti-piece:nth-child(2) {
-  left: 14%;
-  transform: rotate(20deg);
-  animation-delay: 161ms;
-  animation-duration: 2076ms;
-}
-
-.confetti-piece:nth-child(3) {
-  left: 21%;
-  transform: rotate(-51deg);
-  animation-delay: 481ms;
-  animation-duration: 2103ms;
-}
-
-.confetti-piece:nth-child(4) {
-  left: 28%;
-  transform: rotate(61deg);
-  animation-delay: 334ms;
-  animation-duration: 1008ms;
-}
-
-.confetti-piece:nth-child(5) {
-  left: 35%;
-  transform: rotate(-52deg);
-  animation-delay: 302ms;
-  animation-duration: 1776ms;
-}
-
-.confetti-piece:nth-child(6) {
-  left: 42%;
-  transform: rotate(38deg);
-  animation-delay: 180ms;
-  animation-duration: 1168ms;
-}
-
-.confetti-piece:nth-child(7) {
-  left: 49%;
-  transform: rotate(11deg);
-  animation-delay: 395ms;
-  animation-duration: 1200ms;
-}
-
-.confetti-piece:nth-child(8) {
-  left: 56%;
-  transform: rotate(49deg);
-  animation-delay: 14ms;
-  animation-duration: 1887ms;
-}
-
-.confetti-piece:nth-child(9) {
-  left: 63%;
-  transform: rotate(-72deg);
-  animation-delay: 149ms;
-  animation-duration: 1805ms;
-}
-
-.confetti-piece:nth-child(10) {
-  left: 70%;
-  transform: rotate(10deg);
-  animation-delay: 351ms;
-  animation-duration: 2059ms;
-}
-
-.confetti-piece:nth-child(11) {
-  left: 77%;
-  transform: rotate(4deg);
-  animation-delay: 307ms;
-  animation-duration: 1132ms;
-}
-
-.confetti-piece:nth-child(12) {
-  left: 84%;
-  transform: rotate(42deg);
-  animation-delay: 464ms;
-  animation-duration: 1776ms;
-}
-
-.confetti-piece:nth-child(13) {
-  left: 91%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 1818ms;
-}
-
-.confetti-piece:nth-child(14) {
-  left: 94%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 818ms;
-}
-
-.confetti-piece:nth-child(15) {
-  left: 96%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(16) {
-  left: 98%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(17) {
-  left: 50%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(18) {
-  left: 60%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 1818ms;
-}
-
-.confetti-piece:nth-child(odd) {
-  background-color: hsl(0, 100%, 67%);
-}
-
-.confetti-piece:nth-child(even) {
-  z-index: 1;
-}
-
-.confetti-piece:nth-child(4n) {
-  width: 6px;
-  height: 14px;
-  animation-duration: 4000ms;
-  background-color: #c33764;
-}
-
-.confetti-piece:nth-child(5n) {
-  width: 3px;
-  height: 10px;
-  animation-duration: 4000ms;
-  background-color: #b06ab3;
-}
-
-.confetti-piece:nth-child(3n) {
-  width: 4px;
-  height: 12px;
-  animation-duration: 2500ms;
-  animation-delay: 3000ms;
-  background-color: #dd2476;
-}
-
-.confetti-piece:nth-child(3n-7) {
-  background-color: hsl(166, 100%, 37%);
-}
-
-@keyframes makeItRain {
-  from {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    transform: translateY(250px);
-  }
-}
-
-    `}</style>
-  </>)
-}
-const CardHeader = ({ indexStat = -1 }) => {
-  const router = useRouter();
-  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  const { lesson } = useLesson();
-  const { chapter } = useChapter();
-  const { stat, stats, setUidStat } = useStat();
-  const disabledBack = useMemo(() => {
-    return indexStat === 0;
-  }, [stats, stat]);
-  const disabledNext = useMemo(() => {
-    return indexStat === stats?.length - 1;
-  }, [stats, stat]);
-
-  return (<Stack sx={{ background: '', width: '100%' }}>
-    <Grid container>
-      <Grid size={{ xs: 12, sm: 6 }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-            {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
-          </Typography>
-          <Typography variant="body1" sx={{ color: "text.secondary" }}>
-            {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)} • {capitalizeFirstLetter(t('quiz'))}{" n°"}{indexStat + 1}
-          </Typography>
-
-          <Stack spacing={1} direction={'row'} sx={{ pt: 1 }} alignItems={'center'}>
-            <Link href={`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}`}>
-              <ButtonCancel label={t('btn-see-results')} />
-            </Link>
-          </Stack>
-
-          <Stack maxWidth={'xl'} direction={'row'} spacing={1} alignItems={'center'} sx={{
-            py: 1,
-            background: 'var(--primary-shadow)',
-            borderRadius: '10px',
-            my: 1.5,
-            py: 1.5,
-            px: 1,
-            color: 'var(--primary-dark)',
-            width: { xs: '100%', sm: '50%' }
-          }}>
-            <IconButton
-              disabled={disabledBack}
-              onClick={() => {
-                //const currentIndex = getOneStatIndex(stat?.uid);
-                const uid = stats?.[indexStat - 1]?.uid || "";
-                //setUidStat(uid);
-                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
-              }}
-              sx={{
-                color: !disabledBack ? 'var(--primary)' : ''
-              }}
-            >
-              <IconArrowBack />
-            </IconButton>
-            {
-              <Typography>{capitalizeFirstLetter(t('quiz'))} {indexStat + 1}{"/"}{stats?.length}</Typography>
-            }                <IconButton
-              disabled={disabledNext}
-              onClick={() => {
-                const uid = stats?.[indexStat + 1]?.uid || "";
-                //setUidStat(uid);
-                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
-              }}
-              sx={{
-                color: !disabledNext ? 'var(--primary)' : ''
-              }}
-            >
-              <IconArrowRight />
-            </IconButton>
-          </Stack>
-        </Box>
-      </Grid>
-    </Grid>
-  </Stack>)
-}
-function MiniStat({ label, value, icon }) {
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: '10px',
-        p: 1.6,
-        bgcolor: "rgba(255,255,255,0.12)",
-        bgcolor: "var(--primary-shadow)",
-        border: "0.1px solid var(--primary-shadow-xs)",
-        color: "white",
-      }}
-    >
-      <Stack direction="row" spacing={1.1} alignItems="center">
-        <Box
-          sx={{
-            width: 34,
-            height: 34,
-            borderRadius: 3,
-            display: "grid",
-            placeItems: "center",
-            bgcolor: "var(--primary-shadow-xs)",
-            coor: "var(--primary)",
-            border: "1px solid var(--primary-shadow-xs)",
-          }}
-        >
-          {icon}
-        </Box>
-        <Stack spacing={0.1} sx={{ minWidth: 0 }}>
-          <Typography variant="caption" sx={{ color: "var(--primary-dark)", opacity: 0.9 }}>
-            {label}
-          </Typography>
-          <Typography variant="h6" sx={{ color: "var(--primary)", fontWeight: 950, lineHeight: 1.05 }} noWrap title={String(value)}>
-            {value}
-          </Typography>
-        </Stack>
-      </Stack>
-    </Paper>
-  );
-}
 export default function OneStatPage() {
   const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
@@ -623,7 +114,7 @@ export default function OneStatPage() {
 
   if (user && !isAllowed) {
     return(<OtherPageWrapper>
-      <NotAuthorizedComponent />
+      <NotAuthorizedStatComponent />
     </OtherPageWrapper>)
   }
 
@@ -646,7 +137,12 @@ export default function OneStatPage() {
           <Grid size={12}>
             <CardHeader indexStat={indexStat} />
           </Grid>
-          <Stack sx={{ background: '' }} alignItems={'start'} maxWidth={'md'} spacing={1.5}>
+          {
+            stats.length === 0 && <NoStatComponent />
+          }
+          {
+            stats.length>0 && <>
+            <Stack sx={{ background: '' }} alignItems={'start'} maxWidth={'md'} spacing={1.5}>
             {/* Quick stats */}
             <Grid container spacing={1} sx={{ width: '100%', background: '' }}>
               <Grid size={{ xs: 6, sm: 'auto' }}>
@@ -681,8 +177,135 @@ export default function OneStatPage() {
             //={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
             />
           </Grid>
+            </>
+          }
         </Grid>
       }
     </Container>
   </DashboardPageWrapper>);
+}
+function NoStatComponent() {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  return(<Grid size={12} sx={{py:1}}>
+    <Stack maxWidth={'sm'}>
+    <AlertComponent title={t('no-stats-title')} subtitle={t('no-stats-subtitle')} severity="info" />
+  </Stack>
+  </Grid>)
+}
+const CardHeader = ({ indexStat = -1 }) => {
+  const router = useRouter();
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
+  const { lesson } = useLesson();
+  const { chapter } = useChapter();
+  const { stat, stats, setUidStat } = useStat();
+  const disabledBack = useMemo(() => {
+    return indexStat === 0;
+  }, [stats, stat]);
+  const disabledNext = useMemo(() => {
+    return indexStat === stats?.length - 1;
+  }, [stats, stat]);
+
+  return (<Stack sx={{ background: '', width: '100%' }}>
+    <Grid container>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+            {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
+          </Typography>
+          <Typography variant="body1" sx={{ color: "text.secondary" }}>
+            {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)} • {capitalizeFirstLetter(t('quiz'))}{" n°"}{indexStat + 1}
+          </Typography>
+
+          <Stack spacing={1} direction={'row'} sx={{ pt: 1 }} alignItems={'center'}>
+            <Link href={`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}`}>
+              <ButtonCancel label={t('btn-see-results')} />
+            </Link>
+          </Stack>
+
+         {
+          stats.length > 0 &&  <Stack maxWidth={'xl'} direction={'row'} spacing={1} alignItems={'center'} sx={{
+            py: 1,
+            background: 'var(--primary-shadow)',
+            borderRadius: '10px',
+            my: 1.5,
+            py: 1.5,
+            px: 1,
+            color: 'var(--primary-dark)',
+            width: { xs: '100%', sm: '50%' }
+          }}>
+            <IconButton
+              disabled={disabledBack}
+              onClick={() => {
+                //const currentIndex = getOneStatIndex(stat?.uid);
+                const uid = stats?.[indexStat - 1]?.uid || "";
+                //setUidStat(uid);
+                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
+              }}
+              sx={{
+                color: !disabledBack ? 'var(--primary)' : ''
+              }}
+            >
+              <IconArrowBack />
+            </IconButton>
+            {
+              <Typography>{capitalizeFirstLetter(t('quiz'))} {indexStat + 1}{"/"}{stats?.length}</Typography>
+            }                <IconButton
+              disabled={disabledNext}
+              onClick={() => {
+                const uid = stats?.[indexStat + 1]?.uid || "";
+                //setUidStat(uid);
+                router.push(`${PAGE_STATS}/${stat?.uid_lesson}/${stat?.uid_chapter}/${uid}`);
+              }}
+              sx={{
+                color: !disabledNext ? 'var(--primary)' : ''
+              }}
+            >
+              <IconArrowRight />
+            </IconButton>
+          </Stack>
+         }
+        </Box>
+      </Grid>
+    </Grid>
+  </Stack>)
+}
+function MiniStat({ label, value, icon }) {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: '10px',
+        p: 1.6,
+        bgcolor: "rgba(255,255,255,0.12)",
+        bgcolor: "var(--primary-shadow)",
+        border: "0.1px solid var(--primary-shadow-xs)",
+        color: "white",
+      }}
+    >
+      <Stack direction="row" spacing={1.1} alignItems="center">
+        <Box
+          sx={{
+            width: 34,
+            height: 34,
+            borderRadius: 3,
+            display: "grid",
+            placeItems: "center",
+            bgcolor: "var(--primary-shadow-xs)",
+            coor: "var(--primary)",
+            border: "1px solid var(--primary-shadow-xs)",
+          }}
+        >
+          {icon}
+        </Box>
+        <Stack spacing={0.1} sx={{ minWidth: 0 }}>
+          <Typography variant="caption" sx={{ color: "var(--primary-dark)", opacity: 0.9 }}>
+            {label}
+          </Typography>
+          <Typography variant="h6" sx={{ color: "var(--primary)", fontWeight: 950, lineHeight: 1.05 }} noWrap title={String(value)}>
+            {value}
+          </Typography>
+        </Stack>
+      </Stack>
+    </Paper>
+  );
 }

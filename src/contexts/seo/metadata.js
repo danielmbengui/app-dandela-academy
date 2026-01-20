@@ -38,6 +38,8 @@ export async function createMetadata({
   descKey = "description-page",
   images = [],
   overrides = {},
+  manifest = "/manifest.json",
+  themeColor = "var(--primary)",
 } = {}) {
   const locale = lng || (await getPreferredLocale());
   const lang = languages.includes(locale) ? locale : defaultLanguage;
@@ -55,6 +57,8 @@ export async function createMetadata({
   const baseMeta = {
     title,
     description,
+    manifest,
+    theme_color:themeColor,
     alternates: {
       canonical: url,
       // (Optionnel) hreflang — si pas de /[locale], laisse vide ou gère custom

@@ -36,11 +36,13 @@ export function LessonProvider({ children, uidTeacher = null }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
+       if(user) {
         const listener = listenToLessons(uidTeacher);
         return () => listener?.();
+       }
     }, [lang, uidTeacher, user]);
     useEffect(() => {
-        if (uidLesson) {
+        if (user && uidLesson) {
             const _lesson = getOneLesson(uidLesson);
             setLesson(_lesson);
             const listener = listenToOneLesson(uidLesson);
@@ -48,7 +50,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
         } else {
             setLesson(null);
         }
-    }, [uidLesson]);
+    }, [user, uidLesson]);
     // écoute du doc utilisateur
     const listenToLessons = useCallback((uidTeacher) => {
         //if(!user) return;

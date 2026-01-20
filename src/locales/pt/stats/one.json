@@ -3,5 +3,9 @@
   "description-page": "A página de resultados de um estudante",
   "title": "Detalhes do teste",
   "subtitle": "",
-  "quiz": "Questionário"
+  "quiz": "Questionário",
+  "not-authorized-title": "Acesso negado",
+  "not-authorized-subtitle": "<span>Estás autenticado na Dandela Academy com a conta <b>{{email}}</b>, mas não tens permissão para aceder aos resultados de outros alunos.</span>",
+  "not-authorized-error": "Se achares que isto é um erro, entra em contacto com um administrador da plataforma.",
+  "not-authorized-btn-back": "Voltar aos resultados"
 }

@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { NS_ERRORS } from '@/contexts/i18n/settings';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
+import { useAuth } from './AuthProvider';
 
 // import { ClassUser } from '@/classes/ClassUser';
 
@@ -27,7 +28,7 @@ export const useUsers = () => useContext(UsersContext);
 
 export function UsersProvider({ children}) {
     const router = useRouter();
-    const { lang } = useLanguage();
+    const { user:connectedUser } = useAuth();
     const { t } = useTranslation([NS_ERRORS])
 
     const [user, setUser] = useState(null);           // ton user métier (ou snapshot)
@@ -40,10 +41,12 @@ export function UsersProvider({ children}) {
     const [provider, setProvider] = useState('');
     
     useEffect(() => {
-        const listener = listenToUsers();
-        //console.log("uid school", uidSchool);
-        return () => listener?.();
-    }, []);
+        if(connectedUser) {
+            const listener = listenToUsers();
+            //console.log("uid school", uidSchool);
+            return () => listener?.();
+        }
+    }, [connectedUser]);
     // écoute du doc utilisateur
     const listenToUsers = useCallback(() => {
         const colRef = ClassUser.colRef(); // par ex.

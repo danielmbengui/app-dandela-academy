@@ -37,8 +37,8 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
     //if(!lesson || !chapter) return;
     useEffect(() => {
         async function init() {
-            const _duration = await getLessonsEstimatedTime();
-            setCountHourTotalLessons(_duration);
+            //const _duration = await getLessonsEstimatedTime();
+            //setCountHourTotalLessons(_duration);
             //console.log("chapters stat provider", chapters)
         }
         init();
@@ -345,7 +345,6 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return new Set(filteredStats.map(stat => stat.uid_chapter)).size || 0;
     }
-
     async function getLessonsEstimatedTime() {
         var total = 0;
         var timeTotal = 0;
@@ -400,7 +399,6 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         return maxStat;
     }
-
     function getWorstStat(uidLesson = "", uidChapter = "", statsParam = stats) {
         var minScore = 1_000_000_000;
         var minStat = null;
