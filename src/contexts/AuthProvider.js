@@ -414,6 +414,7 @@ export function AuthProvider({ children }) {
             })
         }
     };
+    
     const logout = async () => {
         router.prefetch(PAGE_LOGIN);
         const uid = auth.currentUser.uid || '';
