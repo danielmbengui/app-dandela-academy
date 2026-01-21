@@ -113,12 +113,8 @@ function QuickLink({ emoji, label, description, link = "" }) {
         }
 
         .quick-link:hover {
-          background: radial-gradient(circle at top left, #1d4ed822, #020617);
-          border-color: #1f2937;
-
-          background: var(--card-color);
           border: 0.1px solid var(--primary);
-          color:var(-background);
+
         }
 
         .q-emoji {

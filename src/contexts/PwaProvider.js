@@ -12,6 +12,7 @@ export default function PwaProvider({ children }) {
     const [isSafari, setIsSafari] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
     const [isBrowser, setIsBrowser] = useState(true);
+    const [show, setShow] = useState(false);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -68,6 +69,8 @@ export default function PwaProvider({ children }) {
     
 
     const value = {
+        show,
+        setShow,
         isPWA,
         isMacOS,
         isIOS,

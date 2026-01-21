@@ -1,224 +1,257 @@
 "use client";
-
-import InstallPwaBanner from "@/components/pwa/InstallPwaBanner";
 import { useState } from "react";
 
-const SLIDES = [
+const MOCK_MESSAGES = [
   {
-    title: "Bienvenue sur Dandela Academy",
-    description:
-      "Une plateforme moderne pour apprendre, progresser et certifier tes compétences professionnelles.",
-    image: "/onboarding/welcome.svg",
+    id: "msg_1",
+    from: "Dandela Academy",
+    type: "school",
+    subject: "Bienvenue sur la plateforme 🎉",
+    preview: "Nous sommes ravis de t’accueillir sur Dandela Academy...",
+    date: "2025-03-02",
+    isRead: false,
   },
   {
-    title: "Explore tes cours",
-    description:
-      "Accède à des cours structurés par niveaux, chapitres et objectifs clairs.",
-    image: "/onboarding/courses.svg",
+    id: "msg_2",
+    from: "Support",
+    type: "support",
+    subject: "Ticket #45812 – Résolu",
+    preview: "Ton problème a été résolu. N’hésite pas à revenir vers nous.",
+    date: "2025-02-27",
+    isRead: true,
   },
   {
-    title: "Suis ta progression",
-    description:
-      "Visualise tes résultats par chapitre, par cours et globalement avec des statistiques claires.",
-    image: "/onboarding/stats.svg",
-  },
-  {
-    title: "Apprends avec des experts",
-    description:
-      "Chaque cours est animé par des professeurs qualifiés et expérimentés.",
-    image: "/onboarding/teachers.svg",
-  },
-  {
-    title: "Obtiens ta certification",
-    description:
-      "Valide tes compétences avec des certifications reconnues par Dandela Academy.",
-    image: "/onboarding/certificate.svg",
+    id: "msg_3",
+    from: "Marie Kaya",
+    type: "teacher",
+    subject: "Infos sur le prochain cours",
+    preview: "Pour la prochaine session, pense à préparer...",
+    date: "2025-02-25",
+    isRead: false,
   },
 ];
 
-export default function OnboardingCarousel({ onFinish }) {
-  const [index, setIndex] = useState(0);
+const FILTERS = [
+  { id: "all", label: "Tous" },
+  { id: "unread", label: "Non lus" },
+  { id: "school", label: "École" },
+  { id: "teacher", label: "Professeurs" },
+  { id: "support", label: "Support" },
+];
 
-  const isLast = index === SLIDES.length - 1;
+export default function MessagesPage() {
+  const [activeFilter, setActiveFilter] = useState("all");
 
-  const next = () => {
-    if (!isLast) setIndex((i) => i + 1);
-    else onFinish?.();
-  };
-
-  const skip = () => {
-    onFinish?.();
-  };
+  const filteredMessages = MOCK_MESSAGES.filter((msg) => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "unread") return !msg.isRead;
+    return msg.type === activeFilter;
+  });
 
   return (
-    <div className="overlay">
-      <InstallPwaBanner />
-      <div className="carousel" style={{display:'none'}}>
-        {/* Skip */}
-        <button className="skip-btn" onClick={skip}>
-          Passer
-        </button>
+    <div className="page">
+      <main className="container">
+        {/* HEADER */}
+        <header className="header">
+          <h1>Messagerie</h1>
+          <p className="subtitle">
+            Communications de l’école, professeurs et support
+          </p>
+        </header>
 
-        {/* Slide */}
-        <div className="slide">
-          <div className="image-wrapper">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={SLIDES[index].image} alt="" />
-          </div>
-
-          <h2>{SLIDES[index].title}</h2>
-          <p>{SLIDES[index].description}</p>
-        </div>
-
-        {/* Progress */}
-        <div className="progress">
-          {SLIDES.map((_, i) => (
-            <span
-              key={i}
-              className={`dot ${i === index ? "active" : ""}`}
-            />
+        {/* FILTRES */}
+        <div className="filters">
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              className={`filter-btn ${activeFilter === f.id ? "active" : ""}`}
+              onClick={() => setActiveFilter(f.id)}
+            >
+              {f.label}
+            </button>
           ))}
         </div>
 
-        {/* Actions */}
-        <div className="actions">
-          <button className="btn ghost" onClick={skip}>
-            Ignorer
-          </button>
-          <button className="btn primary" onClick={next}>
-            {isLast ? "Entrer dans l’app" : "Suivant"}
-          </button>
-        </div>
-      </div>
+        {/* LISTE */}
+        <section className="messages">
+          {filteredMessages.length === 0 && (
+            <p className="empty">Aucun message à afficher</p>
+          )}
 
+          {filteredMessages.map((msg) => (
+            <article
+              key={msg.id}
+              className={`message-card ${!msg.isRead ? "unread" : ""}`}
+            >
+              <div className="left">
+                <span className={`dot ${msg.type}`} />
+              </div>
+
+              <div className="content">
+                <div className="top">
+                  <p className="from">{msg.from}</p>
+                  <span className="date">{formatDate(msg.date)}</span>
+                </div>
+
+                <p className="subject">{msg.subject}</p>
+                <p className="preview">{msg.preview}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+      </main>
+
+      {/* STYLES */}
       <style jsx>{`
-        .overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(2, 6, 23, 0.92);
-          backdrop-filter: blur(6px);
+        .page {
+          min-height: 100vh;
+          background: #f8fafc;
+          padding: 24px 16px;
           display: flex;
-          align-items: center;
           justify-content: center;
-          z-index: 1000;
         }
 
-        .carousel {
+        .container {
           width: 100%;
-          max-width: 420px;
-          background: radial-gradient(circle at top, #111827, #020617);
-          border: 1px solid #1f2937;
-          border-radius: 20px;
-          padding: 20px 18px 22px;
-          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-          position: relative;
+          max-width: 900px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
-          text-align: center;
+          gap: 16px;
         }
 
-        .skip-btn {
-          position: absolute;
-          top: 12px;
-          right: 14px;
-          background: none;
-          border: none;
-          color: #9ca3af;
-          font-size: 0.8rem;
+        .header h1 {
+          margin: 0;
+          font-size: 1.6rem;
+        }
+
+        .subtitle {
+          margin: 4px 0 0;
+          font-size: 0.9rem;
+          color: #64748b;
+        }
+
+        .filters {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .filter-btn {
+          padding: 6px 14px;
+          border-radius: 999px;
+          border: 1px solid #e2e8f0;
+          background: white;
+          font-size: 0.85rem;
           cursor: pointer;
         }
 
-        .slide {
+        .filter-btn.active {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          color: white;
+          border-color: transparent;
+        }
+
+        .messages {
           display: flex;
           flex-direction: column;
-          align-items: center;
           gap: 10px;
-          animation: fade 0.3s ease;
         }
 
-        @keyframes fade {
-          from {
-            opacity: 0;
-            transform: translateY(6px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .image-wrapper {
-          width: 160px;
-          height: 160px;
+        .message-card {
           display: flex;
-          align-items: center;
-          justify-content: center;
+          gap: 10px;
+          padding: 12px;
+          border-radius: 14px;
+          border: 1px solid #e2e8f0;
+          background: white;
+          cursor: pointer;
+          transition: all 0.15s ease;
         }
 
-        .image-wrapper img {
-          max-width: 100%;
-          max-height: 100%;
+        .message-card:hover {
+          background: #f1f5f9;
         }
 
-        h2 {
-          margin: 0;
-          font-size: 1.35rem;
+        .message-card.unread {
+          border-color: #2563eb;
+          background: #eff6ff;
         }
 
-        p {
-          margin: 0;
-          font-size: 0.9rem;
-          color: #cbd5f5;
-          line-height: 1.35rem;
-        }
-
-        .progress {
+        .left {
           display: flex;
-          justify-content: center;
-          gap: 6px;
-          margin-top: 4px;
+          align-items: flex-start;
         }
 
         .dot {
-          width: 8px;
-          height: 8px;
+          width: 10px;
+          height: 10px;
           border-radius: 999px;
-          background: #334155;
-        }
-
-        .dot.active {
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          width: 18px;
-        }
-
-        .actions {
-          display: flex;
-          justify-content: space-between;
-          gap: 10px;
           margin-top: 6px;
         }
 
-        .btn {
+        .dot.school {
+          background: #2563eb;
+        }
+
+        .dot.teacher {
+          background: #22c55e;
+        }
+
+        .dot.support {
+          background: #f59e0b;
+        }
+
+        .content {
           flex: 1;
-          border-radius: 999px;
-          padding: 8px 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .top {
+          display: flex;
+          justify-content: space-between;
+          gap: 8px;
+        }
+
+        .from {
+          margin: 0;
+          font-weight: 500;
+          font-size: 0.85rem;
+        }
+
+        .date {
+          font-size: 0.75rem;
+          color: #64748b;
+        }
+
+        .subject {
+          margin: 0;
+          font-weight: 500;
           font-size: 0.9rem;
-          cursor: pointer;
         }
 
-        .ghost {
-          background: transparent;
-          border: 1px solid #1f2937;
-          color: #e5e7eb;
+        .preview {
+          margin: 0;
+          font-size: 0.82rem;
+          color: #475569;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .primary {
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
-          border: none;
-          color: white;
+        .empty {
+          font-size: 0.9rem;
+          color: #64748b;
+          text-align: center;
+          margin-top: 20px;
         }
       `}</style>
     </div>
   );
+}
+
+function formatDate(date) {
+  const [y, m, d] = date.split("-");
+  return `${d}.${m}.${y}`;
 }

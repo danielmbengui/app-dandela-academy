@@ -1,0 +1,16 @@
+{
+  "title-page": "Paramètres - Dandela Academy",
+  "description-page": "Les paramètres du compte utilisateur de la plateforme Dandela Academy",
+  "title": "Paramètres",
+  "subtitle": "Gère l’ensemble des paramètres liés à ton compte et à ton utilisation de la plateforme",
+  "title_account": "Paramètres du compte",
+  "title_notifications": "Paramètres des notifications",
+  "email_notifications": "Notifications par e-mail",
+  "email_newsletter": "Recevoir la newsletter",
+  "email_message": "Recevoir les notifications par e-mail",
+  "phone_notifications": "Notifications par téléphone",
+  "phone_whatsapp": "Communication via WhatsApp",
+  "phone_sms": "Communication par SMS",
+  "lang": "Langue de l’interface",
+  "theme": "Thème de l’interface"
+}

@@ -16,8 +16,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS } from "@/contexts/constants/constants_pages";
-import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS } from "@/contexts/constants/constants_pages";
+import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -162,7 +162,6 @@ export class ClassUser {
             glow: "rgba(255,0,0,0.3)",
         },
     });
-
     static ALL_TYPES = [
         ClassUser.TYPE.INTERN,
         ClassUser.TYPE.EXTERN,
@@ -204,6 +203,7 @@ export class ClassUser {
         newsletter = false,
         notif_by_email = false,
         status = ClassUser.STATUS.UNKNOWN,
+        last_request_pwa_time = null,
         last_connexion_time = null,
         created_time = null,
         last_edit_time = null,
@@ -229,6 +229,7 @@ export class ClassUser {
         this._preferred_language = preferred_language;
         this._accept_privacy = accept_privacy;
         this._status = status;
+        this._last_request_pwa_time = last_request_pwa_time;
         this._last_connexion_time = last_connexion_time;
         this._created_time = created_time;
         this._last_edit_time = last_edit_time;
@@ -277,6 +278,9 @@ export class ClassUser {
 
     get email_verified() { return this._email_verified; }
     set email_verified(val) { this._email_verified = val; }
+
+     get last_request_pwa_time() { return this._last_request_pwa_time; }
+    set last_request_pwa_time(val) { this._last_request_pwa_time = val; }
 
     get last_connexion_time() { return this._last_connexion_time; }
     set last_connexion_time(val) { this._last_connexion_time = val; }
@@ -582,6 +586,11 @@ export class ClassUser {
                 path: PAGE_DASHBOARD_PROFILE,
                 icon: <IconProfile width={20} height={20} />,
             },
+            {
+                name: "settings",
+                path: PAGE_SETTINGS,
+                icon: <IconSettings width={20} height={20} />,
+            },
         ]
     }
     // ---------- Converter intégré ----------
@@ -621,10 +630,11 @@ export class ClassUser {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
                 var _birthday = data.birthday ? new Date(data.birthday.seconds * 1_000) : null;
+                var last_request_pwa_time = ClassUser._toJsDate(data.last_request_pwa_time);
                 var last_connexion_time = ClassUser._toJsDate(data.last_connexion_time);
                 var _created_time = data.created_time ? new Date(data.created_time.seconds * 1_000) : null;
                 var _last_edit_time = data.last_edit_time ? new Date(data.last_edit_time.seconds * 1_000) : null;
-                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_connexion_time, created_time: _created_time, last_edit_time: _last_edit_time });
+                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_request_pwa_time,last_connexion_time, created_time: _created_time, last_edit_time: _last_edit_time });
             },
         };
     }

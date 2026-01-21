@@ -37,52 +37,10 @@ import { ClassUser } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 import InstallPwaBanner from '../pwa/InstallPwaBanner';
 import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
+import AccountMenu from './AccountMenu';
+import { usePwa } from '@/contexts/PwaProvider';
 
 const drawerWidth = 240;
-
-
-function DotsMobileStepper() {
-    const theme = useTheme();
-    const [activeStep, setActiveStep] = React.useState(0);
-
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
-
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-
-    return (
-        <MobileStepper
-            variant="dots"
-            steps={6}
-            position="static"
-            activeStep={activeStep}
-            sx={{ maxWidth: 400, flexGrow: 1 }}
-            nextButton={
-                <Button size="small" onClick={handleNext} disabled={activeStep === 5}>
-                    Next
-                    {theme.direction === 'rtl' ? (
-                        <KeyboardArrowLeft />
-                    ) : (
-                        <KeyboardArrowRight />
-                    )}
-                </Button>
-            }
-            backButton={
-                <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-                    {theme.direction === 'rtl' ? (
-                        <KeyboardArrowRight />
-                    ) : (
-                        <KeyboardArrowLeft />
-                    )}
-                    Back
-                </Button>
-            }
-        />
-    );
-}
 
 function DashboardPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU]);
@@ -92,9 +50,11 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     const { theme } = useThemeMode();
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, logout } = useAuth();
-    const [showPwaComponent, setShowPwaComponent] = useState(true);
+
+    const {show, setShow,isPwa} = usePwa();
     const router = useRouter();
     const path = usePathname();
+
     const handleDrawerClose = () => {
         setIsClosing(true);
         setMobileOpen(false);
@@ -218,19 +178,6 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         }
                     </List>
                 </Stack>
-                <ButtonConfirm label='install app' onClick={() => {
-                    console.log("INSTALL PWA", showPwaComponent);
-                    setShowPwaComponent(true);
-                }} />
-                <Button
-                    variant='contained'
-                    //sx={{ color: backgroundMenu.main }}
-                    onClick={async () => {
-                        await logout();
-                    }}
-                >
-                    {t('disconnect', { ns: NS_BUTTONS })}
-                </Button>
             </Stack>
         </Stack>
     );
@@ -282,18 +229,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         >
                             <MenuIcon />
                         </IconButton>
-
-                        <Stack direction={'row'} spacing={0.5} alignItems={'center'} sx={{ fontWeight: 600, py: 0.25, px: 0.5, height: '100%', color: "var(--primary)", border: `1px solid var(--primary-shadow-md)`, borderRadius: '20px', background: "var(--primary-shadow-sm)" }}>
-                            {
-                                user?.showAvatar({ size: 20, fontSize: '5px' })
-                            }
-                            <Stack>
-                                <Typography variant={'string'} noWrap fontSize={'12px'}>
-                                    {user?.getCompleteName() || ''}
-                                </Typography>
-                            </Stack>
-                            <IconDropDown height={6} />
-                        </Stack>
+                        <AccountMenu />
                     </Stack>
                 </Toolbar>
             </AppBar>
@@ -468,13 +404,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 </Backdrop>
             }
             {
-              showPwaComponent && <Backdrop
-               sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
-               open={showPwaComponent}>
-               <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%' }}>
-                   <InstallPwaBanner skipAction={()=>setShowPwaComponent(false)} />
-               </Stack>
-           </Backdrop> 
+                !isPwa && show && <InstallPwaBanner showPwaComponent={show} skipAction={() => setShow(false)} />
             }
         </Box>
     );

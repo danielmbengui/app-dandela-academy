@@ -226,54 +226,6 @@ function ProfilePage() {
                                 error={errors.last_edit_time}
                             />
                         </div>
-
-                        <hr className="divider" />
-
-                        <h3>{translateLabels.title_settings}</h3>
-                        <div className="field inline">
-                            <CheckboxComponent
-                                label={'Recevoir la newsletter'}
-                                name={'newsletter'}
-                                checked={userEdit?.newsletter}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="field inline">
-                            <CheckboxComponent
-                                label={'Recevoir les notifications par email'}
-                                name={'notif_by_email'}
-                                checked={userEdit?.notif_by_email}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="field">
-                            <SelectComponentDark
-                                label={'langue'}
-                                name={'lang'}
-                                value={lang}
-                                values={languages.map(lang => ({ id: lang, value: t(lang, { ns: NS_LANGS }) }))}
-                                onChange={(e) => {
-                                    //console.log("NEW VALUE", e.target.value)
-                                    changeLang(e.target.value);
-                                }}
-                                hasNull={false}
-                            />
-                        </div>
-                        <div className="field">
-                            <SelectComponentDark
-                                label={'theme'}
-                                name={'theme'}
-                                //display={false}
-                                value={modeApp}
-                                values={[THEME_LIGHT, THEME_DARK, THEME_SYSTEM].map(_theme => ({ id: _theme, value: t(_theme, { ns: NS_COMMON }) }))}
-                                onChange={(e) => {
-                                    //console.log("NEW VALUE", e.target.value)
-                                    changeTheme(e.target.value);
-                                }}
-                                hasNull={false}
-                            />
-                        </div>
                     </section>
                 </form>
             </main>

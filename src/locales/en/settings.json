@@ -1,0 +1,16 @@
+{
+  "title-page": "Settings - Dandela Academy",
+  "description-page": "User account settings for the Dandela Academy platform",
+  "title": "Settings",
+  "subtitle": "Manage all settings related to your account and platform usage",
+  "title_account": "Account settings",
+  "title_notifications": "Notification settings",
+  "email_notifications": "Email notifications",
+  "email_newsletter": "Receive the newsletter",
+  "email_message": "Receive notifications by email",
+  "phone_notifications": "Phone notifications",
+  "phone_whatsapp": "Communication via WhatsApp",
+  "phone_sms": "Communication via SMS",
+  "lang": "Interface language",
+  "theme": "Interface theme"
+}

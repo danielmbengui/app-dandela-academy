@@ -440,3 +440,10 @@ export const IconGoogleColor = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="material-icon-theme:google" width={width} height={height} color={color} />)
 }
 
+export const IconDownloadDesktopApp = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="lucide:monitor-down" width={width} height={height} color={color} />)
+}
+export const IconDownloadMobileApp = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="line-md:cellphone-arrow-down" width={width} height={height} color={color} />)
+}
+

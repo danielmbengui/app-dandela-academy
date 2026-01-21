@@ -38,6 +38,7 @@ export const NS_STATS = `stats/main`;
 export const NS_STATS_ONE = `stats/one`;
 export const NS_DASHBOARD_COMPUTERS = `dashboard/computers`;
 export const NS_DASHBOARD_USERS = `dashboard/users`;
+export const NS_SETTINGS = `settings`;
 
 export const NS_PAGES = `pages`;
 export const NS_FORM = `form`;

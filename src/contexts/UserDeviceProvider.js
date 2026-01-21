@@ -6,7 +6,10 @@ import { BREAKPOINTS } from "./ThemeProvider";
 
 const UserDeviceContext = createContext(null);
 export const useUserDevice = () => useContext(UserDeviceContext);
-
+function hasLargeScreen(width) {
+    if (width >= BREAKPOINTS.md) return true;
+    return false;
+}
 function getDeviceType(width) {
     if (width >= BREAKPOINTS.xxl) return "xxl";
     if (width >= BREAKPOINTS.xl) return "xl";
@@ -38,7 +41,10 @@ xs: 0,
 export function UserDeviceProvider({ children }) {
     const [device, setDevice] = useState("md"); // fallback SSR
     const [deviceName, setDeviceName] = useState("laptop"); // fallback SSR
+    const [hasScreen, setHasScreen] = useState(false); // fallback SSR
+    
     const [isMobile, setIsMobile] = useState(false); // fallback SSR
+    const [isLaptop, setIsLaptop] = useState(false); // fallback SSR
     const [isXs, setIsXs] = useState(false); // fallback SSR
     const [isSm, setIsSm] = useState(false); // fallback SSR
     const [isMd, setIsMd] = useState(false); // fallback SSR
@@ -55,7 +61,9 @@ export function UserDeviceProvider({ children }) {
             setWidth(_width);
             setDevice(type);
             setDeviceName(name);
+            setHasScreen(hasLargeScreen(_width));
             setIsMobile(_width < BREAKPOINTS.sm);
+            setIsLaptop(_width >= BREAKPOINTS.md && _width < BREAKPOINTS.lg);  
 
             setIsXs(_width < BREAKPOINTS.sm);
             setIsSm(_width < BREAKPOINTS.md);
@@ -75,7 +83,9 @@ export function UserDeviceProvider({ children }) {
         width,
         device,
         deviceName,
+        hasScreen,
         isMobile,
+        isLaptop,
 
         //isXs,
         isSm,

@@ -15,6 +15,7 @@ export const PAGE_DASHBOARD_PROFILE = "/profile";
 export const PAGE_LESSONS = "/lessons";
 export const PAGE_CHAPTERS = "/chapters";
 export const PAGE_STATS = "/stats";
+export const PAGE_SETTINGS = "/settings";
 export const PAGE_TERMS_PRIVACY = "/terms/privacy";
 export const PAGE_TERMS_USAGE = "/terms/usage";
 
@@ -29,7 +30,7 @@ export const PAGE_WAITING_LIST = "/waiting-list";
 export const PAGE_RESET_PASSWORD = "/reset-password";
 
 
-export const PAGE_DASHBOARD_SETTINGS = "/dashboard/settings";
+
 
 export const PAGE_DASHBOARD_STUDENTS = "/dashboard/students";
 export const PAGE_DASHBOARD_TUTORS = "/dashboard/tutors";
