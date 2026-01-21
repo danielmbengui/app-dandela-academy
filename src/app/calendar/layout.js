@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_PROFILE,} from "@/contexts/constants/constants_pages";
-import { NS_DASHBOARD_CALENDAR, NS_DASHBOARD_PROFILE,} from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_CALENDAR, NS_PROFILE,} from "@/contexts/i18n/settings";
 import { SessionProvider } from "@/contexts/SessionProvider";
 import { LessonProvider } from "@/contexts/LessonProvider";
 

@@ -5,6 +5,8 @@
   "subtitle": "Gère l’ensemble des paramètres liés à ton compte et à ton utilisation de la plateforme",
   "title_account": "Paramètres du compte",
   "title_notifications": "Paramètres des notifications",
+        "email": "Email",
+        "phone_number": "Téléphone",
   "email_notifications": "Notifications par e-mail",
   "email_newsletter": "Recevoir la newsletter",
   "email_message": "Recevoir les notifications par e-mail",

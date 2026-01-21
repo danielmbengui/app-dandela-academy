@@ -3,10 +3,10 @@ import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDateCompleteNumeric } from "@/contexts/functions";
-import { languages, NS_COMMON, NS_DASHBOARD_PROFILE, NS_LANGS, NS_ROLES, NS_SETTINGS } from "@/contexts/i18n/settings";
+import { languages, NS_COMMON, NS_PROFILE, NS_LANGS, NS_ROLES, NS_SETTINGS } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { Stack } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { ClassUser } from "@/classes/users/ClassUser";
 import { THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from "@/contexts/constants/constants";
@@ -15,10 +15,213 @@ import SelectComponentDark from "@/components/elements/SelectComponentDark";
 import CheckboxComponent from "@/components/elements/CheckboxComponent";
 import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
+import FieldPhoneComponent from "../elements/FieldPhoneComponent";
+import TextFieldComponent from "../elements/TextFieldComponent";
+function Header() {
+    const { lang, changeLang } = useLanguage();
+    const { user, isLoading, update, processing } = useAuth();
+    const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
+    const translateLabels = t('form', { ns: NS_PROFILE, returnObjects: true })
+    const { theme, changeTheme, mode, modeApp } = useThemeMode();
+    const { greyLight } = theme.palette;
 
+    const [userEdit, setUserEdit] = useState(user);
+    const [errors, setErrors] = useState({});
+    return (<>
+        <header className="header">
+            {
+                user?.showAvatar({ size: 60, fontSize: '18px' })
+            }
+            <div>
+                <h1>
+                    {user?.first_name} {user?.last_name.toUpperCase()}
+                </h1>
+                <p className="muted">
+                    @{user?.display_name} • {t(user?.role, { ns: NS_ROLES })}
+                </p>
+            </div>
+            <div className="header-actions">
+                {
+                    user && userEdit && !user.same(userEdit) && <Stack spacing={1} direction={'row'} alignItems={'center'}>
+                        <ButtonCancel
+                            label="Annuler"
+                            onClick={() => setUserEdit(user.clone())}
+                            disabled={processing}
+                        />
+                        <ButtonConfirm
+                            label="Modifier mon profil"
+                            onClick={handleSave}
+                            loading={processing}
+                        />
+                    </Stack>
+                }
+            </div>
+        </header>
+        <style jsx>{`
+        .page {          
+          padding: 0;
+          color: var(--font-color);
+          display: flex;
+          justify-content: center;
+        }
+
+        .container {
+          width: 100%;
+          height:100%;
+          padding:0px;
+        }
+
+        .header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          margin: 0;
+          font-size: 1.5rem;
+          line-height: 1.5rem;
+        }
+
+        .header-actions {
+          margin-left: auto;
+          display: flex;
+          align-items:center;
+          gap: 8px;
+        }
+
+        .avatar {
+          width: 64px;
+          height: 64px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1.3rem;
+        }
+
+        .muted {
+          margin: 0;
+          font-size: 0.9rem;
+          color: ${greyLight.main};
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+          gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+          .grid {
+            grid-template-columns: 1fr;
+          }
+          .header {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+          .header-actions {
+            margin-left: 0;
+          }
+        }
+
+        .card {
+          background: var(--card-color);
+          border-radius: 10px;
+          padding: 20px;
+          border: 1px solid var(--card-color);
+          
+        }
+
+        .card h2 {
+          margin-top: 0;
+          margin-bottom: 12px;
+          font-size: 1.2rem;
+        }
+
+        .card h3 {
+          margin-top: 16px;
+          margin-bottom: 8px;
+          font-size: 1rem;
+        }
+
+        .field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 12px;
+          font-size: 0.9rem;
+        }
+
+        .field label {
+          margin-bottom: 4px;
+          color: #9ca3af;
+        }
+
+        .field.inline {
+          flex-direction: row;
+          align-items: center;
+          gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        select {
+          background: #020617;
+          border-radius: 10px;
+          border: 1px solid #1f2937;
+          padding: 8px 10px;
+          color: #e5e7eb;
+          outline: none;
+          font-size: 0.9rem;
+        }
+
+        input:disabled,
+        select:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+        }
+
+        .btn {
+          border-radius: 999px;
+          padding: 8px 14px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          font-size: 0.9rem;
+          cursor: pointer;
+        }
+
+        .btn.primary {
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          border-color: transparent;
+        }
+
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .divider {
+          border: none;
+          border-top: 1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          margin: 12px 0;
+        }
+      `}</style>
+    </>)
+}
 function AccountSettingsComponent() {
     const { lang, changeLang } = useLanguage();
-    const { t } = useTranslation([NS_SETTINGS, ClassUser.NS_COLLECTION, NS_ROLES, NS_DASHBOARD_PROFILE]);
+    const {user} = useAuth();
+    const { t } = useTranslation([NS_SETTINGS, ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
     const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { greyLight } = theme.palette;
 
@@ -26,6 +229,40 @@ function AccountSettingsComponent() {
         <>
             <section className="card">
                 <h2>{t('title_account')}</h2>
+                <Grid container alignItems={'center'} spacing={1} sx={{width:'100%', background:'re', mb:2.5}}>
+                     <Grid size={'grow'}>
+                      <TextFieldComponent
+                        label={t('email')}
+                        name={'email'}
+                        type="text"
+                        value={user?.email}
+                       // onChange={handleChange}
+                        disabled={true}
+                        fullWidth={true}
+                        sx={{width:'100%'}}
+                        //onClear={()=>handleClear('first_name')}
+                        //error={errors.birthday}
+                    />
+                     </Grid>
+                    <Grid size={'auto'}>
+                      <ButtonConfirm label="modifier" />
+                    </Grid>
+                </Grid>
+                <div className="field">
+                          <FieldPhoneComponent
+                            label={t('phone_number')}
+                            placeholder={t('phone_number_placeholder')}
+                            type="phone"
+                            name={"phone_number"}
+                            value={user?.phone_number || ''}
+                            //onChange={onChangeValue}
+                            //onClear={() => onClearValue('phone_number')}
+                            //error={errors['phone_number']}
+                            fullWidth={true}
+                            style={{ width: '100%' }}
+                          //required
+                          />
+                </div>
                 <div className="field">
                     <SelectComponentDark
                         label={t('lang')}
@@ -220,8 +457,8 @@ function AccountSettingsComponent() {
 function NotificationSettingsComponent() {
     const { lang, changeLang } = useLanguage();
     const { user, isLoading, update, processing } = useAuth();
-    const { t } = useTranslation([NS_SETTINGS, ClassUser.NS_COLLECTION, NS_ROLES, NS_DASHBOARD_PROFILE]);
-    const translateLabels = t('form', { ns: NS_DASHBOARD_PROFILE, returnObjects: true })
+    const { t } = useTranslation([NS_SETTINGS, ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
+    const translateLabels = t('form', { ns: NS_PROFILE, returnObjects: true })
     const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { greyLight } = theme.palette;
 
@@ -287,15 +524,8 @@ function NotificationSettingsComponent() {
                     <CheckboxComponent
                         label={t('phone_whatsapp')}
                         name={'okay_whatsapp'}
-                        checked={userEdit?.newsletter}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="field inline">
-                    <CheckboxComponent
-                        label={t('phone_sms')}
-                        name={'okay_sms'}
-                        checked={userEdit?.notif_by_email}
+                        disabled={!userEdit?.phone_number || userEdit?.phone_number === ''}
+                        checked={userEdit?.okay_whatsapp}
                         onChange={handleChange}
                     />
                 </div>
@@ -466,8 +696,8 @@ function NotificationSettingsComponent() {
 function ProfilePage() {
     const { lang, changeLang } = useLanguage();
     const { user, isLoading, update, processing } = useAuth();
-    const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_DASHBOARD_PROFILE]);
-    const translateLabels = t('form', { ns: NS_DASHBOARD_PROFILE, returnObjects: true })
+    const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
+    const translateLabels = t('form', { ns: NS_PROFILE, returnObjects: true })
     const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { greyLight } = theme.palette;
 
@@ -509,36 +739,9 @@ function ProfilePage() {
     return (
         <div className="page">
             <main className="container">
-                <header className="header">
-                    {
-                        user?.showAvatar({ size: 60, fontSize: '18px' })
-                    }
-                    <div>
-                        <h1>
-                            {user?.first_name} {user?.last_name.toUpperCase()}
-                        </h1>
-                        <p className="muted">
-                            @{user?.display_name} • {t(user?.role, { ns: NS_ROLES })}
-                        </p>
-                    </div>
-                    <div className="header-actions">
-                        {
-                            user && userEdit && !user.same(userEdit) && <Stack spacing={1} direction={'row'} alignItems={'center'}>
-                                <ButtonCancel
-                                    label="Annuler"
-                                    onClick={() => setUserEdit(user.clone())}
-                                    disabled={processing}
-                                />
-                                <ButtonConfirm
-                                    label="Modifier mon profil"
-                                    onClick={handleSave}
-                                    loading={processing}
-                                />
-                            </Stack>
-                        }
-                    </div>
-                </header>
-
+                {
+                    // <Header />
+                }
                 <div className="grid">
                     <AccountSettingsComponent />
                     <NotificationSettingsComponent />
@@ -708,7 +911,7 @@ function ProfilePage() {
     );
 }
 export default function SettingsComponent() {
-    const { t } = useTranslation([NS_DASHBOARD_PROFILE, NS_COMMON, NS_LANGS]);
+    const { t } = useTranslation([NS_PROFILE, NS_COMMON, NS_LANGS]);
     const form = t('form', { returnObjects: true });
     const { user, isLoading } = useAuth();
     const [userEdit, setUserEdit] = useState(new ClassUser());

@@ -4,7 +4,7 @@ import { IconDashboard, IconEmail, IconLogo, IconProfile, IconTiktok } from "@/a
 import LoginPageWrapper from "@/components/wrappers/LoginPageWrapper";
 import { WEBSITE_FACEBOOK, WEBSITE_LINKEDIN, WEBSITE_NAME, WEBSITE_START_YEAR, WEBSITE_TIKTOK } from "@/contexts/constants/constants";
 import { translateWithVars } from "@/contexts/functions";
-import { NS_DASHBOARD_CALENDAR, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_PROFILE, NS_HOME_FOOTER } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_CALENDAR, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_PROFILE, NS_HOME_FOOTER } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -27,7 +27,7 @@ const LoginComponent = () => {
 export default function DashboardCalendar() {
   const { theme } = useThemeMode();
   const { text } = theme.palette;
-  const { t } = useTranslation([NS_DASHBOARD_PROFILE]);
+  const { t } = useTranslation([NS_PROFILE]);
 
   return (<DashboardPageWrapper 
     titles={[

@@ -5,7 +5,7 @@ import AccordionComponent from "@/components/dashboard/elements/AccordionCompone
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDate, getFormattedDateCompleteNumeric } from "@/contexts/functions";
-import { languages, NS_COMMON, NS_DASHBOARD_PROFILE, NS_FORM, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
+import { languages, NS_COMMON, NS_PROFILE, NS_FORM, NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Backdrop, Box, Button, CircularProgress, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
@@ -26,8 +26,8 @@ import { ClassColor } from "@/classes/ClassColor";
 function ProfilePage() {
     const { lang, changeLang } = useLanguage();
     const { user, isLoading, update, processing } = useAuth();
-    const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_DASHBOARD_PROFILE]);
-    const translateLabels = t('form', {ns:NS_DASHBOARD_PROFILE, returnObjects: true})
+    const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
+    const translateLabels = t('form', {ns:NS_PROFILE, returnObjects: true})
     const { theme, changeTheme, mode, modeApp } = useThemeMode();
     const { greyLight } = theme.palette;
 
@@ -105,29 +105,31 @@ function ProfilePage() {
                         <h2>{translateLabels.title_perso}</h2>
                         <div className="field">
                             <FieldComponent
-                                label={'prénom(s)'}
+                                label={t('first_name')}
                                 name={'first_name'}
                                 type="text"
                                 value={userEdit?.first_name}
                                 onChange={handleChange}
+                                disabled={true}
                                 onClear={() => handleClear('first_name')}
                                 error={errors.first_name}
                             />
                         </div>
                         <div className="field">
                             <FieldComponent
-                                label={'nom(s)'}
+                                label={t('last_name')}
                                 name={'last_name'}
                                 type="text"
                                 value={userEdit?.last_name}
                                 onChange={handleChange}
+                                disabled={true}
                                 onClear={() => handleClear('last_name')}
                                 error={errors.last_name}
                             />
                         </div>
                         <div className="field">
                             <FieldComponent
-                                label={'Nom dhtilisateur'}
+                                label={t('display_name')}
                                 name={'display_name'}
                                 type="text"
                                 value={userEdit?.display_name}
@@ -139,19 +141,19 @@ function ProfilePage() {
                         </div>
                         <div className="field">
                             <FieldComponent
-                                label={'Email personnel'}
+                                label={t('email')}
                                 name={'email'}
                                 type="email"
                                 value={userEdit?.email}
                                 onChange={handleChange}
-
+disabled={true}
                                 //onClear={()=>handleClear('first_name')}
                                 error={errors.email}
                             />
                         </div>
                         <div className="field">
                             <FieldComponent
-                                label={`Email de l'école`}
+                                label={t('email_academy')}
                                 name={'email_academy'}
                                 type="email"
                                 value={userEdit?.email_academy}
@@ -163,7 +165,7 @@ function ProfilePage() {
                         </div>
                         <div className="field">
                             <FieldComponent
-                                label={'date de naissance'}
+                                label={t('birthday')}
                                 name={'birthday'}
                                 type="date"
                                 value={userEdit?.birthday}
@@ -180,7 +182,7 @@ function ProfilePage() {
                         <h2>{translateLabels.title_account}</h2>
                         <div className="field">
                             <FieldComponent
-                                label={'uid utilisateur'}
+                                label={t('uid')}
                                 name={'uid'}
                                 type="text"
                                 value={userEdit?.uid}
@@ -192,7 +194,7 @@ function ProfilePage() {
                         </div>
                         <div className="field">
                             <SelectComponentDark
-                                label={`Role`}
+                                label={t('role')}
                                 name={'role'}
                                 value={userEdit?.role}
                                 values={ClassUser.ALL_ROLES.map(role => ({ id: role, value: t(role, { ns: NS_ROLES }) }))}
@@ -204,7 +206,7 @@ function ProfilePage() {
                         </div>
                         <div className="field">
                             <FieldTextComponent
-                                label={'date création'}
+                                label={t('created_time')}
                                 name={'created_time'}
                                 type="date"
                                 value={getFormattedDateCompleteNumeric(userEdit?.created_time, lang)}
@@ -216,7 +218,7 @@ function ProfilePage() {
                         </div>
                         <div className="field">
                             <FieldTextComponent
-                                label={'date dernière mise à jour'}
+                                label={t('last_edit_time')}
                                 name={'last_edit_time'}
                                 type="date"
                                 value={getFormattedDateCompleteNumeric(userEdit?.last_edit_time, lang)}
@@ -393,7 +395,7 @@ function ProfilePage() {
     );
 }
 export default function ProfileComponent() {
-    const { t } = useTranslation([NS_DASHBOARD_PROFILE, NS_COMMON, NS_LANGS]);
+    const { t } = useTranslation([NS_PROFILE, NS_COMMON, NS_LANGS]);
     const form = t('form', { returnObjects: true });
     const { user, isLoading } = useAuth();
     const [userEdit, setUserEdit] = useState(new ClassUser());
