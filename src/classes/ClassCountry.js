@@ -36,7 +36,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ax.svg",
-                "png": "https://flagcdn.com/w320/ax.png"
+                "png": "https://flagcdn.com/w320/ax.png",
+                "str":"🇦🇽"
             }
         },
         {
@@ -54,7 +55,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/al.svg",
-                "png": "https://flagcdn.com/w320/al.png"
+                "png": "https://flagcdn.com/w320/al.png",
+                "str":"🇦🇱"
             }
         },
         {
@@ -72,7 +74,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/dz.svg",
-                "png": "https://flagcdn.com/w320/dz.png"
+                "png": "https://flagcdn.com/w320/dz.png",
+                "str":"🇩🇿"
             }
         },
         {
@@ -90,7 +93,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/as.svg",
-                "png": "https://flagcdn.com/w320/as.png"
+                "png": "https://flagcdn.com/w320/as.png",
+                "str":"🇦🇸"
             }
         },
         {
@@ -108,7 +112,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ad.svg",
-                "png": "https://flagcdn.com/w320/ad.png"
+                "png": "https://flagcdn.com/w320/ad.png",
+                "str":"🇦🇩"
             }
         },
         {
@@ -145,7 +150,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ai.svg",
-                "png": "https://flagcdn.com/w320/ai.png"
+                "png": "https://flagcdn.com/w320/ai.png",
+                "str":"🇦🇮"
             }
         },
         {
@@ -163,7 +169,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/aq.svg",
-                "png": "https://flagcdn.com/w320/aq.png"
+                "png": "https://flagcdn.com/w320/aq.png",
+                "str":"🇦🇶"
             }
         },
         {
@@ -181,7 +188,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ag.svg",
-                "png": "https://flagcdn.com/w320/ag.png"
+                "png": "https://flagcdn.com/w320/ag.png",
+                "str":"🇦🇬"
             }
         },
         {
@@ -199,7 +207,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ar.svg",
-                "png": "https://flagcdn.com/w320/ar.png"
+                "png": "https://flagcdn.com/w320/ar.png",
+                "str":"🇦🇷"
             }
         },
         {
@@ -217,7 +226,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/am.svg",
-                "png": "https://flagcdn.com/w320/am.png"
+                "png": "https://flagcdn.com/w320/am.png",
+                "str":"🇦🇲"
             }
         },
         {
@@ -235,7 +245,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/aw.svg",
-                "png": "https://flagcdn.com/w320/aw.png"
+                "png": "https://flagcdn.com/w320/aw.png",
+                "str":"🇦🇼"
             }
         },
         {
@@ -253,7 +264,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/au.svg",
-                "png": "https://flagcdn.com/w320/au.png"
+                "png": "https://flagcdn.com/w320/au.png",
+                "str":"🇦🇺"
             }
         },
         {
@@ -271,7 +283,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/at.svg",
-                "png": "https://flagcdn.com/w320/at.png"
+                "png": "https://flagcdn.com/w320/at.png",
+                "str":"🇦🇹"
             }
         },
         {
@@ -289,7 +302,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/az.svg",
-                "png": "https://flagcdn.com/w320/az.png"
+                "png": "https://flagcdn.com/w320/az.png",
+                "str":"🇦🇿"
             }
         },
         {
@@ -307,7 +321,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bs.svg",
-                "png": "https://flagcdn.com/w320/bs.png"
+                "png": "https://flagcdn.com/w320/bs.png",
+                "str":"🇧🇸"
             }
         },
         {
@@ -325,7 +340,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bh.svg",
-                "png": "https://flagcdn.com/w320/bh.png"
+                "png": "https://flagcdn.com/w320/bh.png",
+                "str":"🇧🇭"
             }
         },
         {
@@ -343,7 +359,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bd.svg",
-                "png": "https://flagcdn.com/w320/bd.png"
+                "png": "https://flagcdn.com/w320/bd.png",
+                "str":"🇧🇩"
             }
         },
         {
@@ -361,7 +378,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bb.svg",
-                "png": "https://flagcdn.com/w320/bb.png"
+                "png": "https://flagcdn.com/w320/bb.png",
+                "str":"🇧🇧"
             }
         },
         {
@@ -379,7 +397,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/by.svg",
-                "png": "https://flagcdn.com/w320/by.png"
+                "png": "https://flagcdn.com/w320/by.png",
+                "str":"🇧🇾"
             }
         },
         {
@@ -397,7 +416,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/be.svg",
-                "png": "https://flagcdn.com/w320/be.png"
+                "png": "https://flagcdn.com/w320/be.png",
+                "str":"🇧🇪"
             }
         },
         {
@@ -415,7 +435,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bz.svg",
-                "png": "https://flagcdn.com/w320/bz.png"
+                "png": "https://flagcdn.com/w320/bz.png",
+                "str":"🇧🇿"
             }
         },
         {
@@ -433,7 +454,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bj.svg",
-                "png": "https://flagcdn.com/w320/bj.png"
+                "png": "https://flagcdn.com/w320/bj.png",
+                "str":"🇧🇯"
             }
         },
         {
@@ -451,7 +473,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bm.svg",
-                "png": "https://flagcdn.com/w320/bm.png"
+                "png": "https://flagcdn.com/w320/bm.png",
+                "str":"🇧🇲"
             }
         },
         {
@@ -469,7 +492,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bt.svg",
-                "png": "https://flagcdn.com/w320/bt.png"
+                "png": "https://flagcdn.com/w320/bt.png",
+                "str":"🇧🇹"
             }
         },
         {
@@ -487,7 +511,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bo.svg",
-                "png": "https://flagcdn.com/w320/bo.png"
+                "png": "https://flagcdn.com/w320/bo.png",
+                "str":"🇧🇴"
             }
         },
         {
@@ -505,7 +530,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bq.svg",
-                "png": "https://flagcdn.com/w320/bq.png"
+                "png": "https://flagcdn.com/w320/bq.png",
+                "str":"🇧🇶"
             }
         },
         {
@@ -523,7 +549,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ba.svg",
-                "png": "https://flagcdn.com/w320/ba.png"
+                "png": "https://flagcdn.com/w320/ba.png",
+                "str":"🇧🇦"
             }
         },
         {
@@ -541,7 +568,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bw.svg",
-                "png": "https://flagcdn.com/w320/bw.png"
+                "png": "https://flagcdn.com/w320/bw.png",
+                "str":"🇧🇼"
             }
         },
         {
@@ -559,7 +587,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bv.svg",
-                "png": "https://flagcdn.com/w320/bv.png"
+                "png": "https://flagcdn.com/w320/bv.png",
+                "str":"🇳🇴"
             }
         },
         {
@@ -577,7 +606,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/br.svg",
-                "png": "https://flagcdn.com/w320/br.png"
+                "png": "https://flagcdn.com/w320/br.png",
+                "str":"🇧🇷"
             }
         },
         {
@@ -595,7 +625,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/io.svg",
-                "png": "https://flagcdn.com/w320/io.png"
+                "png": "https://flagcdn.com/w320/io.png",
+                "str":"🇮🇴"
             }
         },
         {
@@ -613,7 +644,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/um.svg",
-                "png": "https://flagcdn.com/w320/um.png"
+                "png": "https://flagcdn.com/w320/um.png",
+                "str":"🇺🇸"
             }
         },
         {
@@ -631,7 +663,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/vg.svg",
-                "png": "https://flagcdn.com/w320/vg.png"
+                "png": "https://flagcdn.com/w320/vg.png",
+                "str":"🇻🇬"
             }
         },
         {
@@ -649,7 +682,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/vi.svg",
-                "png": "https://flagcdn.com/w320/vi.png"
+                "png": "https://flagcdn.com/w320/vi.png",
+                "str":"🇺🇸"
             }
         },
         {
@@ -667,7 +701,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bn.svg",
-                "png": "https://flagcdn.com/w320/bn.png"
+                "png": "https://flagcdn.com/w320/bn.png",
+                "str":"🇧🇳"
             }
         },
         {
@@ -685,7 +720,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bg.svg",
-                "png": "https://flagcdn.com/w320/bg.png"
+                "png": "https://flagcdn.com/w320/bg.png",
+                "str":"🇧🇬"
             }
         },
         {
@@ -703,7 +739,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bf.svg",
-                "png": "https://flagcdn.com/w320/bf.png"
+                "png": "https://flagcdn.com/w320/bf.png",
+                "str":"🇧🇫"
             }
         },
         {
@@ -721,7 +758,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bi.svg",
-                "png": "https://flagcdn.com/w320/bi.png"
+                "png": "https://flagcdn.com/w320/bi.png",
+                "str":"🇧🇮"
             }
         },
         {
@@ -739,7 +777,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kh.svg",
-                "png": "https://flagcdn.com/w320/kh.png"
+                "png": "https://flagcdn.com/w320/kh.png",
+                "str":"🇰🇭"
             }
         },
         {
@@ -757,7 +796,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cm.svg",
-                "png": "https://flagcdn.com/w320/cm.png"
+                "png": "https://flagcdn.com/w320/cm.png",
+                "str":"🇨🇲"
             }
         },
         {
@@ -775,7 +815,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ca.svg",
-                "png": "https://flagcdn.com/w320/ca.png"
+                "png": "https://flagcdn.com/w320/ca.png",
+                "str":"🇨🇦"
             }
         },
         {
@@ -793,7 +834,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cv.svg",
-                "png": "https://flagcdn.com/w320/cv.png"
+                "png": "https://flagcdn.com/w320/cv.png",
+                "str":"🇨🇻"
             }
         },
         {
@@ -811,7 +853,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ky.svg",
-                "png": "https://flagcdn.com/w320/ky.png"
+                "png": "https://flagcdn.com/w320/ky.png",
+                "str":"🇰🇾"
             }
         },
         {
@@ -829,7 +872,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cf.svg",
-                "png": "https://flagcdn.com/w320/cf.png"
+                "png": "https://flagcdn.com/w320/cf.png",
+                "str":"🇨🇫"
             }
         },
         {
@@ -847,7 +891,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/td.svg",
-                "png": "https://flagcdn.com/w320/td.png"
+                "png": "https://flagcdn.com/w320/td.png",
+                "str":"🇹🇩"
             }
         },
         {
@@ -865,7 +910,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cl.svg",
-                "png": "https://flagcdn.com/w320/cl.png"
+                "png": "https://flagcdn.com/w320/cl.png",
+                "str":"🇨🇱"
             }
         },
         {
@@ -883,7 +929,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cn.svg",
-                "png": "https://flagcdn.com/w320/cn.png"
+                "png": "https://flagcdn.com/w320/cn.png",
+                "str":"🇨🇳"
             }
         },
         {
@@ -901,7 +948,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cx.svg",
-                "png": "https://flagcdn.com/w320/cx.png"
+                "png": "https://flagcdn.com/w320/cx.png",
+                "str":"🇨🇽"
             }
         },
         {
@@ -919,7 +967,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cc.svg",
-                "png": "https://flagcdn.com/w320/cc.png"
+                "png": "https://flagcdn.com/w320/cc.png",
+                "str":"🇨🇨"
             }
         },
         {
@@ -937,7 +986,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/co.svg",
-                "png": "https://flagcdn.com/w320/co.png"
+                "png": "https://flagcdn.com/w320/co.png",
+                "str":"🇨🇴"
             }
         },
         {
@@ -955,7 +1005,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/km.svg",
-                "png": "https://flagcdn.com/w320/km.png"
+                "png": "https://flagcdn.com/w320/km.png",
+                "str":"🇰🇲"
             }
         },
         {
@@ -973,7 +1024,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cg.svg",
-                "png": "https://flagcdn.com/w320/cg.png"
+                "png": "https://flagcdn.com/w320/cg.png",
+                "str":"🇨🇬"
             }
         },
         {
@@ -991,7 +1043,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cd.svg",
-                "png": "https://flagcdn.com/w320/cd.png"
+                "png": "https://flagcdn.com/w320/cd.png",
+                "str":"🇨🇩"
             }
         },
         {
@@ -1009,7 +1062,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ck.svg",
-                "png": "https://flagcdn.com/w320/ck.png"
+                "png": "https://flagcdn.com/w320/ck.png",
+                "str":"🇨🇰"
             }
         },
         {
@@ -1027,7 +1081,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cr.svg",
-                "png": "https://flagcdn.com/w320/cr.png"
+                "png": "https://flagcdn.com/w320/cr.png",
+                "str":"🇨🇷"
             }
         },
         {
@@ -1045,7 +1100,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/hr.svg",
-                "png": "https://flagcdn.com/w320/hr.png"
+                "png": "https://flagcdn.com/w320/hr.png",
+                "str":"🇭🇷"
             }
         },
         {
@@ -1063,7 +1119,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cu.svg",
-                "png": "https://flagcdn.com/w320/cu.png"
+                "png": "https://flagcdn.com/w320/cu.png",
+                "str":"🇨🇺"
             }
         },
         {
@@ -1081,7 +1138,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cw.svg",
-                "png": "https://flagcdn.com/w320/cw.png"
+                "png": "https://flagcdn.com/w320/cw.png",
+                "str":"🇨🇼"
             }
         },
         {
@@ -1099,7 +1157,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cy.svg",
-                "png": "https://flagcdn.com/w320/cy.png"
+                "png": "https://flagcdn.com/w320/cy.png",
+                "str":"🇨🇾"
             }
         },
         {
@@ -1117,7 +1176,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/cz.svg",
-                "png": "https://flagcdn.com/w320/cz.png"
+                "png": "https://flagcdn.com/w320/cz.png",
+                "str":"🇨🇿"
             }
         },
         {
@@ -1135,7 +1195,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/dk.svg",
-                "png": "https://flagcdn.com/w320/dk.png"
+                "png": "https://flagcdn.com/w320/dk.png",
+                "str":"🇩🇰"
             }
         },
         {
@@ -1153,7 +1214,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/dj.svg",
-                "png": "https://flagcdn.com/w320/dj.png"
+                "png": "https://flagcdn.com/w320/dj.png",
+                "str":"🇩🇯"
             }
         },
         {
@@ -1171,7 +1233,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/dm.svg",
-                "png": "https://flagcdn.com/w320/dm.png"
+                "png": "https://flagcdn.com/w320/dm.png",
+                "str":"🇩🇲"
             }
         },
         {
@@ -1189,7 +1252,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/do.svg",
-                "png": "https://flagcdn.com/w320/do.png"
+                "png": "https://flagcdn.com/w320/do.png",
+                "str":"🇩🇴"
             }
         },
         {
@@ -1207,7 +1271,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ec.svg",
-                "png": "https://flagcdn.com/w320/ec.png"
+                "png": "https://flagcdn.com/w320/ec.png",
+                "str":"🇪🇨"
             }
         },
         {
@@ -1225,7 +1290,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/eg.svg",
-                "png": "https://flagcdn.com/w320/eg.png"
+                "png": "https://flagcdn.com/w320/eg.png",
+                "str":"🇪🇬"
             }
         },
         {
@@ -1243,7 +1309,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sv.svg",
-                "png": "https://flagcdn.com/w320/sv.png"
+                "png": "https://flagcdn.com/w320/sv.png",
+                "str":"🇸🇻"
             }
         },
         {
@@ -1261,7 +1328,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gq.svg",
-                "png": "https://flagcdn.com/w320/gq.png"
+                "png": "https://flagcdn.com/w320/gq.png",
+                "str":"🇬🇶"
             }
         },
         {
@@ -1279,7 +1347,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/er.svg",
-                "png": "https://flagcdn.com/w320/er.png"
+                "png": "https://flagcdn.com/w320/er.png",
+                "str":"🇪🇷"
             }
         },
         {
@@ -1297,7 +1366,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ee.svg",
-                "png": "https://flagcdn.com/w320/ee.png"
+                "png": "https://flagcdn.com/w320/ee.png",
+                "str":"🇪🇪"
             }
         },
         {
@@ -1315,7 +1385,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/et.svg",
-                "png": "https://flagcdn.com/w320/et.png"
+                "png": "https://flagcdn.com/w320/et.png",
+                "str":"🇪🇹"
             }
         },
         {
@@ -1333,7 +1404,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/fk.svg",
-                "png": "https://flagcdn.com/w320/fk.png"
+                "png": "https://flagcdn.com/w320/fk.png",
+                "str":"🇫🇰"
             }
         },
         {
@@ -1351,7 +1423,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/fo.svg",
-                "png": "https://flagcdn.com/w320/fo.png"
+                "png": "https://flagcdn.com/w320/fo.png",
+                "str":"🇫🇴"
             }
         },
         {
@@ -1369,7 +1442,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/fj.svg",
-                "png": "https://flagcdn.com/w320/fj.png"
+                "png": "https://flagcdn.com/w320/fj.png",
+                "str":"🇫🇯"
             }
         },
         {
@@ -1387,7 +1461,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/fi.svg",
-                "png": "https://flagcdn.com/w320/fi.png"
+                "png": "https://flagcdn.com/w320/fi.png",
+                "str":"🇫🇮"
             }
         },
         {
@@ -1405,7 +1480,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/fr.svg",
-                "png": "https://flagcdn.com/w320/fr.png"
+                "png": "https://flagcdn.com/w320/fr.png",
+                "str":"🇫🇷"
             }
         },
         {
@@ -1423,7 +1499,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gf.svg",
-                "png": "https://flagcdn.com/w320/gf.png"
+                "png": "https://flagcdn.com/w320/gf.png",
+                "str":"🇬🇫"
             }
         },
         {
@@ -1441,7 +1518,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pf.svg",
-                "png": "https://flagcdn.com/w320/pf.png"
+                "png": "https://flagcdn.com/w320/pf.png",
+                "str":"🇵🇫"
             }
         },
         {
@@ -1459,7 +1537,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tf.svg",
-                "png": "https://flagcdn.com/w320/tf.png"
+                "png": "https://flagcdn.com/w320/tf.png",
+                "str":"🇹🇫"
             }
         },
         {
@@ -1477,7 +1556,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ga.svg",
-                "png": "https://flagcdn.com/w320/ga.png"
+                "png": "https://flagcdn.com/w320/ga.png",
+                "str":"🇬🇦"
             }
         },
         {
@@ -1495,7 +1575,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gm.svg",
-                "png": "https://flagcdn.com/w320/gm.png"
+                "png": "https://flagcdn.com/w320/gm.png",
+                "str":"🇬🇲"
             }
         },
         {
@@ -1513,7 +1594,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ge.svg",
-                "png": "https://flagcdn.com/w320/ge.png"
+                "png": "https://flagcdn.com/w320/ge.png",
+                "str":"🇬🇪"
             }
         },
         {
@@ -1531,7 +1613,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/de.svg",
-                "png": "https://flagcdn.com/w320/de.png"
+                "png": "https://flagcdn.com/w320/de.png",
+                "str":"🇩🇪"
             }
         },
         {
@@ -1549,7 +1632,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gh.svg",
-                "png": "https://flagcdn.com/w320/gh.png"
+                "png": "https://flagcdn.com/w320/gh.png",
+                "str":"🇬🇭"
             }
         },
         {
@@ -1567,7 +1651,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gi.svg",
-                "png": "https://flagcdn.com/w320/gi.png"
+                "png": "https://flagcdn.com/w320/gi.png",
+                "str":"🇬🇮"
             }
         },
         {
@@ -1585,7 +1670,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gr.svg",
-                "png": "https://flagcdn.com/w320/gr.png"
+                "png": "https://flagcdn.com/w320/gr.png",
+                "str":"🇬🇷"
             }
         },
         {
@@ -1603,7 +1689,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gl.svg",
-                "png": "https://flagcdn.com/w320/gl.png"
+                "png": "https://flagcdn.com/w320/gl.png",
+                "str":"🇬🇱"
             }
         },
         {
@@ -1621,7 +1708,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gd.svg",
-                "png": "https://flagcdn.com/w320/gd.png"
+                "png": "https://flagcdn.com/w320/gd.png",
+                "str":"🇬🇩"
             }
         },
         {
@@ -1639,7 +1727,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gp.svg",
-                "png": "https://flagcdn.com/w320/gp.png"
+                "png": "https://flagcdn.com/w320/gp.png",
+                "str":"🇬🇵"
             }
         },
         {
@@ -1657,7 +1746,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gu.svg",
-                "png": "https://flagcdn.com/w320/gu.png"
+                "png": "https://flagcdn.com/w320/gu.png",
+                "str":"🇬🇺"
             }
         },
         {
@@ -1675,7 +1765,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gt.svg",
-                "png": "https://flagcdn.com/w320/gt.png"
+                "png": "https://flagcdn.com/w320/gt.png",
+                "str":"🇬🇹"
             }
         },
         {
@@ -1693,7 +1784,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gg.svg",
-                "png": "https://flagcdn.com/w320/gg.png"
+                "png": "https://flagcdn.com/w320/gg.png",
+                "str":"🇬🇬"
             }
         },
         {
@@ -1711,7 +1803,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gn.svg",
-                "png": "https://flagcdn.com/w320/gn.png"
+                "png": "https://flagcdn.com/w320/gn.png",
+                "str":"🇬🇳"
             }
         },
         {
@@ -1729,7 +1822,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gw.svg",
-                "png": "https://flagcdn.com/w320/gw.png"
+                "png": "https://flagcdn.com/w320/gw.png",
+                "str":"🇬🇼"
             }
         },
         {
@@ -1747,7 +1841,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gy.svg",
-                "png": "https://flagcdn.com/w320/gy.png"
+                "png": "https://flagcdn.com/w320/gy.png",
+                "str":"🇬🇾"
             }
         },
         {
@@ -1765,7 +1860,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ht.svg",
-                "png": "https://flagcdn.com/w320/ht.png"
+                "png": "https://flagcdn.com/w320/ht.png",
+                "str":"🇭🇹"
             }
         },
         {
@@ -1783,7 +1879,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/hm.svg",
-                "png": "https://flagcdn.com/w320/hm.png"
+                "png": "https://flagcdn.com/w320/hm.png",
+                "str":"🇭🇲"
             }
         },
         {
@@ -1801,7 +1898,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/va.svg",
-                "png": "https://flagcdn.com/w320/va.png"
+                "png": "https://flagcdn.com/w320/va.png",
+                "str":"🇻🇦"
             }
         },
         {
@@ -1819,7 +1917,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/hn.svg",
-                "png": "https://flagcdn.com/w320/hn.png"
+                "png": "https://flagcdn.com/w320/hn.png",
+                "str":"🇭🇳"
             }
         },
         {
@@ -1837,7 +1936,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/hu.svg",
-                "png": "https://flagcdn.com/w320/hu.png"
+                "png": "https://flagcdn.com/w320/hu.png",
+                "str":"🇭🇺"
             }
         },
         {
@@ -1855,7 +1955,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/hk.svg",
-                "png": "https://flagcdn.com/w320/hk.png"
+                "png": "https://flagcdn.com/w320/hk.png",
+                "str":"🇭🇰"
             }
         },
         {
@@ -1873,7 +1974,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/is.svg",
-                "png": "https://flagcdn.com/w320/is.png"
+                "png": "https://flagcdn.com/w320/is.png",
+                "str":"🇮🇸"
             }
         },
         {
@@ -1891,7 +1993,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/in.svg",
-                "png": "https://flagcdn.com/w320/in.png"
+                "png": "https://flagcdn.com/w320/in.png",
+                "str":"🇮🇳"
             }
         },
         {
@@ -1909,7 +2012,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/id.svg",
-                "png": "https://flagcdn.com/w320/id.png"
+                "png": "https://flagcdn.com/w320/id.png",
+                "str":"🇮🇩"
             }
         },
         {
@@ -1927,7 +2031,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ci.svg",
-                "png": "https://flagcdn.com/w320/ci.png"
+                "png": "https://flagcdn.com/w320/ci.png",
+                "str":"🇨🇮"
             }
         },
         {
@@ -1945,7 +2050,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ir.svg",
-                "png": "https://flagcdn.com/w320/ir.png"
+                "png": "https://flagcdn.com/w320/ir.png",
+                "str":"🇮🇷"
             }
         },
         {
@@ -1963,7 +2069,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/iq.svg",
-                "png": "https://flagcdn.com/w320/iq.png"
+                "png": "https://flagcdn.com/w320/iq.png",
+                "str":"🇮🇶"
             }
         },
         {
@@ -1981,7 +2088,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ie.svg",
-                "png": "https://flagcdn.com/w320/ie.png"
+                "png": "https://flagcdn.com/w320/ie.png",
+                "str":"🇮🇪"
             }
         },
         {
@@ -1999,7 +2107,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/im.svg",
-                "png": "https://flagcdn.com/w320/im.png"
+                "png": "https://flagcdn.com/w320/im.png",
+                "str":"🇮🇲"
             }
         },
         {
@@ -2017,7 +2126,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/il.svg",
-                "png": "https://flagcdn.com/w320/il.png"
+                "png": "https://flagcdn.com/w320/il.png",
+                "str":"🇮🇱"
             }
         },
         {
@@ -2035,7 +2145,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/it.svg",
-                "png": "https://flagcdn.com/w320/it.png"
+                "png": "https://flagcdn.com/w320/it.png",
+                "str":"🇮🇹"
             }
         },
         {
@@ -2053,7 +2164,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/jm.svg",
-                "png": "https://flagcdn.com/w320/jm.png"
+                "png": "https://flagcdn.com/w320/jm.png",
+                "str":"🇯🇲"
             }
         },
         {
@@ -2071,7 +2183,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/jp.svg",
-                "png": "https://flagcdn.com/w320/jp.png"
+                "png": "https://flagcdn.com/w320/jp.png",
+                "str":"🇯🇵"
             }
         },
         {
@@ -2089,7 +2202,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/je.svg",
-                "png": "https://flagcdn.com/w320/je.png"
+                "png": "https://flagcdn.com/w320/je.png",
+                "str":"🇯🇪"
             }
         },
         {
@@ -2107,7 +2221,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/jo.svg",
-                "png": "https://flagcdn.com/w320/jo.png"
+                "png": "https://flagcdn.com/w320/jo.png",
+                "str":"🇯🇴"
             }
         },
         {
@@ -2126,7 +2241,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kz.svg",
-                "png": "https://flagcdn.com/w320/kz.png"
+                "png": "https://flagcdn.com/w320/kz.png",
+                "str":"🇰🇿"
             }
         },
         {
@@ -2144,7 +2260,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ke.svg",
-                "png": "https://flagcdn.com/w320/ke.png"
+                "png": "https://flagcdn.com/w320/ke.png",
+                "str":"🇰🇪"
             }
         },
         {
@@ -2162,7 +2279,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ki.svg",
-                "png": "https://flagcdn.com/w320/ki.png"
+                "png": "https://flagcdn.com/w320/ki.png",
+                "str":"🇰🇮"
             }
         },
         {
@@ -2180,7 +2298,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kw.svg",
-                "png": "https://flagcdn.com/w320/kw.png"
+                "png": "https://flagcdn.com/w320/kw.png",
+                "str":"🇰🇼"
             }
         },
         {
@@ -2198,7 +2317,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kg.svg",
-                "png": "https://flagcdn.com/w320/kg.png"
+                "png": "https://flagcdn.com/w320/kg.png",
+                "str":"🇰🇬"
             }
         },
         {
@@ -2216,7 +2336,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/la.svg",
-                "png": "https://flagcdn.com/w320/la.png"
+                "png": "https://flagcdn.com/w320/la.png",
+                "str":"🇱🇦"
             }
         },
         {
@@ -2234,7 +2355,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lv.svg",
-                "png": "https://flagcdn.com/w320/lv.png"
+                "png": "https://flagcdn.com/w320/lv.png",
+                "str":"🇱🇻"
             }
         },
         {
@@ -2252,7 +2374,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lb.svg",
-                "png": "https://flagcdn.com/w320/lb.png"
+                "png": "https://flagcdn.com/w320/lb.png",
+                "str":"🇱🇧"
             }
         },
         {
@@ -2270,7 +2393,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ls.svg",
-                "png": "https://flagcdn.com/w320/ls.png"
+                "png": "https://flagcdn.com/w320/ls.png",
+                "str":"🇱🇸"
             }
         },
         {
@@ -2288,7 +2412,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lr.svg",
-                "png": "https://flagcdn.com/w320/lr.png"
+                "png": "https://flagcdn.com/w320/lr.png",
+                "str":"🇱🇷"
             }
         },
         {
@@ -2306,7 +2431,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ly.svg",
-                "png": "https://flagcdn.com/w320/ly.png"
+                "png": "https://flagcdn.com/w320/ly.png",
+                "str":"🇱🇷"
             }
         },
         {
@@ -2324,7 +2450,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/li.svg",
-                "png": "https://flagcdn.com/w320/li.png"
+                "png": "https://flagcdn.com/w320/li.png",
+                "str":"🇱🇮"
             }
         },
         {
@@ -2342,7 +2469,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lt.svg",
-                "png": "https://flagcdn.com/w320/lt.png"
+                "png": "https://flagcdn.com/w320/lt.png",
+                "str":"🇱🇹"
             }
         },
         {
@@ -2360,7 +2488,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lu.svg",
-                "png": "https://flagcdn.com/w320/lu.png"
+                "png": "https://flagcdn.com/w320/lu.png",
+                "str":"🇱🇺"
             }
         },
         {
@@ -2378,7 +2507,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mo.svg",
-                "png": "https://flagcdn.com/w320/mo.png"
+                "png": "https://flagcdn.com/w320/mo.png",
+                "str":"🇲🇴"
             }
         },
         {
@@ -2396,7 +2526,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mk.svg",
-                "png": "https://flagcdn.com/w320/mk.png"
+                "png": "https://flagcdn.com/w320/mk.png",
+                "str":"🇲🇰"
             }
         },
         {
@@ -2414,7 +2545,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mg.svg",
-                "png": "https://flagcdn.com/w320/mg.png"
+                "png": "https://flagcdn.com/w320/mg.png",
+                "str":"🇲🇬"
             }
         },
         {
@@ -2432,7 +2564,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mw.svg",
-                "png": "https://flagcdn.com/w320/mw.png"
+                "png": "https://flagcdn.com/w320/mw.png",
+                "str":"🇲🇼"
             }
         },
         {
@@ -2450,7 +2583,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/my.svg",
-                "png": "https://flagcdn.com/w320/my.png"
+                "png": "https://flagcdn.com/w320/my.png",
+                "str":"🇲🇾"
             }
         },
         {
@@ -2468,7 +2602,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mv.svg",
-                "png": "https://flagcdn.com/w320/mv.png"
+                "png": "https://flagcdn.com/w320/mv.png",
+                "str":"🇲🇻"
             }
         },
         {
@@ -2486,7 +2621,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ml.svg",
-                "png": "https://flagcdn.com/w320/ml.png"
+                "png": "https://flagcdn.com/w320/ml.png",
+                "str":"🇲🇱"
             }
         },
         {
@@ -2504,7 +2640,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mt.svg",
-                "png": "https://flagcdn.com/w320/mt.png"
+                "png": "https://flagcdn.com/w320/mt.png",
+                "str":"🇲🇹"
             }
         },
         {
@@ -2522,7 +2659,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mh.svg",
-                "png": "https://flagcdn.com/w320/mh.png"
+                "png": "https://flagcdn.com/w320/mh.png",
+                "str":"🇲🇭"
             }
         },
         {
@@ -2540,7 +2678,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mq.svg",
-                "png": "https://flagcdn.com/w320/mq.png"
+                "png": "https://flagcdn.com/w320/mq.png",
+                "str":"🇲🇶"
             }
         },
         {
@@ -2558,7 +2697,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mr.svg",
-                "png": "https://flagcdn.com/w320/mr.png"
+                "png": "https://flagcdn.com/w320/mr.png",
+                "str":"🇲🇷"
             }
         },
         {
@@ -2576,7 +2716,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mu.svg",
-                "png": "https://flagcdn.com/w320/mu.png"
+                "png": "https://flagcdn.com/w320/mu.png",
+                "str":"🇲🇺"
             }
         },
         {
@@ -2594,7 +2735,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/yt.svg",
-                "png": "https://flagcdn.com/w320/yt.png"
+                "png": "https://flagcdn.com/w320/yt.png",
+                "str":"🇾🇹"
             }
         },
         {
@@ -2612,7 +2754,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mx.svg",
-                "png": "https://flagcdn.com/w320/mx.png"
+                "png": "https://flagcdn.com/w320/mx.png",
+                "str":"🇲🇽"
             }
         },
         {
@@ -2630,7 +2773,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/fm.svg",
-                "png": "https://flagcdn.com/w320/fm.png"
+                "png": "https://flagcdn.com/w320/fm.png",
+                "str":"🇫🇲"
             }
         },
         {
@@ -2648,7 +2792,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/md.svg",
-                "png": "https://flagcdn.com/w320/md.png"
+                "png": "https://flagcdn.com/w320/md.png",
+                "str":"🇲🇩"
             }
         },
         {
@@ -2666,7 +2811,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mc.svg",
-                "png": "https://flagcdn.com/w320/mc.png"
+                "png": "https://flagcdn.com/w320/mc.png",
+                "str":"🇲🇨"
             }
         },
         {
@@ -2684,7 +2830,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mn.svg",
-                "png": "https://flagcdn.com/w320/mn.png"
+                "png": "https://flagcdn.com/w320/mn.png",
+                "str":"🇲🇳"
             }
         },
         {
@@ -2702,7 +2849,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/me.svg",
-                "png": "https://flagcdn.com/w320/me.png"
+                "png": "https://flagcdn.com/w320/me.png",
+                "str":"🇲🇪"
             }
         },
         {
@@ -2720,7 +2868,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ms.svg",
-                "png": "https://flagcdn.com/w320/ms.png"
+                "png": "https://flagcdn.com/w320/ms.png",
+                "str":"🇲🇸"
             }
         },
         {
@@ -2738,7 +2887,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ma.svg",
-                "png": "https://flagcdn.com/w320/ma.png"
+                "png": "https://flagcdn.com/w320/ma.png",
+                "str":"🇲🇦"
             }
         },
         {
@@ -2756,7 +2906,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mz.svg",
-                "png": "https://flagcdn.com/w320/mz.png"
+                "png": "https://flagcdn.com/w320/mz.png",
+                "str":"🇲🇿"
             }
         },
         {
@@ -2774,7 +2925,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mm.svg",
-                "png": "https://flagcdn.com/w320/mm.png"
+                "png": "https://flagcdn.com/w320/mm.png",
+                "str":"🇲🇲"
             }
         },
         {
@@ -2792,7 +2944,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/na.svg",
-                "png": "https://flagcdn.com/w320/na.png"
+                "png": "https://flagcdn.com/w320/na.png",
+                "str":"🇳🇦"
             }
         },
         {
@@ -2810,7 +2963,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/nr.svg",
-                "png": "https://flagcdn.com/w320/nr.png"
+                "png": "https://flagcdn.com/w320/nr.png",
+                "str":"🇳🇷"
             }
         },
         {
@@ -2828,7 +2982,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/np.svg",
-                "png": "https://flagcdn.com/w320/np.png"
+                "png": "https://flagcdn.com/w320/np.png",
+                "str":"🇳🇵"
             }
         },
         {
@@ -2846,7 +3001,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/nl.svg",
-                "png": "https://flagcdn.com/w320/nl.png"
+                "png": "https://flagcdn.com/w320/nl.png",
+                "str":"🇳🇱"
             }
         },
         {
@@ -2864,7 +3020,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/nc.svg",
-                "png": "https://flagcdn.com/w320/nc.png"
+                "png": "https://flagcdn.com/w320/nc.png",
+                "str":"🇳🇨"
             }
         },
         {
@@ -2882,7 +3039,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/nz.svg",
-                "png": "https://flagcdn.com/w320/nz.png"
+                "png": "https://flagcdn.com/w320/nz.png",
+                "str":"🇳🇿"
             }
         },
         {
@@ -2900,7 +3058,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ni.svg",
-                "png": "https://flagcdn.com/w320/ni.png"
+                "png": "https://flagcdn.com/w320/ni.png",
+                "str":"🇳🇮"
             }
         },
         {
@@ -2918,7 +3077,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ne.svg",
-                "png": "https://flagcdn.com/w320/ne.png"
+                "png": "https://flagcdn.com/w320/ne.png",
+                "str":"🇳🇪"
             }
         },
         {
@@ -2936,7 +3096,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ng.svg",
-                "png": "https://flagcdn.com/w320/ng.png"
+                "png": "https://flagcdn.com/w320/ng.png",
+                "str":"🇳🇬"
             }
         },
         {
@@ -2954,7 +3115,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/nu.svg",
-                "png": "https://flagcdn.com/w320/nu.png"
+                "png": "https://flagcdn.com/w320/nu.png",
+                "str":"🇳🇺"
             }
         },
         {
@@ -2972,7 +3134,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/nf.svg",
-                "png": "https://flagcdn.com/w320/nf.png"
+                "png": "https://flagcdn.com/w320/nf.png",
+                "str":"🇳🇫"
             }
         },
         {
@@ -2990,7 +3153,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kp.svg",
-                "png": "https://flagcdn.com/w320/kp.png"
+                "png": "https://flagcdn.com/w320/kp.png",
+                "str":"🇰🇵"
             }
         },
         {
@@ -3008,7 +3172,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mp.svg",
-                "png": "https://flagcdn.com/w320/mp.png"
+                "png": "https://flagcdn.com/w320/mp.png",
+                "str":"🇲🇵"
             }
         },
         {
@@ -3026,7 +3191,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/no.svg",
-                "png": "https://flagcdn.com/w320/no.png"
+                "png": "https://flagcdn.com/w320/no.png",
+                "str":"🇳🇴"
             }
         },
         {
@@ -3044,7 +3210,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/om.svg",
-                "png": "https://flagcdn.com/w320/om.png"
+                "png": "https://flagcdn.com/w320/om.png",
+                "str":"🇴🇲"
             }
         },
         {
@@ -3062,7 +3229,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pk.svg",
-                "png": "https://flagcdn.com/w320/pk.png"
+                "png": "https://flagcdn.com/w320/pk.png",
+                "str":"🇵🇰"
             }
         },
         {
@@ -3080,7 +3248,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pw.svg",
-                "png": "https://flagcdn.com/w320/pw.png"
+                "png": "https://flagcdn.com/w320/pw.png",
+                "str":"🇵🇼"
             }
         },
         {
@@ -3098,7 +3267,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ps.svg",
-                "png": "https://flagcdn.com/w320/ps.png"
+                "png": "https://flagcdn.com/w320/ps.png",
+                "str":"🇵🇸"
             }
         },
         {
@@ -3116,7 +3286,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pa.svg",
-                "png": "https://flagcdn.com/w320/pa.png"
+                "png": "https://flagcdn.com/w320/pa.png",
+                "str":"🇵🇦"
             }
         },
         {
@@ -3134,7 +3305,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pg.svg",
-                "png": "https://flagcdn.com/w320/pg.png"
+                "png": "https://flagcdn.com/w320/pg.png",
+                "str":"🇵🇬"
             }
         },
         {
@@ -3152,7 +3324,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/py.svg",
-                "png": "https://flagcdn.com/w320/py.png"
+                "png": "https://flagcdn.com/w320/py.png",
+                "str":"🇵🇾"
             }
         },
         {
@@ -3170,7 +3343,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pe.svg",
-                "png": "https://flagcdn.com/w320/pe.png"
+                "png": "https://flagcdn.com/w320/pe.png",
+                "str":"🇵🇪"
             }
         },
         {
@@ -3188,7 +3362,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ph.svg",
-                "png": "https://flagcdn.com/w320/ph.png"
+                "png": "https://flagcdn.com/w320/ph.png",
+                "str":"🇵🇭"
             }
         },
         {
@@ -3206,7 +3381,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pn.svg",
-                "png": "https://flagcdn.com/w320/pn.png"
+                "png": "https://flagcdn.com/w320/pn.png",
+                "str":"🇵🇳"
             }
         },
         {
@@ -3224,7 +3400,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pl.svg",
-                "png": "https://flagcdn.com/w320/pl.png"
+                "png": "https://flagcdn.com/w320/pl.png",
+                "str":"🇵🇱"
             }
         },
         {
@@ -3242,7 +3419,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pt.svg",
-                "png": "https://flagcdn.com/w320/pt.png"
+                "png": "https://flagcdn.com/w320/pt.png",
+                "str":"🇵🇹"
             }
         },
         {
@@ -3260,7 +3438,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pr.svg",
-                "png": "https://flagcdn.com/w320/pr.png"
+                "png": "https://flagcdn.com/w320/pr.png",
+                "str":"🇵🇷"
             }
         },
         {
@@ -3278,7 +3457,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/qa.svg",
-                "png": "https://flagcdn.com/w320/qa.png"
+                "png": "https://flagcdn.com/w320/qa.png",
+                "str":"🇶🇦"
             }
         },
         {
@@ -3296,7 +3476,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/xk.svg",
-                "png": "https://flagcdn.com/w320/xk.png"
+                "png": "https://flagcdn.com/w320/xk.png",
+                "str":"🇽🇰"
             }
         },
         {
@@ -3314,7 +3495,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/re.svg",
-                "png": "https://flagcdn.com/w320/re.png"
+                "png": "https://flagcdn.com/w320/re.png",
+                "str":"🇷🇪"
             }
         },
         {
@@ -3332,7 +3514,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ro.svg",
-                "png": "https://flagcdn.com/w320/ro.png"
+                "png": "https://flagcdn.com/w320/ro.png",
+                "str":"🇷🇴"
             }
         },
         {
@@ -3350,7 +3533,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ru.svg",
-                "png": "https://flagcdn.com/w320/ru.png"
+                "png": "https://flagcdn.com/w320/ru.png",
+                "str":"🇷🇺"
             }
         },
         {
@@ -3368,7 +3552,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/rw.svg",
-                "png": "https://flagcdn.com/w320/rw.png"
+                "png": "https://flagcdn.com/w320/rw.png",
+                "str":"🇷🇼"
             }
         },
         {
@@ -3386,7 +3571,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/bl.svg",
-                "png": "https://flagcdn.com/w320/bl.png"
+                "png": "https://flagcdn.com/w320/bl.png",
+                "str":"🇧🇱"
             }
         },
         {
@@ -3404,7 +3590,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sh.svg",
-                "png": "https://flagcdn.com/w320/sh.png"
+                "png": "https://flagcdn.com/w320/sh.png",
+                "str":"🇸🇭"
             }
         },
         {
@@ -3422,7 +3609,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kn.svg",
-                "png": "https://flagcdn.com/w320/kn.png"
+                "png": "https://flagcdn.com/w320/kn.png",
+                "str":"🇰🇳"
             }
         },
         {
@@ -3440,7 +3628,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lc.svg",
-                "png": "https://flagcdn.com/w320/lc.png"
+                "png": "https://flagcdn.com/w320/lc.png",
+                "str":"🇱🇨"
             }
         },
         {
@@ -3458,7 +3647,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/mf.svg",
-                "png": "https://flagcdn.com/w320/mf.png"
+                "png": "https://flagcdn.com/w320/mf.png",
+                "str":"🇲🇶"
             }
         },
         {
@@ -3476,7 +3666,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/pm.svg",
-                "png": "https://flagcdn.com/w320/pm.png"
+                "png": "https://flagcdn.com/w320/pm.png",
+                "str":"🇵🇲"
             }
         },
         {
@@ -3494,7 +3685,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/vc.svg",
-                "png": "https://flagcdn.com/w320/vc.png"
+                "png": "https://flagcdn.com/w320/vc.png",
+                "str":"🇻🇨"
             }
         },
         {
@@ -3512,7 +3704,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ws.svg",
-                "png": "https://flagcdn.com/w320/ws.png"
+                "png": "https://flagcdn.com/w320/ws.png",
+                "str":"🇼🇸"
             }
         },
         {
@@ -3530,7 +3723,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sm.svg",
-                "png": "https://flagcdn.com/w320/sm.png"
+                "png": "https://flagcdn.com/w320/sm.png",
+                "str":"🇸🇲"
             }
         },
         {
@@ -3548,7 +3742,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/st.svg",
-                "png": "https://flagcdn.com/w320/st.png"
+                "png": "https://flagcdn.com/w320/st.png",
+                "str":"🇸🇹"
             }
         },
         {
@@ -3566,7 +3761,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sa.svg",
-                "png": "https://flagcdn.com/w320/sa.png"
+                "png": "https://flagcdn.com/w320/sa.png",
+                "str":"🇸🇦"
             }
         },
         {
@@ -3584,7 +3780,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sn.svg",
-                "png": "https://flagcdn.com/w320/sn.png"
+                "png": "https://flagcdn.com/w320/sn.png",
+                "str":"🇸🇳"
             }
         },
         {
@@ -3602,7 +3799,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/rs.svg",
-                "png": "https://flagcdn.com/w320/rs.png"
+                "png": "https://flagcdn.com/w320/rs.png",
+                "str":"🇷🇸"
             }
         },
         {
@@ -3620,7 +3818,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sc.svg",
-                "png": "https://flagcdn.com/w320/sc.png"
+                "png": "https://flagcdn.com/w320/sc.png",
+                "str":"🇸🇨"
             }
         },
         {
@@ -3638,7 +3837,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sl.svg",
-                "png": "https://flagcdn.com/w320/sl.png"
+                "png": "https://flagcdn.com/w320/sl.png",
+                "str":"🇸🇱"
             }
         },
         {
@@ -3656,7 +3856,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sg.svg",
-                "png": "https://flagcdn.com/w320/sg.png"
+                "png": "https://flagcdn.com/w320/sg.png",
+                "str":"🇸🇬"
             }
         },
         {
@@ -3674,7 +3875,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sx.svg",
-                "png": "https://flagcdn.com/w320/sx.png"
+                "png": "https://flagcdn.com/w320/sx.png",
+                "str":"🇸🇽"
             }
         },
         {
@@ -3692,7 +3894,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sk.svg",
-                "png": "https://flagcdn.com/w320/sk.png"
+                "png": "https://flagcdn.com/w320/sk.png",
+                "str":"🇸🇰"
             }
         },
         {
@@ -3710,7 +3913,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/si.svg",
-                "png": "https://flagcdn.com/w320/si.png"
+                "png": "https://flagcdn.com/w320/si.png",
+                "str":"🇸🇮"
             }
         },
         {
@@ -3728,7 +3932,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sb.svg",
-                "png": "https://flagcdn.com/w320/sb.png"
+                "png": "https://flagcdn.com/w320/sb.png",
+                "str":"🇸🇧"
             }
         },
         {
@@ -3746,7 +3951,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/so.svg",
-                "png": "https://flagcdn.com/w320/so.png"
+                "png": "https://flagcdn.com/w320/so.png",
+                "str":"🇸🇴"
             }
         },
         {
@@ -3764,7 +3970,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/za.svg",
-                "png": "https://flagcdn.com/w320/za.png"
+                "png": "https://flagcdn.com/w320/za.png",
+                "str":"🇿🇦"
             }
         },
         {
@@ -3782,7 +3989,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gs.svg",
-                "png": "https://flagcdn.com/w320/gs.png"
+                "png": "https://flagcdn.com/w320/gs.png",
+                "str":"🇬🇸"
             }
         },
         {
@@ -3800,7 +4008,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/kr.svg",
-                "png": "https://flagcdn.com/w320/kr.png"
+                "png": "https://flagcdn.com/w320/kr.png",
+                "str":"🇰🇷"
             }
         },
         {
@@ -3818,7 +4027,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/es.svg",
-                "png": "https://flagcdn.com/w320/es.png"
+                "png": "https://flagcdn.com/w320/es.png",
+                "str":"🇪🇸"
             }
         },
         {
@@ -3836,7 +4046,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/lk.svg",
-                "png": "https://flagcdn.com/w320/lk.png"
+                "png": "https://flagcdn.com/w320/lk.png",
+                "str":"🇱🇰"
             }
         },
         {
@@ -3854,7 +4065,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sd.svg",
-                "png": "https://flagcdn.com/w320/sd.png"
+                "png": "https://flagcdn.com/w320/sd.png",
+                "str":"🇸🇩"
             }
         },
         {
@@ -3872,7 +4084,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ss.svg",
-                "png": "https://flagcdn.com/w320/ss.png"
+                "png": "https://flagcdn.com/w320/ss.png",
+                "str":"🇸🇸"
             }
         },
         {
@@ -3890,7 +4103,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sr.svg",
-                "png": "https://flagcdn.com/w320/sr.png"
+                "png": "https://flagcdn.com/w320/sr.png",
+                "str":"🇸🇷"
             }
         },
         {
@@ -3908,7 +4122,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sj.svg",
-                "png": "https://flagcdn.com/w320/sj.png"
+                "png": "https://flagcdn.com/w320/sj.png",
+                "str":"🇸🇯"
             }
         },
         {
@@ -3926,7 +4141,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sz.svg",
-                "png": "https://flagcdn.com/w320/sz.png"
+                "png": "https://flagcdn.com/w320/sz.png",
+                "str":"🇸🇿"
             }
         },
         {
@@ -3944,7 +4160,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/se.svg",
-                "png": "https://flagcdn.com/w320/se.png"
+                "png": "https://flagcdn.com/w320/se.png",
+                "str":"🇨🇸🇪"
             }
         },
         {
@@ -3962,7 +4179,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ch.svg",
-                "png": "https://flagcdn.com/w320/ch.png"
+                "png": "https://flagcdn.com/w320/ch.png",
+                "str":"🇨🇭"
             }
         },
         {
@@ -3980,7 +4198,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/sy.svg",
-                "png": "https://flagcdn.com/w320/sy.png"
+                "png": "https://flagcdn.com/w320/sy.png",
+                "str":"🇸🇾"
             }
         },
         {
@@ -3998,7 +4217,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tw.svg",
-                "png": "https://flagcdn.com/w320/tw.png"
+                "png": "https://flagcdn.com/w320/tw.png",
+                "str":"🇹🇼"
             }
         },
         {
@@ -4016,7 +4236,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tj.svg",
-                "png": "https://flagcdn.com/w320/tj.png"
+                "png": "https://flagcdn.com/w320/tj.png",
+                "str":"🇹🇯"
             }
         },
         {
@@ -4034,7 +4255,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tz.svg",
-                "png": "https://flagcdn.com/w320/tz.png"
+                "png": "https://flagcdn.com/w320/tz.png",
+                "str":"🇹🇿"
             }
         },
         {
@@ -4052,7 +4274,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/th.svg",
-                "png": "https://flagcdn.com/w320/th.png"
+                "png": "https://flagcdn.com/w320/th.png",
+                "str":"🇹🇭"
             }
         },
         {
@@ -4070,7 +4293,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tl.svg",
-                "png": "https://flagcdn.com/w320/tl.png"
+                "png": "https://flagcdn.com/w320/tl.png",
+                "str":"🇹🇱"
             }
         },
         {
@@ -4088,7 +4312,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tg.svg",
-                "png": "https://flagcdn.com/w320/tg.png"
+                "png": "https://flagcdn.com/w320/tg.png",
+                "str":"🇹🇬"
             }
         },
         {
@@ -4106,7 +4331,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tk.svg",
-                "png": "https://flagcdn.com/w320/tk.png"
+                "png": "https://flagcdn.com/w320/tk.png",
+                "str":"🇹🇰"
             }
         },
         {
@@ -4124,7 +4350,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/to.svg",
-                "png": "https://flagcdn.com/w320/to.png"
+                "png": "https://flagcdn.com/w320/to.png",
+                "str":"🇹🇴"
             }
         },
         {
@@ -4142,7 +4369,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tt.svg",
-                "png": "https://flagcdn.com/w320/tt.png"
+                "png": "https://flagcdn.com/w320/tt.png",
+                "str":"🇹🇹"
             }
         },
         {
@@ -4160,7 +4388,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tn.svg",
-                "png": "https://flagcdn.com/w320/tn.png"
+                "png": "https://flagcdn.com/w320/tn.png",
+                "str":"🇹🇳"
             }
         },
         {
@@ -4178,7 +4407,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tr.svg",
-                "png": "https://flagcdn.com/w320/tr.png"
+                "png": "https://flagcdn.com/w320/tr.png",
+                "str":"🇹🇷"
             }
         },
         {
@@ -4196,7 +4426,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tm.svg",
-                "png": "https://flagcdn.com/w320/tm.png"
+                "png": "https://flagcdn.com/w320/tm.png",
+                "str":"🇹🇷"
             }
         },
         {
@@ -4214,7 +4445,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tc.svg",
-                "png": "https://flagcdn.com/w320/tc.png"
+                "png": "https://flagcdn.com/w320/tc.png",
+                "str":"🇹🇨"
             }
         },
         {
@@ -4232,7 +4464,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/tv.svg",
-                "png": "https://flagcdn.com/w320/tv.png"
+                "png": "https://flagcdn.com/w320/tv.png",
+                "str":"🇹🇻"
             }
         },
         {
@@ -4250,7 +4483,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ug.svg",
-                "png": "https://flagcdn.com/w320/ug.png"
+                "png": "https://flagcdn.com/w320/ug.png",
+                "str":"🇺🇬"
             }
         },
         {
@@ -4268,7 +4502,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ua.svg",
-                "png": "https://flagcdn.com/w320/ua.png"
+                "png": "https://flagcdn.com/w320/ua.png",
+                "str":"🇺🇦"
             }
         },
         {
@@ -4286,7 +4521,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ae.svg",
-                "png": "https://flagcdn.com/w320/ae.png"
+                "png": "https://flagcdn.com/w320/ae.png",
+                "str":"🇦🇪"
             }
         },
         {
@@ -4304,7 +4540,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/gb.svg",
-                "png": "https://flagcdn.com/w320/gb.png"
+                "png": "https://flagcdn.com/w320/gb.png",
+                "str":"🇬🇧"
             }
         },
         {
@@ -4322,7 +4559,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/us.svg",
-                "png": "https://flagcdn.com/w320/us.png"
+                "png": "https://flagcdn.com/w320/us.png",
+                "str":"🇺🇸"
             }
         },
         {
@@ -4340,7 +4578,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/uy.svg",
-                "png": "https://flagcdn.com/w320/uy.png"
+                "png": "https://flagcdn.com/w320/uy.png",
+                "str":"🇺🇾"
             }
         },
         {
@@ -4358,7 +4597,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/uz.svg",
-                "png": "https://flagcdn.com/w320/uz.png"
+                "png": "https://flagcdn.com/w320/uz.png",
+                "str":"🇺🇿"
             }
         },
         {
@@ -4376,7 +4616,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/vu.svg",
-                "png": "https://flagcdn.com/w320/vu.png"
+                "png": "https://flagcdn.com/w320/vu.png",
+                "str":"🇻🇺"
             }
         },
         {
@@ -4394,7 +4635,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ve.svg",
-                "png": "https://flagcdn.com/w320/ve.png"
+                "png": "https://flagcdn.com/w320/ve.png",
+                "str":"🇻🇪"
             }
         },
         {
@@ -4412,7 +4654,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/vn.svg",
-                "png": "https://flagcdn.com/w320/vn.png"
+                "png": "https://flagcdn.com/w320/vn.png",
+                "str":"🇻🇳"
             }
         },
         {
@@ -4430,7 +4673,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/wf.svg",
-                "png": "https://flagcdn.com/w320/wf.png"
+                "png": "https://flagcdn.com/w320/wf.png",
+                "str":"🇼🇫"
             }
         },
         {
@@ -4448,7 +4692,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/eh.svg",
-                "png": "https://flagcdn.com/w320/eh.png"
+                "png": "https://flagcdn.com/w320/eh.png",
+                "str":"🇪🇭"
             }
         },
         {
@@ -4466,7 +4711,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/ye.svg",
-                "png": "https://flagcdn.com/w320/ye.png"
+                "png": "https://flagcdn.com/w320/ye.png",
+                "str":"🇾🇪"
             }
         },
         {
@@ -4484,7 +4730,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/zm.svg",
-                "png": "https://flagcdn.com/w320/zm.png"
+                "png": "https://flagcdn.com/w320/zm.png",
+                "str":"🇿🇲"
             }
         },
         {
@@ -4502,7 +4749,8 @@ export class ClassCountry {
             ],
             "flags": {
                 "svg": "https://flagcdn.com/zw.svg",
-                "png": "https://flagcdn.com/w320/zw.png"
+                "png": "https://flagcdn.com/w320/zw.png",
+                "str":"🇿🇼"
             }
         }
     ]

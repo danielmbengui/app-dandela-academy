@@ -3,7 +3,7 @@ import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getFormattedDateCompleteNumeric } from "@/contexts/functions";
-import { languages, NS_COMMON, NS_PROFILE, NS_LANGS, NS_ROLES, NS_SETTINGS } from "@/contexts/i18n/settings";
+import { languages, NS_COMMON, NS_PROFILE, NS_LANGS, NS_ROLES, NS_SETTINGS, NS_BUTTONS } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Grid, Stack } from "@mui/material";
@@ -244,8 +244,8 @@ function AccountSettingsComponent() {
                         //error={errors.birthday}
                     />
                      </Grid>
-                    <Grid size={'auto'}>
-                      <ButtonConfirm label="modifier" />
+                    <Grid size={'auto'} sx={{display:'none'}}>
+                      <ButtonConfirm label={t('edit', {ns:NS_BUTTONS})} />
                     </Grid>
                 </Grid>
                 <div className="field">

@@ -148,7 +148,6 @@ export default function TextFieldComponent({
             //color:'black',
             //borderWidth:'1px',
             borderRadius: '7px',
-            width: fullWidth ? '100%' : 'auto',
             //my: 1,
             '& .MuiOutlinedInput-root': {
                 '& fieldset': {
@@ -210,8 +209,7 @@ export default function TextFieldComponent({
                     background: cardColor.main,
                     //borderRadius:'20px',
                     fontSize: '14px',
-                    maxHeight: maxHeight,
-                    width: fullWidth ? '100%' : 'auto',
+                    maxHeight: maxHeight 
                 },
                 startAdornment: icon && (
                     <InputAdornment position="start" sx={{ color: ClassColor.GREY_LIGHT }}>

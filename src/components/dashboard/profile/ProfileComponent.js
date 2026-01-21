@@ -141,18 +141,6 @@ function ProfilePage() {
                         </div>
                         <div className="field">
                             <FieldComponent
-                                label={t('email')}
-                                name={'email'}
-                                type="email"
-                                value={userEdit?.email}
-                                onChange={handleChange}
-disabled={true}
-                                //onClear={()=>handleClear('first_name')}
-                                error={errors.email}
-                            />
-                        </div>
-                        <div className="field">
-                            <FieldComponent
                                 label={t('email_academy')}
                                 name={'email_academy'}
                                 type="email"
