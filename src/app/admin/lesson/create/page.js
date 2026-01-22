@@ -15,6 +15,7 @@ import TextFieldComponent from "@/components/elements/TextFieldComponent"
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel"
 import { ClassLessonSubchapter } from "@/classes/lessons/ClassLessonSubchapter"
 import { LESSON_IT } from "@/contexts/datas-init/lessons"
+import { LESSON_EXCEL_TEACHER_PT } from "@/contexts/datas-init/lessons-teacher"
 
 const LEVEL = 'expert';
 const MODE_CREATE_CHAPTER = 'create-chapter';
@@ -128,10 +129,13 @@ function GoalsComponent({ lesson = null, setLesson = null, setMode = null }) {
     const [errors, setErrors] = useState({});
     const [newGoal, setNewGoal] = useState("");
     const [goals, setGoals] = useState([]);
+    const LANG = 'pt';
     useEffect(() => {
         setLesson(prev => {
             if (!prev || prev === null) {
-                return LESSON_IT.clone();
+                console.log("lesson excel", LESSON_EXCEL_TEACHER_PT)
+                console.log("lesson excel clone", LESSON_EXCEL_TEACHER_PT.clone())
+                return LESSON_EXCEL_TEACHER_PT.clone();
             }
             return prev.clone();
         });
@@ -307,7 +311,7 @@ function GoalsComponent({ lesson = null, setLesson = null, setMode = null }) {
                 tags: lesson?.tags,
             }
             const qsChapter = encodeURIComponent(JSON.stringify(transChapter));
-            const fetchTranslateChapter = await fetch(`/api/test?lang=fr&translations=${qsChapter}`);
+            const fetchTranslateChapter = await fetch(`/api/test?lang=${LANG}&translations=${qsChapter}`);
             const resultChapter = await fetchTranslateChapter.json();
             const langsChapter = Object.keys(resultChapter);
             const translates = Object.values(resultChapter)?.map?.((trans, i) => new ClassLessonTranslate({ ...trans,lang: langsChapter[i] }));
@@ -321,24 +325,6 @@ function GoalsComponent({ lesson = null, setLesson = null, setMode = null }) {
             lesson.update({uid:uidLesson});
             lesson.translates = translates;
             console.log("translaaaaates", lesson);
-            /*
-            const translatesChapter = Object.values(resultChapter).map?.((trans, i) => {
-                const lang = langs[i];
-                //Object.values(result)
-
-                const translate = translates.find(t => t.lang === lang);
-                return new ClassLessonChapterTranslation({ ...trans, goals: translate.goals, lang: lang });
-            });
-            */
-
-
-            //const translates = Object.values(result)?.map?.((trans, i) => new ClassLessonChapterTranslation({ goals: trans, lang: langs[i] }));
-            //const globalTranslates = { ...translatesChapter, goals: translates };
-            
-            //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
-            //console.log("TRANSLATES", chapter._convertTranslatesToFirestore(translatesChapter))
-            // console.log("chapter", chapter.translates);
-            //console.log("RESULT chapter", Object.keys(result), result);
             const _patch = await lesson?.createFirestore();
             console.log("PATCH", _patch);
             setLesson(_patch);

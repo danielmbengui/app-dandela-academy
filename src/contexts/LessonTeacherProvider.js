@@ -9,17 +9,17 @@ import {
 //import { PAGE_DAHBOARD_HOME, PAGE_HOME } from '@/lib/constants_pages';
 import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
-import { ClassLessonTeacher } from '@/classes/teachers/ClassLessonTeacher';
 import { useLanguage } from './LangProvider';
 import { ClassUser, ClassUserAdministrator, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { useAuth } from './AuthProvider';
+import { ClassLessonTeacher } from '@/classes/ClassLesson';
 
 
 const LessonTeacherContext = createContext(null);
 export const useLessonTeacher = () => useContext(LessonTeacherContext);
 
-export function LessonTeacherProvider({ children, uidTeacher = null }) {
+export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeacher = null }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
     const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION]);
@@ -36,23 +36,23 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-       if(user) {
-        const listener = listenToLessons(uidTeacher);
-        return () => listener?.();
-       }
-    }, [lang, uidTeacher, user]);
+        if (user) {
+            const listener = listenToLessons(uidSourceLesson);
+            return () => listener?.();
+        }
+    }, [lang, uidSourceLesson, user]);
     useEffect(() => {
         if (user && uidLesson) {
             const _lesson = getOneLesson(uidLesson);
             setLesson(_lesson);
-            const listener = listenToOneLesson(uidLesson);
+            const listener = listenToOneLesson(uidSourceLesson, uidLesson);
             return () => listener?.();
         } else {
             setLesson(null);
         }
-    }, [user, uidLesson]);
+    }, [user, uidLesson, uidSourceLesson]);
     // écoute du doc utilisateur
-    const listenToLessons = useCallback((uidTeacher) => {
+    const listenToLessons = useCallback((uidSourceLesson) => {
         //if(!user) return;
         const colRef = ClassLessonTeacher.colRef(); // par ex.
         var constraints = [where("enabled", "==", true)];
@@ -62,11 +62,11 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
             //console.log("is not admin")
             //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
         }
-        if (uidTeacher) {
-            constraints.push(where("uid_teacher", "==", uidTeacher));
+        if (uidSourceLesson) {
+            constraints.push(where("uid_lesson", "==", uidSourceLesson));
         }
 
-       // console.log("user lesson proivder", user)
+        // console.log("user lesson proivder", user)
 
         const q = constraints.length > 0
             ? query(colRef, ...constraints)
@@ -80,7 +80,7 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
                 setIsLoading(false);
                 return;
             }
-           // console.log("constraints provider", snap.size)
+            // console.log("constraints provider", snap.size)
             try {
                 const _lessons = [];
                 //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
@@ -99,7 +99,6 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
                     //console.log("lessons list provider", lesson_new)
                     _lessons.push(lesson_new);
                 }
-
                 /*
                 var _lessons = snap.docs.map(async (doc) => {
                     const lesson = doc.data();
@@ -119,16 +118,16 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
             }
         });
         return snapshotLessons;
-    }, [user]);
-    const listenToOneLesson = useCallback((uidLesson) => {
-        if (!uidLesson) {
+    }, [uidSourceLesson, user]);
+    const listenToOneLesson = useCallback((uidSourceLesson, uidLesson) => {
+        if (!uidSourceLesson || !uidLesson) {
             setLesson(null);
             //setIsConnected(false);
             setIsLoading(false);
             return;
         }
         const uid = uidLesson;
-        const ref = ClassLessonTeacher.docRef(uid);
+        const ref = ClassLessonTeacher.docRef(uidSourceLesson, uid);
         const unsubscribe = onSnapshot(ref, async (snap) => {
             if (!snap.exists()) {
                 setLesson(null);
@@ -170,7 +169,7 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, [uidLesson]);
+    }, [uidSourceLesson, uidLesson]);
     async function refreshList() {
         var _lessons = [];
         const constraints = [];
@@ -261,7 +260,6 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
         const _lesson = lessons.find(item => item.uid === uid);
         return _lesson;
     }
-    // session
     function changeLesson(uid = '', mode = '') {
         var _lesson = lessons.find(item => item.uid === uid) || null;
         if (mode === 'create') {
@@ -269,7 +267,6 @@ export function LessonTeacherProvider({ children, uidTeacher = null }) {
         }
         setLesson(_lesson);
     }
-
     const value = {
         setUidLesson,
         create,

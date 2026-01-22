@@ -112,7 +112,7 @@ export class ClassUser {
         ONLINE: 'online',
         OFFLINE: 'offline',
         AWAY: 'away',
-        
+
         UNKNOWN: 'unknown',
 
         CREATED: 'CREATED',
@@ -187,6 +187,7 @@ export class ClassUser {
         uid = "",
         type = -1,
         role = "",
+        certified = false,
         verified_by_team = false,
         first_name = "",
         last_name = "",
@@ -211,6 +212,7 @@ export class ClassUser {
         this._uid = uid;
         this._type = type;
         this._role = role;
+        this._certified = certified;
         this._verified_by_team = verified_by_team;
         this._email = email;
         this._email_academy = email_academy;
@@ -242,6 +244,9 @@ export class ClassUser {
     set type(val) { this._type = val; }
     get role() { return this._role; }
     set role(val) { this._role = val; }
+    get certified() { return this._certified; }
+    set certified(val) { this._certified = val; }
+
     get accept_privacy() { return this._accept_privacy; }
     set accept_privacy(val) { this._accept_privacy = val; }
 
@@ -279,7 +284,7 @@ export class ClassUser {
     get email_verified() { return this._email_verified; }
     set email_verified(val) { this._email_verified = val; }
 
-     get last_request_pwa_time() { return this._last_request_pwa_time; }
+    get last_request_pwa_time() { return this._last_request_pwa_time; }
     set last_request_pwa_time(val) { this._last_request_pwa_time = val; }
 
     get last_connexion_time() { return this._last_connexion_time; }
@@ -311,22 +316,22 @@ export class ClassUser {
             <Typography fontSize={fontSize}>{this.getInitials()}</Typography>
         </Avatar>)
     }
-    static createAvatarPhoto({first_name="", last_name="", photo_url="", size = 30, fontSize = '14px' }) {
+    static createAvatarPhoto({ first_name = "", last_name = "", photo_url = "", size = 30, fontSize = '14px' }) {
         return (<Avatar
-            sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: size, height: size, objectFit:'contain' }}
-            alt={this.createInitials({first_name, last_name})}
+            sx={{ bgcolor: 'var(--primary)', color: ClassColor.WHITE, width: size, height: size, objectFit: 'contain' }}
+            alt={this.createInitials({ first_name, last_name })}
             src={photo_url || ""}
         >
-            <Typography fontSize={fontSize}>{this.createInitials({first_name, last_name})}</Typography>
+            <Typography fontSize={fontSize}>{this.createInitials({ first_name, last_name })}</Typography>
         </Avatar>)
     }
-    static createInitials({first_name="", last_name=""}) {
+    static createInitials({ first_name = "", last_name = "" }) {
         const firstNames = first_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
         const lastNames = last_name.replace(/-/g, " ").split(/\s+/).map(item => item.charAt(0)).join("");
         const result = `${firstNames?.slice(0, 1).toLowerCase() || ""}${lastNames?.slice(0, 1).toLowerCase() || ""}`;
         return (result.slice(0, 4).toUpperCase());
     }
-    
+
     // --- GETTER utils ---
     getCompleteName() {
         return (`${this._first_name} ${this.last_name?.toUpperCase()}`)
@@ -338,7 +343,7 @@ export class ClassUser {
         return (result.slice(0, ClassUser.MAX_LENGTH_DISPLAY_NAME));
     }
     capitalizeName(value) {
-        if(!value || value.length===0) return "";
+        if (!value || value.length === 0) return "";
         const array = value.split(" ");
         const arrayCapitalize = [];
         for (const n of array) {
@@ -501,7 +506,7 @@ export class ClassUser {
     isErrorPhoneNumber(codeCountry = "") {
         //if (!prefixe || prefixe.length === 0) return (true);
         //console.log("YEEEES",this._last_name)
-        if(!this._phone_number) return (false);
+        if (!this._phone_number) return (false);
         if (this._phone_number.length > 0 && codeCountry.length === 0) return (true);
         if (this._phone_number.length > 0 && codeCountry.length > 0 && !parseAndValidatePhone(`${this._phone_number}`, codeCountry).is_valid) return (true);
         return (false);
@@ -634,7 +639,7 @@ export class ClassUser {
                 var last_connexion_time = ClassUser._toJsDate(data.last_connexion_time);
                 var _created_time = data.created_time ? new Date(data.created_time.seconds * 1_000) : null;
                 var _last_edit_time = data.last_edit_time ? new Date(data.last_edit_time.seconds * 1_000) : null;
-                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_request_pwa_time,last_connexion_time, created_time: _created_time, last_edit_time: _last_edit_time });
+                return ClassUser.makeUserInstance(uid, { ...data, birthday: _birthday, last_request_pwa_time, last_connexion_time, created_time: _created_time, last_edit_time: _last_edit_time });
             },
         };
     }
@@ -771,11 +776,11 @@ export class ClassUser {
         const newRef = doc(this.constructor.colRef(), finalUid);
 
         this._uid = finalUid;
-        this._created_time = this._created_time? this._created_time : new Date();
+        this._created_time = this._created_time ? this._created_time : new Date();
         this._last_edit_time = new Date();
 
         const data = this.toJSON();
-        await setDoc(newRef, data, {merge:true});
+        await setDoc(newRef, data, { merge: true });
         return this.constructor.fetchFromFirestore(this._uid);
     }
 

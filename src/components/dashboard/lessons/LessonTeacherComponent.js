@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { IconVisible } from "@/assets/icons/IconsComponent";
-import { ClassLesson } from "@/classes/ClassLesson";
-import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
-import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, CircularProgress, Grid, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
+import { IconCheck, IconVisible } from "@/assets/icons/IconsComponent";
+import { ClassLesson, ClassLessonTeacher } from "@/classes/ClassLesson";
+import { formatDuration, formatPrice, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
+import { Box, Chip, CircularProgress, Grid, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -24,6 +24,9 @@ import { PAGE_CHAPTERS, PAGE_LESSONS } from "@/contexts/constants/constants_page
 import { usePathname } from "next/navigation";
 import ButtonConfirm from "../elements/ButtonConfirm";
 import { useUsers } from "@/contexts/UsersProvider";
+import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
+import { useSchool } from "@/contexts/SchoolProvider";
+import OneTeacherLessonComponent from "@/components/teacher/OneTeacherLessonComponent";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -269,16 +272,18 @@ function PreviousSessionsComponent() {
   </>)
 }
 
-export default function LessonComponent() {
+export default function LessonTeacherComponent() {
   const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   const { path } = usePathname();
   const { getOneUser } = useUsers();
   //const [lesson, setLesson] = useState(null);
-  const { lesson } = useLesson();
+  const { lessons } = useLesson();
+  const { lesson } = useLessonTeacher();
   const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
   const { sessions, isLoading: isLoadingSessions, isLoadingSlots } = useSession();
+  const { school } = useSchool();
   const [course, setCourse] = useState(initialCourse);
   const [isEnrolled, setIsEnrolled] = useState(false);
   //const [isLoading, setIsLoading] = useState(false);
@@ -289,58 +294,132 @@ export default function LessonComponent() {
 
   useEffect(() => {
     if (lesson) {
-      lesson.update({teacher:getOneUser(lesson.uid_teacher)})
+      lesson.update({ teacher: getOneUser(lesson.uid_teacher) })
     }
+    console.log("lessssons", lessons, lesson)
   }, [lesson])
+  const teacher = useMemo(() => {
+    return lesson?.teacher;
+  }, [lesson]);
 
   return (<Stack sx={{ color: "var(--font-color)" }}>
     <div className="page">
       <main className="container">
         <section className="hero-card">
-          <div className="hero-left">
-            <p className="breadcrumb">{t(lesson?.category).toUpperCase()}</p>
-            <h1 style={{ color: "var(--font-color)" }}>{lesson?.translate?.title}</h1>
-            <p className="muted">
-              {lesson?.translate?.subtitle}
-            </p>
+          <Stack spacing={2} className="hero-left">
+            <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+              <ButtonCancel label={t('btn-see-lesson')} />
+              <Link target={'_blank'} href={lesson?.url || ""}>
+                <ButtonConfirm label={t('btn-subscribe')} />
+              </Link>
+            </Stack>
+            <Grid container spacing={2} alignItems={'start'} sx={{ textAlign: 'justify', background: '', lineHeight: '0.8rem' }}>
+              <Grid size={'grow'}>
+                <OneTeacherLessonComponent />
+              </Grid>
+              <Grid size={7}>
+                <Stack spacing={1}>
+                  <h2 style={{ color: "var(--font-color)", marginTop: '10px' }}>{lesson?.translate?.subtitle}</h2>
+                  <Typography variant="caption" >
+                    {lesson?.translate?.description}
+                  </Typography>
+                </Stack>
+              </Grid>
 
-            <div className="badges">
-              {lesson?.certified && (
-                <span className="badge-cert">
-                  🎓 {t('certified')}
-                </span>
-              )}
-            </div>
-            <p className="hero-description">
-              {lesson?.translate?.description}
-            </p>
-            {
-              lesson?.translate?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
-                <Image
-                  src={lesson?.translate?.photo_url || ''}
-                  alt={`lesson-${lesson?.uid}`}
-                  quality={100}
-                  width={300}
-                  height={150}
-                  //loading="lazy"
-                  priority
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    //maxHeight:'400px',
-                    borderRadius: '8px',
-                    objectFit: 'cover',
-                  }}
-                />
-              </Box>
-            }
-          </div>
+            </Grid>
+            <Grid container spacing={1.5}>
+              <Grid size={'auto'} sx={{ background: 'red' }}>
+                {
+                  lesson?.translate?.photo_url && <Box sx={{ background: '', width: '100%' }}>
+                    <Image
+                      src={lesson?.translate?.photo_url || ''}
+                      alt={`lesson-${lesson?.uid}`}
+                      quality={100}
+                      width={300}
+                      height={150}
+                      //loading="lazy"
+                      priority
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        //maxHeight:'400px',
+                        borderRadius: '8px',
+                        objectFit: 'contain',
+                      }}
+                    />
+                  </Box>
+                }
+              </Grid>
+              <Grid size={'grow'} sx={{ background: 'yellow' }}>
+                <Stack sx={{ background: 'green' }} spacing={1}>
+                  <div className="badges">
+                    {lesson?.certified && (
+                      <span className="badge-cert">
+                        🎓 {t('certified')}
+                      </span>
+                    )}
+                  </div>
+                  {
+                    lesson?.translate?.goals?.length > 0 && <div className="card">
+                      <h2>{"🎯"} {t('goals')}</h2>
+                      <Grid container spacing={0.5}>
+                        {lesson.translate.goals.map((item, idx) => (
+                          <Grid key={idx} size='auto'>
+                            <Chip size="small" sx={{ margin: 0 }} variant="outlined" label={item} />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </div>
+                  }
+                  {
+                    lesson?.translate?.target_audiences?.length > 0 && <div className="card">
+                      <h2>{"👨‍💼"} {t('target_audiences')}</h2>
+                      <Grid container spacing={0.5}>
+                        {lesson.translate.target_audiences.map((item, idx) => (
+                          <Grid key={idx} size='auto'>
+                            <Chip size="small" sx={{ margin: 0 }} variant="outlined" label={item} />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </div>
+                  }
+                  {
+                    <div className="card">
+                      <h2>{"📇"} {t('contact')}</h2>
+                      <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                        <Typography>{t('location')} {":"}</Typography>
+                        <Typography sx={{ fontWeight: 200 }}>{school?.address}</Typography>
+                      </Stack>
+                      <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                        <Typography>{t('email')} {":"}</Typography>
+                        <Link className="link" href={`mailto:${teacher?.email || ""}`}>{teacher?.email || ""}</Link>
+                      </Stack>
+                      <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                        <Typography>{t('phone_number')} {":"}</Typography>
+                        <Link className="link" href={`tel:${teacher?.phone_number || ""}`}>{teacher?.phone_number || ""}</Link>
+                      </Stack>
+                      <Grid container spacing={0.5}>
+                        {lesson?.translate.target_audiences.map((item, idx) => (
+                          <Grid key={idx} size='auto'>
+                            <Chip size="small" sx={{ margin: 0 }} variant="outlined" label={item} />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </div>
+                  }
+                </Stack>
+              </Grid>
+            </Grid>
+          </Stack>
 
           {/* Bloc inscription intégré dans le hero */}
           <aside className="hero-right">
             {/* PROFESSEUR */}
             <div className="teacher-card">
-              <p className="teacher-label-text">{t('title-online', { ns: NS_LESSONS_ONE })}</p>
+              <p className="teacher-label-text">{t('modalities')}</p>
+              <Typography sx={{
+                textDecoration: 'line-through',
+              }}>{`Price :${formatPrice(24_500, 'AOA')}`} {`Old price :${formatPrice(49_000, 'AOA')}`}</Typography>
               <List dense disablePadding sx={{ mb: 1.5 }}>
                 {
                   chapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((chapter, i) => {
@@ -516,6 +595,13 @@ export default function LessonComponent() {
                   display: flex;
                   justify-content: center;
                 }
+                .link {
+                  color: var(--primary);
+                  cursor: pointer;
+                }
+                .link:hover {
+                  color: var(--primary);
+                }
                 .container {
                   width: 100%;
                   padding: 0px;
@@ -688,7 +774,6 @@ export default function LessonComponent() {
                 }
         
                 .badges {
-                  margin-top: 10px;
                   display: flex;
                   gap: 5px;
                   flex-wrap: wrap;
@@ -849,8 +934,8 @@ export default function LessonComponent() {
         
                 .card {
                   background: var(--card-color);
+                  border:0.1px solid var(--card-border);
                   color: var(--font-color);
-                    color: var(--grey-light);
                   border-radius: 16px;
                   padding: 14px 14px 16px;
                 }

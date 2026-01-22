@@ -517,13 +517,6 @@ export class ClassLessonChapter {
         const chapter = docSnap.data();
         const translate = chapter.translates?.find(item => item.lang === lang);
         chapter.translate = translate;
-        /*
-        chapter.subchapters = chapter.subchapters?.map(sub => {
-            const translate = sub.translates?.find(item => item.lang === lang);
-            sub.translate = translate;
-            return (sub);
-        });
-        */
         chapter.quiz.questions = chapter.quiz.questions?.map(q => {
             const translate = q.translates?.find(item => item.lang === lang);
             q.translate = translate;

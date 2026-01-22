@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { IconVisible } from "@/assets/icons/IconsComponent";
-import { ClassLesson } from "@/classes/ClassLesson";
+import { IconUserCertified, IconVisible } from "@/assets/icons/IconsComponent";
+import { ClassLesson, ClassLessonTeacher } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
 import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
 import { Box, CircularProgress, Skeleton, Stack, Typography } from "@mui/material";
@@ -20,233 +20,59 @@ import Link from "next/link";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
 import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 import { PAGE_LESSONS, PAGE_LESSONS_TEACHER, PAGE_TEACHERS } from "@/contexts/constants/constants_pages";
-
-const initialCourse = {
-  id: "course_excel_101",
-  title: "Excel – Compétences essentielles pour le travail",
-  code: "EXCEL-101",
-  category: ClassLesson.CATEGORY.OFFICE,
-  level: "Débutant",
-  level: ClassLesson.LEVEL.BEGINNER,
-  language: "Français",
-  lang: "pt",
-  format: "onsite", // "online" | "onsite" | "hybrid"
-  uid_room: "MsIyd1hZKq8l8ayzFS88",
-  isCertified: true,
-  certified: true,
-  certificateProvider: "Dandela Academy",
-  isOfficialCertificate: true,
-  price: 290,
-  currency: "CHF",
-  hasInstallments: true,
-  installmentExample: "2 x 150 CHF",
-  startDate: "2025-03-10",
-  endDate: "2025-04-05",
-  start_date: new Date(2025, 2, 10),
-  end_date: new Date(2025, 3, 5),
-  durationHours: 24,
-  duration: 16,
-  sessionsPerWeek: 2,
-  sessions_count: 1,
-  sessions_type: 'weekly',
-  scheduleText: "Mardi & Jeudi • 18:30 – 20:30",
-  //location: "Campus central – Salle 3",
-  onlinePlatform: "Classe virtuelle Dandela (via navigateur)",
-  seatsTotal: 20,
-  seatsTaken: 12,
-  seats_availables: 34,
-  seats_taken: 19,
-  description:
-    "Maîtrise les bases d’Excel pour être opérationnel au travail : formules, mises en forme, tableaux, graphiques et bonnes pratiques pour gagner du temps au quotidien.",
-  objectives: [
-    "Comprendre l’interface et la logique d’Excel",
-    "Créer et mettre en forme des tableaux professionnels",
-    "Utiliser les formules de base (SOMME, MOYENNE, SI, NB.SI, etc.)",
-    "Concevoir des graphiques clairs et lisibles",
-    "Gagner du temps grâce aux formats conditionnels et aux filtres",
-  ],
-  goals: [
-    "Comprendre l’interface et la logique d’Excel",
-    "Créer et mettre en forme des tableaux professionnels",
-    "Utiliser les formules de base (SOMME, MOYENNE, SI, NB.SI, etc.)",
-    "Concevoir des graphiques clairs et lisibles",
-    "Gagner du temps grâce aux formats conditionnels et aux filtres",
-  ],
-  targetAudience: [
-    "Personnes en reconversion ou en recherche d’emploi",
-    "Professionnels souhaitant consolider leurs bases en bureautique",
-    "Étudiants ou stagiaires qui utilisent Excel dans leurs études",
-  ],
-  target_audiences: [
-    "Personnes en reconversion ou en recherche d’emploi",
-    "Professionnels souhaitant consolider leurs bases en bureautique",
-    "Étudiants ou stagiaires qui utilisent Excel dans leurs études",
-  ],
-  prerequisites: [
-    "Savoir utiliser un ordinateur (souris, clavier, navigation simple)",
-    "Aucun prérequis sur Excel n’est nécessaire",
-  ],
-  programOutline: [
-    "Introduction à Excel & prise en main de l’interface",
-    "Création et mise en forme de tableaux",
-    "Formules et fonctions essentielles",
-    "Tri, filtres et mises en forme conditionnelles",
-    "Graphiques et visualisation de données",
-    "Mise en pratique sur un mini-projet",
-  ],
-  programs: [
-    "Introduction à Excel & prise en main de l’interface",
-    "Création et mise en forme de tableaux",
-    "Formules et fonctions essentielles",
-    "Tri, filtres et mises en forme conditionnelles",
-    "Graphiques et visualisation de données",
-    "Mise en pratique sur un mini-projet",
-  ],
-  notes: [
-    "Une version récente d'Excel est recommandée (2016+ ou Microsoft 365).",
-    "En cas d'absence, certaines sessions pourront être rattrapées via la plateforme en ligne.",
-    "Le support de cours (PDF, fichiers Excel d&apos;exercices) sera accessible dans ton espace personnel."
-  ]
-};
-
-const FORMAT_CONFIG = {
-  online: {
-    label: "En ligne",
-    color: "#3b82f6",
-  },
-  onsite: {
-    label: "Présentiel",
-    color: "#22c55e",
-  },
-  hybrid: {
-    label: "Hybride",
-    color: "#a855f7",
-  },
-};
+import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 
 
-export default function TeacherComponent() {
+export default function OneTeacherLessonComponent() {
   const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   //const [lesson, setLesson] = useState(null);
-  const { lesson } = useLesson();
+  const { lesson } = useLessonTeacher();
 
   return (<Stack>
-    <div className="page">
       <div className="teacher-card">
-        <p className="teacher-label-text">{t('teacher', {ns:NS_LESSONS_ONE})}</p>
         <div className="teacher-main">
           {lesson?.teacher?.showAvatar?.({})}
           <div className="teacher-text">
-            <p className="teacher-name">
+            <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+              <p className="teacher-name">
               {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
             </p>
+            <IconUserCertified height={14} width={14} color="var(--primary)" />
+            </Stack>
             <p className="teacher-role">{lesson?.teacher?.role_title}</p>
           </div>
         </div>
         <p className="teacher-bio">{lesson?.teacher?.bio}</p>
-        <p className="teacher-email">
-          📧 <span>{lesson?.teacher?.email}</span>
-        </p>
-
-        <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
-        <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_LESSONS_TEACHER}/${lesson?.teacher?.uid}`}>
-          <ButtonCancel
-            label={t('see-lesson', {ns:NS_BUTTONS})}
-          />
-        </Link>
-        <Link href={`mailto:${lesson?.teacher?.email}`}>
-          <ButtonConfirm
-            label={t('contact',{ns:NS_BUTTONS} )}
-          />
-        </Link>
-        </Stack>
       </div>
       <style jsx>{`
-                .page {
-                 
-                  background: transparent;
-                  padding: 0px 0px;
-                  color: var(--font-color);
-                  display: flex;
-                  justify-content: center;
-                }
-                .container {
-                  width: 100%;
-                  padding: 0px;
-                  background:transparent;
-                }
-                .hero-description {
-                  margin: 6px 0 10px;
-                  font-size: 0.9rem;
-                  color: var(--font-color);
-                  max-width: 620px;
-                }
-        
-                .header {
-                  display: flex;
-                  justify-content: space-between;
-                  gap: 16px;
-                  margin-bottom: 22px;
-                  flex-wrap: wrap;
-                }
-        
-                .hero-card {
-                  display: grid;
-                  grid-template-columns: minmax(0, 2fr) minmax(260px, 1.2fr);
-                  gap: 18px;
-                  border-radius: 18px;
-                  border: 1px solid #1f2937;
-                  border: transparent;
-                  background: radial-gradient(circle at top left, #111827, #020617);
-                  background: var(--card-color);
-                  padding: 18px 18px 20px;
-                  margin-bottom: 10px;
-                }
-        
-                @media (max-width: 900px) {
-                  .hero-card {
-                    grid-template-columns: 1fr;
-                  }
-                }
-        
-                .hero-meta {
-                  display: flex;
-                  flex-wrap: wrap;
-                  gap: 8px;
-                }
-        
-                .hero-right {
-                  border-radius: 14px;
-                  border: 1px solid #1f2937;
-                  border: none;
-                  background: #020617;
-                  background: transparent;
-                  padding: 14px 14px 16px;
-                   padding: 0px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 8px;
-                }
-                .hero-right-top {
-                  border-radius: 14px;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
-                }
-                .teacher-card {
-                  margin-top: 8px;
-                  border-radius: 10px;
-                  border: 1px solid #111827;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
-                  background: radial-gradient(circle at top left, #111827, #020617);
-                  background: transparent;
-                  font-size: 0.85rem;
-                   
-                }
+        .teacher-card {
+          border-radius: 10px;
+          border: 1px solid #111827;
+          border: 0.1px solid var(--primary-shadow-xl);
+          padding: 10px 10px 12px;
+          padding: 15px;
+          background: radial-gradient(circle at top left, #111827, #020617);
+          background: var(--primary-shadow);
+          font-size: 0.85rem;
+        }
+        .teacher-name {
+          margin: 0;
+          font-weight: 500;
+          line-height: 1rem;
+          color: var(--primary-dark);
+        }
+        .teacher-role {
+          margin: 0;
+          color: var(--primary);
+          font-size: 0.78rem;
+        }
+        .teacher-bio {
+          margin: 4px 0 4px;
+          font-size: 0.8rem;
+          color: var(--primary-dark);
+        }
         
                 .teacher-label {
                   font-size: 0.75rem;
@@ -271,23 +97,11 @@ export default function TeacherComponent() {
                   font-size: 0.83rem;
                 }
         
-                .teacher-name {
-                  margin: 0;
-                  font-weight: 500;
-                  line-height: 1rem;
-                }
+                
         
-                .teacher-role {
-                  margin: 0;
-                  color: var(--grey-light);
-                  font-size: 0.78rem;
-                }
+                
         
-                .teacher-bio {
-                  margin: 4px 0 4px;
-                  font-size: 0.8rem;
-                  color: var(--font-color);
-                }
+               
         
                 .teacher-email {
                   margin: 0 0 6px;
@@ -559,6 +373,5 @@ export default function TeacherComponent() {
                   border: 1px solid #16a34a;
                 }
               `}</style>
-    </div>
   </Stack>);
 }

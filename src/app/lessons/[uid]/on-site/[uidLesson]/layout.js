@@ -3,6 +3,7 @@ import { PAGE_LESSONS, } from "@/contexts/constants/constants_pages";
 import { NS_LESSONS_ONE, } from "@/contexts/i18n/settings";
 import { SessionProvider } from "@/contexts/SessionProvider";
 import { ChapterProvider } from "@/contexts/ChapterProvider";
+import { LessonTeacherProvider } from "@/contexts/LessonTeacherProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +14,9 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function OneLessonTeacherLayout({ children, params }) {
+export default async function OneLessonLayout({ children, params }) {
   const {uid:uidLesson} = await params;
-  return (<SessionProvider uidLesson={uidLesson}>
-    <ChapterProvider uidLesson={uidLesson}>
+  return (<LessonTeacherProvider uidSourceLesson={uidLesson}>
     {children}
-    </ChapterProvider>
-  </SessionProvider>);
+  </LessonTeacherProvider>);
 }

@@ -12,6 +12,7 @@ import {
     Timestamp,
     where,
     limit,
+    collectionGroup,
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
@@ -116,9 +117,7 @@ export class ClassLesson {
         teacher = null,
         enabled = false,
         title = "",
-        //title_normalized = "",
         subtitle = "",
-        //subtitle_normalized = "",
         description = "",
         category = "",
         certified = false,
@@ -130,7 +129,6 @@ export class ClassLesson {
         materials = [],
         notes = [],
         photo_url = "",
-        //        status = ClassLesson.STATUS.DRAFT,
         translate = {},
         translates = [],
         created_time = new Date(),
@@ -202,9 +200,6 @@ export class ClassLesson {
     set enabled(value) {
         this._enabled = value;
     }
-
-
-
     // title
     get title() {
         return this._title;
@@ -212,17 +207,6 @@ export class ClassLesson {
     set title(value) {
         this._title = value;
     }
-
-    // title_normalized
-    /*
-    get title_normalized() {
-        return this._title_normalized;
-    }
-    set title_normalized(value) {
-        this._title_normalized = value;
-    }
-    */
-
     // subtitle
     get subtitle() {
         return this._subtitle;
@@ -230,16 +214,6 @@ export class ClassLesson {
     set subtitle(value) {
         this._subtitle = value;
     }
-
-    // subtitle_normalized
-    /*
-    get subtitle_normalized() {
-        return this._subtitle_normalized;
-    }
-    set subtitle_normalized(value) {
-        this._subtitle_normalized = value;
-    }
-    */
 
     // description
     get description() {
@@ -379,12 +353,31 @@ export class ClassLesson {
 
     // --- Serialization ---
     toJSON() {
+        /*
+        const fieldsToRemove = [
+            'teacher',
+            'translate',
+            'title',
+            'subtitle',
+            'description',
+            'materials',
+            'goals',
+            'programs',
+            'prerequisites',
+            'target_audiences',
+            'notes',
+            'photo_url',
+            'tags'
+        ];
         const out = { ...this };
         const cleaned = Object.fromEntries(
             Object.entries(out)
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
+        for (const field of fieldsToRemove) {
+            delete cleaned[field];
+        }
         cleaned.teacher = null;
         cleaned.translate = null;
         //cleaned.translates = this._convertTranslatesToFirestore(this._translates);
@@ -416,6 +409,8 @@ export class ClassLesson {
         delete cleaned.photo_url;
         delete cleaned.tags;
         return cleaned;
+        */
+        return LessonSerializer.toJSON(this);
     }
     update(props = {}) {
         for (const key in props) {
@@ -427,6 +422,9 @@ export class ClassLesson {
     clone() {
         //const translate = this._translate?.clone();
         //  const translates = this._translates?.map();
+        const fromJson = LessonSerializer.fromJSON({ ...this });
+        return fromJson;
+        /*
         return ClassLesson.makeLessonInstance(this._uid, {
             ...this.toJSON(),
             teacher: this._teacher,
@@ -445,6 +443,7 @@ export class ClassLesson {
             photo_url: this._photo_url,
             tags: this._tags,
         });
+        */
         //return new ClassUser(this.toJSON());
     }
 
@@ -648,7 +647,7 @@ export class ClassLesson {
         this._created_time = new Date();
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
-        await setDoc(newRef, this);
+        await setDoc(newRef, { ...this.toJSON() });
         return this.constructor.makeLessonInstance(this._uid, this.toJSON());// -> ClassModule
     }
     async updateFirestore() {
@@ -730,6 +729,401 @@ export class ClassLesson {
             console.log("ERROR", error?.message || error);
             return null;
         }
+    }
+}
+class LessonSerializer {
+    static fieldsToRemove = [
+        'teacher',
+        'translate',
+        'title',
+        'subtitle',
+        'description',
+        'materials',
+        'goals',
+        'programs',
+        'prerequisites',
+        'target_audiences',
+        'notes',
+        'photo_url',
+        'tags'
+    ];
+    static toJSON(lesson) {
+        const fields = [...this.fieldsToRemove];
+        const out = { ...lesson };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+        );
+        for (const field of fields) {
+            delete cleaned[field];
+        }
+        return cleaned;
+    }
+    static fromJSON(data) {
+        const cleaned = Object.fromEntries(
+            Object.entries(data)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+        );
+        return new ClassLesson(cleaned);
+    }
+}
+export class ClassLessonTeacher extends ClassLesson {
+    static COLLECTION = "LESSONS_TEACHER";
+    static COLLECTION_TRANSLATE = "i18n";
+    static NS_COLLECTION = `classes/lesson-teacher`;
+
+    constructor(props = { uid_lesson: "" }) {
+        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...);
+        this._uid_lesson = props.uid_lesson || "";
+        this._lesson = null;
+        this._url = props.url || "";
+    }
+    // uid_lesson
+    get uid_lesson() {
+        return this._uid_lesson;
+    }
+    set uid_lesson(value) {
+        this._uid_lesson = value;
+        this._touchLastEdit();
+    }
+    // lesson
+    get lesson() {
+        return this._lesson;
+    }
+    set lesson(value) {
+        this._lesson = value;
+    }
+    // url
+    get url() {
+        return this._url;
+    }
+    set url(value) {
+        this._url = value;
+    }
+    /*
+        toJSON() {
+            const out = { ...this };
+            const cleaned = Object.fromEntries(
+                Object.entries(out)
+                    .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                    .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+            );
+            cleaned.lesson = null;
+                    cleaned.teacher = null;
+            cleaned.translate = null;
+            //cleaned.translates = this._convertTranslatesToFirestore(this._translates);
+            cleaned.title = null;
+            cleaned.subtitle = null;
+            cleaned.description = null;
+            cleaned.materials = null;
+            cleaned.goals = null;
+            cleaned.programs = null;
+            cleaned.prerequisites = null;
+            cleaned.target_audiences = null;
+            cleaned.materials = null;
+            cleaned.notes = null;
+            cleaned.photo_url = null;
+            cleaned.tags = null;
+    
+            delete cleaned.teacher;
+            delete cleaned.translate;
+            delete cleaned.title;
+            delete cleaned.subtitle;
+            delete cleaned.description;
+            delete cleaned.materials;
+            delete cleaned.goals;
+            delete cleaned.programs;
+            delete cleaned.prerequisites;
+            delete cleaned.target_audiences;
+            delete cleaned.materials;
+            delete cleaned.notes;
+            delete cleaned.photo_url;
+            delete cleaned.tags;
+            delete cleaned.lesson;
+            return cleaned;
+        }
+        */
+    toJSON() {
+        // on récupère le JSON déjà nettoyé par Lesson
+        // const cleaned = super.toJSON();
+
+        // suppression spécifique à LessonTeacher
+        //delete cleaned.lesson; // <-- remplace par la clé que tu veux enlever
+        return LessonTeacherSerializer.toJSON(this);
+    }
+    update(props = {}) {
+        for (const key in props) {
+            if (Object.prototype.hasOwnProperty.call(this, `_${key}`) && props[key] !== undefined) {
+                this[`_${key}`] = props[key];
+            }
+        }
+    }
+    clone() {
+        return LessonTeacherSerializer.fromJSON({ ...this });
+    }
+    static makeLessonTeacherInstance(uid, data = {}) {
+        return new ClassLessonTeacher({ uid, ...data });
+    }
+    static get converter() {
+        return {
+            toFirestore(lessonInstance) {
+                const translates = lessonInstance._convertTranslatesToFirestore(lessonInstance.translates);
+
+                // chaque classe a un .toJSON() propre
+                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates: translates } : { ...lessonInstance, translates: translates };
+            },
+            fromFirestore(snapshot, options) {
+                const uid = snapshot.id;
+                const data = snapshot.data(options) || {};
+                var start_date = ClassLessonTeacher._toJsDate(data.start_date);
+                var end_date = ClassLessonTeacher._toJsDate(data.end_date);
+                var created_time = ClassLessonTeacher._toJsDate(data.created_time);
+                var last_edit_time = ClassLessonTeacher._toJsDate(data.last_edit_time);
+                const translates = Object.values(data.translates)?.map?.(trans => new ClassLessonTranslate(trans));
+                //console.log("uid lesson",uid, )
+                //console.log("translate classLesson", Object.values(data.translates))
+                return ClassLessonTeacher.makeLessonTeacherInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time, translates });
+            },
+        };
+    }
+    // ---------- Helpers Firestore ----------
+    static async alreadyExist(_uid) {
+        const q = query(
+            collection(firestore, this.COLLECTION),
+            where("uid", "==", _uid)
+        );
+        const countSnap = await getCountFromServer(q);
+        return countSnap.data().count > 0;
+    }
+    static async alreadyExistByName(_name) {
+        const q = query(
+            collection(firestore, this.COLLECTION),
+            where("name_normalized", "==", this._name.toLowerCase().trim())
+        );
+        const countSnap = await getCountFromServer(q);
+        return countSnap.data().count > 0;
+    }
+    static colRef() {
+        // if (!uidLesson) return;
+        return collectionGroup(firestore, this.COLLECTION).withConverter(this.converter);
+        //return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
+    }
+    static docRef(uidLesson, id) {
+        if (!uidLesson || !id) return;
+        return doc(firestore, super.COLLECTION, uidLesson, this.COLLECTION, id).withConverter(this.converter);
+    }
+
+    static async count(uidLesson = "", constraints = []) {
+        if (!uidLesson) return;
+        const q = query(this.colRef(), ...constraints);        //const qSnap = await getDocs(q);
+        //const coll = collection(firestore, ClassUser.COLLECTION);
+        const snap = await getCountFromServer(q);
+        return snap.data().count; // -> nombre total
+    }
+    // Récupérer un module par id
+    static indexOf(array = [], uid) {
+        if (array.length === 0 || !(array[0] instanceof ClassLessonTeacher)) {
+            return -1;
+        }
+        if (!(array[0] instanceof ClassLessonTeacher)) {
+            console.log("ERRROR is not class ClassLessonTeacher")
+            return -1;
+        }
+        const indexof = array.findIndex(item => item.uid === uid);
+        return indexof;
+    }
+    static async get(uid, lang = defaultLanguage) {
+        const q = query(
+            collectionGroup(firestore, this.COLLECTION).withConverter(this.converter),
+            where("uid", "==", uid),
+            limit(1)
+        );
+        const snaps = await getDocs(q);
+        if (snaps.empty) return null;
+
+        const docSnap = snaps.docs[0];
+        const chapter = docSnap.data();
+        const translate = chapter.translates?.find(item => item.lang === lang);
+        chapter.translate = translate;
+        return chapter;
+    }
+    static async getByName(_name) {
+        //const usersCol = collection(firestore, ClassUser.COLLECTION).withConverter(ClassUser.converter);
+        const q = query(
+            collection(firestore, ClassLesson.COLLECTION).withConverter(ClassLesson.converter),
+            where("name_normalized", "==", _name.toLowerCase().trim()),
+            limit(1),
+        );
+        const snap = await getDocs(q);
+        const myDoc = snap.docs[0];
+        if (!snap.empty) {
+            return myDoc.data();
+        }
+        return null; // -> ClassModule | null
+    }
+    // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
+    static async list(lang = defaultLanguage, constraints = []) {
+        const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
+        const qSnap = await getDocs(q);
+        const lessons = [];
+        for (const doc of qSnap.docs) {
+            const lesson = doc.data();
+            const translate = lesson.translates?.find(item => item.lang === lang);
+            lesson.translate = translate;
+            lessons.push(lesson);
+        }
+        return lessons;
+    }
+    createTitleNormalized(title = '') {
+        var result = "";
+        for (let i = 0; i < title.length; i++) {
+            const element = title[i];
+            if (element === " ") {
+                result += "_";
+            } else {
+                result += element;
+            }
+        }
+        return (result.toLowerCase());
+    }
+    createFirestoreDocUid() {
+        try {
+            const colRef = collection(
+                firestore,
+                ClassLesson.COLLECTION,
+                this._uid_lesson,
+                this.constructor.COLLECTION
+            );
+            const newRef = doc(colRef);
+            return newRef.id;
+        } catch (error) {
+            console.log("ERRRRROROOOORO", error);
+            return null;
+        }
+    }
+    // Créer un user (avec option timestamps serveur)
+    async createFirestore() {
+        if (!this._uid_lesson) throw new Error("The lesson teacher must have a 'uid_lesson'");
+        if (!this._uid_teacher) throw new Error("The lesson teacher must have a 'uid_teacher'");
+        if (!this._uid) {
+            this._uid = this.createFirestoreDocUid();
+        }
+        const newRef = this.constructor.docRef(this._uid_lesson, this._uid);
+        /*
+        if (this._uid) {
+            newRef = this.constructor.docRef(this._uid_lesson, this._uid);
+        } else {
+            const colRef = collection(
+                firestore,
+                ClassLesson.COLLECTION,
+                this._uid_lesson,
+                this.constructor.COLLECTION
+            );
+            newRef = doc(colRef);
+        }
+        */
+        if (!this._uid_intern) {
+            const countLesson = await this.constructor.count(this._uid_lesson, [where("uid_teacher", "==", this._uid_teacher)]) || 0;
+            const idLesson = countLesson + 1;
+            this._uid_intern = idLesson;
+        }
+        //const newRef = this.constructor.docRef(this._uid_lesson, this._uid);
+        this._created_time = new Date();
+        this._last_edit_time = new Date();
+        //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
+        //await setDoc(newRef, this);
+        console.log("translates from create firestore", this._translates, this._convertTranslatesToFirestore(this._translates))
+        await setDoc(newRef, this);
+        const _lesson = this.constructor.makeLessonTeacherInstance(this._uid, this.toJSON());
+        console.log("lessssson", _lesson);
+        return _lesson;// -> ClassModule
+    }
+    async updateFirestore() {
+        try {
+            // const ref = ClassLesson.docRef(id);
+            //const data = { ...patch, last_edit_time: new Date() };
+            //await updateDoc(ref, data, { merge: true });
+            //console.log("UPDATE COMPLETED")
+            //return (await getDoc(ref)).data(); // -> ClassModule
+            const ref = this.constructor.docRef(this._uid_lesson, this._uid);
+            this._last_edit_time = new Date();
+            //const data = { ...patch, last_edit_time: new Date() };
+
+            const updated = { ...this.toJSON() };
+            delete updated.translate;
+            //updated.translates = updated.translates.map(item=>item.toJSON());
+            console.log("want update", updated);
+            await updateDoc(ref, updated, { merge: true });
+            //console.log("UPDATE COMPLETED", { ...this })
+            //return (await getDoc(ref)).data(); // -> ClassDevice
+            return this.constructor.makeLessonTeacherInstance(this._uid, this.toJSON()); // -> ClassModule
+        } catch (e) {
+            console.log("ERRRRROR", e)
+            return null;
+        }
+    }
+    // Supprimer un module
+    async removeFirestore() {
+        try {
+            const ref = this.constructor.docRef(this._uid_lesson, this._uid);
+            await deleteDoc(ref);
+            //console.log("REMOVED", ref);
+            return true;
+        } catch (error) {
+            console.log("ERRRROR", error);
+            return false;
+        }
+    }
+    // (Legacy) méthode de fetch directe
+    static async fetchFromFirestore(uid = "", lang = defaultLanguage) {
+        try {
+            if (!uid) throw new Error("UID is required to get school.");
+            const _lesson = await ClassLessonTeacher.get(uid, lang);
+            // console.log("leson class fetch firestore", _lesson);
+            //const _translate = await ClassLessonTranslate.fetchFromFirestore(uid, lang);
+            //_lesson.translate = _translate;
+            return _lesson;
+        } catch (error) {
+            console.log("ERROR", error?.message || error);
+            return null;
+        }
+    }
+    static async fetchListFromFirestore(lang = defaultLanguage, constraints = []) {
+        try {
+            //if (!uid) throw new Error("UID is required to get module.");
+            return await this.list(lang, constraints);
+        } catch (error) {
+            console.log("ERROR", error?.message || error);
+            return null;
+        }
+    }
+}
+class LessonTeacherSerializer {
+    static fieldsToRemove = [
+        'lesson'
+    ];
+    static toJSON(lesson) {
+        const fields = [...LessonSerializer.fieldsToRemove, ...this.fieldsToRemove];
+        const out = { ...lesson };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+        );
+        for (const field of fields) {
+            delete cleaned[field];
+        }
+        return cleaned;
+    }
+    static fromJSON(data) {
+        const cleaned = Object.fromEntries(
+            Object.entries(data)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+        );
+        return new ClassLessonTeacher(cleaned);
     }
 }
 export class ClassLessonTranslate {

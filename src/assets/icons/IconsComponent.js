@@ -446,4 +446,9 @@ export const IconDownloadDesktopApp = ({ width = 24, height = 24, color = '' }) 
 export const IconDownloadMobileApp = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="line-md:cellphone-arrow-down" width={width} height={height} color={color} />)
 }
+export const IconUserCertified = ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="qlementine-icons:certified-16" width={width} height={height} color={color} />)
+}
+
+
 

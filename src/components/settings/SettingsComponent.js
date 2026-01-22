@@ -17,6 +17,7 @@ import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import FieldPhoneComponent from "../elements/FieldPhoneComponent";
 import TextFieldComponent from "../elements/TextFieldComponent";
+import { ClassLessonTeacher } from "@/classes/ClassLesson";
 function Header() {
     const { lang, changeLang } = useLanguage();
     const { user, isLoading, update, processing } = useAuth();
@@ -917,6 +918,11 @@ export default function SettingsComponent() {
     const [userEdit, setUserEdit] = useState(new ClassUser());
     useEffect(() => {
         setUserEdit(user.clone());
+        async function init() {
+          const _list = await ClassLessonTeacher.fetchFromFirestore("FGGHDFSGFSDGFS");
+          console.log("LIIIIST", _list);
+        }
+        init();
     }, [user]);
     return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
         <ProfilePage />
