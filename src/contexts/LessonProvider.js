@@ -172,6 +172,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLesson({
                 ..._lesson.toJSON(),
+                //translates:_lesson.translates,
                 translate,
                 title,
                 subtitle,
@@ -185,7 +186,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 target_audiences,
                 notes,
                 tags,
-
             });
             console.log("Lesson provider", lesson_new, lesson_new.clone())
             //lesson_new.lesson = lesson;

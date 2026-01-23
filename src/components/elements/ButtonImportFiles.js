@@ -5,11 +5,13 @@ import { ClassFile } from "@/classes/ClassFile";
 import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import { NS_BUTTONS } from "@/contexts/i18n/settings";
+import ButtonCancel from "../dashboard/elements/ButtonCancel";
 
 export default function ButtonImportFiles({
     files = [], setFiles = () => { },
     multiple = false,
     supported_files = [],
+    disabled=false,
 }) {
     const {t}=useTranslation([NS_BUTTONS]);
     const imageRef = useRef(null);
@@ -51,12 +53,16 @@ export default function ButtonImportFiles({
                 <Stack direction={{ xs: 'row', sm: 'row' }} justifyContent={'start'} alignItems={'center'} sx={{ width: '100%', }} spacing={1}>
 
                     {
-                      (files.length>1 || files.length === 0) &&  <Button
-                        startIcon={<Icon icon="material-symbols:upload" width="24" height="24" />}
+                      (files.length>1 || files.length === 0) &&  <ButtonCancel
+                      label={t('choose-photo')}
+                      disabled={disabled}
+                       icon={<Icon icon="material-symbols:upload" width="20" height="20" />}
                         //disabled={validFiles.length === MAX_FILES_LENGTH || isLoading}
-                        sx={{ color: ClassColor.BLACK, borderColor: ClassColor.BLACK }}
-                        size="small" onClick={handleClickFile} variant={"outlined"} color="primary">{t('choose-photo')}
-                    </Button>
+                       // sx={{ color: ClassColor.BLACK, borderColor: ClassColor.BLACK }}
+                       size="small" onClick={handleClickFile} 
+                       //variant={"outlined"} 
+                       //color="primary"
+                    />
                     }
                     {
                         files.map((file, index) => {

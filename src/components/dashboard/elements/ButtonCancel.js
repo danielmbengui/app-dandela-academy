@@ -20,7 +20,7 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small',sx={}, ...props }) {
+export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small',sx={},icon=null, ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight, text } = theme.palette;
   return (<Button
@@ -30,6 +30,7 @@ export default function ButtonCancel({variant="contained", label = 'Annuler', lo
     loading={loading}
     disabled={disabled}
     size={size}
+    startIcon={icon}
     onClick={() => {
       if (onClick) {
         onClick();

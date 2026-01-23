@@ -489,8 +489,9 @@ export class ClassLesson {
         return {
             toFirestore(lessonInstance) {
                 const translates = lessonInstance._convertTranslatesToFirestore(lessonInstance.translates);
+
                 // chaque classe a un .toJSON() propre
-                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates: translates } : { ...lessonInstance, translates: translates };
+                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates: translates } : { ...lessonInstance, translates: translates }
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
@@ -500,6 +501,7 @@ export class ClassLesson {
                 var created_time = ClassLesson._toJsDate(data.created_time);
                 var last_edit_time = ClassLesson._toJsDate(data.last_edit_time);
                 const translates = Object.values(data.translates)?.map?.(trans => new ClassLessonTranslate(trans));
+                //const translates = Object.values(data.translates)?.map?.(trans => new ClassLessonTranslate(trans));
                 //console.log("uid lesson",uid, )
                 //console.log("translate classLesson", Object.values(data.translates))
                 return ClassLesson.makeLessonInstance(uid, { ...data, start_date, end_date, created_time, last_edit_time, translates });
@@ -646,7 +648,7 @@ export class ClassLesson {
         this._created_time = new Date();
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
-        await setDoc(newRef, { ...this.toJSON() });
+        await setDoc(newRef, { ...this.toJSON() }, { merge: true });
         return this.constructor.makeLessonInstance(this._uid, this.toJSON());// -> ClassModule
     }
     async updateFirestore() {
@@ -660,11 +662,11 @@ export class ClassLesson {
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
 
-            const updated = { ...this.toJSON() };
-            delete updated.translate;
+            const updated = { ...this};
+            //delete updated.translate;
             //updated.translates = updated.translates.map(item=>item.toJSON());
-            console.log("want update", updated);
-            await updateDoc(ref, updated, { merge: true });
+            console.log("want update", this);
+            await setDoc(ref, this, {merge:true});
             //console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeLessonInstance(this._uid, this.toJSON()); // -> ClassModule

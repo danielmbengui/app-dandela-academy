@@ -194,9 +194,10 @@ export function AuthProvider({ children }) {
                 await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             const _user = data;
+            console.log("change auth provider", _user)
             setUser(prev => {
                 if (!prev || prev === null) return _user.clone();
-                prev.update(_user.toJSON());
+                prev = _user.clone();
                 return prev.clone();
             });
             setIsConnected(true);
@@ -414,7 +415,7 @@ export function AuthProvider({ children }) {
             })
         }
     };
-    
+
     const logout = async () => {
         router.prefetch(PAGE_LOGIN);
         const uid = auth.currentUser.uid || '';

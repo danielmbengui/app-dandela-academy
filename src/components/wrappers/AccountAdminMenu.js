@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { NS_DASHBOARD_MENU } from '@/contexts/i18n/settings';
 import { useTranslation } from 'react-i18next';
 
-export default function AccountMenu() {
+export default function AccountAdminMenu() {
   const {t} = useTranslation([NS_DASHBOARD_MENU]);
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -50,11 +50,11 @@ export default function AccountMenu() {
             py: 0.25,
             px: 0.5,
             height: '100%',
-            color: "var(--primary)",
-            border: `1px solid var(--primary)`,
+            color: "var(--warning)",
+            border: `1px solid var(--warning)`,
             borderRadius: '20px',
             cursor: 'pointer',
-            background: "var(--primary-shadow-sm)"
+            background: "var(--warning-shadow-sm)"
           }}>
 
           {

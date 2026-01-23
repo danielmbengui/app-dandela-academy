@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS } from "@/contexts/constants/constants_pages";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON } from "@/contexts/constants/constants_pages";
 import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
@@ -539,8 +539,8 @@ export class ClassUser {
         return (PAGE_DASHBOARD_HOME)
     }
     /**************** MENU ****************/
-    menuDashboard() {
-        return [
+    static menuDashboard(user=null) {
+        var menu = [
             {
                 name: "dashboard",
                 path: PAGE_DASHBOARD_HOME,
@@ -596,7 +596,22 @@ export class ClassUser {
                 path: PAGE_SETTINGS,
                 icon: <IconSettings width={20} height={20} />,
             },
-        ]
+        ];
+        if(user instanceof ClassUserIntern) {
+            menu = [
+                {
+                    name: "lessons",
+                    path: PAGE_ADMIN_UPDATE_ONE_LESSON,
+                    icon: <IconLessons width={18} height={18} />,
+                },
+                {
+                    name: "chapters",
+                    path: "admin/chapter/update",
+                    icon: <IconLessons width={18} height={18} />,
+                },
+            ]
+        }
+        return menu
     }
     // ---------- Converter intégré ----------
     static _toJsDate(v) {
@@ -932,6 +947,81 @@ export class ClassUserTeam extends ClassUserIntern {
         return new ClassUserTeam(this.toJSON());
     }
 }
+{/* TEACHER */ }
+export class ClassUserTeacher extends ClassUserIntern{
+    constructor(props = { role: ClassUser.ROLE.TEACHER }) {
+        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+        //this._role = props.role;
+        this._role_title = props.role_title;
+        this._bio = props.bio;
+        this._lessons_uid = props.lessons_uid || [];
+        this._lessons = props.lessons || [];
+        this._sessions_uid = props.sessions_uid || [];
+        this._sessions = props.sessions || [];
+        this._langs = props.langs || [];
+        this._tags = props.tags || [];
+    }
+    get role_title() { return this._role_title; }
+    set role_title(val) { this._role_title = val; }
+    get bio() { return this._bio; }
+    set bio(val) { this._bio = val; }
+    get lessons_uid() { return this._lessons_uid; }
+    set lessons_uid(val) { this._lessons_uid = val; }
+    get lessons() { return this._lessons; }
+    set lessons(val) { this._lessons = val; }
+
+    get sessions_uid() { return this._sessions_uid; }
+    set sessions_uid(val) { this._sessions_uid = val; }
+    get sessions() { return this._sessions; }
+    set sessions(val) { this._sessions = val; }
+
+    get langs() { return this._langs; }
+    set langs(val) { this._langs = val; }
+    get tags() { return this._tags; }
+    set tags(val) { this._tags = val; }
+    // --- Serialization ---
+    toJSON() {
+        const out = { ...this };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
+        );
+        //console.log("oooook", cleaned)
+        cleaned.lessons_uid = null;
+        cleaned.lessons = null;
+        cleaned.sessions_uid = null;
+        cleaned.sessions = null;
+        delete cleaned.lessons_uid;
+        delete cleaned.lessons;
+        delete cleaned.sessions_uid;
+        delete cleaned.sessions;
+        return cleaned;
+
+        //return entries;
+    }
+    clone() {
+        //return new ClassUserTeacher(this.toJSON());
+        return ClassUserTeacher.makeUserInstance(this._uid, {
+            ...this.toJSON(),
+            lessons_uid: this._lessons_uid,
+            lessons: this._lessons,
+            sessions_uid: this._sessions_uid,
+            sessions: this._sessions,
+        });
+    }
+    static async count(constraints = []) {
+        constraints.push(where('role', '==', this.ROLE.TEACHER));
+        //const coll = collection(firestore, ClassUser.COLLECTION);
+        const coll = this.colRef();
+        const q = constraints.length
+            ? query(coll, ...constraints)
+            : coll;
+
+        const snap = await getCountFromServer(q);
+        return snap.data().count; // -> nombre total
+    }
+}
 {/* TUTOR */ }
 /*************************** EXTERNS ************************************************/
 {/* EXTERN */ }
@@ -1045,83 +1135,7 @@ export class ClassUserExtern extends ClassUser {
         return (false);
     }
 }
-{/* STUDENT */ }
-export class ClassUserTeacher extends ClassUserExtern {
-    static ALL_ROLES = [
-        ClassUser.ROLE.STUDENT,
-    ];
-    constructor(props = { role: ClassUser.ROLE.STUDENT }) {
-        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
-        this._role_title = props.role_title;
-        this._bio = props.bio;
-        this._lessons_uid = props.lessons_uid || [];
-        this._lessons = props.lessons || [];
-        this._sessions_uid = props.sessions_uid || [];
-        this._sessions = props.sessions || [];
-        this._langs = props.langs || [];
-        this._tags = props.tags || [];
-    }
-    get role_title() { return this._role_title; }
-    set role_title(val) { this._role_title = val; }
-    get bio() { return this._bio; }
-    set bio(val) { this._bio = val; }
-    get lessons_uid() { return this._lessons_uid; }
-    set lessons_uid(val) { this._lessons_uid = val; }
-    get lessons() { return this._lessons; }
-    set lessons(val) { this._lessons = val; }
 
-    get sessions_uid() { return this._sessions_uid; }
-    set sessions_uid(val) { this._sessions_uid = val; }
-    get sessions() { return this._sessions; }
-    set sessions(val) { this._sessions = val; }
-
-    get langs() { return this._langs; }
-    set langs(val) { this._langs = val; }
-    get tags() { return this._tags; }
-    set tags(val) { this._tags = val; }
-    // --- Serialization ---
-    toJSON() {
-        const out = { ...this };
-        const cleaned = Object.fromEntries(
-            Object.entries(out)
-                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
-                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
-        );
-        //console.log("oooook", cleaned)
-        cleaned.lessons_uid = null;
-        cleaned.lessons = null;
-        cleaned.sessions_uid = null;
-        cleaned.sessions = null;
-        delete cleaned.lessons_uid;
-        delete cleaned.lessons;
-        delete cleaned.sessions_uid;
-        delete cleaned.sessions;
-        return cleaned;
-
-        //return entries;
-    }
-    clone() {
-        //return new ClassUserTeacher(this.toJSON());
-        return ClassUserTeacher.makeUserInstance(this._uid, {
-            ...this.toJSON(),
-            lessons_uid: this._lessons_uid,
-            lessons: this._lessons,
-            sessions_uid: this._sessions_uid,
-            sessions: this._sessions,
-        });
-    }
-    static async count(constraints = []) {
-        constraints.push(where('role', '==', this.ROLE.TEACHER));
-        //const coll = collection(firestore, ClassUser.COLLECTION);
-        const coll = this.colRef();
-        const q = constraints.length
-            ? query(coll, ...constraints)
-            : coll;
-
-        const snap = await getCountFromServer(q);
-        return snap.data().count; // -> nombre total
-    }
-}
 {/* STUDENT */ }
 export class ClassUserStudent extends ClassUserExtern {
     static ALL_ROLES = [

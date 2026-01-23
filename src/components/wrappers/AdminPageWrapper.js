@@ -39,10 +39,11 @@ import InstallPwaBanner from '../pwa/InstallPwaBanner';
 import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
 import AccountMenu from './AccountMenu';
 import { usePwa } from '@/contexts/PwaProvider';
+import AccountAdminMenu from './AccountAdminMenu';
 
 const drawerWidth = 240;
 
-function DashboardPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, ...props }) {
+export default function AdminPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>,isAuthorized=false, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -78,7 +79,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             sx={{
                 height: '100vh',
                 width: '100%',
-                background: 'var(--background-menu)',
+                background: 'var(--warning-dark)',
                 //backgroundColor:'red',
                 //backgroundImage: 'url("/images/login/back.png")',
                 //backgroundSize: 'cover',        // l'image couvre tout l'écran
@@ -91,24 +92,24 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
                     <Toolbar disableGutters variant="dense" sx={{ width: '100%', maxHeight: '30px', p: 2 }}>
                         <Stack sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
-                            <IconLogo color={"var(--primary)"} width={'50%'} />
+                            <IconLogo color={"var(--warning)"} width={'50%'} />
                         </Stack>
                     </Toolbar>
                     <Divider />
                     <List sx={{ py: 2, px: 1.5, background: '', width: '100%', height: '100%', }}>
                         {
-                            ClassUser.menuDashboard().map((menuItem, i) => {
+                            ClassUser.menuDashboard(user).map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
                                 const isPath = path.includes(menuItem.path);
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{
                                             px: 1.5, py: 1, cursor: 'pointer',
-                                            background: isPath ? "var(--primary)" : 'var(--background-menu-item)',
+                                            background: isPath ? "var(--warning)" : 'var(--warning-shadow-sm)',
                                             borderRadius: '20px',
-                                            color: isPath ? "var(--card-color)" : "var(--primary)",
+                                            color: isPath ? "var(--card-color)" : "var(--warning)",
                                             "&:hover": {
-                                                background: 'var(--primary)',
+                                                background: 'var(--warning)',
                                                 color: 'var(--card-color)',
                                             }
                                         }}>
@@ -196,7 +197,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     }, [isLoading, user, isAllowed, router]);
     // Remove this const when copying and pasting into your project.
     // const container = window !== undefined ? () => window().document.body : undefined;
-    if (isLoading) {
+    if (isLoading || (user && !isAllowed)) {
         return (<Preloader />);
     }
     if (!user) {
@@ -204,14 +205,14 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             <LoginComponent />
         </LoginPageWrapper>);
     }
-    if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
+    //if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
     return (
-        <Box sx={{ display: 'flex', background: 'var(--background-menu)', overflow: 'hidden', height: '100vh', }}>
+        <Box sx={{ display: 'flex', background: 'var(--warning-dark)', overflow: 'hidden', height: '100vh', }}>
             <AppBar
                 elevation={0}
                 position="fixed"
                 sx={{
-                    background: 'var(--background-menu)',
+                    background: 'var(--warning-dark)',
                     //zIndex: (theme) => theme.zIndex.drawer + 1 
                 }}
             >
@@ -226,7 +227,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         >
                             <MenuIcon />
                         </IconButton>
-                        <AccountMenu />
+                        <AccountAdminMenu />
                     </Stack>
                 </Toolbar>
             </AppBar>
@@ -279,7 +280,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             </Box>
             <Box
                 component="main"
-                sx={{ background: 'var(--background-menu)', width: '100vw', position: 'relative', }}
+                sx={{ background: 'var(--warning-dark)', width: '100vw', position: 'relative', }}
             >
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }} />
                 <Container disableGutters maxWidth={'xl'} sx={{
@@ -376,7 +377,11 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                                 backgroundColor: "rgba(0,0,0,0.4)",
                             },
                         }}>
-                            {children}
+                            {
+                                !isAuthorized &&  <NotAuthorizedComponent />
+                            }
+                              
+                            {isAuthorized && children}
                         </Stack>
                     </Stack>
 
@@ -407,12 +412,3 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     );
 }
 
-DashboardPageWrapper.propTypes = {
-    /**
-     * Injected by the documentation to work in an iframe.
-     * Remove this when copying and pasting into your project.
-     */
-    window: PropTypes.func,
-};
-
-export default DashboardPageWrapper;

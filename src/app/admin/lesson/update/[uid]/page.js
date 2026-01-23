@@ -1,9 +1,9 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { useLesson } from "@/contexts/LessonProvider";
 import { NS_BUTTONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
-import { PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
+import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import { IconLessons } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { useTranslation } from "react-i18next";
@@ -15,9 +15,9 @@ import { Box, Stack } from "@mui/material";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import { ClassUserAdministrator } from "@/classes/users/ClassUser";
 import { useAuth } from "@/contexts/AuthProvider";
-import Link from "next/link";
+import AdminPageWrapper from "@/components/wrappers/AdminPageWrapper";
 
-export default function DashboardOneLessonPage() {
+export default function AdminOneLessonUpdatePage() {
     const params = useParams();
     const { user } = useAuth();
     const { uid: uidLesson } = params; // <- ici tu récupères l'uid
@@ -29,28 +29,20 @@ export default function DashboardOneLessonPage() {
             setUidLesson(uidLesson);
         }
     }, [uidLesson, isLoadingLessons]);
-    return (<DashboardPageWrapper
+    const isAuthorized = useMemo(() => {
+        console.log("uuuuuuussssser", user)
+        return user instanceof ClassUserAdministrator || lesson?.uid_teacher === user?.uid;
+    }, [user, lesson]);
+    return (<AdminPageWrapper
         titles={[
             { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_LESSONS },
-            { name: lesson?.title, url: '' }
+            { name: lesson?.translate?.title, url: '' }
         ]}
         //title={`Cours / ${lesson?.title}`}
         //subtitle={lesson?.translate?.subtitle}
+        isAuthorized={isAuthorized}
         icon={<IconLessons />}
     >
-        <Stack spacing={1.5} alignItems={'start'}>
-            {
-                user && user instanceof ClassUserAdministrator && <Link target="_blank" href={`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${uidLesson}`}>
-                    <ButtonConfirm sx={{background:'var(--warning)'}} onClick={() => setView('edit')} label={t('edit', { ns: NS_BUTTONS })} />
-                </Link>
-            }
-            <LessonComponent />
-        </Stack>
-        {
-            view === 'edit' && <>
-                <ButtonCancel sx={{ mb: 1.5 }} onClick={() => setView('read')} label={t('back', { ns: NS_BUTTONS })} />
-                <LessonEditComponent />
-            </>
-        }
-    </DashboardPageWrapper>);
+        <LessonEditComponent />
+    </AdminPageWrapper>);
 }
