@@ -18,6 +18,7 @@ import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 import { ClassUser, ClassUserTeacher } from "./users/ClassUser";
 import { ClassLessonChapter } from "./lessons/ClassLessonChapter";
+import { ClassCountry } from "./ClassCountry";
 
 export class ClassLesson {
     static COLLECTION = "LESSONS";
@@ -95,9 +96,7 @@ export class ClassLesson {
         YEARLY: 'yearly',
         UNKNOWN: 'unknown',
     });
-    static ALL_CATEGORIES = [
-        ClassLesson.CATEGORY.OFFICE
-    ]
+    static ALL_CATEGORIES = Object.values(this.CATEGORY).filter(category=>category!==this.CATEGORY.UNKNOWN);
     static ALL_LEVELS = [
         ClassLesson.LEVEL.BEGINNER,
         ClassLesson.LEVEL.INTERMEDIATE,
@@ -774,11 +773,14 @@ export class ClassLessonTeacher extends ClassLesson {
     static COLLECTION_TRANSLATE = "i18n";
     static NS_COLLECTION = `classes/lesson-teacher`;
 
-    constructor(props = { uid_lesson: "" }) {
+    constructor(props = { uid_lesson: "", url:"",price:0,old_price:0,currency:ClassCountry.DEFAULT_CURRENCY }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...);
-        this._uid_lesson = props.uid_lesson || "";
+        this._uid_lesson = props.uid_lesson;
         this._lesson = null;
-        this._url = props.url || "";
+        this._url = props.url;
+        this._price = props.price;
+        this._old_price = props.old_price;
+        this._currency = props.currency;
     }
     // uid_lesson
     get uid_lesson() {
@@ -801,6 +803,28 @@ export class ClassLessonTeacher extends ClassLesson {
     }
     set url(value) {
         this._url = value;
+    }
+
+        // price
+    get price() {
+        return this._price;
+    }
+    set price(value) {
+        this._price = value;
+    }
+    // old_price
+    get old_price() {
+        return this._old_price;
+    }
+    set old_price(value) {
+        this._old_price = value;
+    }
+    // currency
+    get currency() {
+        return this._currency;
+    }
+    set currency(value) {
+        this._currency = value;
     }
     /*
         toJSON() {

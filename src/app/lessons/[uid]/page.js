@@ -9,6 +9,7 @@ import { ClassLesson } from "@/classes/ClassLesson";
 import { useTranslation } from "react-i18next";
 import { useParams } from "next/navigation";
 import LessonComponent from "@/components/dashboard/lessons/LessonComponent";
+import LessonEditComponent from "@/components/dashboard/lessons/LessonEditComponent";
 
 export default function DashboardOneLessonPage() {
     const params = useParams();
@@ -29,6 +30,9 @@ export default function DashboardOneLessonPage() {
         //subtitle={lesson?.translate?.subtitle}
         icon={<IconLessons />}
     >
+        {
+            //<LessonEditComponent />
+        }
         <LessonComponent lesson={lesson} />
     </DashboardPageWrapper>);
 }

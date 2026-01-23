@@ -333,16 +333,22 @@ function LessonRow({ lesson = null, lastChild = false }) {
   const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
   const roleCfg = FORMAT_CONFIG[lesson?.format];
   const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
-  //console.log("LESSON", lesson);
+  console.log("min level", getMinLevel(lesson?.uid));
 
   const {minLevelId,minLevelValue, maxLevelId, maxLevelValue} = useMemo(() => {
+    if(!lesson) return{
+      minLevelId:0,
+      minLevelValue:0,
+      maxLevelId:0,
+      maxLevelValue:0
+    }
     return {
-      minLevelId:getMinLevel(lesson?.id)?.id,
-      minLevelValue:getMinLevel(lesson?.id)?.value,
-      maxLevelId:getMaxLevel(lesson?.id)?.id,
-      maxLevelValue:getMaxLevel(lesson?.id)?.value,
+      minLevelId:getMinLevel(lesson?.uid)?.id,
+      minLevelValue:getMinLevel(lesson?.uid)?.value,
+      maxLevelId:getMaxLevel(lesson?.uid)?.id,
+      maxLevelValue:getMaxLevel(lesson?.uid)?.value,
     };
-}, [lesson]);
+}, [lesson, chapters]);
   return (
     <>
       <div className={`row ${lastChild ? 'last-child' : ''}`}>

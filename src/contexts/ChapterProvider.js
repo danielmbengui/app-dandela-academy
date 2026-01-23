@@ -253,7 +253,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
     }
     function getMinLevel(uidLesson="") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
-        if (!allLevels.length) return;
+        if (!allLevels.length || chapters.length===0) return {id:0,value:0};
         const lastIndex = allLevels.length - 1;
         var minChapter = allLevels[lastIndex];
         var chaptersFiletered = [...chapters];
@@ -273,7 +273,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
     }
     function getMaxLevel(uidLesson="") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
-        if (!allLevels.length) return;
+        if (!allLevels.length || chapters.length===0) return {id:0,value:0};
         const lastIndex = allLevels.length - 1;
         var maxChapter = allLevels[lastIndex];
         var chaptersFiletered = [...chapters];

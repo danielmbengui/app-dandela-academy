@@ -7,7 +7,12 @@ import { ClassCountry } from '@/classes/ClassCountry';
 import { validatePassword } from 'firebase/auth';
 import { auth } from './firebase/config';
 
-export const formatPrice = (amount, currency = "CHF") => {
+export const formatPrice = (amount, currency =ClassCountry.DEFAULT_CURRENCY) => {
+    if (currency === "AOA") {
+    return `${amount
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} Kz`;
+  }
   const localeByCurrency = {
     CHF: "fr-CH",
     USD: "en-US",
@@ -19,6 +24,8 @@ export const formatPrice = (amount, currency = "CHF") => {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    minimumFractionDigits: currency === "AOA" ? 0 : 2,
+    maximumFractionDigits: currency === "AOA" ? 0 : 2,
   }).format(amount);
 }
 export function mixArray(a = []) {
@@ -141,7 +148,7 @@ export function isValidPhoneNumber(phone_number, code = ClassCountry.DEFAULT_COD
   if (!phone) return false;
   return phone.isValid();
 }
-export function parseAndValidatePhone(raw, defaultCountry = 'AO') {
+export function parseAndValidatePhone(raw, defaultCountry = ClassCountry.DEFAULT_CODE) {
   const phone = parsePhoneNumberFromString(raw, defaultCountry); // ex: 'CH', 'AO', 'FR'
   if (!phone) return {
     is_valid: false,

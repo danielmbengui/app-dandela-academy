@@ -29,8 +29,13 @@ export class ClassSchool {
         name_normalized = "",
         photo_url = "",
         address = "",
-        emails=[],
-        phones=[],
+        address_1 = "",
+        bank_account = "",
+        bank_express = "",
+        bank_name = "",
+        iban = "",
+        emails = [],
+        phones = [],
         schedule = [
             { is_open: true, open_hour: 8, close_hour: 18 }, // lundi
             { is_open: true, open_hour: 8, close_hour: 18 },
@@ -48,10 +53,15 @@ export class ClassSchool {
         this._uid_intern = uid_intern;
         this._name = name;
         this._name_normalized = name_normalized;
-        this._emails=emails;
+        this._emails = emails;
         this._phones = phones;
         this._photo_url = photo_url;
         this._address = address;
+        this._address_1 = address_1;
+        this._bank_account = bank_account;
+        this._bank_express = bank_express;
+        this._bank_name = bank_name;
+        this._iban = iban;
         this._schedule = this._normalizeSchedule(schedule);
         this._enabled = Boolean(enabled);
 
@@ -131,6 +141,21 @@ export class ClassSchool {
     get address() {
         return this._address;
     }
+    get address_1() {
+        return this._address_1;
+    }
+    get bank_account() {
+        return this._bank_account;
+    }
+    get bank_express() {
+        return this._bank_express;
+    }
+    get bank_name() {
+        return this._bank_name;
+    }
+    get iban() {
+        return this._iban;
+    }
 
     get schedule() {
         // on renvoie une copie pour éviter les mutations directes
@@ -176,13 +201,33 @@ export class ClassSchool {
         this._phones = value;
         this._touchLastEdit();
     }
-    
+
     set photo_url(value) {
         this._photo_url = value;
         this._touchLastEdit();
     }
     set address(value) {
         this._address = value;
+        this._touchLastEdit();
+    }
+    set address_1(value) {
+        this._address_1 = value;
+        this._touchLastEdit();
+    }
+    set bank_account(value) {
+        this._bank_account = value;
+        this._touchLastEdit();
+    }
+    set bank_express(value) {
+        this._bank_express = value;
+        this._touchLastEdit();
+    }
+    set bank_name(value) {
+        this._bank_name = value;
+        this._touchLastEdit();
+    }
+    set iban(value) {
+        this._iban = value;
         this._touchLastEdit();
     }
     set schedule(value) {
@@ -364,7 +409,7 @@ export class ClassSchool {
         const qSnap = await getDocs(q);
         return qSnap.docs.map(item => item.data());
     }
-    async createNameNormalized(name='') {
+    async createNameNormalized(name = '') {
         return (name.replace(" ", "_").toLowerCase());
     }
     // Créer un user (avec option timestamps serveur)
@@ -379,7 +424,7 @@ export class ClassSchool {
         this._uid = newRef.id;
         this._uid_intern = idSchool;
         this._name_normalized = createNameNormalized(this._name);
-       // const uid = newRef.id;
+        // const uid = newRef.id;
         //const uid_intern = idSchool;
         //this._enabled = false;
         this._created_time = new Date();

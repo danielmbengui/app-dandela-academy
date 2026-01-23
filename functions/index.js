@@ -87,7 +87,7 @@ exports.updateSessionsStatus = onSchedule(
   },
   async (event) => {
     //logger.info("hourlyJob triggered", { when: new Date().toISOString() });
-    const query = firestore.collection("SESSIONS")
+    const query = firestore.collection("SESSIONS");
     //.limit(500);
     const snap = await query.get();
     if (snap.empty) return;
@@ -103,7 +103,7 @@ exports.updateSessionsStatus = onSchedule(
         const startDate = toDate(slot.start_date);
         const endDate = toDate(slot.end_date);
         const lastDate = toDate(slot.last_subscribe_time);
-        if (endDate?.getTime() < new Date().getTime() && slot_new.status === 'draft') {
+        if (endDate?.getTime() < new Date().getTime() && slot.status === 'draft') {
           continue;
         }
         var slot_new = { ...slot };

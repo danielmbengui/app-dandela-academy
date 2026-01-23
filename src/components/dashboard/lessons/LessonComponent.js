@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
-import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
+import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
 import { Box, CircularProgress, Grid, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
@@ -271,7 +271,7 @@ function PreviousSessionsComponent() {
 
 export default function LessonComponent() {
   const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION,NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   const { path } = usePathname();
   const { getOneUser } = useUsers();
@@ -363,20 +363,10 @@ export default function LessonComponent() {
                 }
               </List>
               <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}`}>
-                <ButtonConfirm label={t('follow-online', { ns: NS_LESSONS_ONE })} />
+                <ButtonConfirm label={t('follow-lesson-online', { ns: NS_BUTTONS })} />
               </Link>
             </div>
             <TeacherComponent />
-            {
-              isLoadingSlots ? <Skeleton variant="rounded" width={'100%'} height={50} sx={{ bgcolor: 'var(--card-border)' }}>
-                <NextSessionsComponent />
-              </Skeleton> : <NextSessionsComponent />
-            }
-            {
-              isLoadingSlots ? <Skeleton variant="rounded" width={'100%'} height={50} sx={{ bgcolor: 'var(--card-border)' }}>
-                <PreviousSessionsComponent />
-              </Skeleton> : <PreviousSessionsComponent />
-            }
           </aside>
         </section>
 

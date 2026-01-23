@@ -4756,6 +4756,7 @@ export class ClassCountry {
     ]
     static DEFAULT_CODE = 'AO';
     static DEFAULT_PREFIXE = '+244';
+    static DEFAULT_CURRENCY = "AOA";
     constructor({
         id = "",
         code = "",
@@ -4863,7 +4864,6 @@ export class ClassCountry {
         }
         return null;
     }
-
     static getPrefixes() {
         return this.COUNTRIES.flatMap(country => country.prefixes.map(prefixe => ({
             code: country.code,

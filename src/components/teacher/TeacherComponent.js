@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { formatDuration, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
@@ -20,6 +20,8 @@ import Link from "next/link";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
 import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 import { PAGE_LESSONS, PAGE_LESSONS_TEACHER, PAGE_TEACHERS } from "@/contexts/constants/constants_pages";
+import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
+import { useUsers } from "@/contexts/UsersProvider";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -127,40 +129,46 @@ const FORMAT_CONFIG = {
 
 export default function TeacherComponent() {
   const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   //const [lesson, setLesson] = useState(null);
   const { lesson } = useLesson();
+  const { lessons } = useLessonTeacher();
+  const { getOneUser } = useUsers();
+  const teacher = useMemo(() => {
+    if (!lesson) return null;
+    return getOneUser(lesson.uid_teacher);
+  }, [lesson]);
+  const lessonTeacher = useMemo(() => {
+    if (!lesson || !teacher || lessons?.length===0) return null;
+    const filteredLessons = lessons.filter(l=>l.uid_teacher === teacher.uid);
+    return filteredLessons[0];
+  }, [lesson, teacher, lessons]);
 
   return (<Stack>
     <div className="page">
       <div className="teacher-card">
-        <p className="teacher-label-text">{t('teacher', {ns:NS_LESSONS_ONE})}</p>
+        <p className="teacher-label-text">{t('teacher', { ns: NS_LESSONS_ONE })}</p>
         <div className="teacher-main">
-          {lesson?.teacher?.showAvatar?.({})}
+          {teacher?.showAvatar?.({})}
           <div className="teacher-text">
             <p className="teacher-name">
-              {lesson?.teacher?.first_name} {lesson?.teacher?.last_name}
+              {teacher?.first_name} {teacher?.last_name}
             </p>
-            <p className="teacher-role">{lesson?.teacher?.role_title}</p>
+            <p className="teacher-role">{teacher?.role_title}</p>
           </div>
         </div>
-        <p className="teacher-bio">{lesson?.teacher?.bio}</p>
-        <p className="teacher-email">
-          📧 <span>{lesson?.teacher?.email}</span>
+        <p className="teacher-bio">{teacher?.bio}</p>
+        <p className="teacher-email" style={{display:'none'}}>
+          📧 <span>{teacher?.email}</span>
         </p>
 
         <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
-        <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_LESSONS_TEACHER}/${lesson?.teacher?.uid}`}>
-          <ButtonCancel
-            label={t('see-lesson', {ns:NS_BUTTONS})}
-          />
-        </Link>
-        <Link href={`mailto:${lesson?.teacher?.email}`}>
-          <ButtonConfirm
-            label={t('contact',{ns:NS_BUTTONS} )}
-          />
-        </Link>
+          <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_LESSONS_TEACHER}/${lessonTeacher?.uid}`}>
+            <ButtonConfirm
+              label={t('follow-lesson-onsite', { ns: NS_BUTTONS })}
+            />
+          </Link>
         </Stack>
       </div>
       <style jsx>{`

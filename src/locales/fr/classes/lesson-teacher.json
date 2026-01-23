@@ -46,16 +46,26 @@
     "title": "Ce cours donne droit à un certificat délivré par Dandela Academy.",
     "items": [
       "Attestation de suivi détaillant les compétences acquises.",
-      "Certificat remis en format PDF (et éventuellement papier).",
+      "Certificat remis au format PDF (et éventuellement papier).",
       "Idéal pour compléter un CV ou un dossier de candidature."
     ],
-    "no_certification": "Ce cours ne délivre pas de certificat officiel mais une attestation de participation peut être fournie sur demande."
+    "no_certification": "Ce cours ne délivre pas de certificat officiel, mais une attestation de participation peut être fournie sur demande."
   },
-  "notes": "Infos importantes",
+  "installements-title": "Installations équipées",
+  "installements-subtitle": "Vous pouvez vous rendre sur place et utiliser les ordinateurs de l’école.",
+  "price": "Prix",
+  "bank_account": "Compte de l’école",
+  "bank_name": "Banque",
+  "bank_express": "Transfert express",
+  "iban": "IBAN de l’école",
+  "payment": "Vous pouvez payer en ligne ou en présentiel.",
+  "payment_online": "Veuillez vous munir du justificatif de paiement.",
+  "payment_onsite": "Un terminal de paiement est disponible sur place.",
+  "notes": "Informations importantes",
   "seats_taken": "Inscrits",
   "seats_availables": "Place(s) restante(s)",
   "multiple_payments": "Paiement échelonné possible",
-  "security": "Inscription sécurisée • Tu recevras un email de confirmation avec toutes les informations pratiques.",
+  "security": "Inscription sécurisée • Tu recevras un e-mail de confirmation avec toutes les informations pratiques.",
   "unknown": "Inconnu",
   "btn-see-lesson": "Retour au cours",
   "btn-subscribe": "M'inscrire à une session"

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { IconCheck, IconVisible } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTeacher } from "@/classes/ClassLesson";
-import { formatDuration, formatPrice, getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import { formatDuration, formatPrice, getFormattedDateNumeric, getFormattedHour, parseAndValidatePhone } from "@/contexts/functions";
 import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
 import { Box, Chip, CircularProgress, Grid, List, ListItem, Skeleton, Stack, Typography } from "@mui/material";
 
@@ -27,6 +27,7 @@ import { useUsers } from "@/contexts/UsersProvider";
 import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 import { useSchool } from "@/contexts/SchoolProvider";
 import OneTeacherLessonComponent from "@/components/teacher/OneTeacherLessonComponent";
+import { ClassCountry } from "@/classes/ClassCountry";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -132,7 +133,6 @@ const FORMAT_CONFIG = {
 
 function SlotRow({ slot = null }) {
   const { sessions, setUidSession, setUidSlot, slots, getOneSession } = useSession();
-  //const colorSlot = slot?.start_date?.getTime() >= new Date() ? 'green' : 'red';
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState('read');
   const STATUS_CONFIG = ClassSessionSlot.STATUS_CONFIG || [];
@@ -153,7 +153,7 @@ function SlotRow({ slot = null }) {
         background: colorSlot?.color,
         boxShadow: `0px 0px 8px ${colorSlot?.glow}`,
       }} />
-      <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.code} (${session?.uid_intern})`}</Typography>
+      <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.uid} ${session?.code} (${session?.uid_intern})`}</Typography>
       <Typography variant="caption">{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
       <Box
         onClick={() => {
@@ -277,10 +277,10 @@ export default function LessonTeacherComponent() {
   const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
   const { path } = usePathname();
-  const { getOneUser } = useUsers();
+  const { getOneUser, isLoading: isLoadingUsers } = useUsers();
   //const [lesson, setLesson] = useState(null);
-  const { lessons } = useLesson();
-  const { lesson } = useLessonTeacher();
+  const { lesson, lessons } = useLesson();
+  const { lesson: lessonTeacher, isLoading: isLoadingLessons } = useLessonTeacher();
   const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
   const { sessions, isLoading: isLoadingSessions, isLoadingSlots } = useSession();
   const { school } = useSchool();
@@ -288,52 +288,66 @@ export default function LessonTeacherComponent() {
   const [isEnrolled, setIsEnrolled] = useState(false);
   //const [isLoading, setIsLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const seatsLeft = Math.max(lesson?.seats_availables || 0 - lesson?.seats_taken || 0, 0);
+  const seatsLeft = Math.max(lessonTeacher?.seats_availables || 0 - lessonTeacher?.seats_taken || 0, 0);
   const isFull = seatsLeft <= 0 && !isEnrolled;
-  const formatCfg = FORMAT_CONFIG[lesson?.format];
+  const formatCfg = FORMAT_CONFIG[lessonTeacher?.format];
 
-  useEffect(() => {
-    if (lesson) {
-      lesson.update({ teacher: getOneUser(lesson.uid_teacher) })
-    }
-    console.log("lessssons", lessons, lesson)
-  }, [lesson])
   const teacher = useMemo(() => {
-    return lesson?.teacher;
-  }, [lesson]);
+    if (isLoadingLessons || isLoadingUsers || !lessonTeacher) return null;
+    return getOneUser(lessonTeacher.uid_teacher);
+  }, [isLoadingLessons, isLoadingUsers, lessonTeacher]);
+  const parsedPhoneNumber = useMemo(() => {
+    if(!school) return "";
+    const codeCountry = ClassCountry.extractCodeCountryFromPhoneNumber(school?.bank_express);
+    const parsedPhoneNumber = parseAndValidatePhone(school?.bank_express || "", codeCountry || "")?.national;
+    //console.log("Parsed phone", parsedPhoneNumber)
+    return parsedPhoneNumber;
+  }, [school]);
+  if (!lessonTeacher || !teacher) {
+    return (<CircularProgress size={'14px'} />)
+  }
 
   return (<Stack sx={{ color: "var(--font-color)" }}>
     <div className="page">
       <main className="container">
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0.5} alignItems={{ xs: 'start', sm: 'center' }} sx={{ mb: 1 }}>
+          <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
+            <ButtonCancel label={t('see-lesson', { ns: NS_BUTTONS })} />
+          </Link>
+          <Link target={'_blank'} href={lessonTeacher?.url || ""}>
+            <ButtonConfirm label={t('subscribe-session', { ns: NS_BUTTONS })} />
+          </Link>
+        </Stack>
         <section className="hero-card">
           <Stack spacing={2} className="hero-left">
-            <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-              <ButtonCancel label={t('btn-see-lesson')} />
-              <Link target={'_blank'} href={lesson?.url || ""}>
-                <ButtonConfirm label={t('btn-subscribe')} />
-              </Link>
-            </Stack>
-            <Grid container spacing={2} alignItems={'start'} sx={{ textAlign: 'justify', background: '', lineHeight: '0.8rem' }}>
-              <Grid size={'grow'}>
-                <OneTeacherLessonComponent />
+            <Grid container spacing={{ xs: 1, sm: 2 }} alignItems={'start'} sx={{ textAlign: 'justify', background: '', lineHeight: '0.8rem' }}>
+              <Grid size={{ xs: 12, sm: 'grow' }}>
+                <OneTeacherLessonComponent teacher={teacher} />
               </Grid>
-              <Grid size={7}>
+              <Grid size={{ xs: 12, sm: 7 }}>
                 <Stack spacing={1}>
-                  <h2 style={{ color: "var(--font-color)", marginTop: '10px' }}>{lesson?.translate?.subtitle}</h2>
+                  <div className="badges">
+                    {lessonTeacher?.certified && (
+                      <span className="badge-cert">
+                        🎓 {t('certified')}
+                      </span>
+                    )}
+                  </div>
+                  <h2 style={{ color: "var(--font-color)", marginTop: '10px' }}>{lessonTeacher?.translate?.subtitle}</h2>
                   <Typography variant="caption" >
-                    {lesson?.translate?.description}
+                    {lessonTeacher?.translate?.description}
                   </Typography>
                 </Stack>
               </Grid>
 
             </Grid>
             <Grid container spacing={1.5}>
-              <Grid size={'auto'} sx={{ background: 'red' }}>
+              <Grid size={{ xs: 12, sm: 'auto' }} sx={{ background: '' }}>
                 {
-                  lesson?.translate?.photo_url && <Box sx={{ background: '', width: '100%' }}>
+                  lessonTeacher?.translate?.photo_url && <Box sx={{ background: '', width: '100%' }}>
                     <Image
-                      src={lesson?.translate?.photo_url || ''}
-                      alt={`lesson-${lesson?.uid}`}
+                      src={lessonTeacher?.translate?.photo_url || ''}
+                      alt={`lesson-${lessonTeacher?.uid}`}
                       quality={100}
                       width={300}
                       height={150}
@@ -350,20 +364,13 @@ export default function LessonTeacherComponent() {
                   </Box>
                 }
               </Grid>
-              <Grid size={'grow'} sx={{ background: 'yellow' }}>
-                <Stack sx={{ background: 'green' }} spacing={1}>
-                  <div className="badges">
-                    {lesson?.certified && (
-                      <span className="badge-cert">
-                        🎓 {t('certified')}
-                      </span>
-                    )}
-                  </div>
+              <Grid size={{ xs: 12, sm: 'grow' }} sx={{ background: '' }}>
+                <Stack sx={{ background: '' }} spacing={1}>
                   {
-                    lesson?.translate?.goals?.length > 0 && <div className="card">
+                    lessonTeacher?.translate?.goals?.length > 0 && <div className="card">
                       <h2>{"🎯"} {t('goals')}</h2>
                       <Grid container spacing={0.5}>
-                        {lesson.translate.goals.map((item, idx) => (
+                        {lessonTeacher.translate.goals.map((item, idx) => (
                           <Grid key={idx} size='auto'>
                             <Chip size="small" sx={{ margin: 0 }} variant="outlined" label={item} />
                           </Grid>
@@ -372,10 +379,10 @@ export default function LessonTeacherComponent() {
                     </div>
                   }
                   {
-                    lesson?.translate?.target_audiences?.length > 0 && <div className="card">
+                    lessonTeacher?.translate?.target_audiences?.length > 0 && <div className="card">
                       <h2>{"👨‍💼"} {t('target_audiences')}</h2>
                       <Grid container spacing={0.5}>
-                        {lesson.translate.target_audiences.map((item, idx) => (
+                        {lessonTeacher.translate.target_audiences.map((item, idx) => (
                           <Grid key={idx} size='auto'>
                             <Chip size="small" sx={{ margin: 0 }} variant="outlined" label={item} />
                           </Grid>
@@ -385,26 +392,21 @@ export default function LessonTeacherComponent() {
                   }
                   {
                     <div className="card">
-                      <h2>{"📇"} {t('contact')}</h2>
-                      <Stack direction={'row'} spacing={1} alignItems={'center'}>
-                        <Typography>{t('location')} {":"}</Typography>
-                        <Typography sx={{ fontWeight: 200 }}>{school?.address}</Typography>
-                      </Stack>
-                      <Stack direction={'row'} spacing={1} alignItems={'center'}>
-                        <Typography>{t('email')} {":"}</Typography>
-                        <Link className="link" href={`mailto:${teacher?.email || ""}`}>{teacher?.email || ""}</Link>
-                      </Stack>
-                      <Stack direction={'row'} spacing={1} alignItems={'center'}>
-                        <Typography>{t('phone_number')} {":"}</Typography>
-                        <Link className="link" href={`tel:${teacher?.phone_number || ""}`}>{teacher?.phone_number || ""}</Link>
-                      </Stack>
-                      <Grid container spacing={0.5}>
-                        {lesson?.translate.target_audiences.map((item, idx) => (
-                          <Grid key={idx} size='auto'>
-                            <Chip size="small" sx={{ margin: 0 }} variant="outlined" label={item} />
+                      <h2>{"🏢"} {t('installements-title')}</h2>
+                      <Stack spacing={1.5}>
+                        <Typography variant="caption">{t('installements-subtitle')}</Typography>
+                        <Grid container spacing={0.5}>
+                          <Grid size={'auto'}>
+                            <Typography>{t('location')} {":"}</Typography>
                           </Grid>
-                        ))}
-                      </Grid>
+                          <Grid size={'grow'}>
+                            <Stack>
+                              <Typography sx={{ fontWeight: 200 }}>{school?.address}</Typography>
+                              <Typography sx={{ fontWeight: 200 }}>({school?.address_1})</Typography>
+                            </Stack>
+                          </Grid>
+                        </Grid>
+                      </Stack>
                     </div>
                   }
                 </Stack>
@@ -418,178 +420,42 @@ export default function LessonTeacherComponent() {
             <div className="teacher-card">
               <p className="teacher-label-text">{t('modalities')}</p>
               <Typography sx={{
-                textDecoration: 'line-through',
-              }}>{`Price :${formatPrice(24_500, 'AOA')}`} {`Old price :${formatPrice(49_000, 'AOA')}`}</Typography>
-              <List dense disablePadding sx={{ mb: 1.5 }}>
-                {
-                  chapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((chapter, i) => {
-                    return (<ListItem key={`${chapter.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
-                      <Link href={`${PAGE_LESSONS}/${chapter.uid_lesson}${PAGE_CHAPTERS}/${chapter.uid}`}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1}
-                          //onClick={() => setIndex(i)}
-                          sx={{
-                            //color: index === i ? 'var(--primary)' : '',
-                            ":hover": {
-                              color: 'var(--primary)',
-                              cursor: 'pointer',
-                            }
-                          }}>
-                          <Typography sx={{ fontSize: '0.85rem' }} >{`${chapter.uid_intern}. `}{chapter.translate?.title}</Typography>
-                        </Stack>
-                      </Link>
-                    </ListItem>)
-                  })
-                }
-              </List>
-              <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}`}>
-                <ButtonConfirm label={t('follow-online', { ns: NS_LESSONS_ONE })} />
-              </Link>
+                fontSize: '20px',
+                fontWeight: 600,
+                //textDecoration: 'line-through',
+              }}>{`${t('price')} : ${formatPrice(lessonTeacher?.price, lessonTeacher?.currency)}`} <span style={{ color: 'var(--error)', textDecoration: 'line-through', fontSize: '0.85rem' }}>{`${formatPrice(lessonTeacher?.old_price, lessonTeacher?.currency)}`}</span>
+              </Typography>
+              <Stack sx={{ py: 1 }}>
+                <Typography variant="caption">{t('payment')}</Typography>
+                <Stack sx={{ py: 0.5 }}>
+                  <Typography variant="caption">{`→ ${t('online')} : ${t('payment_online')}`}</Typography>
+                  <Typography variant="caption">{`→ ${t('onsite')} : ${t('payment_onsite')}`}</Typography>
+                </Stack>
+              </Stack>
+              <Stack sx={{ py: 1.5 }}>
+                <Stack sx={{ py: 0.5 }}>
+                  <Typography variant="caption" sx={{color:'var(--font-color)', fontWeight:550}}>{`${t('bank_account')} : `}<span style={{fontWeight:300}}>{school?.bank_account}</span></Typography>
+                  <Typography variant="caption" sx={{color:'var(--font-color)', fontWeight:550}}>{`${t('iban')} : `}<span style={{fontWeight:300}}>{school?.iban}</span></Typography>
+                  <Typography variant="caption" sx={{color:'var(--font-color)', fontWeight:550}}>{`${t('bank_express')} : `}<span style={{fontWeight:300}}>{parsedPhoneNumber}</span></Typography>
+                  <Typography variant="caption" sx={{color:'var(--font-color)', fontWeight:550}}>{`${t('bank_name')} : `}<span style={{fontWeight:300}}>{school?.bank_name}</span></Typography>
+                </Stack>
+              </Stack>
+              <Stack sx={{ py: 1 }}>
+                <Link target={'_blank'} href={lessonTeacher?.url || ""}>
+                  <ButtonConfirm label={t('subscribe-session', { ns: NS_BUTTONS })} />
+                </Link>
+              </Stack>
             </div>
-            <TeacherComponent />
             {
               isLoadingSlots ? <Skeleton variant="rounded" width={'100%'} height={50} sx={{ bgcolor: 'var(--card-border)' }}>
                 <NextSessionsComponent />
               </Skeleton> : <NextSessionsComponent />
             }
-            {
-              isLoadingSlots ? <Skeleton variant="rounded" width={'100%'} height={50} sx={{ bgcolor: 'var(--card-border)' }}>
-                <PreviousSessionsComponent />
-              </Skeleton> : <PreviousSessionsComponent />
-            }
           </aside>
-        </section>
-
-        {
-          lesson?.translate?.tags?.length > 0 && <Grid spacing={1} container sx={{ mb: 1 }}>
-            {lesson?.translate?.tags?.map((item, i) => (
-              <Grid size={{ xs: 12, sm: 4 }} key={`${item.title}${i}`}>
-                <div className="card">
-                  <h2>{item.title}</h2>
-                  <p className="description">{item.subtitle}</p>
-                </div>
-              </Grid>
-            ))}
-          </Grid>
-
-        }
-
-
-
-        {/* GRID PRINCIPALE */}
-        <section className="grid">
-          {/* COL GAUCHE : contenu du cours */}
-          <div className="main-col">
-            <div className="card">
-              <h2>{t('description')}</h2>
-              <p className="description">{lesson?.translate?.description}</p>
-            </div>
-            {
-              lesson?.translate?.goals?.length > 0 && <div className="card">
-                <h2>{t('goals')}</h2>
-                <ul className="list">
-                  {lesson.translate.goals.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            }
-            {
-              lesson?.translate?.programs?.length > 0 && <div className="card">
-                <h2>{t('programs')}</h2>
-                <ol className="list ordered">
-                  {lesson.translate.programs.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ol>
-              </div>
-            }
-            {
-              lesson?.translate?.prerequisites?.length > 0 && <div className="card">
-                <h2>{t('prerequisites')}</h2>
-                <ul className="list">
-                  {lesson.translate.prerequisites.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            }
-            {
-              lesson?.translate?.target_audiences?.length > 0 && <div className="card">
-                <h2>{t('target_audiences')}</h2>
-                <ul className="list">
-                  {lesson.translate.target_audiences.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            }
-          </div>
-
-          {/* COL DROITE : infos pratiques & certification */}
-          <div className="side-col">
-            <div className="card">
-              <h2>{"🎓"} {t('certification')}</h2>
-              {lesson?.certified ? (
-                <>
-                  <p className="cert-main">
-                    {t('certification_block.title')}{" "}
-                    <strong>{SCHOOL_NAME}</strong>.
-                  </p>
-                  <ul className="list small">
-                    {
-                      t('certification_block.items', { returnObjects: true })?.map((text, i) => {
-                        return (<li key={`${text}-${i}`}>{text}</li>)
-                      })
-                    }
-                  </ul>
-                  {course.isOfficialCertificate && (
-                    <p className="cert-badge">
-                      {t('certification_official')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="cert-main">
-                  {t('certification_block.no_certification')}
-                </p>
-              )}
-            </div>
-
-            {
-              lesson?.translate?.materials?.length > 0 && <div className="card">
-                <h2>{t('materials')}</h2>
-                <ul className="list small">
-                  {
-                    lesson.translate.materials.map((material, index) => {
-                      return (<li key={`${material}-${index}`}>
-                        {material}
-                      </li>)
-                    })
-                  }
-                </ul>
-              </div>
-            }
-            {
-              lesson?.translate?.notes?.length > 0 && <div className="card">
-                <h2>{t('notes')}</h2>
-                <ul className="list small">
-                  {
-                    lesson.translate.notes.map((note, index) => {
-                      return (<li key={`${note}-${index}`}>
-                        {note}
-                      </li>)
-                    })
-                  }
-                </ul>
-              </div>
-            }
-          </div>
         </section>
       </main>
       <style jsx>{`
                 .page {
-                 
-                  background: transparent;
                   padding: 0px 0px;
                   color: var(--font-color);
                   display: flex;
@@ -625,7 +491,7 @@ export default function LessonTeacherComponent() {
                 .hero-card {
                   display: grid;
                   grid-template-columns: minmax(0, 2fr) minmax(260px, 1.2fr);
-                  gap: 18px;
+                  gap: 10px;
                   border-radius: 18px;
                   border: 1px solid #1f2937;
                   border: transparent;

@@ -142,21 +142,61 @@ export function LessonProvider({ children, uidTeacher = null }) {
             //const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
             //const translate = _lesson.translates?.[lang] || null;
             const translate = _lesson.translates?.find(a => a.lang === lang);
+            const title = translate.title;
+            const subtitle = translate.subtitle;
+            const description = translate.description;
+            const photo_url = translate.photo_url;
+
+            const materials = translate.materials;
+            const goals = translate.goals;
+            const programs = translate.programs;
+            const prerequisites = translate.prerequisites;
+            const target_audiences = translate.target_audiences;
+            const notes = translate.notes;
+            const tags = translate.tags;
+
+
+            
+            /*
+
+        'materials',
+        'goals',
+        'programs',
+        '',
+        '',
+        '',
+        ''
+            */
+            
             const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLesson({
                 ..._lesson.toJSON(),
-                translate: translate,
-                teacher: teacher,
+                translate,
+                title,
+                subtitle,
+                description,
+                photo_url,
+                teacher,
+                materials,
+                programs,
+                prerequisites,
+                goals,
+                target_audiences,
+                notes,
+                tags,
+
             });
+            console.log("Lesson provider", lesson_new, lesson_new.clone())
             //lesson_new.lesson = lesson;
             //lesson_new.teacher = teacher;
             //lesson_new.room = room;
             //lesson_new.translate = translate;
             //lesson_new.teacher = teacher;
             setLesson(prev => {
-                if (!prev || prev === null) return lesson_new;
-                prev.update(lesson_new.toJSON());
+                if (!prev || prev === null) return lesson_new.clone();
+                //prev.update(lesson_new.toJSON());
+                prev = lesson_new.clone();
                 //const session_new = new ClassSession(session_new.toJSON());
                 //prev.lesson = lesson;
                 //prev.teacher = teacher;

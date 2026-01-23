@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
@@ -117,24 +117,26 @@ function MetaChip({ label, value, }) {
   return (
     <>
       <div className="meta-chip">
-        <Stack alignItems={'center'} direction={'row'} spacing={0.5}>
-          <Stack direction={'row'} alignItems={'center'} spacing={0.25}>
-            <Typography className="meta-label" sx={{
+        <Stack direction={'row'} alignItems={'center'} spacing={0.25}>
+            {
+              label && <Typography className="meta-label" sx={{
               fontSize: '0.85rem',
               color: 'var(--grey-dark)',
-              fontWeight: 500,
+              fontWeight: 400,
             }}>{label}</Typography>
-            <Typography
+            }
+            {
+              value && <Typography
               className="meta-value"
               //noWrap
               sx={{
                 width: '100%',
-                fontSize: '0.8rem',
+                fontSize: '0.85rem',
                 color: 'var(--font-color)',
                 fontWeight: 400,
               }}>{value}</Typography>
+            }
           </Stack>
-        </Stack>
 
 
       </div>
@@ -148,7 +150,6 @@ function MetaChip({ label, value, }) {
           padding: 2.5px 7px;
           font-size: 0.78rem;
           display: inline-flex;
-          width:'100%;
         }
 
         .meta-label {
@@ -174,20 +175,24 @@ function MetaChipIcon({ label, value, icon = <></> }) {
           <Stack justifyContent={'center'}>
             <Box sx={{
               //border: `0.1px solid var(--card-border)`, 
-              background: '',
-              color: 'var(--card-border)',
-              //p: 0.3, 
+              background: 'var(--primary)',
+              color: 'var(--card-color)',
+              border:'0.1px solid var(--primary)',
+              borderRadius:'50%',
+              p: 0.3, 
               //borderRadius: '100%' 
             }}>
               {icon}
             </Box>
           </Stack>
           <Stack direction={'row'} alignItems={'center'} spacing={0.25}>
-            <Typography className="meta-label" sx={{
+            {
+              label && <Typography className="meta-label" sx={{
               fontSize: '0.85rem',
               color: 'var(--grey-dark)',
               fontWeight: 500,
             }}>{label}</Typography>
+            }
             <Typography
               className="meta-value"
               //noWrap
@@ -225,46 +230,6 @@ function MetaChipIcon({ label, value, icon = <></> }) {
           color: var(--font-color);
           font-weight: 500;
           font-size: 0.85rem;
-        }
-      `}</style>
-    </>
-  );
-}
-/** Petit composant pour les lignes d'info à droite */
-function InfoRow({ label, value }) {
-  const { t } = useTranslation(ClassLesson.NS_COLLECTION);
-
-  return (
-    <>
-      <div className="info-row">
-        <span className="info-label">{t(label)}</span>
-        <span className="info-value">{value}</span>
-      </div>
-
-      <style jsx>{`
-        .info-row {
-          display: flex;
-          justify-content: space-between;
-          gap: 8px;
-          font-size: 0.85rem;
-          padding: 4px 0;
-          border-bottom: 0.1px solid var(--card-border);
-          width: 100%;
-        }
-
-        .info-row:last-child {
-          border-bottom: none;
-        }
-
-        .info-label {
-         color: var(--font-color);
-        }
-
-        .info-value {
-          text-align: right;
-           color: var(--grey-dark);
-            font-weigth: 100;
-            white-space:nowrap;
         }
       `}</style>
     </>
@@ -395,11 +360,25 @@ function CardFormat({ format = "" }) {
   const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
   const FORMAT_CONFIG = ClassSessionSlot.FORMAT_CONFIG;
   const formatCfg = FORMAT_CONFIG[format];
+  const {subscribers, countTotalSeats} = useMemo(()=>{
+    const subscribers = slot?.countSubscribers(format);
+    const countTotalSeats = slot?.countTotalSeats(format);
+    return({
+      subscribers,
+      countTotalSeats
+    })
+  }, [slot, format]);
   return (<>
     <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
       <BadgeFormatLessonContained format={format} />
-      <Typography className="seats-sub" sx={{
-        margin: '2px 0 4px',
+      <Stack>
+              <Typography sx={{
+        //margin: '2px 0 4px',
+        fontSize: '0.78rem',
+        color: 'var(--font-color)',
+      }}>{`${t('seats_taken')} : `}{`${subscribers}/${countTotalSeats}`}</Typography>
+        <Typography className="seats-sub" sx={{
+       // margin: '2px 0 4px',
         fontSize: '0.78rem',
         color: 'var(--font-color)',
       }}>
@@ -410,6 +389,7 @@ function CardFormat({ format = "" }) {
           className="seats-sub"
         />
       </Typography>
+      </Stack>
     </Stack>
     <div className="hero-seats">
       <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
@@ -582,7 +562,7 @@ function FinishedComponent() {
       />
       }
       severity="success"
-      color="info"
+      color="error"
     />
   </Stack>)
 }
@@ -715,19 +695,6 @@ function CertificationComponent() {
   }
   return (<></>);
 }
-function CardSlot({ title = "", valueComponent = <></>, icon = <></> }) {
-  return (<Stack direction={'row'} spacing={1} sx={{ width: '100%', px: 0.5, py: 0.25, borderRadius: '5px', border: `0.1px solid var(--card-border)` }}>
-    <Stack justifyContent={'center'}>
-      <Box sx={{ border: `0.1px solid var(--card-border)`, background: '', color: 'var(--primary)', p: 0.3, borderRadius: '100%' }}>
-        {icon}
-      </Box>
-    </Stack>
-    <Stack sx={{ width: '100%' }}>
-      <Typography noWrap color="var(--grey-dark)" fontSize={'0.9rem'}>{title}</Typography>
-      {valueComponent}
-    </Stack>
-  </Stack>)
-}
 export default function SessionComponent({ }) {
   const { theme } = useThemeMode();
   const { primary } = theme.palette;
@@ -774,30 +741,30 @@ export default function SessionComponent({ }) {
                 <div className="hero-left" style={{ background: '' }}>
                   <div style={{ marginBottom: '5px' }}>
                     <MetaChip
-                      label={t('lang', { ns: NS_LANGS })}
+                      //label={t('lang', { ns: NS_LANGS })}
                       value={t(session?.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}
                       icon={<IconTranslation height={16} width={16} />}
                     />
                   </div>
                   <h1>{session?.lesson?.translate?.title}</h1>
-                  <Grid container spacing={0.5} sx={{ marginY: 1, width: '100%' }}>
+                  <Grid container spacing={1} sx={{ marginY: 1, width: '100%' }}>
                     <Grid size={'auto'}>
                       <MetaChipIcon
-                        label={t('level')}
+                        //label={t('level')}
                         value={t(slot?.level)}
                         icon={<IconLevel height={16} width={16} />}
                       />
                     </Grid>
                     <Grid size={'auto'}>
                       <MetaChipIcon
-                        label={t('duration')}
+                        //label={t('duration')}
                         value={formatDuration(slot?.duration)}
                         icon={<IconDuration height={16} width={16} />}
                       />
                     </Grid>
                     <Grid>
                       <MetaChipIcon
-                        label={t('lang', { ns: NS_LANGS })}
+                        //label={t('lang', { ns: NS_LANGS })}
                         value={t(slot?.lang, { ns: NS_LANGS })}
                         icon={<IconTranslation height={16} width={16} />}
                       />
@@ -807,7 +774,7 @@ export default function SessionComponent({ }) {
                     {
                       (slot?.format === ClassSessionSlot.FORMAT.HYBRID || slot?.format === ClassSessionSlot.FORMAT.ONSITE) && <Grid>
                         <MetaChipIcon
-                          label={t('location')}
+                          //label={t('location')}
                           value={slot?.location}
                           icon={<IconLocation height={16} width={16} />}
                         />

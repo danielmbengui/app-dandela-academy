@@ -232,7 +232,7 @@ function SlotRow({ session = null, slot = null }) {
 }
 const makeId = () => (crypto?.randomUUID?.() ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
-const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setLessonEdit = null, lessonEdit = null, title = "", array_name = "" }) => {
+const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", array_name = "" }) => {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const [array, setArray] = useState([]);
   const [processing, setProcessing] = useState(false);
@@ -241,8 +241,8 @@ const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setL
   const [newValue, setNewValue] = useState("");
   //const [sameValues, setSameValues] = useState(true);
   useEffect(() => {
-    const initial = Array.isArray(lessonEdit?.translate?.[array_name])
-      ? lessonEdit.translate[array_name]
+    const initial = Array.isArray(lessonEdit?.[array_name])
+      ? lessonEdit[array_name]
       : [];
     //setArray([...lessonEdit?.translate?.[array_name]]);
     originalRef.current = initial;
@@ -256,7 +256,7 @@ const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setL
   }, [])
   const sameValues = useMemo(() => {
     const current = array.map((r) => r.value);
-    const original = lessonEdit?.translate?.[array_name] || [];
+    const original = lessonEdit?.[array_name] || [];
     // console.log("LEEEENGTH", current.length, original.length)
     if (current.length !== original.length) return false;
     for (let i = 0; i < current.length; i++) {
@@ -277,7 +277,7 @@ const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setL
   }, []);
   const onClearValue = useCallback((index) => {
     //const value = e?.target?.value ?? "";
-    //console.log("OOOK", value, index);
+    console.log("OOOK", index);
     setArray((prev) =>
       prev.map((row, i) => (i === index ? { ...row, value: "" } : row))
     );
@@ -468,7 +468,7 @@ const CustomAccordion = ({ expanded = false, arrayEdit = [], lesson = null, setL
   </AccordionComponent>)
 }
 
-export default function LessonEditComponent({ setSameDatas = null, lessonEdit = null, setLessonEdit = null }) {
+export default function LessonEditComponent({ setSameDatas = null, }) {
   const { user } = useAuth();
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
   const { lang } = useLanguage();
@@ -476,6 +476,7 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
   const { lesson } = useLesson();
   const { sessions } = useSession();
 
+  const [lessonEdit, setLessonEdit] = useState(null);
   const [modeAccordion, setModeAccordion] = useState('');
   const [errors, setErrors] = useState({});
   const [course, setCourse] = useState(initialCourse);
@@ -485,6 +486,11 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
   const seatsLeft = Math.max(lesson?.seats_availables || 0 - lesson?.seats_taken || 0, 0);
   const isFull = seatsLeft <= 0 && !isEnrolled;
   const formatCfg = FORMAT_CONFIG[lesson?.format];
+
+  useEffect(() => {
+    setLessonEdit(lesson?.clone());
+    console.log("lesson component", lesson, lesson?.clone())
+  }, [lesson]);
 
   const onChangeValue = (e) => {
     const { name, type, value, checked } = e.target;
@@ -496,16 +502,11 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
       var lessonValue = lesson[name];
       var newValue = type === 'checkbox' ? checked : value;
       console.log("VALUUUE", name, type, value, checked, newValue, lessonValue);
-      if (name === 'title' || name === 'subtitle' || name === 'description') {
-        lessonValue = lesson.translate[name];
-        prev.translate.update({ [name]: newValue });
-      } else {
-        prev.update({ [name]: newValue });
-      }
+      prev.update({ [name]: newValue });
       if (lessonValue !== newValue) {
-        setSameDatas(false);
+        //setSameDatas(false);
       } else {
-        setSameDatas(true);
+        //setSameDatas(true);
       }
       return prev.clone();
     });
@@ -518,12 +519,7 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
       if (!prev || prev === null) return lesson.clone();
       var lessonValue = lesson[name];
       var newValue = '';
-      if (name === 'title' || name === 'subtitle' || name === 'description') {
-        prev.translate.update({ [name]: newValue });
-        lessonValue = lesson.translate[name];
-      } else {
-        prev.update({ [name]: newValue });
-      }
+      prev.update({ [name]: newValue });
       if (lessonValue !== newValue) {
         setSameDatas(false);
       } else {
@@ -538,12 +534,7 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
     setLessonEdit(prev => {
       if (!prev || prev === null) return lesson.clone();
       var lessonValue = lesson[name];
-      if (name === 'title' || name === 'subtitle' || name === 'description') {
-        lessonValue = lesson.translate[name];
-        prev.translate.update({ [name]: lessonValue });
-      } else {
-        prev.update({ [name]: lessonValue });
-      }
+      prev.update({ [name]: lessonValue });
       //setSameDatas(true);
       //console.log("two lesson", lesson.translate, lessonEdit.translate)
       return prev.clone();
@@ -597,15 +588,26 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
               <Grid container spacing={1}>
                 <Grid size={{ xs: 12, sm: 8 }}>
                   <Stack spacing={1.5}>
+                    <SelectComponentDark
+                      name={'category'}
+                      label={t('category')}
+                      value={lessonEdit?.category}
+                      values={ClassLesson.ALL_CATEGORIES.map(category => ({
+                        id: category,
+                        value: t(category)
+                      }))}
+                      onChange={onChangeValue}
+                      hasNull={false}
+                    />
                     <FieldComponent
                       label={t('title')}
                       required
                       type="text"
                       name={'title'}
-                      value={lessonEdit?.translate?.title}
+                      value={lessonEdit?.title}
                       onChange={onChangeValue}
                       onClear={() => onClearValue('title')}
-                      resetable={lesson?.translate?.title !== lessonEdit?.translate?.title}
+                      resetable={lesson?.title !== lessonEdit?.title}
                       onCancel={() => {
                         onResetValue('title')
                       }}
@@ -614,7 +616,7 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
                       label={t('subtitle')}
                       type="text"
                       name={'subtitle'}
-                      value={lessonEdit?.translate?.subtitle}
+                      value={lessonEdit?.subtitle}
                       onChange={onChangeValue}
                       onClear={() => onClearValue('subtitle')}
                       resetable={lesson?.translate?.subtitle !== lessonEdit?.translate?.subtitle}
@@ -628,7 +630,7 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
                       type="multiline"
                       fullWidth
                       name={'description'}
-                      value={lessonEdit?.translate?.description}
+                      value={lessonEdit?.description}
                       onChange={onChangeValue}
                       onClear={() => onClearValue('description')}
                       minRows={1}
@@ -655,103 +657,47 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
                     </Stack>
                   </Stack>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 4 }} sx={{ background: '' }}>
-                  <Stack alignItems={'center'} sx={{ height: '100%', background: '' }} spacing={1}>
-                    <Box sx={{ background: '', width: { xs: '100%', sm: '70%' } }}>
-                      <Image
-                        src={lessonEdit?.photo_url || ''}
-                        alt={`lesson-${lessonEdit?.uid}`}
-                        quality={100}
-                        width={300}
-                        height={150}
-                        //loading="lazy"
-                        priority
-                        style={{
-                          width: 'auto',
-                          height: '100%',
-                          //borderRadius: '8px',
-                          objectFit: 'cover',
-                        }}
+                {
+                  lessonEdit?.photo_url && <Grid size={{ xs: 12, sm: 4 }} sx={{ background: '' }}>
+                    <Stack alignItems={'center'} sx={{ height: '100%', background: '' }} spacing={1}>
+                      <Box sx={{ background: '', width: { xs: '100%', sm: '70%' } }}>
+                        <Image
+                          src={lessonEdit.photo_url || null}
+                          alt={`lesson-${lessonEdit?.uid}`}
+                          quality={100}
+                          width={300}
+                          height={150}
+                          //loading="lazy"
+                          priority
+                          style={{
+                            width: 'auto',
+                            height: '100%',
+                            //borderRadius: '8px',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      </Box>
+                      <ButtonConfirm
+                        label="Modifier image"
                       />
-                    </Box>
-                    <ButtonConfirm
-                      label="Modifier image"
-                    />
-                  </Stack>
-                </Grid>
+                    </Stack>
+                  </Grid>
+                }
               </Grid>
             </div>
           </Grid>
-          <Grid size={12}>
-            <Grid container spacing={1}>
-              <Grid size={{ xs: 12, sm: 5 }}>
-                <Stack spacing={1}>
-                  <div className="card">
-                    <h2>{t('modalities')}</h2>
-                    <InfoRow label={t('format')} value={<SelectComponentDark
-                      name={'format'}
-                      //label={t('category')}
-                      value={lessonEdit?.format}
-                      values={ClassLesson.ALL_FORMATS.map(format => ({
-                        id: format,
-                        value: t(format)
-                      }))}
-                      onChange={onChangeValue}
-                      hasNull={false}
-                    />} />
-                    <InfoRow label={t('category')} value={<SelectComponentDark
-                      name={'category'}
-                      //label={t('category')}
-                      value={lessonEdit?.category}
-                      values={ClassLesson.ALL_CATEGORIES.map(category => ({
-                        id: category,
-                        value: t(category)
-                      }))}
-                      onChange={onChangeValue}
-                      hasNull={false}
-                    />} />
-                    <InfoRow label={t('level')} value={<SelectComponentDark
-                      name={'level'}
-                      //label={t('category')}
-                      value={lessonEdit?.level}
-                      values={ClassLesson.ALL_LEVELS.map(level => ({
-                        id: level,
-                        value: t(level)
-                      }))}
-                      onChange={onChangeValue}
-                      hasNull={false}
-                    />} />
-                    <InfoRow label={t('lang', { ns: NS_LANGS })} value={<SelectComponentDark
-                      name={'lang'}
-                      //label={t('category')}
-                      value={lessonEdit?.lang}
-                      values={ClassLang.ALL_LANGUAGES.map(lang => ({
-                        id: lang.id,
-                        value: `${lang.flag_str} ${t(lang.id, { ns: NS_LANGS })}`
-                      }))}
-                      onChange={onChangeValue}
-                      hasNull={false}
-                    />} />
-
-                    <InfoRow label={t('duration')} value={formatDuration(lesson?.duration)} />
-                  </div>
-                </Stack>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 7 }}>
+                        <Grid size={12}>
                 <Stack spacing={1}>
                   <div className="card">
                     <h2>{t('content')}</h2>
                     <Stack spacing={0.5}>
                       {
-                        ['programs', 'prerequisites', 'target_audiences', 'goals', 'notes'].map((item, i) => {
+                        ['programs', 'prerequisites', 'target_audiences', 'goals', 'notes', 'tags'].map((item, i) => {
                           return (<div key={`${item}`} onClick={() => {
                             setModeAccordion(item);
                             // alert(item)
                           }} >
                             <CustomAccordion
-                              array={lesson?.translate?.[item]}
-                              arrayEdit={lessonEdit?.translate?.[item]}
-                              lesson={lesson}
                               expanded={modeAccordion === item}
                               lessonEdit={lessonEdit}
                               setLessonEdit={setLessonEdit}
@@ -766,8 +712,6 @@ export default function LessonEditComponent({ setSameDatas = null, lessonEdit = 
                   </div>
                 </Stack>
               </Grid>
-            </Grid>
-          </Grid>
         </Grid>
       </main>
       <style jsx>{`

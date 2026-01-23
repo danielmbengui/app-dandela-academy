@@ -866,6 +866,16 @@ export class ClassSessionSlot {
         }
         return (total > 0 ? filled / total : 0) * 100;
     }
+    countTotalSeats(format = "") {
+        if (format === ClassSessionSlot.FORMAT.ONLINE) {
+            return this._seats_availables_online;
+        }
+        if (format === ClassSessionSlot.FORMAT.ONSITE) {
+            return this._seats_availables_onsite;
+        }
+        var total = this._seats_availables_online + this._seats_availables_onsite;
+        return (total);
+    }
     // --- Serialization ---
     toJSON() {
         const out = { ...this };
