@@ -933,7 +933,7 @@ export class ClassLessonTeacher extends ClassLesson {
     }
     static colRef() {
         // if (!uidLesson) return;
-        return collectionGroup(firestore, this.COLLECTION).withConverter(this.converter);
+        return collectionGroup(firestore, ClassLessonTeacher.COLLECTION).withConverter(this.converter);
         //return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
     }
     static docRef(uidLesson, id) {

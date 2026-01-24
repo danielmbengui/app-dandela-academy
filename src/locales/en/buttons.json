@@ -12,6 +12,8 @@
   "subscribe-session": "Register for a session",
   "edit-photo":"Edit image",
   "remove-photo":"Remove image",
+  "manage-data":"Data Management",
+  "reset":"Reset",
   "reset-photo":"Original image",
   "back": "Back",
   "finish": "Finish",

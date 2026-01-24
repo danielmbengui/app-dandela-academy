@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LangProvider";
 
 export default function TextAreaComponent({
     //type = "text",
+    isAdmin=false,
     label = "",
     name = "",
     icon = null,
@@ -97,15 +98,15 @@ export default function TextAreaComponent({
                         '&:hover fieldset': {
                             // borderColor: ClassColor.GREY_LIGHT, // au survol
                             //color: 'red', // couleur par défaut
-                            border: `1px solid ${primary.main}`,
+                            border: `1px solid ${isAdmin ? 'var(--admin)' :primary.main}`,
                         },
                         '&.Mui-focused fieldset': {
                             //borderColor: ClassColor.TRANSPARENT, // quand focus
-                            border: `2px solid ${primary.main}`,
+                            border: `2px solid ${isAdmin ? 'var(--admin)':primary.main}`,
                         },
                         '&.Mui-error fieldset': {
                             // borderColor: 'error.main', // en cas d'erreur
-                            border: `0.1px solid ${'red'}`,
+                            border: `0.1px solid var(--error)`,
                         },
                         // 👉 style quand le TextField est disabled
                         '&.Mui-disabled': {
@@ -121,7 +122,7 @@ export default function TextAreaComponent({
                             cursor: 'not-allowed',      // curseur sur le texte aussi
                         },
                         '& .MuiOutlinedInput-root:hover + .MuiInputLabel-root': {
-                            color: 'red',
+                            color: 'var(--error)',
                         },
                     },
                 }}
@@ -166,15 +167,15 @@ export default function TextAreaComponent({
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
                     //color: 'red', // couleur par défaut
-                    border: `0.1px solid ${primary.main}`,
+                    border: `0.1px solid ${isAdmin ? 'var(--admin)':primary.main}`,
                 },
                 '&.Mui-focused fieldset': {
                     //borderColor: ClassColor.TRANSPARENT, // quand focus
-                    border: `1px solid ${primary.main}`,
+                    border: `1px solid ${isAdmin ? 'var(--admin)' : primary.main}`,
                 },
                 '&.Mui-error fieldset': {
                     // borderColor: 'error.main', // en cas d'erreur
-                    border: `0.1px solid ${'red'}`,
+                    border: `0.1px solid var(--error)`,
                 },
                 // 👉 style quand le TextField est disabled
                 '&.Mui-disabled': {
@@ -200,7 +201,7 @@ export default function TextAreaComponent({
                     //color: 'inherit',
 
                     '&.Mui-focused': {
-                        color: primary.main,
+                        color: isAdmin ? 'var(--admin)' : primary.main,
                     },
                     '&.Mui-error': {
                         color: 'error.main',

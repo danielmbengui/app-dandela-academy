@@ -20,7 +20,7 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonConfirm({ label = 'Confirmer', color = 'primary', loading = false, disabled = false, onClick = null, fullWidth = false, size = 'small',
+export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color = 'primary', loading = false, disabled = false, onClick = null, fullWidth = false, size = 'small',
   variant = 'contained',sx={}, ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight } = theme.palette;
@@ -30,7 +30,7 @@ export default function ButtonConfirm({ label = 'Confirmer', color = 'primary', 
     fullWidth={fullWidth}
     loading={loading}
     //elevation={0}
-    color={color}
+    color={isAdmin ? 'warning' : color}
     disabled={disabled}
     size={size}
     onClick={() => {

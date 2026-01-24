@@ -11,9 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { ClassLesson, ClassLessonTranslate } from '@/classes/ClassLesson';
 import { useLanguage } from './LangProvider';
-import { ClassUser, ClassUserAdministrator, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserAdministrator, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { useAuth } from './AuthProvider';
+import { usePathname } from 'next/navigation';
 
 
 const LessonContext = createContext(null);
@@ -22,6 +23,7 @@ export const useLesson = () => useContext(LessonContext);
 export function LessonProvider({ children, uidTeacher = null }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
+    const path = usePathname();
     const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
@@ -36,10 +38,10 @@ export function LessonProvider({ children, uidTeacher = null }) {
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
-       if(user) {
-        const listener = listenToLessons(uidTeacher);
-        return () => listener?.();
-       }
+        if (user) {
+            const listener = listenToLessons(uidTeacher);
+            return () => listener?.();
+        }
     }, [lang, uidTeacher, user]);
     useEffect(() => {
         if (user && uidLesson) {
@@ -56,17 +58,20 @@ export function LessonProvider({ children, uidTeacher = null }) {
         //if(!user) return;
         const colRef = ClassLesson.colRef(); // par ex.
         var constraints = [where("enabled", "==", true)];
-        if (user && user instanceof ClassUserAdministrator) {
-            constraints = constraints.slice(0, -1);
-            //constraints.push(where("enabled", "==", true));
-            //console.log("is not admin")
-            //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
+        if (path.includes('admin')) {
+            if (user && user instanceof ClassUserIntern) {
+                constraints = constraints.slice(0, -1);
+                //constraints.push(where("enabled", "==", true));
+                //console.log("is not admin")
+                //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
+            }
         }
+
         if (uidTeacher) {
             constraints.push(where("uid_teacher", "==", uidTeacher));
         }
 
-       // console.log("user lesson proivder", user)
+        // console.log("user lesson proivder", user)
 
         const q = constraints.length > 0
             ? query(colRef, ...constraints)
@@ -80,7 +85,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setIsLoading(false);
                 return;
             }
-           // console.log("constraints provider", snap.size)
+            // console.log("constraints provider", snap.size)
             try {
                 const _lessons = [];
                 //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
@@ -156,7 +161,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
             const tags = translate.tags;
 
 
-            
+
             /*
 
         'materials',
@@ -167,7 +172,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
         '',
         ''
             */
-            
+
             const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLesson({
@@ -187,7 +192,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 notes,
                 tags,
             });
-            console.log("Lesson provider", lesson_new, lesson_new.clone())
+           // console.log("Lesson provider", lesson_new, lesson_new.clone())
             //lesson_new.lesson = lesson;
             //lesson_new.teacher = teacher;
             //lesson_new.room = room;

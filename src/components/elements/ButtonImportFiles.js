@@ -12,6 +12,7 @@ export default function ButtonImportFiles({
     multiple = false,
     supported_files = [],
     disabled=false,
+    isAdmin=false,
 }) {
     const {t}=useTranslation([NS_BUTTONS]);
     const imageRef = useRef(null);
@@ -54,6 +55,7 @@ export default function ButtonImportFiles({
 
                     {
                       (files.length>1 || files.length === 0) &&  <ButtonCancel
+                      isAdmin={isAdmin}
                       label={t('choose-photo')}
                       disabled={disabled}
                        icon={<Icon icon="material-symbols:upload" width="20" height="20" />}

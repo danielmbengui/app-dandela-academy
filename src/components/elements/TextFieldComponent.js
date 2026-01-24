@@ -23,6 +23,8 @@ export default function TextFieldComponent({
     onClear = null,
     maxHeight = '1.9rem',
     autoComplete = [],
+    sx={},
+    isAdmin=false,
     onSubmit = () => { },
     ...props
 }) {
@@ -127,6 +129,7 @@ export default function TextFieldComponent({
     }
     return (<TextField
         //className="shadow-sm"
+        //color="warning"
         lang={lang}
         disabled={disabled}
         type={type}
@@ -158,15 +161,15 @@ export default function TextFieldComponent({
                 '&:hover fieldset': {
                     // borderColor: ClassColor.GREY_LIGHT, // au survol
                     //color: 'red', // couleur par défaut
-                    border: `0.1px solid ${primary.main}`,
+                    border: `0.1px solid ${isAdmin ? 'var(--admin)' : primary.main}`,
                 },
                 '&.Mui-focused fieldset': {
                     //borderColor: ClassColor.TRANSPARENT, // quand focus
-                    border: `1px solid ${primary.main}`,
+                    border: `1px solid ${isAdmin ? 'var(--admin)':primary.main}`,
                 },
                 '&.Mui-error fieldset': {
                     // borderColor: 'error.main', // en cas d'erreur
-                    border: `0.1px solid ${'red'}`,
+                    border: `0.1px solid var(--error)`,
                 },
                 // 👉 style quand le TextField est disabled
                 '&.Mui-disabled': {
@@ -176,7 +179,7 @@ export default function TextFieldComponent({
                 '&.Mui-disabled fieldset': {
                     // borderColor: greyLight.main, // désactivé
                     border: `0.1px solid var(card-border)`,
-                    color: ClassColor.GREY_LIGHT,
+                    color: "var(--grey-light)",
                 },
                 '&.Mui-disabled .MuiOutlinedInput-input': {
                     cursor: 'not-allowed',      // curseur sur le texte aussi
@@ -185,6 +188,7 @@ export default function TextFieldComponent({
                     //color: 'red',
                 },
             },
+            ...sx
         }}
         slotProps={{
             inputLabel: {
@@ -192,7 +196,7 @@ export default function TextFieldComponent({
                     //color: 'inherit',
 
                     '&.Mui-focused': {
-                        color: primary.main,
+                        color: isAdmin ? 'var(--admin)' : primary.main,
                     },
                     '&.Mui-error': {
                         color: 'error.main',

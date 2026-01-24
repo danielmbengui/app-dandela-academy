@@ -33,7 +33,7 @@ import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import FirstConnexionComponent from '../auth/FirstConnexionComponent';
-import { ClassUser, ClassUserIntern } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 import InstallPwaBanner from '../pwa/InstallPwaBanner';
 import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
@@ -41,10 +41,17 @@ import AccountMenu from './AccountMenu';
 import { usePwa } from '@/contexts/PwaProvider';
 import AccountAdminMenu from './AccountAdminMenu';
 import PreloaderAdmin from '../shared/PreloaderAdmin';
+import AccountTeacherMenu from './AccountTeacherMenu';
 
 const drawerWidth = 240;
 
-export default function AdminPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>,isAuthorized=false, ...props }) {
+const MAIN_COLOR = {
+    color:"var(--primary)",
+    dark:"var(--primary-dark)",
+    shadow:"var(--primary-shadow-sm)",
+}
+
+export default function TeacherPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>,isAuthorized=false, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU, NS_ROLES]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -80,7 +87,6 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
             sx={{
                 height: '100vh',
                 width: '100%',
-                background: 'var(--warning-dark)',
                 background: 'var(--card-color)',
                 //backgroundColor:'red',
                 //backgroundImage: 'url("/images/login/back.png")',
@@ -93,26 +99,26 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
             <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, width: '100%', height: '100%' }}>
                 <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
                     <Toolbar disableGutters variant="dense" sx={{ width: '100%', maxHeight: '30px', p: 2 }}>
+                        
                         <Stack direction={'row'} spacing={1} sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
-                            <IconLogo color={"var(--warning)"} width={'50%'} />
-                            <Chip size='small' label={t(user?.role, {ns:NS_ROLES})} sx={{border:'0.1px solid var(--warning)', color:'var(--warning)', fontWeight:600, background:'var(--card-color)'}} />
+                            <IconLogo color={MAIN_COLOR.color} width={'50%'} />
                         </Stack>
                     </Toolbar>
                     <Divider />
                     <List sx={{ py: 2, px: 1.5, background: '', width: '100%', height: '100%', }}>
                         {
-                            ClassUserIntern.menuDashboard(user).map((menuItem, i) => {
+                            ClassUserTeacher.menuDashboard(user).map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
                                 const isPath = path.includes(menuItem.path);
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{
                                             px: 1.5, py: 1, cursor: 'pointer',
-                                            background: isPath ? "var(--warning)" : 'var(--grey-shadow)',
+                                            background: isPath ? MAIN_COLOR.color : 'var(--grey-shadow)',
                                             borderRadius: '20px',
                                             color: isPath ? "var(--card-color)" : "var(--font-color)",
                                             "&:hover": {
-                                                background: 'var(--warning)',
+                                                background: MAIN_COLOR.color,
                                                 color: 'var(--card-color)',
                                             }
                                         }}>
@@ -224,7 +230,7 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                         >
                             <MenuIcon />
                         </IconButton>
-                        <AccountAdminMenu />
+                        <AccountTeacherMenu />
                     </Stack>
                 </Toolbar>
             </AppBar>
@@ -319,7 +325,7 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                                        <div style={{ color: "var(--warning)" }}>{icon}</div>
+                                        <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
                                         <Typography variant='h5'>{titles[0].name}</Typography>
                                     </Stack>
                                 }
@@ -329,7 +335,7 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                                             return (<Link key={`${title}-${i}`} underline="hover" style={{ fontStyle: 'underline' }} color="inherit" href={title.url} >
                                                 <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                                                     {
-                                                        i === 0 && <div style={{ color: "var(--warning)" }}>{icon}</div>
+                                                        i === 0 && <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
                                                     }
                                                     <Typography variant='h5' sx={{ textDecoration: 'underline' }}>{title.name}</Typography>
                                                 </Stack>

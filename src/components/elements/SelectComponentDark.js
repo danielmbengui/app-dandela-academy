@@ -2,7 +2,6 @@
 import React from 'react';
 import { ClassColor } from '@/classes/ClassColor';
 import { useThemeMode } from '@/contexts/ThemeProvider';
-const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
 
 export default function SelectComponentDark({
     label, name, value, values = [],
@@ -36,7 +35,7 @@ const {blueDark, text, cardColor} = theme.palette;
                     onChange={onChange}
 
                     style={{fontSize:'0.9rem',fontWeight:'300', color:disabled?ClassColor.GREY_LIGHT:text.main, cursor:disabled ? 'not-allowed' : 'pointer', background:'transparent', borderRadius:'20px' }} 
-                    className="text-base w-full p-13px pr-30px py-3px focus:outline-none block appearance-none relative z-20 rounded-xl"
+                    className="text-base w-full p-13px pr-30px py-3px focus:outline-none focus:orange block appearance-none relative z-20 rounded-xl"
                     {...props}
                     >
                     {

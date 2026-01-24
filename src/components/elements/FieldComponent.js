@@ -28,6 +28,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     disableFuture = false,
     prefixe, setPrefixe, phone, setPhone, codeCountry, setCodeCountry, required = false,
     editable = false, resetable = false, removable = false, onRemove = () => { }, onSubmit = () => { }, onCancel = () => { }, autoComplete = [], 
+    isAdmin=false,
     sx={},
     ...props }) {
     //console.log("FILED", name, type)
@@ -83,6 +84,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         {
                             type === 'multiline' && <TextAreaComponent
                                 //label={label}
+                                        isAdmin={isAdmin}
                                 name={name}
                                 icon={icon}
                                 type={'text'}
@@ -196,6 +198,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                 {
                     (type === 'text' || type === 'email' || type === "number") && <TextFieldComponent
                         //id={name}
+                        isAdmin={isAdmin}
                         name={name}
                         disabled={disabled}
                         icon={icon}
@@ -227,14 +230,14 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 }}
                                 sx={{
                                     display: processing ? 'none' : 'flex',
-                                    background: primary.main,
+                                    background:isAdmin ? 'var(--admin)': primary.main,
                                     color: background.main,
                                     width: '24px',
                                     height: '24px',
                                     '&:hover': {
                                         color: background.main,
-                                        backgroundColor: 'primary.main',
-                                        boxShadow: `0 0 0 0.2rem ${primaryShadow.main}`,
+                                        backgroundColor: isAdmin ? 'var(--admin)' : 'primary.main',
+                                        boxShadow: `0 0 0 0.2rem ${isAdmin ? 'var(--admin-shadow-sm)': primaryShadow.main}`,
                                     },
                                 }} aria-label="delete" size="small">
                                 <IconReset width={14} height={14} />
@@ -277,14 +280,14 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                     setProcessing(false);
                                 }}
                                 sx={{
-                                    background: primary.main,
+                                    background: isAdmin ? 'var(--admin)' : primary.main,
                                     color: background.main,
                                     width: { xs: '25px', sm: '25px' },
                                     height: { xs: '25px', sm: '25px' },
                                     '&:hover': {
                                         color: background.main,
-                                        backgroundColor: primary.main,
-                                        boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
+                                        backgroundColor: isAdmin ? 'var(--admin)' : primary.main,
+                                        boxShadow: `0 0 0 0.2rem ${isAdmin ? 'var(--admin-shadow-sm)' : 'var(--primary-shadow-sm)'}`,
                                     },
                                 }} aria-label="delete" size="small">
                                 <CheckIcon sx={{ fontSize: { xs: '15px', sm: '20px' } }} />

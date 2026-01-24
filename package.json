@@ -40,6 +40,7 @@
     "i18next-resources-to-backend": "^1.2.1",
     "isomorphic-dompurify": "^2.26.0",
     "isotope-layout": "^3.0.6",
+    "js-cookie": "^3.0.5",
     "libphonenumber-js": "^1.12.12",
     "negotiator": "^1.0.0",
     "next": "15.4.9",

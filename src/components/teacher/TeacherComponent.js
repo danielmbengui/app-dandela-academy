@@ -140,8 +140,9 @@ export default function TeacherComponent() {
     return getOneUser(lesson.uid_teacher);
   }, [lesson]);
   const lessonTeacher = useMemo(() => {
-    if (!lesson || !teacher || lessons?.length===0) return null;
-    const filteredLessons = lessons.filter(l=>l.uid_teacher === teacher.uid);
+    if (!lesson || !teacher) return null;
+    const filteredLessons = [...lessons].filter(l=>l.uid_teacher === teacher.uid);
+    console.log("reeeesuklt", teacher?.uid, lessons)
     return filteredLessons[0];
   }, [lesson, teacher, lessons]);
 

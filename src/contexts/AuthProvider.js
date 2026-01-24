@@ -23,6 +23,7 @@ import {
     EmailAuthProvider,
     reauthenticateWithCredential,
     FacebookAuthProvider,
+    getIdToken,
 } from 'firebase/auth';
 
 import {
@@ -49,6 +50,8 @@ import { PAGE_DASHBOARD_HOME, PAGE_HOME, PAGE_LOGIN, PAGE_REGISTER } from '@/con
 
 import { ref, onValue, set, onDisconnect, serverTimestamp, get } from "firebase/database";
 import { usePageActivity } from './hooks/usePageActivity';
+//import Cookies from "js-cookie";
+
 
 /**
  * Presence RTDB:
@@ -120,7 +123,13 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         if (user) {
-            //set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
+            async function init() {
+                //set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
+              //  const token = await getIdToken(auth.currentUser);
+               // console.log("TOOOKE", token)
+                //Cookies.set("token", token, { secure: false });
+            }
+            init();
         }
     }, [user]);
 

@@ -10,18 +10,20 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useRoom } from './RoomProvider';
 import { useLanguage } from './LangProvider';
-import { ClassUser, ClassUserAdministrator, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserAdministrator, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { useAuth } from './AuthProvider';
 import { ClassLessonTeacher } from '@/classes/ClassLesson';
+import { usePathname } from 'next/navigation';
 
 
 const LessonTeacherContext = createContext(null);
 export const useLessonTeacher = () => useContext(LessonTeacherContext);
 
-export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeacher = null }) {
+export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeacher = "" }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
+    const path = usePathname();
     const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION]);
     //const { getOneRoomName } = useRoom();
     const [uidLesson, setUidLesson] = useState(null);           // ton user métier (ou snapshot)
@@ -37,10 +39,10 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
     const [textSuccess, setTextSuccess] = useState(false);
     useEffect(() => {
         if (user) {
-            const listener = listenToLessons(uidSourceLesson);
+            const listener = listenToLessons(uidSourceLesson, uidTeacher);
             return () => listener?.();
         }
-    }, [lang, uidSourceLesson, user]);
+    }, [lang, uidSourceLesson, user, uidTeacher]);
     useEffect(() => {
         if (user && uidLesson) {
             const _lesson = getOneLesson(uidLesson);
@@ -52,18 +54,24 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
         }
     }, [user, uidLesson, uidSourceLesson]);
     // écoute du doc utilisateur
-    const listenToLessons = useCallback((uidSourceLesson) => {
+    const listenToLessons = useCallback((uidSourceLesson = "", uidTeacher = "") => {
         //if(!user) return;
+        console.log("start lessons teacher")
         const colRef = ClassLessonTeacher.colRef(); // par ex.
         var constraints = [where("enabled", "==", true)];
-        if (user && user instanceof ClassUserAdministrator) {
-            constraints = constraints.slice(0, -1);
-            //constraints.push(where("enabled", "==", true));
-            //console.log("is not admin")
-            //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
+        if (path.includes('admin')) {
+            if (user && user instanceof ClassUserIntern) {
+                constraints = constraints.slice(0, -1);
+                //constraints.push(where("enabled", "==", true));
+                //console.log("is not admin")
+                //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
+            }
         }
         if (uidSourceLesson) {
-            constraints.push(where("uid_lesson", "==", uidSourceLesson));
+           constraints.push(where("uid_lesson", "==", uidSourceLesson));
+        }
+        if (uidTeacher) {
+            constraints.push(where("uid_teacher", "==", uidTeacher));
         }
 
         // console.log("user lesson proivder", user)
@@ -73,7 +81,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             : colRef;
         const snapshotLessons = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
-
+            console.log("Snap is empty", snap.empty)
             if (snap.empty) {
                 setLessons([]);
                 setLesson(null);
@@ -111,6 +119,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 });
                 */
                 //_lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
+                console.log("lesson teacher provieder", _lessons)
                 setLessons(_lessons);
                 setIsLoading(false);
             } catch (error) {
@@ -118,7 +127,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             }
         });
         return snapshotLessons;
-    }, [uidSourceLesson, user]);
+    }, [uidSourceLesson, user, uidTeacher]);
     const listenToOneLesson = useCallback((uidSourceLesson, uidLesson) => {
         if (!uidSourceLesson || !uidLesson) {
             setLesson(null);
@@ -141,12 +150,35 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             //const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
             //const translate = _lesson.translates?.[lang] || null;
             const translate = _lesson.translates?.find(a => a.lang === lang);
+            const title = translate.title;
+            const subtitle = translate.subtitle;
+            const description = translate.description;
+            const photo_url = translate.photo_url;
+
+            const materials = translate.materials;
+            const goals = translate.goals;
+            const programs = translate.programs;
+            const prerequisites = translate.prerequisites;
+            const target_audiences = translate.target_audiences;
+            const notes = translate.notes;
+            const tags = translate.tags;
             const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
             //const translate = await ClassLessonTeacherSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLessonTeacher({
                 ..._lesson.toJSON(),
                 translate: translate,
-                teacher: teacher,
+               title,
+                subtitle,
+                description,
+                photo_url,
+                teacher,
+                materials,
+                programs,
+                prerequisites,
+                goals,
+                target_audiences,
+                notes,
+                tags,
             });
             //lesson_new.lesson = lesson;
             //lesson_new.teacher = teacher;
@@ -169,7 +201,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, [uidSourceLesson, uidLesson]);
+    }, [user,uidSourceLesson, uidLesson]);
     async function refreshList() {
         var _lessons = [];
         const constraints = [];

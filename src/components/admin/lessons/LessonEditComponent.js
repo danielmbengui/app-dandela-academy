@@ -1,149 +1,46 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
-import { IconCamera, IconLessons, IconRemove, IconReset, IconStudents, IconVisible } from "@/assets/icons/IconsComponent";
+import { IconCamera } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
-import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { formatDuration, formatPrice, getFormattedDate, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { languages, NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, Button, Container, Grid, IconButton, Stack, Typography } from "@mui/material";
+import { Box, Chip, Container, Grid, IconButton, Stack, Typography } from "@mui/material";
 
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
-import { ClassColor } from "@/classes/ClassColor";
-import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
 import { useLanguage } from "@/contexts/LangProvider";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import Image from "next/image";
-import BadgeStatusLesson from "@/components/dashboard/lessons/BadgeStatusLesson";
-import { useAuth } from "@/contexts/AuthProvider";
-import { ClassUserIntern } from "@/classes/users/ClassUser";
-import { SCHOOL_NAME, WEBSITE_NAME } from "@/contexts/constants/constants";
-import { ClassSession } from "@/classes/ClassSession";
-import { useSession } from "@/contexts/SessionProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
-import { ClassLang } from "@/classes/ClassLang";
 import FieldComponent from "@/components/elements/FieldComponent";
 import CheckboxComponent from "@/components/elements/CheckboxComponent";
-import AccordionComponent from "../elements/AccordionComponent";
-import ButtonCancel from "../elements/ButtonCancel";
+import AccordionComponent from "../../dashboard/elements/AccordionComponent";
+import ButtonCancel from "../../dashboard/elements/ButtonCancel";
 import ButtonImportFiles from "@/components/elements/ButtonImportFiles";
 import { ClassFile } from "@/classes/ClassFile";
+import { ClassCountry } from "@/classes/ClassCountry";
+import { ClassLang } from "@/classes/ClassLang";
 
-const initialCourse = {
-  id: "course_excel_101",
-  title: "Excel – Compétences essentielles pour le travail",
-  code: "EXCEL-101",
-  category: ClassLesson.CATEGORY.OFFICE,
-  level: "Débutant",
-  level: ClassLesson.LEVEL.BEGINNER,
-  language: "Français",
-  lang: "pt",
-  format: "onsite", // "online" | "onsite" | "hybrid"
-  uid_room: "MsIyd1hZKq8l8ayzFS88",
-  isCertified: true,
-  certified: true,
-  certificateProvider: "Dandela Academy",
-  isOfficialCertificate: true,
-  price: 290,
-  currency: "CHF",
-  hasInstallments: true,
-  installmentExample: "2 x 150 CHF",
-  startDate: "2025-03-10",
-  endDate: "2025-04-05",
-  start_date: new Date(2025, 2, 10),
-  end_date: new Date(2025, 3, 5),
-  durationHours: 24,
-  duration: 16,
-  sessionsPerWeek: 2,
-  sessions_count: 1,
-  sessions_type: 'weekly',
-  scheduleText: "Mardi & Jeudi • 18:30 – 20:30",
-  //location: "Campus central – Salle 3",
-  onlinePlatform: "Classe virtuelle Dandela (via navigateur)",
-  seatsTotal: 20,
-  seatsTaken: 12,
-  seats_availables: 34,
-  seats_taken: 19,
-  description:
-    "Maîtrise les bases d’Excel pour être opérationnel au travail : formules, mises en forme, tableaux, graphiques et bonnes pratiques pour gagner du temps au quotidien.",
-  objectives: [
-    "Comprendre l’interface et la logique d’Excel",
-    "Créer et mettre en forme des tableaux professionnels",
-    "Utiliser les formules de base (SOMME, MOYENNE, SI, NB.SI, etc.)",
-    "Concevoir des graphiques clairs et lisibles",
-    "Gagner du temps grâce aux formats conditionnels et aux filtres",
-  ],
-  goals: [
-    "Comprendre l’interface et la logique d’Excel",
-    "Créer et mettre en forme des tableaux professionnels",
-    "Utiliser les formules de base (SOMME, MOYENNE, SI, NB.SI, etc.)",
-    "Concevoir des graphiques clairs et lisibles",
-    "Gagner du temps grâce aux formats conditionnels et aux filtres",
-  ],
-  targetAudience: [
-    "Personnes en reconversion ou en recherche d’emploi",
-    "Professionnels souhaitant consolider leurs bases en bureautique",
-    "Étudiants ou stagiaires qui utilisent Excel dans leurs études",
-  ],
-  target_audiences: [
-    "Personnes en reconversion ou en recherche d’emploi",
-    "Professionnels souhaitant consolider leurs bases en bureautique",
-    "Étudiants ou stagiaires qui utilisent Excel dans leurs études",
-  ],
-  prerequisites: [
-    "Savoir utiliser un ordinateur (souris, clavier, navigation simple)",
-    "Aucun prérequis sur Excel n’est nécessaire",
-  ],
-  programOutline: [
-    "Introduction à Excel & prise en main de l’interface",
-    "Création et mise en forme de tableaux",
-    "Formules et fonctions essentielles",
-    "Tri, filtres et mises en forme conditionnelles",
-    "Graphiques et visualisation de données",
-    "Mise en pratique sur un mini-projet",
-  ],
-  programs: [
-    "Introduction à Excel & prise en main de l’interface",
-    "Création et mise en forme de tableaux",
-    "Formules et fonctions essentielles",
-    "Tri, filtres et mises en forme conditionnelles",
-    "Graphiques et visualisation de données",
-    "Mise en pratique sur un mini-projet",
-  ],
-  notes: [
-    "Une version récente d'Excel est recommandée (2016+ ou Microsoft 365).",
-    "En cas d'absence, certaines sessions pourront être rattrapées via la plateforme en ligne.",
-    "Le support de cours (PDF, fichiers Excel d&apos;exercices) sera accessible dans ton espace personnel."
-  ]
-};
-
-const FORMAT_CONFIG = {
-  online: {
-    label: "En ligne",
-    color: "#3b82f6",
-  },
-  onsite: {
-    label: "Présentiel",
-    color: "#22c55e",
-  },
-  hybrid: {
-    label: "Hybride",
-    color: "#a855f7",
-  },
-};
 const makeId = () => (crypto?.randomUUID?.() ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
-const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", array_name = "" }) => {
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+const CustomAccordion = ({ expanded = false, title = "", array_name = "" }) => {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS]);
+  const { lesson } = useLesson();
+  const [lessonEdit, setLessonEdit] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [errors, setErrors] = useState({});
   const [array, setArray] = useState([]);
   const [processing, setProcessing] = useState(false);
   const { lang } = useLanguage();
   const originalRef = useRef([]); // snapshot pour comparer/cancel
   const [newValue, setNewValue] = useState("");
+  const [state, setState] = useState({
+    processing: false,
+    text: ""
+  });
   //const [sameValues, setSameValues] = useState(true);
   useEffect(() => {
-    const initial = Array.isArray(lessonEdit?.[array_name])
-      ? lessonEdit[array_name]
+    setLessonEdit(lesson?.clone());
+    const initial = Array.isArray(lesson?.[array_name])
+      ? lesson[array_name]
       : [];
     //setArray([...lessonEdit?.translate?.[array_name]]);
     originalRef.current = initial;
@@ -154,7 +51,7 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
         value: val ?? "",
       }))
     );
-  }, [lessonEdit])
+  }, [lesson]);
   const sameValues = useMemo(() => {
     const current = array.map((r) => r.value);
     const original = lessonEdit?.[array_name] || [];
@@ -166,7 +63,6 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
     return true;
   }, [array]);
   const onChangeValue = useCallback((e, index) => {
-    const name = e?.target?.name ?? "";
     const value = e?.target?.value ?? "";
     console.log("OOOK", value, index);
     setArray((prev) =>
@@ -216,10 +112,7 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
     //console.log("OOOK", value, index);
     //const original = originalRef.current || [];
     //const initial = originalRef.current || [];
-    const _lesson = lessonEdit.clone();
-
-    console.log("WEEESH 1", value, _lesson)
-
+    // const _lesson = lessonEdit?.clone();
     const original = originalRef.current || [];
     const _array = original.map((val) => ({
       id: makeId(),
@@ -231,13 +124,26 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
     originalRef.current = _array.map((r) => r.value);
     setArray(_array);
     setNewValue('');
-    console.log("WEEESH", _array, original)
+    /*
+    setLessonEdit(prev=>{
+      if(!prev || prev ===null) return lesson?.clone();
+      prev.update({[array_name]:_array.map(item=>item.value)});
+      return prev.clone();
+    })
+    */
   }, []);
   const onResetAllValues = useCallback(() => {
     //const value = e?.target?.value ?? "";
     //console.log("OOOK", value, index);
     //const original = originalRef.current || [];
-    const original = lessonEdit?.translate?.[array_name] || [];
+    /*
+    setLessonEdit(prev=>{
+      if(!prev || prev ===null) return lesson?.clone();
+      prev.update({[array_name]:lesson?.[array_name]});
+      return prev.clone();
+    })
+    */
+    const original = lessonEdit?.[array_name] || [];
     originalRef.current = original;
 
     setArray(
@@ -248,42 +154,49 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
     );
     setNewValue('');
   }, []);
-  const onSubmit = useCallback(async () => {
-    //const value = e?.target?.value ?? "";
-    //console.log("OOOK", value, index);
-    const original = originalRef.current || [];
-    //const initial = originalRef.current || [];
-    const _lesson = lessonEdit.clone();
-    console.log("WEEESH 1", _lesson, original);
-    //const result = await fetch(`/api/test?lang=${lang}&translations=${JSON.stringify({ [title]: original })}`);
-    //const json = await result.json();
+  const onSubmit = async () => {
+    try {
+      setState(prev => ({ ...prev, processing: true, text: "Traitement..." }));
+      //const uidLesson = lessonEd?.createFirestoreDocUid();
+      setState(prev => ({ ...prev, text: 'Traductions des valeurs...' }));
 
-    for (const lang of languages) {
+      const transChapter = {
+        [array_name]: array.map(a => a.value),
+        //subtitle: lessonEdit?.subtitle,
+        //description: lessonEdit?.description,
+      }
+      const qsChapter = encodeURIComponent(JSON.stringify(transChapter));
+      const fetchTranslateChapter = await fetch(`/api/test?lang=${lang}&translations=${qsChapter}`);
+      const resultChapter = await fetchTranslateChapter.json();
+      const langsChapter = Object.keys(resultChapter);
+      const translates = Object.values(resultChapter)?.map?.((trans, i) => new ClassLessonTranslate({ ...trans, lang: langsChapter[i] }));
 
-      const fetch = await ClassLessonTranslate.fetchFromFirestore(_lesson.uid, lang);
 
-      const translation = new ClassLessonTranslate({ uid_lesson: _lesson.uid, lang: lang });
-      //await translation.updateFirestore()
-      console.log("LANG result", translation);
+      const actualTranslates = lessonEdit?.translates;
+      const newTranslates = [...actualTranslates].map(trans => {
+        const lang = trans.lang;
+        const _translate = translates.find(t => t.lang === lang);
+        console.log("translaaate tab", _translate, lang, trans)
+        return new ClassLessonTranslate({ ...trans.toJSON(), [array_name]: _translate[array_name] })
+      });
+      //
+      //lessonEdit?.update({ certified: l, translate:translate});
+      console.log("translaaaaates actual", actualTranslates);
+      console.log("translaaaaates NEW", newTranslates);
+      const translate = newTranslates.find(trans => trans.lang === lang);
+      lessonEdit?.update({ translates: newTranslates, translate: translate });
+      setState(prev => ({ ...prev, text: 'Modification du cours...' }));
+      const _patch = await lessonEdit?.updateFirestore();
+      console.log("PATCH", _patch);
+      setLessonEdit(_patch);
+    } catch (error) {
+      console.log("ERRROR", error);
+    } finally {
+      //setProcessing(false);
+      setState(prev => ({ ...prev, processing: false, text: "" }));
     }
-
-    console.log("RESSSULT", all_translations);
-    /*
-        const original = originalRef.current || [];
-        const _array = original.map((val) => ({
-          id: makeId(),
-          value: val ?? "",
-        }));
-        _array.push({ id: makeId(), value: value });
-        //_array = [...values, newValue];
-        //  const current = array.map((r) => r.value);
-        originalRef.current = _array.map((r) => r.value);
-        setArray(_array);
-        setNewValue('');
-        console.log("WEEESH", _array, original)
-        */
-  }, []);
-  return (<AccordionComponent title={t(title)} expanded={expanded}>
+  }
+  return (<AccordionComponent isAdmin={true} title={t(title)} expanded={expanded}>
     <Stack spacing={1.5} alignItems={'stretch'} sx={{ background: '', py: 1.5, px: 1 }}>
       {
         array?.map?.((item, i) => {
@@ -296,6 +209,7 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
             </Grid>
             <Grid size={'grow'}>
               <FieldComponent
+                isAdmin={true}
                 index={i}
                 disabled={processing}
                 //label={`${i + 1}.`}
@@ -330,6 +244,7 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
         <Grid size={'grow'}>
           <FieldComponent
             //index={i}
+            isAdmin={true}
             disabled={processing}
             //label={`${i + 1}.`}
             type="multiline"
@@ -353,17 +268,19 @@ const CustomAccordion = ({ expanded = false, lessonEdit = null, title = "", arra
     {
       !sameValues && <Stack spacing={1} direction={'row'} alignItems={'center'} justifyContent={'end'} sx={{ p: 1 }}>
         <ButtonCancel
+          isAdmin={true}
           onClick={onResetAllValues}
-          disabled={processing}
-          label='cancel' />
+          disabled={state.processing}
+          label={t('reset', { ns: NS_BUTTONS })} />
         <ButtonConfirm
-          loading={processing}
+          isAdmin={true}
+          loading={state.processing}
           onClick={async () => {
             setProcessing(true);
             await onSubmit();
             setProcessing(false);
           }}
-          label='confirm' />
+          label={t('edit', { ns: NS_BUTTONS })} />
       </Stack>
     }
   </AccordionComponent>)
@@ -382,29 +299,21 @@ function ImageComponent({ src = null, uid = '' }) {
       style={{
         width: '100%',
         height: 'auto',
-        maxHeight: '500px',
+        maxHeight: '150px',
         //borderRadius: '8px',
-        objectFit: 'cover',
+        objectFit: 'contain',
       }}
     />
   </Box>)
 }
 
-export default function LessonEditComponent({ setSameDatas = null, }) {
-  const { user } = useAuth();
-  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+function InfosComponent() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
   const { lang } = useLanguage();
-  //const [lesson, setLesson] = useState(null);
   const { lesson } = useLesson();
-  const { sessions } = useSession();
-
   const [lessonEdit, setLessonEdit] = useState(null);
-  const [modeAccordion, setModeAccordion] = useState('');
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [photo, setPhoto] = useState(null);
   const [files, setFiles] = useState([]);
+  const [errors, setErrors] = useState({});
   const [state, setState] = useState({
     processing: false,
     text: ""
@@ -412,8 +321,6 @@ export default function LessonEditComponent({ setSameDatas = null, }) {
 
   useEffect(() => {
     setLessonEdit(lesson?.clone());
-    setPhoto(lesson?.photo_url);
-    console.log("lesson component", lesson, lesson?.clone())
   }, [lesson]);
   const sameLessons = useMemo(() => {
     if (lesson?.category !== lessonEdit?.category) return false;
@@ -440,31 +347,22 @@ export default function LessonEditComponent({ setSameDatas = null, }) {
 
   const onChangeValue = (e) => {
     const { name, type, value, checked } = e.target;
-    const finalName = name === 'title' || name === 'subtitle' ? `translate.${name}` : name;
-
     setErrors(prev => ({ ...prev, [name]: '' }));
     setLessonEdit(prev => {
       if (!prev || prev === null) return lesson.clone();
       var newValue = type === 'checkbox' ? checked : value;
-      console.log("VALUUUE", name, type, value, checked, newValue);
       prev.update({ [name]: newValue });
       return prev.clone();
     });
 
   }
   const onClearValue = (name) => {
-    //const { name, type, value } = e.target;
     setErrors(prev => ({ ...prev, [name]: '' }));
     setLessonEdit(prev => {
       if (!prev || prev === null) return lesson.clone();
       var lessonValue = lesson[name];
       var newValue = '';
       prev.update({ [name]: newValue });
-      if (lessonValue !== newValue) {
-        // setSameDatas(false);
-      } else {
-        //setSameDatas(true);
-      }
       return prev.clone();
     })
   }
@@ -482,7 +380,7 @@ export default function LessonEditComponent({ setSameDatas = null, }) {
   }
   const onSubmit = async () => {
     try {
-      setState(prev => ({ ...prev, processing: true, text:"Traitement..." }));
+      setState(prev => ({ ...prev, processing: true, text: "Traitement..." }));
       //const uidLesson = lessonEd?.createFirestoreDocUid();
       if (mustTranslate) {
         setState(prev => ({ ...prev, text: 'Traductions des valeurs...' }));
@@ -496,8 +394,8 @@ export default function LessonEditComponent({ setSameDatas = null, }) {
         const resultChapter = await fetchTranslateChapter.json();
         const langsChapter = Object.keys(resultChapter);
         const translates = Object.values(resultChapter)?.map?.((trans, i) => new ClassLessonTranslate({ ...trans, lang: langsChapter[i] }));
-        const translate = translates.find(trans=>trans.lang === lang);
-        lessonEdit?.update({ translates: translates, translate:translate});
+        const translate = translates.find(trans => trans.lang === lang);
+        lessonEdit?.update({ translates: translates, translate: translate });
       }
       //lessonEdit?.update({ certified: l, translate:translate});
       console.log("translaaaaates", lessonEdit);
@@ -514,165 +412,448 @@ export default function LessonEditComponent({ setSameDatas = null, }) {
   }
 
   return (<>
-    <Container disableGutters sx={{ width: '100%' }}>
-      <Grid container spacing={1} sx={{ width: '100%', background: 'red' }}>
-        <Grid size={12}>
-          <div className="card">
-            <h2>{"Informations générales"}</h2>
-            <Grid container spacing={{ xs: 1, sm: 3 }}>
-              <Grid size={{ xs: 12, sm: 7 }}>
-                <Stack spacing={1.5}>
-                  <Stack alignItems={'start'}>
-                    <SelectComponentDark
-                    required
-                      name={'category'}
-                      label={t('category')}
-                      value={lessonEdit?.category}
-                      values={ClassLesson.ALL_CATEGORIES.map(category => ({
-                        id: category,
-                        value: t(category)
-                      }))}
-                      onChange={onChangeValue}
-                      hasNull={false}
-                      disabled={state.processing}
-                    />
-                  </Stack>
-                  <FieldComponent
-                    label={t('title')}
-                    required
-                    type="text"
-                    name={'title'}
-                    value={lessonEdit?.title}
-                    onChange={onChangeValue}
-                    onClear={() => onClearValue('title')}
-                    resetable={lesson?.title !== lessonEdit?.title}
-                    onCancel={() => {
-                      onResetValue('title')
-                    }}
-                    fullWidth
+    <Grid size={12}>
+      <div className="card">
+        <Grid container spacing={{ xs: 1, sm: 3 }}>
+          <Grid size={{ xs: 12, sm: 7 }}>
+            <Stack spacing={1.5}>
+              <Stack alignItems={'start'}>
+                <SelectComponentDark
+                  required
+                  name={'category'}
+                  label={t('category')}
+                  value={lessonEdit?.category}
+                  values={ClassLesson.ALL_CATEGORIES.map(category => ({
+                    id: category,
+                    value: t(category)
+                  }))}
+                  onChange={onChangeValue}
+                  hasNull={false}
+                  disabled={state.processing}
+                />
+              </Stack>
+              <FieldComponent
+                isAdmin={true}
+                label={t('title')}
+                required
+                type="text"
+                name={'title'}
+                value={lessonEdit?.title}
+                onChange={onChangeValue}
+                onClear={() => onClearValue('title')}
+                resetable={lesson?.title !== lessonEdit?.title}
+                onCancel={() => {
+                  onResetValue('title')
+                }}
+                fullWidth
+                disabled={state.processing}
+              />
+              <FieldComponent
+                isAdmin={true}
+                label={t('subtitle')}
+                type="text"
+                name={'subtitle'}
+                value={lessonEdit?.subtitle}
+                onChange={onChangeValue}
+                onClear={() => onClearValue('subtitle')}
+                resetable={lesson?.subtitle !== lessonEdit?.subtitle}
+                onCancel={() => {
+                  onResetValue('subtitle')
+                }}
+                disabled={state.processing}
+              />
+              <FieldComponent
+                isAdmin={true}
+                label={t('description')}
+                required
+                type="multiline"
+                fullWidth
+                name={'description'}
+                value={lessonEdit?.description}
+                onChange={onChangeValue}
+                onClear={() => onClearValue('description')}
+                minRows={1}
+                maxRows={10}
+                resetable={lesson?.description !== lessonEdit?.description}
+                onCancel={() => {
+                  onResetValue('description')
+                }}
+                disabled={state.processing}
+              />
+              <Stack>
+                <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                  <CheckboxComponent
+                    isAdmin={true}
+                    name={'certified'}
                     disabled={state.processing}
-                  />
-                  <FieldComponent
-                    label={t('subtitle')}
-                    type="text"
-                    name={'subtitle'}
-                    value={lessonEdit?.subtitle}
-                    onChange={onChangeValue}
-                    onClear={() => onClearValue('subtitle')}
-                    resetable={lesson?.subtitle !== lessonEdit?.subtitle}
-                    onCancel={() => {
-                      onResetValue('subtitle')
-                    }}
-                    disabled={state.processing}
-                  />
-                  <FieldComponent
-                    label={t('description')}
+                    //value={lessonEdit?.certified}
                     required
-                    type="multiline"
-                    fullWidth
-                    name={'description'}
-                    value={lessonEdit?.description}
+                    checked={lessonEdit?.certified || false}
+                    type="checkbox"
+                    label={t('certified')}
                     onChange={onChangeValue}
-                    onClear={() => onClearValue('description')}
-                    minRows={1}
-                    maxRows={10}
-                    resetable={lesson?.description !== lessonEdit?.description}
-                    onCancel={() => {
-                      onResetValue('description')
-                    }}
-                    disabled={state.processing}
                   />
-                  <Stack>
-                    <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                      <CheckboxComponent
-                      
-                        name={'certified'}
-                        disabled={state.processing}
-                        //value={lessonEdit?.certified}
-                        required
-                        checked={lessonEdit?.certified || false}
-                        type="checkbox"
-                        label={t('certified')}
-                        onChange={onChangeValue}
-                      />
-                    </Stack>
-                  </Stack>
-                  {
-                    <Stack alignItems={'center'} direction={'row'} spacing={1} sx={{color:'var(--font-color)'}}>
-                      <ButtonConfirm onClick={onSubmit} loading={state.processing} disabled={disabledButton} label={t('edit', { ns: NS_BUTTONS })} size="large" />
-                      <>
-                      {
-                        state.processing && <Typography>{state.text}</Typography>
-                      }
-                      </>
-                    </Stack>
-                  }
                 </Stack>
-              </Grid>
+              </Stack>
               {
-                <Grid size={{ xs: 12, sm: 5 }} sx={{ background: '' }}>
-                  <Stack alignItems={'center'} sx={{ height: '100%', background: '' }} spacing={1}>
+                <Stack alignItems={'center'} direction={'row'} spacing={1} sx={{ color: 'var(--font-color)' }}>
+                  <ButtonCancel
+                    isAdmin={true}
+                    onClick={() => {
+                      setLessonEdit(lesson?.clone());
+                      setFiles([]);
+                    }}
+                    loading={state.processing}
+                    disabled={sameLessons}
+                    label={t('reset', { ns: NS_BUTTONS })}
+                    size="medium" />
+                  <ButtonConfirm isAdmin={true} onClick={onSubmit} loading={state.processing} disabled={disabledButton} label={t('edit', { ns: NS_BUTTONS })} size="medium" />
+                  <>
                     {
-                      files.length === 0 && <>
-                        {
-                          lessonEdit?.photo_url && <>
-                            <ImageComponent src={lessonEdit.photo_url} uid={lessonEdit?.uid} />
-                            <ButtonConfirm
-                            disabled={state.processing}
-                              label={t('remove-photo', { ns: NS_BUTTONS })}
-                              sx={{ background: 'var(--error)' }}
-                              onClick={() => {
-                                setLessonEdit(prev => {
-                                  if (!prev || prev === null) return lesson?.clone();
-                                  prev.update({ photo_url: '' });
-                                  return prev.clone();
-                                })
-                              }}
-                            />
-                          </>
-                        }
-                        {
-                          !lessonEdit?.photo_url && <>
-                            <Box sx={{ color: 'var(--primary)', border: '0.1px solid var(--primary)', p: 3, borderRadius: '50%' }}>
-                              <IconCamera width={30} height={30} />
-                            </Box>
-                            {
-                              lesson?.photo_url && <ButtonConfirm
-                                label={t('reset-photo', { ns: NS_BUTTONS })}
-                                disabled={state.processing}
-                                onClick={() => {
-                                  setLessonEdit(prev => {
-                                    if (!prev || prev === null) return lesson?.clone();
-                                    prev.update({ photo_url: lesson?.photo_url });
-                                    return prev.clone();
-                                  })
-                                }}
-                              />
-                            }
-                          </>
-                        }
-
-                      </>
+                      state.processing && <Typography>{state.text}</Typography>
                     }
-                    {
-                      files.length > 0 && <ImageComponent src={URL.createObjectURL(files[0])} uid={lessonEdit?.uid} />
-                    }
-
-
-                    <ButtonImportFiles
-                    disabled={state.processing}
-                      files={files}
-                      setFiles={setFiles}
-                      supported_files={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value)}
-                    />
-                  </Stack>
-                </Grid>
+                  </>
+                </Stack>
               }
+            </Stack>
+          </Grid>
+        </Grid>
+      </div>
+    </Grid>
+    <style jsx>{`
+          .card {
+            background: var(--card-color);
+            color: var(--font-color);
+              color: var(--grey-light);
+            border-radius: 16px;
+            padding: 14px 14px 16px;
+            width:100%;
+          }
+          .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+          }
+          .card .content {
+            background: var(--card-color);
+            color: var(--font-color);
+              color: var(--grey-light);
+            border-radius: 16px;
+            padding: 14px 14px 16px;
+            border: 1px solid red;
+          }
+          .card .content h2 {
+            color:red;
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+          }
+      `}</style>
+  </>)
+}
+function PhotosComponent() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
+  const { lang } = useLanguage();
+  const { lesson } = useLesson();
+  const [lessonEdit, setLessonEdit] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [state, setState] = useState({
+    processing: false,
+    text: ""
+  });
+
+  useEffect(() => {
+    setLessonEdit(lesson?.clone());
+  }, [lesson]);
+  const sameLessons = useMemo(() => {
+    if (lesson?.category !== lessonEdit?.category) return false;
+    if (lesson?.title !== lessonEdit?.title) return false;
+    if (lesson?.subtitle !== lessonEdit?.subtitle) return false;
+    if (lesson?.description !== lessonEdit?.description) return false;
+    if (lesson?.certified !== lessonEdit?.certified) return false;
+    if (files.length > 0 || lesson?.photo_url !== lessonEdit?.photo_url) return false;
+    return true;
+  }, [lessonEdit, files.length]);
+  const disabledButton = useMemo(() => {
+    if (sameLessons) return true;
+    if (!lessonEdit?.category) return true;
+    if (!lessonEdit?.title) return true;
+    if (!lessonEdit?.description) return true;
+    return false;
+  }, [lessonEdit, files.length]);
+  const mustTranslate = useMemo(() => {
+    if (lesson?.title !== lessonEdit?.title) return true;
+    if (lesson?.subtitle !== lessonEdit?.subtitle) return true;
+    if (lesson?.description !== lessonEdit?.description) return true;
+    return false;
+  }, [lessonEdit]);
+  const translations = useMemo(() => {
+    return lessonEdit?.translates?.sort((a,b)=>{
+      if(a.lang === lang) return -1;
+      
+      return t(a.lang, {ns:NS_LANGS}).localeCompare(t(b.lang, {ns:NS_LANGS}));
+    }) || [];
+  }, [lessonEdit]);
+
+  const onChangeValue = (e) => {
+    const { name, type, value, checked } = e.target;
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      var newValue = type === 'checkbox' ? checked : value;
+      prev.update({ [name]: newValue });
+      return prev.clone();
+    });
+
+  }
+  const onClearValue = (name) => {
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      var lessonValue = lesson[name];
+      var newValue = '';
+      prev.update({ [name]: newValue });
+      return prev.clone();
+    })
+  }
+  const onResetValue = (name) => {
+    //const { name, type, value } = e.target;
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      var lessonValue = lesson[name];
+      prev.update({ [name]: lessonValue });
+      //setSameDatas(true);
+      //console.log("two lesson", lesson.translate, lessonEdit.translate)
+      return prev.clone();
+    })
+  }
+  const onSubmit = async () => {
+    try {
+      setState(prev => ({ ...prev, processing: true, text: "Traitement..." }));
+      //const uidLesson = lessonEd?.createFirestoreDocUid();
+      if (mustTranslate) {
+        setState(prev => ({ ...prev, text: 'Traductions des valeurs...' }));
+        const transChapter = {
+          title: lessonEdit?.title,
+          subtitle: lessonEdit?.subtitle,
+          description: lessonEdit?.description,
+        }
+        const qsChapter = encodeURIComponent(JSON.stringify(transChapter));
+        const fetchTranslateChapter = await fetch(`/api/test?lang=${lang}&translations=${qsChapter}`);
+        const resultChapter = await fetchTranslateChapter.json();
+        const langsChapter = Object.keys(resultChapter);
+        const translates = Object.values(resultChapter)?.map?.((trans, i) => new ClassLessonTranslate({ ...trans, lang: langsChapter[i] }));
+        const translate = translates.find(trans => trans.lang === lang);
+        lessonEdit?.update({ translates: translates, translate: translate });
+      }
+      //lessonEdit?.update({ certified: l, translate:translate});
+      console.log("translaaaaates", lessonEdit);
+      setState(prev => ({ ...prev, text: 'Modification du cours...' }));
+      const _patch = await lessonEdit?.updateFirestore();
+      console.log("PATCH", _patch);
+      //setLessonEdit(_patch);
+    } catch (error) {
+      console.log("ERRROR", error);
+    } finally {
+      //setProcessing(false);
+      setState(prev => ({ ...prev, processing: false, text: "" }));
+    }
+  }
+
+  return (<>
+    <Grid size={12}>
+      <div className="card">
+        <Grid container spacing={{ xs: 1, sm: 3 }}>
+          {
+            translations.map((translation,i)=>{
+              return(          <Grid key={i}>
+            <OnePhotoComponent translation={translation} lessonEdit={lessonEdit} />
+          </Grid>)
+            })
+          }
+        </Grid>
+      </div>
+    </Grid>
+    <style jsx>{`
+          .card {
+            background: var(--card-color);
+            color: var(--font-color);
+              color: var(--grey-light);
+            border-radius: 16px;
+            padding: 14px 14px 16px;
+            width:100%;
+          }
+          .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+          }
+          .card .content {
+            background: var(--card-color);
+            color: var(--font-color);
+              color: var(--grey-light);
+            border-radius: 16px;
+            padding: 14px 14px 16px;
+            border: 1px solid red;
+          }
+          .card .content h2 {
+            color:red;
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+          }
+      `}</style>
+  </>)
+}
+
+function OnePhotoComponent({ lessonEdit = null,translation={} }) {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  const [files, setFiles] = useState([]);
+  const { lesson } = useLesson();
+  const [state, setState] = useState({
+    processing: false,
+    text: ""
+  });
+
+  useEffect(() => {
+   // setLessonEdit(lesson?.clone());
+  }, [lesson]);
+  const sameLessons = useMemo(() => {
+    if (files.length > 0 || lesson?.photo_url !== lessonEdit?.photo_url) return false;
+    return true;
+  }, [lessonEdit, files.length]);
+  const disabledButton = useMemo(() => {
+    if (sameLessons) return true;
+    if (!lessonEdit?.category) return true;
+    if (!lessonEdit?.title) return true;
+    if (!lessonEdit?.description) return true;
+    return false;
+  }, [lessonEdit, files.length]);
+
+  const {photoUrl,uid, lang} = useMemo(()=>{
+    const photoUrl=translation?.photo_url || null;
+    const uid = `photo-${translation?.lang}`;
+    const lang = ClassLang.getOneLang(translation?.lang);
+    return{
+      photoUrl,
+      uid,lang
+    };
+  }, [translation]);
+
+  return (<Stack alignItems={'center'} sx={{ height: '70%', background: '' }} spacing={1}>
+    <Chip label={`${lang.id} ${lang.flag_str} ${t(lang.id, {ns:NS_LANGS})}`} />
+    {
+      files.length === 0 && <>
+        {
+          photoUrl && <>
+            <ImageComponent src={photoUrl} uid={uid} />
+            <ButtonConfirm
+              isAdmin={true}
+              disabled={state.processing}
+              label={t('remove-photo', { ns: NS_BUTTONS })}
+              sx={{ background: 'var(--error)' }}
+              onClick={() => {
+                /*
+                setLessonEdit(prev => {
+                  if (!prev || prev === null) return lesson?.clone();
+                  prev.update({ photo_url: '' });
+                  return prev.clone();
+                })
+                */
+              }}
+            />
+          </>
+        }
+        {
+          !lessonEdit?.photo_url && <>
+            <Box sx={{ color: 'var(--admin)', border: `0.1px solid var(--admin)`, p: 3, borderRadius: '50%' }}>
+              <IconCamera width={30} height={30} />
+            </Box>
+            {
+              lesson?.photo_url && <ButtonConfirm
+                isAdmin={true}
+                label={t('reset-photo', { ns: NS_BUTTONS })}
+                disabled={state.processing}
+                onClick={() => {
+                  setLessonEdit(prev => {
+                    if (!prev || prev === null) return lesson?.clone();
+                    prev.update({ photo_url: lesson?.photo_url });
+                    return prev.clone();
+                  })
+                }}
+              />
+            }
+          </>
+        }
+
+      </>
+    }
+    {
+      files.length > 0 && <ImageComponent src={URL.createObjectURL(files[0])} uid={lessonEdit?.uid} />
+    }
 
 
-            </Grid>
+    <ButtonImportFiles
+      disabled={state.processing}
+      files={files}
+      setFiles={setFiles}
+      supported_files={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value)}
+      isAdmin={true}
+    />
+  </Stack>)
+}
+
+export default function LessonEditComponent() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
+  //const [lesson, setLesson] = useState(null);
+  const { lesson } = useLesson();
+
+  const [lessonEdit, setLessonEdit] = useState(null);
+  const [modeAccordion, setModeAccordion] = useState('');
+
+  const [openedView, setOpenedView] = useState('');
+
+  useEffect(() => {
+    setLessonEdit(lesson?.clone());
+    console.log("lesson component", lesson, lesson?.clone())
+  }, [lesson]);
+
+  return (<>
+    <Container disableGutters sx={{ width: '100%' }}>
+      <Grid container spacing={1} sx={{ width: '100%', background: '' }}>
+        <Grid size={12}>
+          <div onClick={() => {
+            setOpenedView('infos')
+            // alert(item)
+          }}>
+            <AccordionComponent
+              isAdmin={true}
+              title={t('infos')}
+              onChange={() => {
+                //setOpenedView('infos')
+              }}
+              expanded={openedView === 'infos'}
+            >
+              <InfosComponent />
+            </AccordionComponent>
           </div>
         </Grid>
+        <Grid size={12}>
+          <div onClick={() => {
+            setOpenedView('photos')
+            // alert(item)
+          }}>
+            <AccordionComponent
+              isAdmin={true}
+              title={t('photos')}
+              onChange={() => {
+                //setOpenedView('infos')
+              }}
+              expanded={openedView === 'photos'}
+            >
+              <PhotosComponent />
+            </AccordionComponent>
+          </div>
+        </Grid>
+
         <Grid size={12}>
           <Stack spacing={1}>
             <div className="card">

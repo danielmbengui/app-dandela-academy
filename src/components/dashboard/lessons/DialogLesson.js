@@ -11,7 +11,7 @@ import { NS_LANGS, NS_ROLES } from "@/contexts/i18n/settings";
 import ButtonConfirm from "../elements/ButtonConfirm";
 import ButtonCancel from "../elements/ButtonCancel";
 import { useLesson } from "@/contexts/LessonProvider";
-import LessonEditComponent from "./LessonEditComponent";
+import LessonEditComponent from "../../admin/lessons/LessonEditComponent";
 
 export default function DialogLesson({ isOpen = false, setIsOpen = null }) {
     const { lesson, setUidLesson } = useLesson();

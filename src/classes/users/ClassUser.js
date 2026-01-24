@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON } from "@/contexts/constants/constants_pages";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS } from "@/contexts/constants/constants_pages";
 import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
@@ -49,8 +49,10 @@ export class ClassUser {
         INTERN: 'intern',
         ADMINISTRATOR: 'administrator',
         EXTERN: 'extern',
+        DANDELA: 'dandela',
         WAITING_LIST: 'waiting-list',
         SPONSOR: 'sponsor',
+        UNKNOWN: 'unknown',
     });
     static ROLE = Object.freeze({
         SUPER_ADMIN: 'super-admin',
@@ -58,8 +60,9 @@ export class ClassUser {
         TEAM: 'team',
         TEACHER: 'teacher',
         STUDENT: 'student',
-        PROFESSIONAL: 'professional',
-        TUTOR: 'tutor',
+        // PROFESSIONAL: 'professional',
+        //TUTOR: 'tutor',
+        UNKNOWN: 'unknown',
     });
     static ROLE_CONFIG = Object.freeze({
         student: {
@@ -162,26 +165,9 @@ export class ClassUser {
             glow: "rgba(255,0,0,0.3)",
         },
     });
-    static ALL_TYPES = [
-        ClassUser.TYPE.INTERN,
-        ClassUser.TYPE.EXTERN,
-        ClassUser.TYPE.WAITING_LIST,
-    ];
-    static ALL_ROLES = [
-        ClassUser.ROLE.SUPER_ADMIN,
-        ClassUser.ROLE.ADMIN,
-        ClassUser.ROLE.TEAM,
-        ClassUser.ROLE.TEACHER,
-        //ClassUser.ROLE.TUTOR,
-        ClassUser.ROLE.STUDENT,
-        //ClassUser.ROLE.PROFESSIONAL,
-    ];
-    static ALL_STATUS = [
-        ClassUser.STATUS.ONLINE,
-        ClassUser.STATUS.OFFLINE,
-        //ClassUser.STATUS.AWAY,
-        ClassUser.STATUS.MUST_ACTIVATE,
-    ];
+    static ALL_TYPES = Object.values(this.TYPE).filter(t => t !== this.TYPE.UNKNOWN);
+    static ALL_ROLES = Object.values(this.ROLE).filter(t => t !== this.ROLE.UNKNOWN);
+    static ALL_STATUS = Object.values(this.STATUS).filter(t => t !== this.STATUS.UNKNOWN);
 
     constructor({
         uid = "",
@@ -539,7 +525,7 @@ export class ClassUser {
         return (PAGE_DASHBOARD_HOME)
     }
     /**************** MENU ****************/
-    static menuDashboard(user=null) {
+    static menuDashboard(user = null) {
         var menu = [
             {
                 name: "dashboard",
@@ -597,7 +583,7 @@ export class ClassUser {
                 icon: <IconSettings width={20} height={20} />,
             },
         ];
-        if(user instanceof ClassUserIntern) {
+        if (user instanceof ClassUserIntern) {
             menu = [
                 {
                     name: "lessons",
@@ -880,29 +866,65 @@ export class ClassUserIntern extends ClassUser {
     static ALL_TYPES = [
         ClassUser.TYPE.INTERN,
     ];
-    static ALL_ROLES = [
-        ClassUser.ROLE.SUPER_ADMIN,
-        ClassUser.ROLE.ADMIN,
-        ClassUser.ROLE.TEAM,
-        ClassUser.ROLE.TUTOR,
-        ClassUser.ROLE.STUDENT,
-    ];
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.SUPER_ADMIN) return true;
+        if (role === this.ROLE.ADMIN) return true;
+        if (role === this.ROLE.TEAM) return true;
+        if (role === this.ROLE.TEACHER) return true;
+        return false;
+    });
     constructor(props = { type: ClassUser.TYPE.INTERN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
     clone() {
         return new ClassUserIntern(this.toJSON());
     }
+    static menuDashboard(user = null) {
+        if (user instanceof ClassUserIntern) {
+            return [
+                {
+                    name: "lessons",
+                    path: PAGE_ADMIN_LESSONS,
+                    icon: <IconLessons width={18} height={18} />,
+                },
+                {
+                    name: "chapters",
+                    path: "admin/chapter/update",
+                    icon: <IconLessons width={18} height={18} />,
+                },
+            ]
+        }
+        return [];
+    }
+}
+{/* DANDELA */ }
+export class ClassUserDandela extends ClassUserIntern {
+    static ALL_TYPES = [
+        ClassUser.TYPE.INTERN,
+    ];
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.SUPER_ADMIN) return true;
+        if (role === this.ROLE.ADMIN) return true;
+        if (role === this.ROLE.TEAM) return true;
+        return false;
+    });
+    constructor(props = { type: ClassUser.TYPE.DANDELA }) {
+        super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+    }
+    clone() {
+        return new ClassUserDandela(this.toJSON());
+    }
 }
 {/* ADMIN */ }
-export class ClassUserAdministrator extends ClassUserIntern {
+export class ClassUserAdministrator extends ClassUserDandela {
     static ALL_TYPES = [
         ClassUser.TYPE.ADMINISTRATOR,
     ];
-    static ALL_ROLES = [
-        ClassUser.ROLE.SUPER_ADMIN,
-        ClassUser.ROLE.ADMIN,
-    ];
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.SUPER_ADMIN) return true;
+        if (role === this.ROLE.ADMIN) return true;
+        return false;
+    });
     constructor(props = { type: ClassUser.TYPE.ADMINISTRATOR }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
@@ -912,9 +934,10 @@ export class ClassUserAdministrator extends ClassUserIntern {
 }
 {/* SUPER_ADMIN */ }
 export class ClassUserSuperAdmin extends ClassUserAdministrator {
-    static ALL_ROLES = [
-        ClassUser.ROLE.SUPER_ADMIN,
-    ];
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.SUPER_ADMIN) return true;
+        return false;
+    });
     constructor(props = { role: ClassUser.ROLE.SUPER_ADMIN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
@@ -924,9 +947,10 @@ export class ClassUserSuperAdmin extends ClassUserAdministrator {
 }
 {/* ADMIN */ }
 export class ClassUserAdmin extends ClassUserAdministrator {
-    static ALL_ROLES = [
-        ClassUser.ROLE.ADMIN,
-    ];
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.ADMIN) return true;
+        return false;
+    });
     constructor(props = { role: ClassUser.ROLE.ADMIN }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
@@ -935,11 +959,11 @@ export class ClassUserAdmin extends ClassUserAdministrator {
     }
 }
 {/* TEAM */ }
-export class ClassUserTeam extends ClassUserIntern {
-    static ALL_ROLES = [
-        ClassUser.ROLE.TEAM,
-        ClassUser.ROLE.STUDENT,
-    ];
+export class ClassUserTeam extends ClassUserDandela {
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.TEAM) return true;
+        return false;
+    });
     constructor(props = { role: ClassUser.ROLE.TEAM }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
     }
@@ -948,7 +972,11 @@ export class ClassUserTeam extends ClassUserIntern {
     }
 }
 {/* TEACHER */ }
-export class ClassUserTeacher extends ClassUserIntern{
+export class ClassUserTeacher extends ClassUserIntern {
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.TEACHER) return true;
+        return false;
+    });
     constructor(props = { role: ClassUser.ROLE.TEACHER }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
         //this._role = props.role;
@@ -1021,11 +1049,27 @@ export class ClassUserTeacher extends ClassUserIntern{
         const snap = await getCountFromServer(q);
         return snap.data().count; // -> nombre total
     }
+    static menuDashboard(user = null) {
+        if (user instanceof ClassUserIntern) {
+            return [
+                {
+                    name: "lessons",
+                    path: PAGE_TEACHER_LESSONS,
+                    icon: <IconLessons width={18} height={18} />,
+                },
+            ]
+        }
+        return [];
+    }
 }
 {/* TUTOR */ }
 /*************************** EXTERNS ************************************************/
 {/* EXTERN */ }
 export class ClassUserExtern extends ClassUser {
+    static ALL_ROLES = this.ALL_ROLES.filter(role => {
+        if (role === this.ROLE.STUDENT) return true;
+        return false;
+    });
     static LEVEL = Object.freeze({
         BEGINNER: 'beginner',
         INTERMEDIATE: 'intermediate',
@@ -1041,23 +1085,6 @@ export class ClassUserExtern extends ClassUser {
         IA: 'ia',
         OTHER: 'other',
     });
-    static MIN_LENGTH_GOALS = 10;
-    static MAX_LENGTH_GOALS = 500;
-
-    static MIN_LENGTH_HOW_KNOW_TEXT = 5;
-    static MAX_LENGTH_HOW_KNOW_TEXT = 100;
-    static ALL_TYPES = [
-        ClassUser.TYPE.EXTERN,
-    ];
-    static ALL_ROLES = [
-        ClassUser.ROLE.STUDENT,
-        ClassUser.ROLE.PROFESSIONAL,
-    ];
-    static ALL_LEVELS = [
-        ClassUserExtern.LEVEL.BEGINNER,
-        ClassUserExtern.LEVEL.INTERMEDIATE,
-        ClassUserExtern.LEVEL.ADVANCED,
-    ];
     static ALL_HOW_KNOWS = [
         ClassUserExtern.HOW_KNOW.SOCIALS,
         ClassUserExtern.HOW_KNOW.FRIEND,
@@ -1138,9 +1165,6 @@ export class ClassUserExtern extends ClassUser {
 
 {/* STUDENT */ }
 export class ClassUserStudent extends ClassUserExtern {
-    static ALL_ROLES = [
-        ClassUser.ROLE.STUDENT,
-    ];
     constructor(props) {
         super({
             ...props,

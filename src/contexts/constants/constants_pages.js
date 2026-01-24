@@ -20,7 +20,11 @@ export const PAGE_SETTINGS = "/settings";
 export const PAGE_TERMS_PRIVACY = "/terms/privacy";
 export const PAGE_TERMS_USAGE = "/terms/usage";
 
-export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lesson/update";
+export const PAGE_ADMIN_LESSONS = "/admin/lessons";
+export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";
+//export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";
+export const PAGE_TEACHER_LESSONS = "/teacher/lessons";
+export const PAGE_TEACHER_UPDATE_ONE_LESSON = "/teacher/lessons/update";
 
 export const PAGE_CONTACT = "/contact";
 

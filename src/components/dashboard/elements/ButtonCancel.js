@@ -20,7 +20,7 @@ import React from "react";
           border-color: transparent;
         }
 */
-export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small',sx={},icon=null, ...props }) {
+export default function ButtonCancel({variant="contained", label = 'Annuler', loading = false, disabled = false, onClick = null,fullWidth=false, size = 'small',isAdmin=false,sx={},icon=null, ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight, text } = theme.palette;
   return (<Button
@@ -50,8 +50,8 @@ export default function ButtonCancel({variant="contained", label = 'Annuler', lo
       //cursor: 'pointer',
       '&:hover': {
         //bgcolor: 'primary.dark',
-        borderColor: primary.main,
-        color: primary.main,
+        borderColor:isAdmin ? 'var(--admin)': primary.main,
+        color:isAdmin?'var(--admin)': primary.main,
       },
       '&.Mui-disabled': {
         bgcolor: greyLight.main,

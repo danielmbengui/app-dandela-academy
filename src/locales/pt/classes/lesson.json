@@ -6,7 +6,7 @@
   "chapters": "Capítulos",
   "subchapter": "Secção",
   "subchapters": "Secções",
-  "office": "Automação de escritório",
+  "office": "Informática de escritório",
   "it": "Informática",
   "beginner": "Iniciante",
   "intermediate": "Intermédio",
@@ -20,7 +20,7 @@
   "full": "Lotado",
   "finished": "Concluído",
   "draft": "Rascunho",
-  "certified": "Certificado Dandela Academy",
+  "certified": "Certificado pela Dandela Academy",
   "certified_short": "Certificado",
   "level": "Nível",
   "lang": "Idioma",
@@ -30,9 +30,11 @@
   "schedule": "Horários",
   "duration": "Duração",
   "duration_total": "Duração total",
-  "duration_lesson": "{{duration}} de formação orientada",
+  "duration_lesson": "{{duration}} de formação acompanhada",
   "sessions_type": "Ritmo",
   "dates": "Datas",
+  "title": "Título",
+  "subtitle": "Subtítulo",
   "description": "Sobre este curso",
   "goals": "Objetivos pedagógicos",
   "programs": "Programa",
@@ -40,22 +42,25 @@
   "target_audiences": "Para quem?",
   "modalities": "Modalidades práticas",
   "materials": "Material necessário",
+  "tags": "Pontos-chave",
+  "infos": "Informações gerais",
+  "content": "Conteúdo do curso",
   "certification": "Certificação",
   "certification_official": "✅ Certificação reconhecida no âmbito dos percursos da Dandela Academy.",
   "certification_block": {
     "title": "Este curso dá direito a um certificado emitido pela Dandela Academy.",
     "items": [
       "Certificado de participação detalhando as competências adquiridas.",
-      "Certificado entregue em formato PDF (e possivelmente em papel).",
-      "Ideal para complementar um CV ou candidatura."
+      "Certificado entregue em formato PDF (e eventualmente em papel).",
+      "Ideal para complementar um CV ou candidatura profissional."
     ],
-    "no_certification": "Este curso não emite um certificado oficial, mas pode ser fornecida uma declaração de participação mediante pedido."
+    "no_certification": "Este curso não fornece um certificado oficial, mas uma declaração de participação pode ser emitida mediante pedido."
   },
   "notes": "Informações importantes",
   "seats_taken": "Inscritos",
   "seats_availables": "Vaga(s) disponível(is)",
   "multiple_payments": "Pagamento parcelado disponível",
-  "security": "Inscrição segura • Receberás um email de confirmação com todas as informações práticas.",
+  "security": "Inscrição segura • Receberás um e-mail de confirmação com todas as informações práticas.",
   "unknown": "Desconhecido",
   "btn-subscribe": "Inscrever-me neste curso"
 }

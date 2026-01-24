@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { IconCertificate, IconDashboard, IconLessons, IconSearch, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_BUTTONS, NS_COMMON, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_LESSONS, NS_LESSONS_ONE, NS_ROLES, } from "@/contexts/i18n/settings";
+import { NS_COMMON, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, NS_DASHBOARD_USERS, NS_LANGS, NS_LESSONS, NS_ROLES, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -16,7 +16,7 @@ import { ClassSchool } from '@/classes/ClassSchool';
 import { ClassRoom } from '@/classes/ClassRoom';
 import { ClassHardware } from '@/classes/ClassDevice';
 import SelectComponentDark from '@/components/elements/SelectComponentDark';
-import { ClassUser, ClassUserAdministrator, ClassUserIntern } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserAdministrator, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { formatDuration, getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedDateNumeric } from '@/contexts/functions';
 import { useLanguage } from '@/contexts/LangProvider';
 import TextFieldComponentDark from '@/components/elements/TextFieldComponentDark';
@@ -29,14 +29,16 @@ import { ClassLesson } from '@/classes/ClassLesson';
 import BadgeFormatLesson from '@/components/dashboard/lessons/BadgeFormatLesson';
 import BadgeStatusLesson from '@/components/dashboard/lessons/BadgeStatusLesson';
 import { useRouter } from 'next/navigation';
-import { PAGE_ADMIN_LESSONS, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
-import { useLesson } from '@/contexts/LessonProvider';
+import { PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_LESSONS } from '@/contexts/constants/constants_pages';
+import { LessonProvider, useLesson } from '@/contexts/LessonProvider';
 import Image from 'next/image';
 import { ClassLessonChapter } from '@/classes/lessons/ClassLessonChapter';
 import { ChapterProvider, useChapter } from '@/contexts/ChapterProvider';
 import { ClassLessonSubchapter } from '@/classes/lessons/ClassLessonSubchapter';
-import { useUsers } from '@/contexts/UsersProvider';
-import Link from 'next/link';
+import { UsersProvider, useUsers } from '@/contexts/UsersProvider';
+import { LessonTeacherProvider, useLessonTeacher } from '@/contexts/LessonTeacherProvider';
+import AdminPageWrapper from '@/components/wrappers/AdminPageWrapper';
+import AccordionComponent from '@/components/dashboard/elements/AccordionComponent';
 
 
 const STATUS_CONFIG_1 = {
@@ -58,27 +60,26 @@ const TABLE_SPACE = `grid-template-columns:
 
 function LessonsComponent() {
   const router = useRouter();
+  const { user } = useAuth();
   const { lang } = useLanguage();
   const { theme } = useThemeMode();
   const { text, cardColor, } = theme.palette;
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS, NS_ROLES, ClassUser.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION]);
+  const [expanded, setExpanded] = useState(ClassLesson.FORMAT.ONSITE);
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [lessonsFilter, setLessonsFilter] = useState([]);
   //const [_, setLessons] = useState([]);
   const { lessons, changeLesson } = useLesson();
-
-
-
+  const { lessons: lessonsTeacher } = useLessonTeacher();
   const [filter, setFilter] = useState({
     search: "",
-  })
-
+  });
   useEffect(() => {
     //let list = [...lessons];
     for (const lesson of lessons) {
-      router.prefetch(`${PAGE_LESSONS}/${lesson.uid}`);
+      router.prefetch(`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${lesson.uid}`);
     }
   }, [lessons]);
   useEffect(() => {
@@ -92,14 +93,19 @@ function LessonsComponent() {
     }
     setLessonsFilter(list);
   }, [filter.search, lessons]);
+  const isUserDandela = useMemo(()=>{
+return(!(user instanceof ClassUserTeacher));
+  }, [user]);
   return (
     <div className="page">
       <main className="container">
         {/* HEADER */}
         {/* BARRE DE FILTRES */}
-        <Grid container sx={{ mb: 2.5 }} direction={'row'} alignItems={'center'} spacing={{ xs: 1, sm: 1 }}>
+        <Grid container sx={{ mb: 2.5 }} direction={'row'} alignItems={'center'} spacing={1}>
           <Grid size={{ xs: 12, sm: 6 }} sx={{ background: '' }}>
             <FieldComponent
+              isAdmin={true}
+              label={t('search')}
               name={'search'}
               value={filter.search || ""}
               placeholder={t('placeholder_search', { ns: NS_LESSONS })}
@@ -119,41 +125,51 @@ function LessonsComponent() {
               }))}
             />
           </Grid>
+          {
+            isUserDandela &&           <Grid size={12}>
+            <AccordionComponent
+            expanded={expanded === ClassLesson.FORMAT.ONLINE}
+            onChange={()=>setExpanded(ClassLesson.FORMAT.ONLINE)}
+              isAdmin={true}
+              title={<Stack direction={'row'} spacing={1} alignItems={'center'}>
+                {
+                  !(user instanceof ClassUserTeacher) && <BadgeFormatLesson format={ClassLesson.FORMAT.ONLINE} />
+                }
+                <Typography>{`${lessons.length} ${t('lessons')}`}</Typography>
+              </Stack>}
+            >
+              <Stack sx={{ p: 2 }}><OnlineListComponent lessons={lessons} /></Stack>
+            </AccordionComponent>
+          </Grid>
+          }
+
+          <Grid size={12}>
+            <AccordionComponent
+            expanded={expanded === ClassLesson.FORMAT.ONSITE}
+            onChange={()=>setExpanded(ClassLesson.FORMAT.ONSITE)}
+              isAdmin={true}
+              title={<Stack direction={'row'} spacing={1} alignItems={'center'}>
+                {
+                  !(user instanceof ClassUserTeacher) && <BadgeFormatLesson format={ClassLesson.FORMAT.ONSITE} />
+                }
+                <Typography>{`${lessonsTeacher.length} ${t('lessons')}`}</Typography>
+              </Stack>}
+            >
+              <Stack sx={{ p: 2 }}><ListComponent lessons={lessonsTeacher} format={ClassLesson.FORMAT.ONSITE} /></Stack>
+            </AccordionComponent>
+          </Grid>
+
+          <Grid size={12}>
+            <Grid container spacing={1}>
+              <Grid size={12}>
+                <OnlineListComponent lessons={lessons} />
+              </Grid>
+              <Grid size={12}>
+                <ListComponent lessons={lessonsTeacher} format={ClassLesson.FORMAT.ONSITE} />
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
-
-        {/* TABLE / LISTE */}
-        <section className="card">
-          <div className="table-header">
-            <span className="th th-user">{""}</span>
-            <span className="th th-user">{t('lesson')}</span>
-            <span className="th th-user">{t('level')}</span>
-            <span className="th th-user">{t('chapters')}</span>
-            <span className="th th-user">{t('certified_short')}</span>
-          </div>
-
-          <div className="table-body">
-            {lessonsFilter.length === 0 && (
-              <div className="empty-state">
-                {t('not-found', { ns: NS_LESSONS })}
-              </div>
-            )}
-
-            {lessonsFilter.map((lesson, i) => {
-              //console.log("one lesson while", await lesson.getMinLevel(lang))
-              return (
-                <Box key={`${lesson.uid}`} onClick={() => {
-                  //setUserDialog(user);
-                  //changeLesson(lesson.uid);
-                  router.push(`${PAGE_LESSONS}/${lesson.uid}`)
-                }} sx={{ cursor: 'pointer' }}>
-                  <ChapterProvider uidLesson={lesson.uid}>
-                    <LessonRow lesson={lesson} lastChild={i === lessons.length - 1} />
-                  </ChapterProvider>
-                </Box>
-              )
-            })}
-          </div>
-        </section>
       </main>
 
       <style jsx>{`
@@ -555,27 +571,291 @@ function LessonRow({ lesson = null, lastChild = false }) {
   );
 }
 
-export default function LessonsPage() {
-  const { t } = useTranslation([NS_LESSONS_ONE, NS_DASHBOARD_MENU, NS_BUTTONS]);
-  const { user } = useAuth();
-  const { lesson } = useLesson();
-  const canEdit = useMemo(() => {
-    return user instanceof ClassUserAdministrator || user instanceof ClassUserIntern;
-  }, [user, lesson]);
+function OnlineListComponent({ lessons = [] }) {
+  const router = useRouter();
+  const { lang } = useLanguage();
+  const { theme } = useThemeMode();
+  const { text, cardColor, } = theme.palette;
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS, NS_ROLES, ClassUser.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION]);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+  const [lessonsFilter, setLessonsFilter] = useState([]);
+  //const [_, setLessons] = useState([]);
 
-  return (<DashboardPageWrapper
-    //title={'Cours'} 
-    titles={[{ name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: '' }]}
-    subtitle={t('subtitle')}
-    icon={<IconLessons width={22} height={22} />}
-  >
-    <Stack alignItems={'start'} spacing={1.5} sx={{ width: '100%', height: '100%' }}>
-      {
-        canEdit && <Link target="_blank" href={`${PAGE_ADMIN_LESSONS}`}>
-          <ButtonConfirm isAdmin={true} label={t('manage-data', { ns: NS_BUTTONS })} />
-        </Link>
-      }
-      <LessonsComponent />
-    </Stack>
-  </DashboardPageWrapper>)
+  const { lessons: lessonsTeacher } = useLessonTeacher();
+  const [filter, setFilter] = useState({
+    search: "",
+  })
+
+  useEffect(() => {
+    //let list = [...lessons];
+    for (const lesson of lessons) {
+      router.prefetch(`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${lesson.uid}`);
+    }
+  }, [lessons]);
+  useEffect(() => {
+    let list = [...lessons];
+    if (filter.search.length) {
+      list = list.filter((u) => {
+        const cond_title = u.translate.title.toLowerCase().includes(filter.search.toLowerCase());
+        const cond_category = t(u.category)?.toLowerCase().includes(filter.search.toLowerCase());
+        return cond_title || cond_category;
+      });
+    }
+    setLessonsFilter(list);
+  }, [filter.search, lessons]);
+  return (
+    <>
+      {/* TABLE / LISTE */}
+      <section className="card">
+        <div className="table-header">
+          <span className="th th-user">{""}</span>
+          <span className="th th-user">{t('lesson')}</span>
+          <span className="th th-user">{t('level')}</span>
+          <span className="th th-user">{t('chapters')}</span>
+          <span className="th th-user">{t('certified_short')}</span>
+        </div>
+
+        <div className="table-body">
+          {lessonsFilter.length === 0 && (
+            <div className="empty-state">
+              {t('not-found', { ns: NS_LESSONS })}
+            </div>
+          )}
+
+          {lessonsFilter.map((lesson, i) => {
+            //console.log("one lesson while", await lesson.getMinLevel(lang))
+            return (
+              <Box key={`${lesson.uid}`} onClick={() => {
+                //setUserDialog(user);
+                //changeLesson(lesson.uid);
+                router.push(`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${lesson.uid}`)
+              }} sx={{ cursor: 'pointer' }}>
+                <ChapterProvider uidLesson={lesson.uid}>
+                  <LessonRow lesson={lesson} lastChild={i === lessons.length - 1} />
+                </ChapterProvider>
+              </Box>
+            )
+          })}
+        </div>
+      </section>
+      <style jsx>{`
+      .card {
+          background: ${cardColor.main};
+          border-radius: 16px;
+          border: 0.1px solid var(--card-border);
+          
+          padding: 0;
+           overflow: hidden;           /* ✅ coupe les bords des enfants, y compris au hover */
+        }
+
+        .table-header {
+          display: grid;
+          ${TABLE_SPACE}
+          gap: 8px;
+          padding: 8px 15px;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: ${'white'};
+          font-weight: 500;
+          border-bottom: 0.1px solid var(--card-border);
+          background: var(--blackColor);
+        }
+
+        @media (max-width: 900px) {
+          .table-header {
+            display: none;
+          }
+        }
+
+        .th {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .table-body {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .empty-state {
+          padding: 16px;
+          text-align: center;
+          font-size: 0.9rem;
+          color: #9ca3af;
+        }
+
+        @media (max-width: 900px) {
+          .card {
+            padding: 10px;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
+function ListComponent({ lessons = [], format = "" }) {
+  const router = useRouter();
+  const { lang } = useLanguage();
+  const { theme } = useThemeMode();
+  const { text, cardColor, } = theme.palette;
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS, NS_ROLES, ClassUser.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION]);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+  const [lessonsFilter, setLessonsFilter] = useState([]);
+  //const [_, setLessons] = useState([]);
+
+  //const { lessons } = useLesson();
+  const { lessons: lessonsTeacher } = useLessonTeacher();
+  const [filter, setFilter] = useState({
+    search: "",
+  })
+
+  useEffect(() => {
+    //let list = [...lessons];
+    for (const lesson of lessons) {
+      router.prefetch(`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${lesson.uid}`);
+    }
+  }, [lessons]);
+  useEffect(() => {
+    let list = [...lessons];
+    if (filter.search.length) {
+      list = list.filter((u) => {
+        const cond_title = u.translate.title.toLowerCase().includes(filter.search.toLowerCase());
+        const cond_category = t(u.category)?.toLowerCase().includes(filter.search.toLowerCase());
+        return cond_title || cond_category;
+      });
+    }
+    setLessonsFilter(list);
+  }, [filter.search, lessons]);
+  return (
+    <>
+      <Stack alignItems={'start'} spacing={1}>
+        {/* TABLE / LISTE */}
+        <section className="card">
+          <div className="table-header">
+            <span className="th th-user">{""}</span>
+            <span className="th th-user">{t('lesson')}</span>
+            <span className="th th-user">{t('level')}</span>
+            <span className="th th-user">{t('chapters')}</span>
+            <span className="th th-user">{t('certified_short')}</span>
+          </div>
+
+          <div className="table-body">
+            {lessonsFilter.length === 0 && (
+              <div className="empty-state">
+                {t('not-found', { ns: NS_LESSONS })}
+              </div>
+            )}
+
+            {lessonsFilter.map((lesson, i) => {
+              //console.log("one lesson while", await lesson.getMinLevel(lang))
+              return (
+                <Box key={`${lesson.uid}`} onClick={() => {
+                  //setUserDialog(user);
+                  //changeLesson(lesson.uid);
+                  router.push(`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${lesson.uid}`)
+                }} sx={{ cursor: 'pointer' }}>
+                  <ChapterProvider uidLesson={lesson.uid}>
+                    <LessonRow lesson={lesson} lastChild={i === lessons.length - 1} />
+                  </ChapterProvider>
+                </Box>
+              )
+            })}
+          </div>
+        </section>
+      </Stack>
+
+      <style jsx>{`
+      .card {
+          background: ${cardColor.main};
+          border-radius: 16px;
+          border: 0.1px solid var(--card-border);
+          
+          padding: 0;
+           overflow: hidden;           /* ✅ coupe les bords des enfants, y compris au hover */
+        }
+
+        .table-header {
+          display: grid;
+          ${TABLE_SPACE}
+          gap: 8px;
+          padding: 8px 15px;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: ${'white'};
+          font-weight: 500;
+          border-bottom: 0.1px solid var(--card-border);
+          background: var(--blackColor);
+        }
+
+        @media (max-width: 900px) {
+          .table-header {
+            display: none;
+          }
+        }
+
+        .th {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .table-body {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .empty-state {
+          padding: 16px;
+          text-align: center;
+          font-size: 0.9rem;
+          color: #9ca3af;
+        }
+
+        @media (max-width: 900px) {
+          .card {
+            padding: 10px;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
+export default function LessonsPage() {
+  const { t } = useTranslation([NS_LESSONS, NS_DASHBOARD_MENU]);
+  const { user } = useAuth();
+  //const { lessons, changeLesson } = useLesson();
+  const isAuthorized = useMemo(() => {
+    console.log("uuuuuuussssser", user)
+    return user instanceof ClassUserIntern;
+  }, [user]);
+  const userUid = useMemo(() => {
+    if (user && user instanceof ClassUserAdministrator) {
+      return "";
+    }
+    return user?.uid;
+  }, [user]);
+  return (
+    <LessonProvider uidTeacher={userUid}>
+      <LessonTeacherProvider uidTeacher={userUid}>
+        <UsersProvider>
+          <AdminPageWrapper
+            isAuthorized={isAuthorized}
+            //title={'Cours'} 
+            titles={[{ name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: '' }]}
+            // subtitle={t('subtitle')}
+            icon={<IconLessons width={22} height={22} />}
+          >
+            <LessonsComponent />
+          </AdminPageWrapper>
+        </UsersProvider>
+      </LessonTeacherProvider>
+    </LessonProvider>
+  )
 }
