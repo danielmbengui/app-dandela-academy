@@ -33,6 +33,8 @@
   "duration_lesson": "{{duration}} de formação acompanhada",
   "sessions_type": "Ritmo",
   "dates": "Datas",
+  "title": "Título",
+  "subtitle": "Subtítulo",
   "description": "Sobre este curso",
   "goals": "Objectivos pedagógicos",
   "programs": "Programa",

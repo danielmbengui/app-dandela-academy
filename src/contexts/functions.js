@@ -84,6 +84,13 @@ export function getJsonKeys(data = {}) {
 export function getJsonValues(data = {}) {
   return Object.values(data);
 }
+export function removeAccents(str) {
+  return str
+    .normalize("NFD")                     // décompose les lettres accentuées
+    .replace(/[\u0300-\u036f]/g, "")       // supprime les diacritiques
+    //.replace(/\s+/g, "")                   // supprime tous les espaces
+    .replace(/['’]/g, "");                 // supprime apostrophes simples/typographiques
+}
 export function removeAccentsAndSpaces(str) {
   return str
     .normalize("NFD")                     // décompose les lettres accentuées

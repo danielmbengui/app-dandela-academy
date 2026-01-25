@@ -33,6 +33,8 @@
   "duration_lesson": "{{duration}} of supervised training",
   "sessions_type": "Pace",
   "dates": "Dates",
+  "title": "Title",
+  "subtitle": "Subtitle",
   "description": "About this course",
   "goals": "Learning objectives",
   "programs": "Program",
