@@ -93,8 +93,8 @@ function LessonsComponent() {
     setLessonsFilter(list);
   }, [filter.search, lessons]);
   return (
-    <div className="page">
-      <main className="container">
+    <div>
+      <main>
         {/* HEADER */}
         {/* BARRE DE FILTRES */}
         <Grid container sx={{ mb: 2.5 }} direction={'row'} alignItems={'center'} spacing={{ xs: 1, sm: 1 }}>
@@ -570,11 +570,6 @@ export default function LessonsPage() {
     icon={<IconLessons width={22} height={22} />}
   >
     <Stack alignItems={'start'} spacing={1.5} sx={{ width: '100%', height: '100%' }}>
-      {
-        canEdit && <Link target="_blank" href={`${PAGE_ADMIN_LESSONS}`}>
-          <ButtonConfirm isAdmin={true} label={t('manage-data', { ns: NS_BUTTONS })} />
-        </Link>
-      }
       <LessonsComponent />
     </Stack>
   </DashboardPageWrapper>)

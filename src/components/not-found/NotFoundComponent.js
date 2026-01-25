@@ -86,27 +86,134 @@ export default function NotFoundComponent() {
     const notFound = t('not-found');
     const backHome = t('back-home');
     return (<OtherPageWrapper>
-        <Stack spacing={3} sx={{ color: 'var(--font-color)', width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
-            <Stack spacing={1} alignItems={'center'} sx={{ textAlign: 'center' }}>
-                <Typography variant="h4">
+        <Stack 
+            spacing={4} 
+            sx={{ 
+                color: 'var(--font-color)', 
+                width: '100%', 
+                py: { xs: 4, sm: 5 }, 
+                px: { xs: 3, sm: 5 }, 
+                background: 'var(--card-color)', 
+                borderRadius: '20px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+                }
+            }}>
+            <Stack spacing={2} alignItems={'center'} sx={{ textAlign: 'center' }}>
+                <Typography 
+                    variant="h4"
+                    sx={{ 
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, var(--font-color) 0%, var(--font-color) 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
                     {error404}
                 </Typography>
-                <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
+                <Typography 
+                    variant="caption" 
+                    sx={{ 
+                        color: 'var(--grey-light)',
+                        fontSize: '0.9rem'
+                    }}>
                     {notFound}
                 </Typography>
-                <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} spacing={0} sx={{ color: "var(--font-color)" }}>
-                    <Typography variant="h1" sx={{ fontSize: '60px' }}>4</Typography>
-                    <Box sx={{ width: 'auto', height: '40px', color: '' }}>
+                <Stack 
+                    direction={'row'} 
+                    alignItems={'center'} 
+                    justifyContent={'center'} 
+                    spacing={1} 
+                    sx={{ 
+                        color: "var(--font-color)",
+                        py: 2,
+                        animation: 'bounceIn 0.8s ease-in-out',
+                        '@keyframes bounceIn': {
+                            '0%': { 
+                                opacity: 0, 
+                                transform: 'scale(0.3) translateY(-50px)' 
+                            },
+                            '50%': { 
+                                opacity: 1, 
+                                transform: 'scale(1.05) translateY(0)' 
+                            },
+                            '70%': { 
+                                transform: 'scale(0.9)' 
+                            },
+                            '100%': { 
+                                transform: 'scale(1)' 
+                            }
+                        }
+                    }}>
+                    <Typography 
+                        variant="h1" 
+                        sx={{ 
+                            fontSize: { xs: '50px', sm: '70px', md: '80px' },
+                            fontWeight: 700,
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            lineHeight: 1
+                        }}>
+                        4
+                    </Typography>
+                    <Box 
+                        sx={{ 
+                            width: { xs: '50px', sm: '60px', md: '70px' }, 
+                            height: { xs: '50px', sm: '60px', md: '70px' },
+                            animation: 'rotate 3s ease-in-out infinite',
+                            '@keyframes rotate': {
+                                '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
+                                '50%': { transform: 'rotate(180deg) scale(1.1)' }
+                            }
+                        }}>
                         <IconLogoImage width={'100%'} height={'100%'} />
                     </Box>
-                    <Typography variant="h1" sx={{ fontSize: '60px' }}>4</Typography>
+                    <Typography 
+                        variant="h1" 
+                        sx={{ 
+                            fontSize: { xs: '50px', sm: '70px', md: '80px' },
+                            fontWeight: 700,
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            lineHeight: 1
+                        }}>
+                        4
+                    </Typography>
                 </Stack>
-
             </Stack>
-            <Stack alignItems={'center'} justifyContent={'center'}>
-                <Link href={PAGE_HOME}>
+            <Stack 
+                alignItems={'center'} 
+                justifyContent={'center'}
+                sx={{
+                    animation: 'fadeInUp 0.6s ease-in-out 0.3s both',
+                    '@keyframes fadeInUp': {
+                        from: { 
+                            opacity: 0, 
+                            transform: 'translateY(20px)' 
+                        },
+                        to: { 
+                            opacity: 1, 
+                            transform: 'translateY(0)' 
+                        }
+                    }
+                }}>
+                <Link href={PAGE_HOME} style={{ textDecoration: 'none' }}>
                     <ButtonConfirm
                         label={backHome}
+                        sx={{
+                            minWidth: '200px',
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 6px 20px rgba(0,0,0,0.15)'
+                            }
+                        }}
                     />
                 </Link>
             </Stack>

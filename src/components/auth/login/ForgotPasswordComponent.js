@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Button, Stack, Typography } from "@mui/material";
+import { Alert, Stack, Typography } from "@mui/material";
 import { IconEmail } from "@/assets/icons/IconsComponent";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
@@ -39,22 +39,56 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const AlertEmailContent = ({ title, email }) => {
-        return (<Stack>
-            <Typography>{title}</Typography>
-            <Typography><b>{email}</b></Typography>
+        return (<Stack spacing={0.5}>
+            <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
+            <Typography 
+                sx={{ 
+                    fontWeight: 600,
+                    color: primary.main,
+                    wordBreak: 'break-word'
+                }}>
+                {email}
+            </Typography>
         </Stack>)
     }
     return (<LoginPageWrapper>
-        <Stack spacing={3} sx={{ color: "var(--font-color)", width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
+        <Stack 
+            spacing={3} 
+            sx={{ 
+                color: "var(--font-color)", 
+                width: '100%', 
+                py: { xs: 3, sm: 4 }, 
+                px: { xs: 3, sm: 5 }, 
+                background: 'var(--card-color)', 
+                borderRadius: '20px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+                }
+            }}>
             <Stack spacing={0.5} direction={'column'} justifyContent={'space-between'} alignItems={'start'}>
-                <Typography variant="h4">
+                <Typography 
+                    variant="h4"
+                    sx={{ 
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, var(--font-color) 0%, var(--font-color) 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
                     {t('title')}
                 </Typography>
-                <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
+                <Typography 
+                    variant="caption" 
+                    sx={{ 
+                        color: 'var(--grey-light)',
+                        fontSize: '0.9rem'
+                    }}>
                     {t('subtitle')}
                 </Typography>
             </Stack>
-            <Stack spacing={1}>
+            <Stack spacing={2}>
                 <FieldComponent
                     label={t('label-email')}
                     name='email'
@@ -77,15 +111,54 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
                         setIsError(false);
                     }}
                     error={errorMail}
+                    fullWidth
                 />
             </Stack>
             {
-                isError && (<Alert severity="error">{error}</Alert>)
+                isError && (
+                    <Stack 
+                        sx={{ 
+                            animation: 'fadeIn 0.3s ease-in-out',
+                            '@keyframes fadeIn': {
+                                from: { opacity: 0, transform: 'translateY(-10px)' },
+                                to: { opacity: 1, transform: 'translateY(0)' }
+                            }
+                        }}>
+                        <Alert 
+                            severity="error"
+                            sx={{
+                                borderRadius: '12px',
+                                '& .MuiAlert-icon': {
+                                    alignItems: 'center'
+                                }
+                            }}>
+                            {error}
+                        </Alert>
+                    </Stack>
+                )
             }
             {
-                isSuccess && (<Alert severity="success">
-                    {success}
-                </Alert>)
+                isSuccess && (
+                    <Stack 
+                        sx={{ 
+                            animation: 'fadeIn 0.3s ease-in-out',
+                            '@keyframes fadeIn': {
+                                from: { opacity: 0, transform: 'translateY(-10px)' },
+                                to: { opacity: 1, transform: 'translateY(0)' }
+                            }
+                        }}>
+                        <Alert 
+                            severity="success"
+                            sx={{
+                                borderRadius: '12px',
+                                '& .MuiAlert-icon': {
+                                    alignItems: 'center'
+                                }
+                            }}>
+                            {success}
+                        </Alert>
+                    </Stack>
+                )
             }
 
             {
@@ -141,19 +214,44 @@ export default function ForgotPasswordComponent({ setIsLogin = null }) {
                 />
             }
             {
-                !isSuccess && <Typography variant="caption" sx={{ color: ClassColor.GREY_LIGHT }}>
-                    {t('want-connect')} <Link href={PAGE_LOGIN} style={{ color: primary.main }}>
-                    <p className="link">{textLogin}</p>
+                !isSuccess && <Typography 
+                    variant="caption" 
+                    sx={{ 
+                        color: ClassColor.GREY_LIGHT,
+                        textAlign: 'center',
+                        fontSize: '0.85rem',
+                        pt: 1
+                    }}>
+                    {t('want-connect')}{' '}
+                    <Link href={PAGE_LOGIN} style={{ textDecoration: 'none' }}>
+                        <Typography 
+                            component="span"
+                            className="link" 
+                            sx={{ 
+                                color: primary.main,
+                                fontWeight: 600,
+                                display: 'inline',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    color: primary.dark,
+                                    textDecoration: 'underline'
+                                }
+                            }}>
+                            {textLogin}
+                        </Typography>
                     </Link>
                 </Typography>
             }
             {
-                isSuccess && <Button
-                    label={""}
+                isSuccess && <ButtonConfirm
+                    label={t('btn-home')}
                     onClick={() => {
                         router.push(PAGE_LOGIN);
                     }}
-                >{t('btn-home')}</Button>
+                    sx={{
+                        mt: 2
+                    }}
+                />
             }
         </Stack>
     </LoginPageWrapper>);

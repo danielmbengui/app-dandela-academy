@@ -67,8 +67,8 @@ function ProfilePage() {
         console.log("Profil sauvegardé :", userEdit);
     };
     return (
-        <div className="page">
-            <main className="container">
+        <div>
+            <main>
                 <header className="header">
                     {
                         user?.showAvatar({ size: 60, fontSize: '18px' })
@@ -113,6 +113,7 @@ function ProfilePage() {
                                 disabled={true}
                                 onClear={() => handleClear('first_name')}
                                 error={errors.first_name}
+                                fullWidth
                             />
                         </div>
                         <div className="field">
@@ -125,6 +126,7 @@ function ProfilePage() {
                                 disabled={true}
                                 onClear={() => handleClear('last_name')}
                                 error={errors.last_name}
+                                fullWidth
                             />
                         </div>
                         <div className="field">
@@ -149,6 +151,7 @@ function ProfilePage() {
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
                                 error={errors.email_academy}
+                                fullWidth
                             />
                         </div>
                         <div className="field">
@@ -161,6 +164,7 @@ function ProfilePage() {
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
                                 error={errors.birthday}
+                                fullWidth
                             />
                         </div>
                     </section>
@@ -178,6 +182,7 @@ function ProfilePage() {
                                 disabled={true}
                                 //onClear={()=>handleClear('first_name')}
                                 error={errors.uid}
+                                fullWidth
                             />
                         </div>
                         <div className="field">
@@ -237,21 +242,35 @@ function ProfilePage() {
         .header {
           display: flex;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 15px;
+          gap: 20px;
+          margin-bottom: 24px;
+          padding: 24px;
+          background: var(--card-color);
+          border-radius: 20px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+          transition: all 0.3s ease-in-out;
+        }
+
+        .header:hover {
+          box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
 
         .header h1 {
           margin: 0;
-          font-size: 1.5rem;
+          font-size: 1.75rem;
           line-height: 1.5rem;
+          font-weight: 600;
+          background: linear-gradient(135deg, var(--font-color) 0%, var(--font-color) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         .header-actions {
           margin-left: auto;
           display: flex;
           align-items:center;
-          gap: 8px;
+          gap: 12px;
         }
 
         .avatar {
@@ -264,45 +283,64 @@ function ProfilePage() {
           justify-content: center;
           font-weight: 700;
           font-size: 1.3rem;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+          transition: transform 0.2s ease;
+        }
+
+        .avatar:hover {
+          transform: scale(1.05);
         }
 
         .muted {
-          margin: 0;
+          margin: 4px 0 0 0;
           font-size: 0.9rem;
-          color: ${greyLight.main};
+          color: var(--grey-light);
+          line-height: 1.4;
         }
 
         .grid {
           display: grid;
           grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-          gap: 16px;
+          gap: 20px;
         }
 
         @media (max-width: 900px) {
           .grid {
             grid-template-columns: 1fr;
+            gap: 16px;
           }
           .header {
             align-items: flex-start;
             flex-direction: column;
+            padding: 20px;
           }
           .header-actions {
             margin-left: 0;
+            width: 100%;
+            justify-content: flex-end;
           }
         }
 
         .card {
           background: var(--card-color);
-          border-radius: 10px;
-          padding: 20px;
-          border: 1px solid var(--card-color);
-          
+          border-radius: 20px;
+          padding: 24px;
+          border: 1px solid var(--card-border);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+          transition: all 0.3s ease-in-out;
+        }
+
+        .card:hover {
+          box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+          transform: translateY(-2px);
         }
 
         .card h2 {
           margin-top: 0;
-          margin-bottom: 12px;
-          font-size: 1.2rem;
+          margin-bottom: 20px;
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: var(--font-color);
         }
 
         .card h3 {
@@ -314,13 +352,17 @@ function ProfilePage() {
         .field {
           display: flex;
           flex-direction: column;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           font-size: 0.9rem;
+        }
+
+        .field:last-child {
+          margin-bottom: 0;
         }
 
         .field label {
           margin-bottom: 4px;
-          color: #9ca3af;
+          color: var(--grey-light);
         }
 
         .field.inline {
@@ -333,34 +375,50 @@ function ProfilePage() {
         input[type="email"],
         input[type="date"],
         select {
-          background: #020617;
-          border-radius: 10px;
-          border: 1px solid #1f2937;
-          padding: 8px 10px;
-          color: #e5e7eb;
+          background: var(--card-color);
+          border-radius: 12px;
+          border: 1px solid var(--card-border);
+          padding: 10px 14px;
+          color: var(--font-color);
           outline: none;
           font-size: 0.9rem;
+          transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
         }
 
         input:disabled,
         select:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+          background: rgba(0,0,0,0.02);
         }
 
         input[type="checkbox"] {
-          width: 16px;
-          height: 16px;
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
         }
 
         .btn {
-          border-radius: 999px;
-          padding: 8px 14px;
-          border: 1px solid #374151;
-          background: #020617;
-          color: #e5e7eb;
+          border-radius: 12px;
+          padding: 10px 18px;
+          border: 1px solid var(--card-border);
+          background: var(--card-color);
+          color: var(--font-color);
           font-size: 0.9rem;
           cursor: pointer;
+          transition: all 0.2s ease;
+          font-weight: 500;
+        }
+
+        .btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .btn.primary {
@@ -371,12 +429,14 @@ function ProfilePage() {
         .btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+          transform: none;
         }
 
         .divider {
           border: none;
-          border-top: 1px solid ${ClassColor.GREY_HYPER_LIGHT};
-          margin: 12px 0;
+          border-top: 1px solid var(--card-border);
+          margin: 16px 0;
+          opacity: 0.3;
         }
       `}</style>
         </div>
@@ -390,7 +450,7 @@ export default function ProfileComponent() {
     useEffect(() => {
         setUserEdit(user.clone());
     }, [user]);
-    return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 1.5, sm: 2 }}>
+    return (<Stack sx={{ background: '', width: '100%', }} spacing={{ xs: 2, sm: 3 }}>
         <ProfilePage />
     </Stack>)
 }

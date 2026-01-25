@@ -14,20 +14,48 @@ export default function InstallPwaBanner({ showPwaComponent = false, skipAction 
 
   return (<>
     <Backdrop
-      sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
+      sx={{ 
+        zIndex: 1_000_000_000, 
+        background: 'rgba(0,0,0,0.75)', 
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        transition: 'opacity 0.3s ease-in-out',
+        borderTopLeftRadius: { xs: 0, sm: '15px' } 
+      }}
       open={showPwaComponent}
-      //onClick={()=>alert('click')}
+      onClick={skipAction}
       >
-      <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ 
-        p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%',
-         }}>
+      <Stack 
+        spacing={2} 
+        alignItems={'center'} 
+        justifyContent={'center'} 
+        onClick={(e) => e.stopPropagation()}
+        sx={{ 
+          p: { xs: 0, sm: 2 }, 
+          background: '', 
+          height: '100%', 
+          width: '100%',
+        }}>
         <div className="pwa-banner" style={{ color: 'white' }}>
           {
             !isPWA && <>
               {
                 isSafari && <>
                   {
-                    isIOS && <Stack alignItems={'center'} maxWidth={'sm'} sx={{ background: 'var(--card-color)', p: 2, borderRadius: '10px', color: 'var(--font-color)' }}>
+                    isIOS && <Stack 
+                      alignItems={'center'} 
+                      maxWidth={'sm'} 
+                      sx={{ 
+                        background: 'var(--card-color)', 
+                        p: 2, 
+                        borderRadius: '16px', 
+                        color: 'var(--font-color)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                        transition: 'transform 0.2s ease-in-out',
+                        '&:hover': {
+                          transform: 'scale(1.02)'
+                        }
+                      }}>
                       <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                         <IconLogoImage /><h1 style={{ fontWeight: 500 }}>{`Dandela Academy App`}</h1>
                       </Stack>
@@ -50,7 +78,20 @@ export default function InstallPwaBanner({ showPwaComponent = false, skipAction 
                     </Stack>
                   }
                   {
-                    isMacOS && <Stack alignItems={'center'} maxWidth={'sm'} sx={{ background: 'var(--card-color)', borderRadius: '10px', p: 2, color: 'var(--font-color)' }}>
+                    isMacOS && <Stack 
+                      alignItems={'center'} 
+                      maxWidth={'sm'} 
+                      sx={{ 
+                        background: 'var(--card-color)', 
+                        borderRadius: '16px', 
+                        p: 2, 
+                        color: 'var(--font-color)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                        transition: 'transform 0.2s ease-in-out',
+                        '&:hover': {
+                          transform: 'scale(1.02)'
+                        }
+                      }}>
                       <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                         <IconLogoImage /><h1 style={{ fontWeight: 500 }}>{`Dandela Academy App`}</h1>
                       </Stack>
@@ -75,7 +116,20 @@ export default function InstallPwaBanner({ showPwaComponent = false, skipAction 
                 </>
               }
               {
-                !isSafari && <Stack alignItems={'center'} maxWidth={'sm'} sx={{ background: 'var(--card-color)', color: 'var(--font-color)', borderRadius: '10px', p: 1.5 }}>
+                !isSafari && <Stack 
+                  alignItems={'center'} 
+                  maxWidth={'sm'} 
+                  sx={{ 
+                    background: 'var(--card-color)', 
+                    color: 'var(--font-color)', 
+                    borderRadius: '16px', 
+                    p: 1.5,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                    transition: 'transform 0.2s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.02)'
+                    }
+                  }}>
                   <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                     <IconLogoImage /><h1 style={{ fontWeight: 500 }}>{`Dandela Academy App`}</h1>
                   </Stack>
