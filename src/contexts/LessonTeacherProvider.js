@@ -68,7 +68,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             }
         }
         if (uidSourceLesson) {
-           constraints.push(where("uid_lesson", "==", uidSourceLesson));
+            constraints.push(where("uid_lesson", "==", uidSourceLesson));
         }
         if (uidTeacher) {
             constraints.push(where("uid_teacher", "==", uidTeacher));
@@ -93,14 +93,39 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 const _lessons = [];
                 //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
                 for (const snapshot of snap.docs) {
-                    const lesson = await snapshot.data();
+                    const _lesson = await snapshot.data();
+                    const translate = _lesson.translates?.find(a => a.lang === lang);
+                    const title = translate.title;
+                    const subtitle = translate.subtitle;
+                    const description = translate.description;
+                    const photo_url = translate.photo_url;
+
+                    const materials = translate.materials;
+                    const goals = translate.goals;
+                    const programs = translate.programs;
+                    const prerequisites = translate.prerequisites;
+                    const target_audiences = translate.target_audiences;
+                    const notes = translate.notes;
+                    const tags = translate.tags;
+                    const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
 
                     //const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
-                    const translate = lesson.translates?.find(a => a.lang === lang);
+                    //const translate = lesson.translates?.find(a => a.lang === lang);
                     const lesson_new = new ClassLessonTeacher({
-                        ...lesson.toJSON(),
-                        translate: translate,
-                        //teacher: teacher,
+                        ..._lesson.toJSON(),
+                        translate,
+                        title,
+                        subtitle,
+                        description,
+                        photo_url,
+                        teacher,
+                        materials,
+                        programs,
+                        prerequisites,
+                        goals,
+                        target_audiences,
+                        notes,
+                        tags,
                     });
                     //lesson_new.translate = translate;
                     //lesson_new.teacher = teacher;
@@ -167,7 +192,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             const lesson_new = new ClassLessonTeacher({
                 ..._lesson.toJSON(),
                 translate: translate,
-               title,
+                title,
                 subtitle,
                 description,
                 photo_url,
@@ -186,14 +211,15 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             //lesson_new.translate = translate;
             //lesson_new.teacher = teacher;
             setLesson(prev => {
-                if (!prev || prev === null) return lesson_new;
-                prev.update(lesson_new.toJSON());
+                if (!prev || prev === null) return lesson_new.clone();
+                prev = lesson_new.clone();
                 //const session_new = new ClassSession(session_new.toJSON());
                 //prev.lesson = lesson;
                 //prev.teacher = teacher;
                 //prev.room = room;
-                return prev;
+                return prev.clone();
             });
+            console.log("one lesson teacher provider", lesson_new.clone())
             //setIsConnected(true);
             setIsLoading(false);
             //setUser(fbUser);
@@ -201,7 +227,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, [user,uidSourceLesson, uidLesson]);
+    }, [user, uidSourceLesson, uidLesson]);
     async function refreshList() {
         var _lessons = [];
         const constraints = [];

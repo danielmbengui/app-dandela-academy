@@ -1,8 +1,8 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
-import { PAGE_DASHBOARD_COMPUTERS, PAGE_LESSONS, } from "@/contexts/constants/constants_pages";
-import { NS_DASHBOARD_COMPUTERS, NS_LESSONS, } from "@/contexts/i18n/settings";
+import { PAGE_LESSONS, } from "@/contexts/constants/constants_pages";
+import { NS_LESSONS, } from "@/contexts/i18n/settings";
 import { LessonProvider } from "@/contexts/LessonProvider";
-import { ChapterProvider } from "@/contexts/ChapterProvider";
+import { LessonTeacherProvider } from "@/contexts/LessonTeacherProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +13,12 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function ChapterLayout({ children }) {
+export default async function LessonsLayout({ children, params }) {
+    const {uid:uidTeacher} = await params;
+  console.log("uid teacher", uidTeacher)
   return (<LessonProvider>
-    <ChapterProvider uidLesson="zlUoi3t14wzC5cNhfS3J">
+    <LessonTeacherProvider uidTeacher={uidTeacher}>
       {children}
-    </ChapterProvider>
+    </LessonTeacherProvider>
   </LessonProvider>);
 }

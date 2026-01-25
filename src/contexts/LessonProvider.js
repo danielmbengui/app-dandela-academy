@@ -90,13 +90,35 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 const _lessons = [];
                 //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
                 for (const snapshot of snap.docs) {
-                    const lesson = await snapshot.data();
-
-                    //const teacher = await ClassUser.fetchFromFirestore(lesson.uid_teacher);
-                    const translate = lesson.translates?.find(a => a.lang === lang);
+                    const _lesson = await snapshot.data();
+                    const translate = _lesson.translates?.find(a => a.lang === lang);
+                    const title = translate.title;
+                    const subtitle = translate.subtitle;
+                    const description = translate.description;
+                    const photo_url = translate.photo_url;
+                    const materials = translate.materials;
+                    const goals = translate.goals;
+                    const programs = translate.programs;
+                    const prerequisites = translate.prerequisites;
+                    const target_audiences = translate.target_audiences;
+                    const notes = translate.notes;
+                    const tags = translate.tags;
+                    const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
                     const lesson_new = new ClassLesson({
-                        ...lesson.toJSON(),
-                        translate: translate,
+                        ..._lesson.toJSON(),
+                        translate,
+                        title,
+                        subtitle,
+                        description,
+                        photo_url,
+                        teacher,
+                        materials,
+                        programs,
+                        prerequisites,
+                        goals,
+                        target_audiences,
+                        notes,
+                        tags,
                         //teacher: teacher,
                     });
                     //lesson_new.translate = translate;
@@ -142,16 +164,11 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 return;
             }
             const _lesson = snap.data();
-            //const lesson = _lesson.uid_lesson ? await ClassLesson.fetchFromFirestore(_lesson.uid_lesson, lang) : null;
-            //const teacher = _lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_lesson.uid_teacher) : null;
-            //const room = _lesson.uid_room ? await ClassRoom.fetchFromFirestore(_lesson.uid_room) : null;
-            //const translate = _lesson.translates?.[lang] || null;
             const translate = _lesson.translates?.find(a => a.lang === lang);
             const title = translate.title;
             const subtitle = translate.subtitle;
             const description = translate.description;
             const photo_url = translate.photo_url;
-
             const materials = translate.materials;
             const goals = translate.goals;
             const programs = translate.programs;
@@ -159,20 +176,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
             const target_audiences = translate.target_audiences;
             const notes = translate.notes;
             const tags = translate.tags;
-
-
-
-            /*
-
-        'materials',
-        'goals',
-        'programs',
-        '',
-        '',
-        '',
-        ''
-            */
-
             const teacher = await ClassUser.fetchFromFirestore(_lesson.uid_teacher);
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const lesson_new = new ClassLesson({
@@ -192,7 +195,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 notes,
                 tags,
             });
-           // console.log("Lesson provider", lesson_new, lesson_new.clone())
+            // console.log("Lesson provider", lesson_new, lesson_new.clone())
             //lesson_new.lesson = lesson;
             //lesson_new.teacher = teacher;
             //lesson_new.room = room;

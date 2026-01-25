@@ -27,13 +27,13 @@ import LoginPageWrapper from './LoginPageWrapper';
 import LoginComponent from '../auth/login/LoginComponent';
 import OtherPageWrapper from './OtherPageWrapper';
 import NotAuthorizedComponent from '../auth/NotAuthorizedComponent';
-import { PAGE_NOT_AUTHORIZED } from '@/contexts/constants/constants_pages';
+import { PAGE_ADMIN_LESSONS, PAGE_NOT_AUTHORIZED, PAGE_TEACHER_LESSONS } from '@/contexts/constants/constants_pages';
 import { useTheme } from '@mui/material/styles';
 import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import FirstConnexionComponent from '../auth/FirstConnexionComponent';
-import { ClassUser } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserDandela, ClassUserTeacher } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 import InstallPwaBanner from '../pwa/InstallPwaBanner';
 import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
@@ -43,7 +43,7 @@ import { usePwa } from '@/contexts/PwaProvider';
 const drawerWidth = 240;
 
 function DashboardPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, ...props }) {
-    const { t } = useTranslation([NS_DASHBOARD_MENU]);
+    const { t } = useTranslation([NS_DASHBOARD_MENU, NS_BUTTONS]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
@@ -51,7 +51,7 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, logout } = useAuth();
 
-    const {show, setShow,isPwa} = usePwa();
+    const { show, setShow, isPwa } = usePwa();
     const router = useRouter();
     const path = usePathname();
 
@@ -178,6 +178,16 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                         }
                     </List>
                 </Stack>
+                {
+                    user instanceof ClassUserTeacher && <Link href={PAGE_TEACHER_LESSONS(user?.uid)} target='_blank'>
+                <ButtonConfirm label={t('manage-data', {ns:NS_BUTTONS})} />
+                </Link>
+                }
+                {
+                    user instanceof ClassUserDandela && <Link href={PAGE_ADMIN_LESSONS(user?.uid)} target='_blank'>
+                <ButtonConfirm isAdmin={true} label={t('manage-data', {ns:NS_BUTTONS})} />
+                </Link>
+                }
             </Stack>
         </Stack>
     );

@@ -210,7 +210,7 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                         type={type}
                         autoComplete={autoComplete}
                         //helperText={error}
-                        className={`${inputBase} ${error ? 'border-red-500' : ''}`}
+                        //className={`${inputBase} ${error ? 'border-red-500' : ''}`}
                         fullWidth={fullWidth}
                         {...props}
                     />

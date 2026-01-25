@@ -42,11 +42,6 @@ export default function DashboardOneLessonPage() {
         icon={<IconLessons />}
     >
         <Stack spacing={1.5} alignItems={'start'}>
-            {
-                canEdit && <Link target="_blank" href={`${PAGE_ADMIN_UPDATE_ONE_LESSON}/${uidLesson}`}>
-                    <ButtonConfirm sx={{ background: 'var(--warning)' }} label={t('manage-data', { ns: NS_BUTTONS })} />
-                </Link>
-            }
             <LessonComponent />
         </Stack>
     </DashboardPageWrapper>);

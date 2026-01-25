@@ -610,8 +610,9 @@ export class ClassUser {
     }
     static makeUserInstance(uid, data = {}) {
         const { type, role } = data || {};
-        if (role === ClassUserIntern.ROLE.SUPER_ADMIN) return new ClassUserSuperAdmin({ uid, ...data });
-        if (role === ClassUserIntern.ROLE.ADMIN) return new ClassUserAdmin({ uid, ...data });
+        if (role === ClassUser.ROLE.SUPER_ADMIN) return new ClassUserSuperAdmin({ uid, ...data });
+        if (role === ClassUser.ROLE.ADMIN) return new ClassUserAdmin({ uid, ...data });
+        if (role === ClassUser.ROLE.TEAM) return new ClassUserTeam({ uid, ...data });
         //console.log("MAKING USER INSTANCE", uid, type, role);
         if (role === ClassUser.ROLE.TEACHER) return new ClassUserTeacher({ uid, ...data });
         if (role === ClassUser.ROLE.STUDENT) return new ClassUserStudent({ uid, ...data });
@@ -879,23 +880,6 @@ export class ClassUserIntern extends ClassUser {
     clone() {
         return new ClassUserIntern(this.toJSON());
     }
-    static menuDashboard(user = null) {
-        if (user instanceof ClassUserIntern) {
-            return [
-                {
-                    name: "lessons",
-                    path: PAGE_ADMIN_LESSONS,
-                    icon: <IconLessons width={18} height={18} />,
-                },
-                {
-                    name: "chapters",
-                    path: "admin/chapter/update",
-                    icon: <IconLessons width={18} height={18} />,
-                },
-            ]
-        }
-        return [];
-    }
 }
 {/* DANDELA */ }
 export class ClassUserDandela extends ClassUserIntern {
@@ -910,6 +894,23 @@ export class ClassUserDandela extends ClassUserIntern {
     });
     constructor(props = { type: ClassUser.TYPE.DANDELA }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...)
+    }
+    static menuDashboard(user = null) {
+        if (user instanceof ClassUserDandela) {
+            return [
+                {
+                    name: "lessons",
+                    path: PAGE_ADMIN_LESSONS(user.uid),
+                    icon: <IconLessons width={18} height={18} />,
+                },
+                {
+                    name: "chapters",
+                    path: "admin/chapter/update",
+                    icon: <IconLessons width={18} height={18} />,
+                },
+            ]
+        }
+        return [];
     }
     clone() {
         return new ClassUserDandela(this.toJSON());
@@ -1050,11 +1051,11 @@ export class ClassUserTeacher extends ClassUserIntern {
         return snap.data().count; // -> nombre total
     }
     static menuDashboard(user = null) {
-        if (user instanceof ClassUserIntern) {
+        if (user instanceof ClassUserTeacher) {
             return [
                 {
                     name: "lessons",
-                    path: PAGE_TEACHER_LESSONS,
+                    path: PAGE_TEACHER_LESSONS(user.uid),
                     icon: <IconLessons width={18} height={18} />,
                 },
             ]

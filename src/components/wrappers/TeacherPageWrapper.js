@@ -46,12 +46,12 @@ import AccountTeacherMenu from './AccountTeacherMenu';
 const drawerWidth = 240;
 
 const MAIN_COLOR = {
-    color:"var(--primary)",
-    dark:"var(--primary-dark)",
-    shadow:"var(--primary-shadow-sm)",
+    color: "var(--primary)",
+    dark: "var(--primary-dark)",
+    shadow: "var(--primary-shadow-sm)",
 }
 
-export default function TeacherPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>,isAuthorized=false, ...props }) {
+export default function TeacherPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, isAuthorized = false, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU, NS_ROLES]);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,7 +60,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, logout } = useAuth();
 
-    const {show, setShow,isPwa} = usePwa();
+    const { show, setShow, isPwa } = usePwa();
     const router = useRouter();
     const path = usePathname();
 
@@ -99,7 +99,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
             <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, width: '100%', height: '100%' }}>
                 <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
                     <Toolbar disableGutters variant="dense" sx={{ width: '100%', maxHeight: '30px', p: 2 }}>
-                        
+
                         <Stack direction={'row'} spacing={1} sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
                             <IconLogo color={MAIN_COLOR.color} width={'50%'} />
                         </Stack>
@@ -110,6 +110,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                             ClassUserTeacher.menuDashboard(user).map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
                                 const isPath = path.includes(menuItem.path);
+                                console.log("MYYY PATH", path, menuItem.path)
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{
@@ -201,7 +202,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
 
     // const container = window !== undefined ? () => window().document.body : undefined;
     if (isLoading || (user && !isAllowed)) {
-        return (<PreloaderAdmin />);
+        return (<Preloader />);
     }
     if (!user) {
         return (<LoginPageWrapper>
@@ -321,33 +322,38 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                             // (debug)
                         }}
                     >
-                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%', py: 1 }} spacing={{ xs: 1, sm: 0.5 }}>
+                        <Stack direction={'row'} spacing={1} alignItems={'start'} sx={{background:'', py:0.5}}>
+                            <Chip size='small' label={t(ClassUser.ROLE.TEACHER, { ns: NS_ROLES })} sx={{
+                                background: 'var(--primary-shadow-sm)',
+                                color: 'var(--primary)',
+                                border: '1px solid var(--primary)',
+                                fontWeight: 600
+                            }} />
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
-                                {
-                                    titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                                        <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
-                                        <Typography variant='h5'>{titles[0].name}</Typography>
-                                    </Stack>
-                                }
-                                {
-                                    titles.length > 1 && titles.map((title, i) => {
-                                        if (i < titles.length - 1) {
-                                            return (<Link key={`${title}-${i}`} underline="hover" style={{ fontStyle: 'underline' }} color="inherit" href={title.url} >
-                                                <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                                                    {
-                                                        i === 0 && <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
-                                                    }
-                                                    <Typography variant='h5' sx={{ textDecoration: 'underline' }}>{title.name}</Typography>
-                                                </Stack>
-                                            </Link>)
-                                        }
-                                        return (<Typography key={`${title}-${i}`} sx={{ color: 'text.primary', }}>{title.name}</Typography>)
-                                    })
-                                }
-                            </Breadcrumbs>
-                            <Typography sx={{ color: 'var(--grey-light)' }}>{subtitle}</Typography>
-
+                                    {
+                                        titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                                            <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
+                                            <Typography variant='h5'>{titles[0].name}</Typography>
+                                        </Stack>
+                                    }
+                                    {
+                                        titles.length > 1 && titles.map((title, i) => {
+                                            if (i < titles.length - 1) {
+                                                return (<Link key={`${title}-${i}`} underline="hover" style={{ fontStyle: 'underline' }} color="inherit" href={title.url} >
+                                                    <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                                                        {
+                                                            i === 0 && <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
+                                                        }
+                                                        <Typography variant='h5' sx={{ textDecoration: 'underline' }}>{title.name}</Typography>
+                                                    </Stack>
+                                                </Link>)
+                                            }
+                                            return (<Typography key={`${title}-${i}`} sx={{ color: 'text.primary', }}>{title.name}</Typography>)
+                                        })
+                                    }
+                                </Breadcrumbs>
                         </Stack>
+
                         <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{
                             overflowY: 'auto',
                             //overflowY: 'auto', 
@@ -381,9 +387,9 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                             },
                         }}>
                             {
-                                !isAuthorized &&  <NotAuthorizedComponent />
+                                !isAuthorized && <NotAuthorizedComponent />
                             }
-                              
+
                             {isAuthorized && children}
                         </Stack>
                     </Stack>

@@ -2650,45 +2650,57 @@ function DandelaDashboardHome() {
     `}</style>
   </div>);
 }
-const CardHeader = ({user=null}) => {
+function CardHeader({ user = null }) {
   const { t } = useTranslation([NS_DASHBOARD_HOME]);
-  //const { user } = useAuth();
-  return (<Stack sx={{ color: 'var(--font-color)', width: '100%' }} maxWidth={'md'}>
-    <Grid container alignItems={'center'}>
-      <Grid size={{ xs: 12, sm: 6 }}>
-        <Stack direction={'row'} alignItems={'center'} spacing={1}>
-          <IconLogoImage height={30} width={30} color='var(--primary-shadow-xl)' />
-          <Box>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
-              <Trans
-                t={t}
-                i18nKey={'welcome'}
-                values={{
-                  name: user?.first_name
-                }}
-              />{","}
-            </Typography>
-            <Typography variant="body1" sx={{ color: "text.secondary" }}>
-              {t('welcome-1')}
-            </Typography>
-          </Box>
-        </Stack>
-      </Grid>
-    </Grid>
-  </Stack>)
-}
-function AvatarIcon({ children, sx }) {
   return (
     <Box
       sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 3,
-        display: "grid",
-        placeItems: "center",
-        bgcolor: "rgba(37,99,235,0.12)",
-        color: "#2563EB",
-        border: "1px solid rgba(37,99,235,0.18)",
+        width: "100%",
+        py: 2,
+        color: "var(--font-color)",
+      }}
+    >
+      <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "var(--primary-shadow)",
+            border: "1px solid var(--primary-shadow-sm)",
+          }}
+        >
+          <IconLogoImage height={28} width={28} color="var(--primary)" />
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, lineHeight: 1.2, mb: 0.5 }}>
+            <Trans t={t} i18nKey="welcome" values={{ name: user?.first_name || "" }} />,
+          </Typography>
+          <Typography variant="body1" sx={{ color: "var(--grey)", fontSize: "0.95rem" }}>
+            {t("welcome-1")}
+          </Typography>
+        </Box>
+      </Stack>
+    </Box>
+  );
+}
+function AvatarIcon({ children, sx = {} }) {
+  return (
+    <Box
+      sx={{
+        width: 44,
+        height: 44,
+        borderRadius: 2,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "var(--primary-shadow)",
+        color: "var(--primary)",
+        border: "1px solid var(--primary-shadow-sm)",
+        flexShrink: 0,
         ...sx,
       }}
     >
@@ -2760,38 +2772,36 @@ function KpiCardProgress({ icon, title, value, subtitle, progress = 0, total = n
   );
 }
 function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
+  const cardSx = {
+    borderRadius: 2,
+    p: 2,
+    bgcolor: "var(--card-color)",
+    color: "var(--font-color)",
+    border: "1px solid var(--card-border)",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)", borderColor: "var(--primary-shadow-sm)" },
+  };
+
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 5,
-        p: 2.2,
-        py: 2,
-        px: 1.5,
-        //border: "0.1px solid var(--primary-shadow-sm)",
-        background: 'var(--primary-shadow)',
-        borderRadius: '10px',
-        color: "var(--font-color)",
-      }}
-    >
-      <Stack spacing={1.1}>
-        <Stack direction="row" spacing={1.2} alignItems="center">
+    <Box sx={cardSx}>
+      <Stack spacing={1.5}>
+        <Stack direction="row" spacing={1.5} alignItems="center">
           <AvatarIcon>{icon}</AvatarIcon>
-          <Stack spacing={0.1} sx={{ minWidth: 0 }}>
-            <Typography variant="caption" color="var(--primary-dark)">
+          <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+            <Typography variant="caption" sx={{ color: "var(--grey)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
               {title}
             </Typography>
-            <Typography variant="h4" color="var(--primary)" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.2, color: "var(--font-color)" }}>
               {value}
             </Typography>
           </Stack>
         </Stack>
-
-        <Typography variant="body2" color="var(--grey-dark)">
+        <Typography variant="body2" sx={{ color: "var(--grey)", fontSize: "0.85rem" }}>
           {subtitle}
         </Typography>
       </Stack>
-    </Paper>
+    </Box>
   );
 }
 export default function DashboardHomePage() {
@@ -2844,68 +2854,60 @@ setUidUser(user?.uid);
       return (countCompletedLessons);
     }, [countStats]);
 
-if(isLoadingLessons || isLoadingChapters || isLoadingStats) {
-  return(<DashboardPageWrapper
-    titles={[
-      { name: t('dashboard', { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME },
-      //{ name: lesson?.translate?.title, url: '' }
-    ]}
-    //title={`Cours / ${lesson?.title}`}
-    //subtitle={lesson?.translate?.subtitle}
-    icon={<IconDashboard />}
-  >
-    <CircularProgress size={'20px'} />
-  </DashboardPageWrapper>)
-}
-  return (<DashboardPageWrapper
-    titles={[
-      { name: t('dashboard', { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME },
-      //{ name: lesson?.translate?.title, url: '' }
-    ]}
-    //title={`Cours / ${lesson?.title}`}
-    //subtitle={lesson?.translate?.subtitle}
-    icon={<IconDashboard />}
-  >
-    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
-      <Grid container spacing={1}>
-        
-        <Grid size={12}>
-          <CardHeader user={user} />
+  const wrapperProps = {
+    titles: [{ name: t("dashboard", { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME }],
+    icon: <IconDashboard />,
+  };
+
+  if (isLoadingLessons || isLoadingChapters || isLoadingStats) {
+    return (
+      <DashboardPageWrapper {...wrapperProps}>
+        <Stack alignItems="center" justifyContent="center" sx={{ minHeight: 280 }} spacing={2}>
+          <CircularProgress size={40} sx={{ color: "var(--primary)" }} />
+          <Typography variant="body2" sx={{ color: "var(--grey)" }}>
+            {t("loading", { ns: NS_DASHBOARD_HOME })}
+          </Typography>
+        </Stack>
+      </DashboardPageWrapper>
+    );
+  }
+
+  return (
+    <DashboardPageWrapper {...wrapperProps}>
+      <Container maxWidth="lg" disableGutters sx={{ px: { xs: 2, sm: 3 }, py: 2 }}>
+        <Grid container spacing={3} alignItems="stretch">
+          <Grid size={12}>
+            <CardHeader user={user} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <KpiCard
+              icon={<IconLessons />}
+              title={t("lesson-start")}
+              value={`${countStartedLessons}/${countLessons}`}
+              subtitle={`${t("chapter-completed")} : ${countCompletedChapters}/${countChapters}`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <KpiCard
+              icon={<IconCertificate />}
+              title={t("lesson-completed")}
+              value={`${countCompletedLessons}/${countLessons}`}
+              subtitle={`${t("average")} : ${parseInt(averageScore)}%`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <KpiCard
+              icon={<IconDuration />}
+              title={t("duration")}
+              value={formatChrono(duration)}
+              subtitle={`${countStats} ${t("attempts")}`}
+            />
+          </Grid>
+          <Grid size={12}>
+            <DashboardComponent stats={stats} />
+          </Grid>
         </Grid>
-        <Grid size={{ xs: 12, sm: 'auto' }}>
-          <KpiCard
-            icon={<IconLessons />}
-            title={t('lesson-start')}
-            value={`${countStartedLessons}/${countLessons}`}
-            subtitle={`${t('chapter-completed')} : ${countCompletedChapters}/${countChapters}`}
-            progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
-            total={formatChrono(310)}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 'auto' }}>
-          <KpiCard
-            icon={<IconCertificate />}
-            title={t('lesson-completed')}
-            value={`${countCompletedLessons}/${countLessons}`}
-            subtitle={`${t('average')} : ${parseInt(averageScore)}%`}
-            progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
-            total={formatChrono(310)}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 'auto' }}>
-          <KpiCard
-            icon={<IconDuration />}
-            title={t('duration')}
-            value={`${formatChrono(duration)}`}
-            subtitle={`${countStats} ${t('attempts')}`}
-            progress={Math.min(1000, (300 / Math.max(1, (310))) * 100)}
-            total={formatChrono(310)}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 12 }}>
-          <DashboardComponent stats={stats} />
-        </Grid>
-      </Grid>
-    </Container>
-  </DashboardPageWrapper>)
+      </Container>
+    </DashboardPageWrapper>
+  );
 }

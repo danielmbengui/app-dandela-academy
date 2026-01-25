@@ -14,103 +14,60 @@ import { ClassRoom } from '@/classes/ClassRoom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Accordion = styled((props) => (
-  <MuiAccordion disabled={props.disabled} disableGutters elevation={0} square={true} {...props} />
+  <MuiAccordion disabled={props.disabled} disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
-
-  //border: `1px solid ${theme.palette.divider}`,
-  '&:last-child': {
-    // borderBottom: 0,
-    //borderTop: 'none',
-  },
-  '&::before': {
-    display: 'none',
-  },
+  '&::before': { display: 'none' },
+  transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+  '&:hover': { boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
 }));
 
 const AccordionSummary = styled((props) => {
-  const propsParam = { ...props };
-  propsParam.isAdmin = null;
-  delete propsParam.isAdmin;
+  const { isAdmin, ...rest } = props;
   return (
     <MuiAccordionSummary
-      //expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem', color: 'white' }} />}
-      expandIcon={<ExpandMoreIcon />}
-      {...propsParam}
+      expandIcon={<ExpandMoreIcon sx={{ transition: 'transform 0.25s ease' }} />}
+      {...rest}
     />
-  )
-})(({ theme, isAdmin, props }) => {
-  return ({
-
-    backgroundColor: 'rgba(0, 0, 0, .03)',
-    backgroundColor: 'var(--grey-light)',
-    background: 'transparent',
-    border: '0.1px solid var(--card-border)',
-    flexDirection: 'row',
-    color: "var(--font-color)",
-    borderRadius: '5px',
-    maxWidth: '100%',
-    //  borderTopLeftRadius: '5px',
-    py: 1,
-    minHeight: 25,                 // hauteur fermée
-    maxHeight: 60,                 // hauteur fermée
-    '&.Mui-expanded': {
-      minHeight: 30,               // hauteur ouverte
-      //background:'yellow',
-      //backgroundColor: 'var(--grey-hyper-light)',
-      borderColor: 'var(--card-border)',
-      borderBottomLeftRadius: '0px',
-      borderBottomRightRadius: '0px',
-      borderRadius: '5px',
-    },
-    '& .MuiAccordionSummary-content': {
-      //margin: 0,                   // enlève le gros padding vertical
-    },
-
-
-    [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]:
-    {
-      //transform: 'rotate(90deg)',
-      color: isAdmin ? 'var(--admin)' : 'var(--primary)'
-    },
-
-    [`& .${accordionSummaryClasses.content}`]: {
-      //marginLeft: theme.spacing(1),
-      borderRadius: '0px',
-    },
-
-    ...theme.applyStyles('dark', {
-      //backgroundColor: 'rgba(255, 255, 255, .05)',
-    }),
-  })
-});
-
-const AccordionDetails = styled((props) => (
-  <MuiAccordionDetails
-    sx={{
-      //background: 'red',
-      border: '0.1px solid var(--card-border)',
-      borderTop: 'none',
-      background: '',
-      p: 0,
-      width: '100%',
-      borderBottomLeftRadius: '5px',
-      borderBottomRightRadius: '5px',
-      '&.Mui-expanded': {
-        minHeight: 30,               // hauteur ouverte
-        //background:'yellow',
-        width: '100%',
-        // p: '10px',
-        borderBottomLeftRadius: '5px',
-        borderBottomRightRadius: '5px',
-      },
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-
-  //padding: theme.spacing(2),
-  //borderTop: '1px solid rgba(0, 0, 0, .125)',
+  );
+})(({ theme, isAdmin }) => ({
+  background: 'transparent',
+  border: '1px solid var(--card-border)',
+  borderRadius: '10px',
+  color: 'var(--font-color)',
+  flexDirection: 'row',
+  maxWidth: '100%',
+  py: 1,
+  minHeight: 44,
+  maxHeight: 56,
+  fontWeight: 500,
+  transition: 'background 0.2s ease, border-color 0.2s ease',
+  '&:hover': {
+    background: 'rgba(0,0,0,0.02)',
+    borderColor: 'var(--primary)',
+  },
+  '&.Mui-expanded': {
+    minHeight: 44,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderColor: 'var(--card-border)',
+  },
+  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
+    color: isAdmin ? 'var(--admin)' : 'var(--primary)',
+    transform: 'rotate(180deg)',
+  },
+  [`& .${accordionSummaryClasses.content}`]: {
+    borderRadius: 0,
+  },
 }));
+
+const AccordionDetails = styled(MuiAccordionDetails)({
+  border: '1px solid var(--card-border)',
+  borderTop: 'none',
+  borderRadius: '0 0 10px 10px',
+  p: 0,
+  width: '100%',
+  transition: 'background 0.2s ease',
+});
 
 export default function AccordionComponent({ children, title = "", expanded = false, onChange = null, disabled = false, isAdmin = false }) {
   const { theme } = useThemeMode();
@@ -126,27 +83,17 @@ export default function AccordionComponent({ children, title = "", expanded = fa
     setIsExpanded(expanded);
   }, [expanded])
 
-  return (<Accordion
-    expanded={isExpanded}
-    disabled={disabled}
-
-    onChange={handleChange(!isExpanded)}
-    sx={{ borderRadius: '5px', }}>
-    <AccordionSummary
-      title={title}
-      isAdmin={isAdmin}
-      sx={{
-        //background:'red', 
-        //color: ClassColor.WHITE,
-        // borderRadiusTopLeft: '5px',
-
-      }}
-      aria-controls="panel1d-content" id="panel1d-header">
-      {title}
-    </AccordionSummary>
-    <AccordionDetails>
-      {children}
-    </AccordionDetails>
-
-  </Accordion>);
+  return (
+    <Accordion
+      expanded={isExpanded}
+      disabled={disabled}
+      onChange={handleChange(!isExpanded)}
+      sx={{ borderRadius: '10px' }}
+    >
+      <AccordionSummary title={title} isAdmin={isAdmin} aria-controls="panel1d-content" id="panel1d-header">
+        {title}
+      </AccordionSummary>
+      <AccordionDetails>{children}</AccordionDetails>
+    </Accordion>
+  );
 }

@@ -774,6 +774,10 @@ export class ClassLessonTeacher extends ClassLesson {
     static COLLECTION = "LESSONS_TEACHER";
     static COLLECTION_TRANSLATE = "i18n";
     static NS_COLLECTION = `classes/lesson-teacher`;
+    static getStoragePath(uidLesson="", uidLessonTeacher="", fileName="") {
+        return `${ClassLesson.COLLECTION}/${uidLesson}/${ClassLessonTeacher.COLLECTION}/${uidLessonTeacher}/${fileName}`;
+        //${ClassUser.COLLECTION}/${user.uid}/profile-photo,
+    }
 
     constructor(props = { uid_lesson: "", url:"",price:0,old_price:0,currency:ClassCountry.DEFAULT_CURRENCY }) {
         super(props); // le parent lit seulement ses clés (uid, email, type, role, ...);
@@ -872,11 +876,6 @@ export class ClassLessonTeacher extends ClassLesson {
         }
         */
     toJSON() {
-        // on récupère le JSON déjà nettoyé par Lesson
-        // const cleaned = super.toJSON();
-
-        // suppression spécifique à LessonTeacher
-        //delete cleaned.lesson; // <-- remplace par la clé que tu veux enlever
         return LessonTeacherSerializer.toJSON(this);
     }
     update(props = {}) {
@@ -898,7 +897,7 @@ export class ClassLessonTeacher extends ClassLesson {
                 const translates = lessonInstance._convertTranslatesToFirestore(lessonInstance.translates);
 
                 // chaque classe a un .toJSON() propre
-                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates: translates } : { ...lessonInstance, translates: translates };
+                return lessonInstance?.toJSON ? { ...lessonInstance.toJSON(), translates: translates } : { ...lessonInstance, translates: translates }
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
@@ -1068,23 +1067,18 @@ export class ClassLessonTeacher extends ClassLesson {
     }
     async updateFirestore() {
         try {
-            // const ref = ClassLesson.docRef(id);
-            //const data = { ...patch, last_edit_time: new Date() };
-            //await updateDoc(ref, data, { merge: true });
-            //console.log("UPDATE COMPLETED")
-            //return (await getDoc(ref)).data(); // -> ClassModule
             const ref = this.constructor.docRef(this._uid_lesson, this._uid);
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
 
             const updated = { ...this.toJSON() };
-            delete updated.translate;
+           // delete updated.translate;
             //updated.translates = updated.translates.map(item=>item.toJSON());
-            console.log("want update", updated);
-            await updateDoc(ref, updated, { merge: true });
+            console.log("want update", this);
+            await setDoc(ref, this, { merge: true });
             //console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
-            return this.constructor.makeLessonTeacherInstance(this._uid, this.toJSON()); // -> ClassModule
+            return this; // -> ClassModule
         } catch (e) {
             console.log("ERRRRROR", e)
             return null;

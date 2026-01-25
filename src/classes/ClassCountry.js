@@ -4757,6 +4757,7 @@ export class ClassCountry {
     static DEFAULT_CODE = 'AO';
     static DEFAULT_PREFIXE = '+244';
     static DEFAULT_CURRENCY = "AOA";
+    static CURRENCIES = ['CHF', 'USD', 'AOA'];
     constructor({
         id = "",
         code = "",

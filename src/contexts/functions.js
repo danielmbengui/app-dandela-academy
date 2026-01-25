@@ -7,8 +7,8 @@ import { ClassCountry } from '@/classes/ClassCountry';
 import { validatePassword } from 'firebase/auth';
 import { auth } from './firebase/config';
 
-export const formatPrice = (amount, currency =ClassCountry.DEFAULT_CURRENCY) => {
-    if (currency === "AOA") {
+export const formatPrice = (amount, currency = ClassCountry.DEFAULT_CURRENCY) => {
+  if (currency === "AOA") {
     return `${amount
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} Kz`;
@@ -383,8 +383,8 @@ export function getCSSVar(name) {
 export function convertToCSSChart(name) {
   if (typeof window === "undefined") return undefined;
   var transform = name;
-  if(transform.split('var').length < 2) return undefined;
+  if (transform.split('var').length < 2) return undefined;
   var withoutVar = transform.split('var')[1];
   const result = withoutVar.replace("(", "").replace(")", "");
-  return transform,getCSSVar(result);
+  return transform, getCSSVar(result);
 }

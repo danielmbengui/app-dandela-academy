@@ -814,38 +814,8 @@ function ListComponent({ lessons = [], format = "" }) {
   );
 }
 export default function LessonsPage() {
-  const { t } = useTranslation([NS_LESSONS, NS_DASHBOARD_MENU]);
-  const { user } = useAuth();
-  //const { lessons, changeLesson } = useLesson();
-  const isAuthorized = useMemo(() => {
-    console.log("uuuuuuussssser", user)
-    return user instanceof ClassUserIntern;
-  }, [user]);
-  const userUid = useMemo(() => {
-    if (user && user instanceof ClassUserAdministrator) {
-      return "";
-    }
-    return user?.uid;
-  }, [user]);
-  return (
-    <LessonProvider uidTeacher={userUid}>
-      <LessonTeacherProvider uidTeacher={userUid}>
-        <UsersProvider>
-          <TeacherPageWrapper
-            isAuthorized={isAuthorized}
-            //title={'Cours'} 
-            titles={[{ name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: '' }]}
-            // subtitle={t('subtitle')}
-            icon={<Stack direction={'row'} alignItems={'center'} spacing={0.5}>
-              <Chip size='small' label={t('manage-data', { ns: NS_BUTTONS })} sx={{ border: '0.1px solid var(--primary)', color: 'var(--primary)', fontWeight: 600, background: 'var(--card-color)' }} />
-              <Box> <IconLessons width={22} height={22} /></Box>
-            </Stack>}
-          >
-            {"WEEEEEESH"}{ClassUser.ALL_ROLES.map(r => r)}
-            <LessonsComponent />
-          </TeacherPageWrapper>
-        </UsersProvider>
-      </LessonTeacherProvider>
-    </LessonProvider>
-  )
+  
+  return (<div>
+    <Typography>OKAY</Typography>
+  </div>)
 }

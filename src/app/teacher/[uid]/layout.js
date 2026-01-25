@@ -11,6 +11,8 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function LessonsLayout({ children }) {
+export default async function OneTeacherLayout({ children, params }) {
+  const {uid} = await params;
+  console.log("uid teacher", uid)
   return (children);
 }
