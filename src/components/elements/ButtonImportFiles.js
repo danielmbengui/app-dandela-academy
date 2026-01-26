@@ -11,10 +11,10 @@ export default function ButtonImportFiles({
     files = [], setFiles = () => { },
     multiple = false,
     supported_files = [],
-    disabled=false,
-    isAdmin=false,
+    disabled = false,
+    isAdmin = false,
 }) {
-    const {t}=useTranslation([NS_BUTTONS]);
+    const { t } = useTranslation([NS_BUTTONS]);
     const imageRef = useRef(null);
     //const [files, setFiles] = useState([]);
     const handleClickFile = (index) => {
@@ -32,7 +32,7 @@ export default function ButtonImportFiles({
         console.log("change file index", _all_files)
     };
     const handleRemoveFile = (e, index) => {
-        const  _selectedFiles= [...files].filter((file, i) => i !== index) || [];
+        const _selectedFiles = [...files].filter((file, i) => i !== index) || [];
         setFiles(_selectedFiles);
         console.log("REMOVE index", index, _selectedFiles)
     };
@@ -54,23 +54,30 @@ export default function ButtonImportFiles({
                 <Stack direction={{ xs: 'row', sm: 'row' }} justifyContent={'start'} alignItems={'center'} sx={{ width: '100%', }} spacing={1}>
 
                     {
-                      (files.length>1 || files.length === 0) &&  <ButtonCancel
-                      isAdmin={isAdmin}
-                      label={t('choose-photo')}
-                      disabled={disabled}
-                       icon={<Icon icon="material-symbols:upload" width="20" height="20" />}
-                        //disabled={validFiles.length === MAX_FILES_LENGTH || isLoading}
-                       // sx={{ color: ClassColor.BLACK, borderColor: ClassColor.BLACK }}
-                       size="small" onClick={handleClickFile} 
-                       //variant={"outlined"} 
-                       //color="primary"
-                    />
+                        (files?.length > 1 || files.length === 0) && <ButtonCancel
+                            isAdmin={isAdmin}
+                            label={t('choose-photo')}
+                            disabled={disabled}
+                            icon={<Icon icon="material-symbols:upload" width="20" height="20" />}
+                            //disabled={validFiles.length === MAX_FILES_LENGTH || isLoading}
+                            // sx={{ color: ClassColor.BLACK, borderColor: ClassColor.BLACK }}
+                            size="small" onClick={handleClickFile}
+                        //variant={"outlined"} 
+                        //color="primary"
+                        />
                     }
                     {
-                        files.map((file, index) => {
+                        files?.map((file, index) => {
                             return (<Stack key={`${file.name}-${index}`}>
-                                <IconButton onClick={(e)=>handleRemoveFile(e,index)} sx={{ background: 'rgba(0,0,0,0.75)', cursor: 'pointer' }}>
-                                    <Icon color="red" icon="mdi:delete-outline" width="12" height="12" />
+                                <IconButton
+                                    onClick={(e) => handleRemoveFile(e, index)}
+                                    sx={{
+                                        background: 'rgba(0,0,0,0.75)',
+                                        cursor: 'pointer',
+                                        color: 'var(--card-color)',
+                                    }}
+                                >
+                                    <Icon icon="mdi:delete-outline" width={12} height={12} />
                                 </IconButton>
                             </Stack>)
                         })

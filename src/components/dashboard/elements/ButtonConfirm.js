@@ -21,7 +21,7 @@ import React from "react";
         }
 */
 export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color = 'primary', loading = false, disabled = false, onClick = null, fullWidth = false, size = 'small',
-  variant = 'contained',sx={}, ...props }) {
+  variant = 'contained',icon=null,sx={}, ...props }) {
   const { theme } = useThemeMode();
   const { primary, background, greyLight } = theme.palette;
   return (<Button
@@ -30,6 +30,7 @@ export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color
     fullWidth={fullWidth}
     loading={loading}
     //elevation={0}
+    startIcon={icon}
     color={isAdmin ? 'warning' : color}
     disabled={disabled}
     size={size}

@@ -774,8 +774,8 @@ export class ClassLessonTeacher extends ClassLesson {
     static COLLECTION = "LESSONS_TEACHER";
     static COLLECTION_TRANSLATE = "i18n";
     static NS_COLLECTION = `classes/lesson-teacher`;
-    static getStoragePath(uidLesson="", uidLessonTeacher="", fileName="") {
-        return `${ClassLesson.COLLECTION}/${uidLesson}/${ClassLessonTeacher.COLLECTION}/${uidLessonTeacher}/${fileName}`;
+    static getStoragePath(uidLesson="", uidLessonTeacher="", lang=defaultLanguage,extension="") {
+        return `${ClassLesson.COLLECTION}/${uidLesson}/${ClassLessonTeacher.COLLECTION}/${uidLessonTeacher}/photo_url-${lang}.${extension}`;
         //${ClassUser.COLLECTION}/${user.uid}/profile-photo,
     }
 

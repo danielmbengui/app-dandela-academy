@@ -449,6 +449,10 @@ export const IconDownloadMobileApp = ({ width = 24, height = 24, color = '' }) =
 export const IconUserCertified = ({ width = 24, height = 24, color = '' }) => {
     return (<Icon icon="qlementine-icons:certified-16" width={width} height={height} color={color} />)
 }
+export const IconPicture= ({ width = 24, height = 24, color = '' }) => {
+    return (<Icon icon="ant-design:picture-filled" width={width} height={height} color={color} />)
+}
+
 
 
 
