@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { IconArrowDown, IconArrowUp, IconCamera, IconCheck, IconPicture, IconRemove } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTeacher, ClassLessonTranslate } from "@/classes/ClassLesson";
-import { languages, NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE, NS_ROLES } from "@/contexts/i18n/settings";
-import { Box, Chip, Container, Divider, Grid, IconButton, Paper, Stack, Typography, CircularProgress, Button } from "@mui/material";
+import { languages, NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
+import { Box, Chip, Container, Grid, IconButton, Stack, Typography } from "@mui/material";
 
 import { Trans, useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -14,27 +14,31 @@ import FieldComponent from "@/components/elements/FieldComponent";
 import ButtonImportFiles from "@/components/elements/ButtonImportFiles";
 import { ClassFile } from "@/classes/ClassFile";
 import { ClassLang } from "@/classes/ClassLang";
-import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
-import AccordionComponent from "../dashboard/elements/AccordionComponent";
-import ButtonCancel from "../dashboard/elements/ButtonCancel";
-import { Icon } from "@iconify/react";
+import { LessonTeacherProvider, useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 import { useUsers } from "@/contexts/UsersProvider";
-import { ClassUser } from "@/classes/users/ClassUser";
-import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
-import { useSession } from "@/contexts/SessionProvider";
-import { ClassSession } from "@/classes/ClassSession";
-import { PAGE_TEACHER_SESSIONS } from "@/contexts/constants/constants_pages";
-import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import { useRouter, useParams } from "next/navigation";
+import { PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER } from "@/contexts/constants/constants_pages";
+import { useUserDevice } from "@/contexts/UserDeviceProvider";
+import { IconCertificate } from "@/assets/icons/IconsComponent";
+import { NS_LESSONS } from "@/contexts/i18n/settings";
+import AccordionComponent from "../../dashboard/elements/AccordionComponent";
+import ButtonCancel from "../../dashboard/elements/ButtonCancel";
+import { Icon } from "@iconify/react";
+import { defaultLanguage } from "@/contexts/i18n/settings";
 
 const MIN_LENGTH_TITLE = 3;
 const MAX_LENGTH_TITLE = 1_000;
 
 const makeId = () => (crypto?.randomUUID?.() ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
-const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_name = "", isAdmin = false }) => {
+// Helper function for ClassLesson storage path
+const getStoragePath = (uidLesson = "", lang = "fr", extension = "") => {
+  return `${ClassLesson.COLLECTION}/${uidLesson}/photo_url-${lang}.${extension}`;
+};
+
+const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_name = "" }) => {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS]);
-  const { lesson } = useLessonTeacher();
+  const { lesson } = useLesson();
   const [lessonEdit, setLessonEdit] = useState(null);
   const [array, setArray] = useState([]);
   const { lang } = useLanguage();
@@ -149,11 +153,11 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
     borderRadius: 1,
     bgcolor: "transparent",
     transition: "background 0.2s",
-    "&:hover": { bgcolor: isAdmin ? "var(--warning-shadow-sm)" : "var(--primary-shadow)" },
+    "&:hover": { bgcolor: "var(--warning-shadow-sm)" },
   };
 
   return (
-    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={isAdmin}>
+    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={true}>
       <Stack spacing={1} alignItems="stretch" sx={{ py: 1.5, px: 1 }}>
         {array?.map?.((item, i) => {
           const orig = originalRef.current || [];
@@ -175,7 +179,7 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
                   }
                 }}>
                 <IconArrowUp 
-                color={`var(--${i>0 ? (isAdmin ? 'warning' : 'primary') : 'grey-light'})`}
+                color={`var(--${i>0 ? 'warning' : 'grey-light'})`}
                 
                  />
                 </Box>
@@ -184,7 +188,7 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
                     onMoveValue(i, i+1);
                   }
                 }}>
-                <IconArrowDown color={`var(--${i<array.length-1 ? (isAdmin ? 'warning' : 'primary') : 'grey-light'})`} />
+                <IconArrowDown color={`var(--${i<array.length-1 ? 'warning' : 'grey-light'})`} />
                 </Box>
                 </Grid>
               }
@@ -210,7 +214,7 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
                     onCancel={() => onResetValue(i)}
                     removable={!state.processing}
                     onRemove={() => onDeleteValue(i)}
-                    isAdmin={isAdmin}
+                    isAdmin={true}
                   />
                   {
                     subtitle && <FieldComponent
@@ -228,7 +232,7 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
                       onCancel={() => onResetValue(i)}
                       removable={!state.processing}
                       onRemove={() => onDeleteValue(i)}
-                      isAdmin={isAdmin}
+                      isAdmin={true}
                     />
                   }
                 </Stack>
@@ -262,7 +266,7 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
               onClear={() => onClearValue(-1)}
               editable={newValue.length > 0}
               onSubmit={() => onAddValue(newValue)}
-              isAdmin={isAdmin}
+              isAdmin={true}
             />
           </Grid>
         </Grid>
@@ -279,22 +283,20 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
             onClick={onResetAllValues}
             disabled={state.processing}
             label={t("reset", { ns: NS_BUTTONS })}
-            isAdmin={isAdmin}
           />
           <ButtonConfirm
             loading={state.processing}
             onClick={onSubmit}
             label={t("edit", { ns: NS_BUTTONS })}
-            isAdmin={isAdmin}
           />
         </Stack>
       )}
     </AccordionComponent>
   );
 }
-const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = "", isAdmin = false }) => {
-  const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_BUTTONS]);
-  const { lesson } = useLessonTeacher();
+const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = "" }) => {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS]);
+  const { lesson } = useLesson();
   const [lessonEdit, setLessonEdit] = useState(null);
   const [array, setArray] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -507,14 +509,13 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
     borderRadius: 1,
     bgcolor: "transparent",
     transition: "background 0.2s",
-    "&:hover": { bgcolor: "var(--primary-shadow)" },
+    "&:hover": { bgcolor: "var(--warning-shadow-sm)" },
   };
   return (
-    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={isAdmin}>
+    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={true}>
       <Stack spacing={1} alignItems="stretch" sx={{ py: 1.5, px: 1 }}>
         {array?.map?.((item, i) => {
           const orig = originalRef.current || [];
-          const primaryColor = isAdmin ? 'warning' : 'primary';
           return (
             <Grid
               key={item.id}
@@ -533,7 +534,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
                   }
                 }}>
                 <IconArrowUp 
-                color={`var(--${i>0 ? primaryColor : 'grey-light'})`}
+                color={`var(--${i>0 ? 'warning' : 'grey-light'})`}
                 
                  />
                 </Box>
@@ -542,7 +543,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
                     onMoveValue(i, i+1);
                   }
                 }}>
-                <IconArrowDown color={`var(--${i<array.length-1 ? primaryColor : 'grey-light'})`} />
+                <IconArrowDown color={`var(--${i<array.length-1 ? 'warning' : 'grey-light'})`} />
                 </Box>
                 </Grid>
               }
@@ -567,7 +568,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
                     onClear={() => onClearValue(i, 'title')}
                     resetable={orig[i]?.id === item.id && orig[i]?.value?.title !== item.value.title}
                     onCancel={() => onResetValue(i, 'title')}
-                    isAdmin={isAdmin}
+                    isAdmin={true}
                   // removable={!state.processing}
                   // onRemove={() => onDeleteValue(i)}
                   />
@@ -586,7 +587,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
                       onClear={() => onClearValue(i, 'subtitle')}
                       resetable={orig[i]?.id === item.id && orig[i]?.value?.subtitle !== item.value.subtitle}
                       onCancel={() => onResetValue(i, 'subtitle')}
-                      isAdmin={isAdmin}
+                      isAdmin={true}
                     // removable={!state.processing}
                     // onRemove={() => onDeleteValue(i)}
 
@@ -647,7 +648,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
                 //editable={newValue?.title?.length > 0}
                 //onSubmit={() => onAddValue(newValue.title)}
                 error={errors[`title`]}
-                isAdmin={isAdmin}
+                isAdmin={true}
               />
               <FieldComponent
                 disabled={state.processing}
@@ -662,7 +663,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
                // editable={newValue.subtitle.length > 0}
                 //onSubmit={() => onAddValue(newValue.subtitle)}
                 error={errors[`subtitle`]}
-                isAdmin={isAdmin}
+                isAdmin={true}
               />
             </Stack>
           </Grid>
@@ -674,14 +675,14 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
               disabled={state.processing || (newValue?.title?.length === 0  || newValue?.subtitle?.length ===0)}
               onClick={() => onAddValue(newValue)}
               sx={{
-                background: 'var(--primary)',
+                background: 'var(--warning)',
                 color: 'var(--background)',
                 width: { xs: '25px', sm: '25px' },
                 height: { xs: '25px', sm: '25px' },
                 '&:hover': {
                   color: 'var(--background)',
-                  backgroundColor: 'var(--primary)',
-                  boxShadow: `0 0 0 0.2rem var(--primary-shadow-sm)`,
+                  backgroundColor: 'var(--warning)',
+                  boxShadow: `0 0 0 0.2rem var(--warning-shadow-sm)`,
                 },
               }} aria-label="delete" size="small">
               <IconCheck sx={{ fontSize: { xs: '15px', sm: '20px' } }} />
@@ -702,14 +703,14 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
             onClick={onResetAllValues}
             disabled={state.processing}
             label={t("reset", { ns: NS_BUTTONS })}
-            isAdmin={isAdmin}
+            isAdmin={true}
           />
           <ButtonConfirm
             loading={state.processing}
             disabled={state.processing || Object.keys(errors).length > 0}
             onClick={onSubmit}
             label={t("edit", { ns: NS_BUTTONS })}
-            isAdmin={isAdmin}
+            isAdmin={true}
           />
         </Stack>
       )}
@@ -743,11 +744,10 @@ function ImageComponent({ src = null, uid = '' }) {
     </Box>
   );
 }
-function InfosComponent({ isAdmin = false }) {
+function InfosComponent() {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
   const { lang } = useLanguage();
-  const { lessons, getOneLesson } = useLesson();
-  const { lesson: lessonTeacher } = useLessonTeacher();
+  const { lesson } = useLesson();
   const [lessonEdit, setLessonEdit] = useState(null);
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
@@ -757,17 +757,17 @@ function InfosComponent({ isAdmin = false }) {
   });
 
   useEffect(() => {
-    setLessonEdit(lessonTeacher?.clone());
-  }, [lessonTeacher]);
+    setLessonEdit(lesson?.clone());
+  }, [lesson]);
   const sameLessons = useMemo(() => {
-    if (lessonTeacher?.category !== lessonEdit?.category) return false;
-    if (lessonTeacher?.title !== lessonEdit?.title) return false;
-    if (lessonTeacher?.subtitle !== lessonEdit?.subtitle) return false;
-    if (lessonTeacher?.description !== lessonEdit?.description) return false;
-    if (lessonTeacher?.certified !== lessonEdit?.certified) return false;
-    if (files.length > 0 || lessonTeacher?.photo_url !== lessonEdit?.photo_url) return false;
+    if (lesson?.category !== lessonEdit?.category) return false;
+    if (lesson?.title !== lessonEdit?.title) return false;
+    if (lesson?.subtitle !== lessonEdit?.subtitle) return false;
+    if (lesson?.description !== lessonEdit?.description) return false;
+    if (lesson?.certified !== lessonEdit?.certified) return false;
+    if (files.length > 0 || lesson?.photo_url !== lessonEdit?.photo_url) return false;
     return true;
-  }, [lessonTeacher, lessonEdit, files.length]);
+  }, [lesson, lessonEdit, files.length]);
   const disabledButton = useMemo(() => {
     if (sameLessons) return true;
     if (!lessonEdit?.category) return true;
@@ -776,17 +776,17 @@ function InfosComponent({ isAdmin = false }) {
     return false;
   }, [sameLessons, lessonEdit]);
   const mustTranslate = useMemo(() => {
-    if (lessonTeacher?.title !== lessonEdit?.title) return true;
-    if (lessonTeacher?.subtitle !== lessonEdit?.subtitle) return true;
-    if (lessonTeacher?.description !== lessonEdit?.description) return true;
+    if (lesson?.title !== lessonEdit?.title) return true;
+    if (lesson?.subtitle !== lessonEdit?.subtitle) return true;
+    if (lesson?.description !== lessonEdit?.description) return true;
     return false;
-  }, [lessonTeacher, lessonEdit]);
+  }, [lesson, lessonEdit]);
 
   const onChangeValue = (e) => {
     const { name, type, value, checked } = e.target;
     setErrors(prev => ({ ...prev, [name]: '' }));
     setLessonEdit(prev => {
-      if (!prev || prev === null) return lessonTeacher.clone();
+      if (!prev || prev === null) return lesson.clone();
       var newValue = type === 'checkbox' ? checked : value;
       prev.update({ [name]: newValue });
       return prev.clone();
@@ -796,7 +796,7 @@ function InfosComponent({ isAdmin = false }) {
   const onClearValue = (name) => {
     setErrors(prev => ({ ...prev, [name]: '' }));
     setLessonEdit(prev => {
-      if (!prev || prev === null) return lessonTeacher.clone();
+      if (!prev || prev === null) return lesson.clone();
       var newValue = '';
       prev.update({ [name]: newValue });
       return prev.clone();
@@ -806,8 +806,8 @@ function InfosComponent({ isAdmin = false }) {
     //const { name, type, value } = e.target;
     setErrors(prev => ({ ...prev, [name]: '' }));
     setLessonEdit(prev => {
-      if (!prev || prev === null) return lessonTeacher.clone();
-      var lessonValue = lessonTeacher[name];
+      if (!prev || prev === null) return lesson.clone();
+      var lessonValue = lesson[name];
       prev.update({ [name]: lessonValue });
       //setSameDatas(true);
       //console.log("two lesson", lesson.translate, lessonEdit.translate)
@@ -868,21 +868,6 @@ function InfosComponent({ isAdmin = false }) {
         <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid size={{ xs: 12, sm: 7 }}>
             <Stack spacing={2}>
-              <Stack alignItems="start">
-                <SelectComponentDark
-                  required
-                  name="uid_lesson"
-                  label={t('lesson')}
-                  value={lessonEdit?.uid_lesson}
-                  values={lessons.map(lesson => ({
-                    id: lesson.uid,
-                    value: lesson.title
-                  }))}
-                  onChange={onChangeValue}
-                  hasNull={false}
-                  disabled={state.processing}
-                />
-              </Stack>
               <FieldComponent
                 label={t('title')}
                 required
@@ -891,11 +876,11 @@ function InfosComponent({ isAdmin = false }) {
                 value={lessonEdit?.title}
                 onChange={onChangeValue}
                 onClear={() => onClearValue('title')}
-                resetable={lessonTeacher?.title !== lessonEdit?.title}
+                resetable={lesson?.title !== lessonEdit?.title}
                 onCancel={() => onResetValue('title')}
                 fullWidth
                 disabled={state.processing}
-                isAdmin={isAdmin}
+                isAdmin={true}
               />
               <FieldComponent
                 label={t('subtitle')}
@@ -904,11 +889,11 @@ function InfosComponent({ isAdmin = false }) {
                 value={lessonEdit?.subtitle}
                 onChange={onChangeValue}
                 onClear={() => onClearValue('subtitle')}
-                resetable={lessonTeacher?.subtitle !== lessonEdit?.subtitle}
+                resetable={lesson?.subtitle !== lessonEdit?.subtitle}
                 onCancel={() => onResetValue('subtitle')}
                 fullWidth
                 disabled={state.processing}
-                isAdmin={isAdmin}
+                isAdmin={true}
               />
               <FieldComponent
                 label={t('description')}
@@ -921,10 +906,10 @@ function InfosComponent({ isAdmin = false }) {
                 onClear={() => onClearValue('description')}
                 minRows={1}
                 maxRows={10}
-                resetable={lessonTeacher?.description !== lessonEdit?.description}
+                resetable={lesson?.description !== lessonEdit?.description}
                 onCancel={() => onResetValue('description')}
                 disabled={state.processing}
-                isAdmin={isAdmin}
+                isAdmin={true}
               />
               <Stack
                 direction="row"
@@ -942,14 +927,14 @@ function InfosComponent({ isAdmin = false }) {
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <ButtonCancel
                     onClick={() => {
-                      setLessonEdit(lessonTeacher?.clone());
+                      setLessonEdit(lesson?.clone());
                       setFiles([]);
                     }}
                     loading={state.processing}
                     disabled={sameLessons}
                     label={t('reset', { ns: NS_BUTTONS })}
                     size="medium"
-                    isAdmin={isAdmin}
+                    isAdmin={true}
                   />
                   <ButtonConfirm
                     onClick={onSubmit}
@@ -957,7 +942,7 @@ function InfosComponent({ isAdmin = false }) {
                     disabled={disabledButton}
                     label={t('edit', { ns: NS_BUTTONS })}
                     size="medium"
-                    isAdmin={isAdmin}
+                    isAdmin={true}
                   />
                 </Stack>
                 {state.processing && state.text && (
@@ -974,10 +959,10 @@ function InfosComponent({ isAdmin = false }) {
   );
 }
 
-function PhotosComponent({ isAdmin = false }) {
+function PhotosComponent() {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
   const { lang } = useLanguage();
-  const { lesson, getOneLesson } = useLessonTeacher();
+  const { lesson, getOneLesson } = useLesson();
   const [lessonEdit, setLessonEdit] = useState(null);
   const [files, setFiles] = useState([]);
   const [translates, setTranslates] = useState([]);
@@ -1176,7 +1161,6 @@ function PhotosComponent({ isAdmin = false }) {
               translation={translation}
               setLessonEdit={setLessonEdit}
               lessonEdit={lessonEdit}
-              isAdmin={isAdmin}
             />
           </Grid>
         ))}
@@ -1188,17 +1172,17 @@ function PhotosComponent({ isAdmin = false }) {
             disabled={state.processing || samePhotos}
             size="medium"
             label={t('reset', { ns: NS_BUTTONS })}
-            isAdmin={isAdmin}
+            isAdmin={true}
           />
         </Grid>
         <Grid size={'auto'}>
-          <ButtonConfirm loading={state.processing} disabled={state.processing || samePhotos} size="medium" label={t('edit', { ns: NS_BUTTONS })} onClick={onEdit} isAdmin={isAdmin} />
+          <ButtonConfirm loading={state.processing} disabled={state.processing || samePhotos} size="medium" label={t('edit', { ns: NS_BUTTONS })} onClick={onEdit} isAdmin={true} />
         </Grid>
       </Grid>
     </Grid>
   );
 }
-function DownloadPhotoComponent({ photoUrl = null, uid = '', file = null, setFile = null, isAdmin = false }) {
+function DownloadPhotoComponent({ photoUrl = null, uid = '', file = null, setFile = null }) {
   const { t } = useTranslation([NS_BUTTONS]);
   //const [file, setFile] = useState([]);
   const imageRef = useRef(null);
@@ -1229,12 +1213,12 @@ function DownloadPhotoComponent({ photoUrl = null, uid = '', file = null, setFil
     textAlign: 'center',
     transition: 'border-color 0.2s, background 0.2s',
     '&:hover': {
-      borderColor: 'var(--primary)',
-      bgcolor: 'var(--primary-shadow)',
+      borderColor: 'var(--warning)',
+      bgcolor: 'var(--warning-shadow-sm)',
       '& button': {
-        borderColor: 'var(--primary)',
-        bgcolor: 'rgba(17, 96, 229, 0.04)',
-        color: 'var(--primary)',
+        borderColor: 'var(--warning)',
+        bgcolor: 'rgba(255, 152, 0, 0.04)',
+        color: 'var(--warning)',
         fontWeight: 500
       }
     },
@@ -1257,18 +1241,18 @@ function DownloadPhotoComponent({ photoUrl = null, uid = '', file = null, setFil
         <Stack spacing={1.5} alignItems="center">
           {
             !file && <>
-              <Box sx={{ color: 'var(--primary)', p: 1 }}>
+              <Box sx={{ color: 'var(--warning)', p: 1 }}>
                 <IconCamera width={32} height={32} />
               </Box>
               <ButtonCancel
                 label={t('choose-photo')}
                 icon={<Icon icon="material-symbols:upload" width="20" height="20" />}
+                isAdmin={true}
                 sx={{
                   border: '1px solid var(--card-border)',
                   color: 'var(--font-color)',
                   transition: 'border-color 0.2s, background 0.2s'
                 }}
-                isAdmin={isAdmin}
               />
             </>
           }
@@ -1277,9 +1261,9 @@ function DownloadPhotoComponent({ photoUrl = null, uid = '', file = null, setFil
     </Stack>
   </>)
 }
-function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFiles = null, lessonEdit = null, setLessonEdit = null, translations = [], translation = {}, isAdmin = false }) {
+function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFiles = null, lessonEdit = null, setLessonEdit = null, translations = [], translation = {} }) {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
-  const { lesson } = useLessonTeacher();
+  const { lesson } = useLesson();
   const [state, setState] = useState({ processing: false, text: "" });
 
   // Trouver le fichier correspondant à cette langue dans le tableau files
@@ -1336,7 +1320,7 @@ function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFi
     p: 3,
     textAlign: 'center',
     transition: 'border-color 0.2s, background 0.2s',
-    '&:hover': { borderColor: 'var(--primary)', bgcolor: 'rgba(17, 96, 229, 0.04)' },
+    '&:hover': { borderColor: 'var(--warning)', bgcolor: 'rgba(255, 152, 0, 0.04)' },
   };
 
   const cardSx = {
@@ -1367,14 +1351,14 @@ function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFi
 
         {!fileItem?.file && !photoUrl && (
           <Stack spacing={1.5}>
-            <DownloadPhotoComponent file={fileItem?.file} setFile={handleSetFile} isAdmin={isAdmin} />
+            <DownloadPhotoComponent file={fileItem?.file} setFile={handleSetFile} />
             {initialPhoto && (translation?.photo_url === '' || translation?.photo_url !== initialPhoto) && (
               <ButtonCancel
                 disabled={state.processing}
                 icon={<IconPicture width={12} height={12} />}
                 label={t('reset-photo', { ns: NS_BUTTONS })}
                 size="small"
-                isAdmin={isAdmin}
+                isAdmin={true}
                 onClick={() => {
                   setLessonEdit(prev => {
                     if (!prev) return lesson?.clone();
@@ -1404,6 +1388,7 @@ function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFi
                   icon={<IconPicture width={12} height={12} />}
                   label={t('reset-photo', { ns: NS_BUTTONS })}
                   size="small"
+                  isAdmin={true}
                   onClick={() => {
                     setLessonEdit(prev => {
                       if (!prev) return lesson?.clone();
@@ -1419,7 +1404,7 @@ function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFi
                 />
               )}
               <ButtonConfirm
-                isAdmin={isAdmin}
+                isAdmin={true}
                 icon={<IconRemove width={12} height={12} />}
                 disabled={state.processing}
                 label={t('remove-photo', { ns: NS_BUTTONS })}
@@ -1444,7 +1429,6 @@ function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFi
               files={[]}
               setFiles={handleSetFile}
               supported_files={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value)}
-              isAdmin={isAdmin}
             />
           </Stack>
         )}
@@ -1467,29 +1451,17 @@ function OnePhotoComponent({ index = -1, setSamePhotos = null, files = [], setFi
   );
 }
 
-function TeacherHighlightComponent() {
-  const { lesson } = useLessonTeacher();
+function OnsiteLessonsListComponent() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS, NS_DASHBOARD_MENU]);
+  const { lessons: lessonsTeacher } = useLessonTeacher();
   const { getOneUser } = useUsers();
-  const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, ClassUser.NS_COLLECTION]);
-  const pathname = usePathname();
-  const isAdmin = pathname?.includes('/admin/');
+  const { isMobile } = useUserDevice();
+  const router = useRouter();
+  const params = useParams();
+  const { uid } = params;
+  const { lesson } = useLesson();
 
-  const teacher = lesson?.uid_teacher ? getOneUser(lesson.uid_teacher) : null;
-
-  if (!teacher) return null;
-
-  const teacherName = `${teacher.first_name || ''} ${teacher.last_name || ''}`.trim();
-  const description = teacher.bio || teacher.about_short || '';
-  const tags = Array.isArray(teacher.tags) ? teacher.tags.slice(0, 6) : [];
-  const roleLabel = teacher.role ? t(teacher.role, { ns: NS_ROLES }) : '';
-
-  // Couleurs selon le contexte (admin ou teacher)
-  const primaryColor = isAdmin ? "var(--warning)" : "var(--primary)";
-  const adminColor = isAdmin ? "var(--admin)" : "var(--primary)";
-  const primaryColorRgba = isAdmin ? "rgba(255, 152, 0, 0.15)" : "rgba(25, 118, 210, 0.15)";
-  const primaryColorBorder = isAdmin ? "rgba(255, 152, 0, 0.3)" : "rgba(25, 118, 210, 0.3)";
-  const primaryColorTag = isAdmin ? "rgba(255, 152, 0, 0.1)" : "rgba(25, 118, 210, 0.1)";
-  const primaryColorTagBorder = isAdmin ? "rgba(255, 152, 0, 0.2)" : "rgba(25, 118, 210, 0.2)";
+  const GRID_COLUMNS_TEACHER = "minmax(0, 0.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 1fr)";
 
   const cardSx = {
     bgcolor: "var(--card-color)",
@@ -1497,566 +1469,197 @@ function TeacherHighlightComponent() {
     borderRadius: 2,
     border: "1px solid var(--card-border)",
     boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    p: 3,
-    transition: "box-shadow 0.2s ease, border-color 0.2s ease",
-    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
+    overflow: "hidden",
+    mt: 2,
   };
 
-  return (
-    <Box sx={cardSx}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems={{ xs: "center", sm: "flex-start" }}>
-        {/* Photo */}
-        <Box sx={{ flexShrink: 0 }}>
-          {teacher?.showAvatar?.({ size: 80, fontSize: '28px' })}
+  const headerSx = {
+    display: "grid",
+    gridTemplateColumns: GRID_COLUMNS_TEACHER,
+    gap: 1.5,
+    px: 2,
+    py: 1.5,
+    bgcolor: "var(--warning)",
+    color: "var(--font-reverse-color)",
+    borderBottom: "1px solid var(--card-border)",
+    fontSize: "0.75rem",
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    "@media (max-width: 900px)": { display: "none" },
+  };
+
+  const rowSx = {
+    display: "grid",
+    gridTemplateColumns: GRID_COLUMNS_TEACHER,
+    gap: 1.5,
+    px: 2,
+    py: 1.5,
+    alignItems: "center",
+    fontSize: "0.9rem",
+    borderBottom: "1px solid var(--card-border)",
+    transition: "background 0.2s ease",
+    cursor: "pointer",
+    "&:hover": {
+      bgcolor: "rgba(255, 152, 0, 0.05)",
+    },
+    "@media (max-width: 900px)": {
+      gridTemplateColumns: "1fr",
+      gap: 1,
+      p: 2,
+      borderRadius: 2,
+      border: "1px solid var(--card-border)",
+      mb: 1,
+    },
+  };
+
+  const cellSx = { minWidth: 0 };
+
+  const nameSx = {
+    m: 0,
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    color: "var(--font-color)",
+  };
+
+  const subSx = {
+    m: 0,
+    mt: 0.25,
+    fontSize: "0.8rem",
+    color: "var(--grey)",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
+
+  if (!lessonsTeacher || lessonsTeacher.length === 0) {
+    return (
+      <Box sx={cardSx}>
+        <Box sx={{ py: 4, px: 2, textAlign: "center", color: "var(--grey)", fontSize: "0.95rem" }}>
+          {t("not-found", { ns: NS_LESSONS })}
         </Box>
-
-        {/* Informations */}
-        <Stack spacing={1.5} sx={{ flex: 1, minWidth: 0 }}>
-          {/* Nom */}
-          <Stack spacing={0.5}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
-              {teacherName}
-            </Typography>
-            
-            {/* Role et role_title */}
-            <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
-              {roleLabel && (
-                <Chip
-                  label={roleLabel}
-                  size="small"
-                  sx={{
-                    bgcolor: primaryColorRgba,
-                    color: primaryColor,
-                    border: `1px solid ${primaryColorBorder}`,
-                    fontWeight: 600,
-                    fontSize: "0.7rem",
-                    height: "20px",
-                  }}
-                  variant="outlined"
-                />
-              )}
-              {teacher.role_title && (
-                <Typography variant="body2" sx={{ color: "var(--grey-light)", fontSize: "0.9rem" }}>
-                  {teacher.role_title}
-                </Typography>
-              )}
-            </Stack>
-          </Stack>
-
-          {/* Email et Téléphone */}
-          <Stack direction="row" spacing={2} flexWrap="wrap" sx={{ mt: 0.5 }}>
-            {teacher.email && (
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <Typography variant="body2" sx={{ color: "var(--grey-light)", fontSize: "0.8rem", fontWeight: 600 }}>
-                  {t('email', { ns: ClassUser.NS_COLLECTION })}:
-                </Typography>
-                <Link 
-                  href={`mailto:${teacher.email}`}
-                  style={{ 
-                    fontSize: "0.8rem", 
-                    color: adminColor,
-                    textDecoration: "none"
-                  }}
-                >
-                  {teacher.email}
-                </Link>
-              </Stack>
-            )}
-            {teacher.phone_number && (
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <Typography variant="body2" sx={{ color: "var(--grey-light)", fontSize: "0.8rem", fontWeight: 600 }}>
-                  {t('phone_number', { ns: ClassUser.NS_COLLECTION })}:
-                </Typography>
-                <Link 
-                  href={`tel:${teacher.phone_number}`}
-                  style={{ 
-                    fontSize: "0.8rem", 
-                    color: adminColor,
-                    textDecoration: "none"
-                  }}
-                >
-                  {teacher.phone_number}
-                </Link>
-              </Stack>
-            )}
-          </Stack>
-
-          {/* Description complète */}
-          {description && (
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: "var(--font-color)", 
-                fontSize: "0.85rem",
-                lineHeight: 1.6,
-                opacity: 0.9,
-                whiteSpace: "pre-line"
-              }}
-            >
-              {description}
-            </Typography>
-          )}
-
-          {/* Tags */}
-          {tags.length > 0 && (
-            <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 0.5 }}>
-              {tags.map((tag, index) => (
-                <Chip
-                  key={index}
-                  label={tag}
-                  size="small"
-                  sx={{
-                    bgcolor: primaryColorTag,
-                    color: primaryColor,
-                    border: `1px solid ${primaryColorTagBorder}`,
-                    fontWeight: 500,
-                    fontSize: "0.75rem",
-                    height: "24px",
-                  }}
-                  variant="outlined"
-                />
-              ))}
-            </Stack>
-          )}
-        </Stack>
-      </Stack>
-    </Box>
-  );
-}
-
-function SessionsHighlightComponent() {
-  const { sessions, isLoading } = useSession();
-  const { t } = useTranslation([ClassSession.NS_COLLECTION]);
-  const params = useParams();
-  const { uid, uidSourceLesson, uidLesson } = params;
-
-  const cardSx = {
-    bgcolor: "var(--card-color)",
-    color: "var(--font-color)",
-    borderRadius: 2,
-    border: "1px solid var(--card-border)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    p: 3,
-    transition: "box-shadow 0.2s ease",
-    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
-  };
-
-  if (isLoading) {
-    return (
-      <Box sx={cardSx}>
-        <Stack spacing={2}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
-            {t('sessions', { ns: ClassSession.NS_COLLECTION })}
-          </Typography>
-          <CircularProgress size={20} color="primary" />
-        </Stack>
-      </Box>
-    );
-  }
-
-  if (!sessions || sessions.length === 0) {
-    return (
-      <Box sx={cardSx}>
-        <Stack spacing={2}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
-              {t('sessions', { ns: ClassSession.NS_COLLECTION })}
-            </Typography>
-            <Link
-              href={PAGE_TEACHER_SESSIONS(uid, uidSourceLesson, uidLesson)}
-              style={{ textDecoration: 'none' }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "var(--primary)",
-                  cursor: "pointer",
-                  "&:hover": { textDecoration: "underline" }
-                }}
-              >
-                {t('view_all', { ns: ClassSession.NS_COLLECTION })}
-              </Typography>
-            </Link>
-          </Stack>
-          <Divider />
-          <Typography variant="body2" sx={{ color: "var(--grey)", textAlign: "center", py: 2 }}>
-            {t('no_sessions', { ns: ClassSession.NS_COLLECTION })}
-          </Typography>
-        </Stack>
       </Box>
     );
   }
 
   return (
     <Box sx={cardSx}>
-      <Stack spacing={2}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
-            {t('sessions', { ns: ClassSession.NS_COLLECTION })} ({sessions.length})
-          </Typography>
-          <Link
-            href={PAGE_TEACHER_SESSIONS(uid, uidSourceLesson, uidLesson)}
-            style={{ textDecoration: 'none' }}
-          >
-            <Typography
-              variant="body2"
-              sx={{
-                color: "var(--primary)",
-                cursor: "pointer",
-                "&:hover": { textDecoration: "underline" }
-              }}
-            >
-              {t('view_all', { ns: ClassSession.NS_COLLECTION })}
-            </Typography>
-          </Link>
-        </Stack>
-        <Divider />
-        <Grid container spacing={2}>
-          {sessions.slice(0, 3).map((session) => {
-            const firstSlot = session.slots?.[0];
-            let startDate = null;
-            let endDate = null;
-            
-            if (firstSlot?.start_date) {
-              if (firstSlot.start_date.seconds) {
-                startDate = new Date(firstSlot.start_date.seconds * 1000);
-              } else if (firstSlot.start_date instanceof Date) {
-                startDate = firstSlot.start_date;
-              }
-            }
-            
-            if (firstSlot?.end_date) {
-              if (firstSlot.end_date.seconds) {
-                endDate = new Date(firstSlot.end_date.seconds * 1000);
-              } else if (firstSlot.end_date instanceof Date) {
-                endDate = firstSlot.end_date;
-              }
-            }
+      <Box sx={headerSx}>
+        <span />
+        <span>{t("lesson")}</span>
+        <span>{t("title")}</span>
+        <span>{t("teacher", { ns: NS_DASHBOARD_MENU })}</span>
+        <span>{t("certified_short")}</span>
+      </Box>
 
-            return (
-              <Grid key={session.uid} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    border: "1px solid var(--card-border)",
-                    bgcolor: "var(--card-color)",
-                    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                    "&:hover": {
-                      borderColor: "var(--primary)",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-                    }
-                  }}
-                >
-                  <Stack spacing={1.5}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 600,
-                          color: "var(--font-color)",
-                          fontSize: "0.95rem"
-                        }}
-                        noWrap
-                      >
-                        {session.title || `${t('session', { ns: ClassSession.NS_COLLECTION })} #${session.uid_intern}`}
-                      </Typography>
-                      <Chip
-                        label={session.status || 'DRAFT'}
-                        size="small"
-                        sx={{
-                          bgcolor: session.status === ClassSession.STATUS.OPEN
-                            ? "rgba(34, 197, 94, 0.12)"
-                            : "rgba(0,0,0,0.05)",
-                          color: session.status === ClassSession.STATUS.OPEN
-                            ? "#15803D"
-                            : "var(--grey)",
-                          border: "1px solid var(--card-border)",
-                          fontWeight: 600,
-                          fontSize: "0.7rem",
-                          height: "20px"
-                        }}
-                      />
-                    </Stack>
-                    {startDate && (
-                      <Stack spacing={0.5}>
-                        <Typography variant="caption" sx={{ color: "var(--grey)", fontSize: "0.75rem" }}>
-                          {getFormattedDateNumeric(startDate)} {getFormattedHour(startDate)}
-                          {endDate && ` - ${getFormattedHour(endDate)}`}
-                        </Typography>
-                      </Stack>
-                    )}
-                    {session.slots && session.slots.length > 0 && (
-                      <Typography variant="caption" sx={{ color: "var(--grey)", fontSize: "0.75rem" }}>
-                        {session.slots.length} {session.slots.length > 1 
-                          ? t('slots_plural', { ns: ClassSession.NS_COLLECTION }) 
-                          : t('slot', { ns: ClassSession.NS_COLLECTION })}
-                      </Typography>
-                    )}
+      <Stack component="div" sx={{ flexDirection: "column" }}>
+        {lessonsTeacher.map((lessonTeacher, i) => {
+          const teacher = getOneUser(lessonTeacher.uid_teacher);
+          return (
+            <Box
+              key={lessonTeacher.uid}
+              onClick={() =>
+                router.push(
+                  PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER(uid, lesson?.uid, lessonTeacher.uid)
+                )
+              }
+              sx={rowSx}
+            >
+              <Box sx={cellSx}>
+                {lessonTeacher?.translate?.photo_url && (
+                  <Box
+                    sx={{
+                      borderRadius: 1,
+                      overflow: "hidden",
+                      bgcolor: "var(--grey-hyper-light)",
+                      width: isMobile ? "100%" : 72,
+                      height: 48,
+                      position: "relative",
+                    }}
+                  >
+                    <Image
+                      src={lessonTeacher.translate.photo_url}
+                      alt={`lesson-teacher-${lessonTeacher.uid}`}
+                      fill
+                      sizes="72px"
+                      style={{ objectFit: "contain" }}
+                    />
+                  </Box>
+                )}
+              </Box>
+
+              <Box sx={cellSx}>
+                <Box>
+                  <Typography component="p" sx={nameSx}>
+                    {lesson?.title || lesson?.translate?.title}
+                  </Typography>
+                  {lesson?.subtitle && (
+                    <Typography component="p" sx={subSx}>
+                      {t(lesson.subtitle)}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+
+              <Box sx={cellSx}>
+                <Box>
+                  <Typography component="p" sx={nameSx}>
+                    {lessonTeacher?.title || lessonTeacher?.translate?.title}
+                  </Typography>
+                  {lessonTeacher?.subtitle && (
+                    <Typography component="p" sx={subSx}>
+                      {t(lessonTeacher.subtitle)}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+
+              <Box sx={cellSx}>
+                <Box>
+                  <Typography component="p" sx={nameSx}>
+                    {teacher?.name || teacher?.email || "-"}
+                  </Typography>
+                  {teacher?.email && (
+                    <Typography component="p" sx={subSx}>
+                      {teacher.email}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+
+              <Box sx={{ ...cellSx, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                {lessonTeacher?.level && (
+                  <Typography component="p" sx={{ ...subSx, m: 0 }}>
+                    {lessonTeacher.level}
+                  </Typography>
+                )}
+                {lessonTeacher?.certified && (
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                    <IconCertificate
+                      sx={{ color: "var(--warning)", fontSize: 16 }}
+                      height={14}
+                      width={14}
+                    />
+                    <Typography component="span" sx={{ fontSize: "0.75rem", color: "var(--grey)" }}>
+                      {t("certified")}
+                    </Typography>
                   </Stack>
-                </Paper>
-              </Grid>
-            );
-          })}
-        </Grid>
-        {sessions.length > 3 && (
-          <Stack alignItems="center" sx={{ pt: 1 }}>
-            <Link
-              href={PAGE_TEACHER_SESSIONS(uid, uidSourceLesson, uidLesson)}
-              style={{ textDecoration: 'none' }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "var(--primary)",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  "&:hover": { textDecoration: "underline" }
-                }}
-              >
-                {t('view_more_sessions', { ns: ClassSession.NS_COLLECTION, count: sessions.length - 3 }) || `Voir ${sessions.length - 3} session(s) supplémentaire(s)`}
-              </Typography>
-            </Link>
-          </Stack>
-        )}
+                )}
+              </Box>
+            </Box>
+          );
+        })}
       </Stack>
     </Box>
   );
 }
 
-function SessionsHistoryComponent() {
-  const { sessions, isLoading } = useSession();
-  const { t } = useTranslation([ClassSession.NS_COLLECTION]);
-  const params = useParams();
-  const { uid, uidSourceLesson, uidLesson } = params;
-  const [showHistory, setShowHistory] = useState(false);
-
-  // Filtrer les sessions passées
-  const pastSessions = useMemo(() => {
-    if (!sessions || sessions.length === 0) {
-      // Créer des données fictives pour démonstration si aucune session n'existe
-      const now = new Date();
-      const mockSessions = [];
-      for (let i = 1; i <= 3; i++) {
-        const pastDate = new Date(now);
-        pastDate.setMonth(pastDate.getMonth() - i);
-        const endDate = new Date(pastDate);
-        endDate.setHours(endDate.getHours() + 2);
-        
-        mockSessions.push({
-          uid: `mock-${i}`,
-          uid_intern: i,
-          title: `${t('session', { ns: ClassSession.NS_COLLECTION })} #${i} - ${t('finished', { ns: ClassSession.NS_COLLECTION })}`,
-          status: ClassSession.STATUS.FINISHED,
-          slots: [{
-            end_date: { seconds: Math.floor(endDate.getTime() / 1000) }
-          }]
-        });
-      }
-      return mockSessions;
-    }
-    
-    const now = new Date();
-    const filtered = sessions.filter((session) => {
-      // Vérifier si la session est terminée ou si toutes les dates de fin sont passées
-      if (session.status === ClassSession.STATUS.FINISHED) return true;
-      
-      // Vérifier les slots pour voir si tous sont passés
-      if (session.slots && session.slots.length > 0) {
-        const allSlotsPast = session.slots.every((slot) => {
-          if (!slot.end_date) return false;
-          let endDate = null;
-          if (slot.end_date.seconds) {
-            endDate = new Date(slot.end_date.seconds * 1000);
-          } else if (slot.end_date instanceof Date) {
-            endDate = slot.end_date;
-          }
-          return endDate && endDate < now;
-        });
-        return allSlotsPast;
-      }
-      return false;
-    });
-    
-    // Si aucune session passée n'existe, créer des données fictives
-    if (filtered.length === 0) {
-      const mockSessions = [];
-      for (let i = 1; i <= 3; i++) {
-        const pastDate = new Date(now);
-        pastDate.setMonth(pastDate.getMonth() - i);
-        const endDate = new Date(pastDate);
-        endDate.setHours(endDate.getHours() + 2);
-        
-        mockSessions.push({
-          uid: `mock-${i}`,
-          uid_intern: i,
-          title: `${t('session', { ns: ClassSession.NS_COLLECTION })} #${i} - ${t('finished', { ns: ClassSession.NS_COLLECTION })}`,
-          status: ClassSession.STATUS.FINISHED,
-          slots: [{
-            end_date: { seconds: Math.floor(endDate.getTime() / 1000) }
-          }]
-        });
-      }
-      return mockSessions;
-    }
-    
-    return filtered.sort((a, b) => {
-      // Trier par date de fin (plus récent en premier)
-      const getLastEndDate = (session) => {
-        if (!session.slots || session.slots.length === 0) return new Date(0);
-        const dates = session.slots.map((slot) => {
-          if (!slot.end_date) return new Date(0);
-          if (slot.end_date.seconds) return new Date(slot.end_date.seconds * 1000);
-          if (slot.end_date instanceof Date) return slot.end_date;
-          return new Date(0);
-        });
-        return new Date(Math.max(...dates));
-      };
-      return getLastEndDate(b) - getLastEndDate(a);
-    });
-  }, [sessions, t]);
-
-  const cardSx = {
-    bgcolor: "var(--card-color)",
-    color: "var(--font-color)",
-    borderRadius: 2,
-    border: "1px solid var(--card-border)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    p: 3,
-    transition: "box-shadow 0.2s ease",
-    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
-  };
-
-  if (isLoading) {
-    return null;
-  }
-
-  if (!pastSessions || pastSessions.length === 0) {
-    return null;
-  }
-
-  return (
-    <Box sx={cardSx}>
-      <Stack spacing={2}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
-            {t('history', { ns: ClassSession.NS_COLLECTION }) || 'Historique'} ({pastSessions.length})
-          </Typography>
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => setShowHistory(!showHistory)}
-            sx={{
-              color: "var(--primary)",
-              textTransform: "none",
-              fontWeight: 500,
-              "&:hover": {
-                bgcolor: "rgba(25, 118, 210, 0.08)"
-              }
-            }}
-          >
-            {showHistory 
-              ? (t('view_less', { ns: ClassSession.NS_COLLECTION }) || 'Voir moins')
-              : (t('view_more', { ns: ClassSession.NS_COLLECTION }) || 'Voir plus')}
-          </Button>
-        </Stack>
-        {showHistory && (
-          <>
-            <Divider />
-            <Grid container spacing={2}>
-              {pastSessions.map((session) => {
-                const lastSlot = session.slots && session.slots.length > 0 
-                  ? session.slots[session.slots.length - 1] 
-                  : null;
-                let endDate = null;
-                
-                if (lastSlot?.end_date) {
-                  if (lastSlot.end_date.seconds) {
-                    endDate = new Date(lastSlot.end_date.seconds * 1000);
-                  } else if (lastSlot.end_date instanceof Date) {
-                    endDate = lastSlot.end_date;
-                  }
-                }
-
-                return (
-                  <Grid key={session.uid} size={{ xs: 12, sm: 6, md: 4 }}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        border: "1px solid var(--card-border)",
-                        bgcolor: "var(--card-color)",
-                        opacity: 0.8,
-                        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                        "&:hover": {
-                          borderColor: "var(--grey)",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-                        }
-                      }}
-                    >
-                      <Stack spacing={1.5}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                          <Typography
-                            variant="subtitle1"
-                            sx={{
-                              fontWeight: 600,
-                              color: "var(--font-color)",
-                              fontSize: "0.95rem"
-                            }}
-                            noWrap
-                          >
-                            {session.title || `${t('session', { ns: ClassSession.NS_COLLECTION })} #${session.uid_intern}`}
-                          </Typography>
-                          <Chip
-                            label={t('finished', { ns: ClassSession.NS_COLLECTION }) || 'Terminé'}
-                            size="small"
-                            sx={{
-                              bgcolor: "rgba(0,0,0,0.05)",
-                              color: "var(--grey)",
-                              border: "1px solid var(--card-border)",
-                              fontWeight: 600,
-                              fontSize: "0.7rem",
-                              height: "20px"
-                            }}
-                          />
-                        </Stack>
-                        {endDate && (
-                          <Stack spacing={0.5}>
-                            <Typography variant="caption" sx={{ color: "var(--grey)", fontSize: "0.75rem" }}>
-                              {t('ended_on', { ns: ClassSession.NS_COLLECTION }) || 'Terminé le'} {getFormattedDateNumeric(endDate)}
-                            </Typography>
-                          </Stack>
-                        )}
-                        {session.slots && session.slots.length > 0 && (
-                          <Typography variant="caption" sx={{ color: "var(--grey)", fontSize: "0.75rem" }}>
-                            {session.slots.length} {session.slots.length > 1 
-                              ? t('slots_plural', { ns: ClassSession.NS_COLLECTION }) 
-                              : t('slot', { ns: ClassSession.NS_COLLECTION })}
-                          </Typography>
-                        )}
-                      </Stack>
-                    </Paper>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </>
-        )}
-      </Stack>
-    </Box>
-  );
-}
-
-export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null }) {
-  const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU]);
-  const pathname = usePathname();
-  // Détection automatique du mode admin si la prop n'est pas fournie
-  const isAdmin = propIsAdmin !== null ? propIsAdmin : (pathname?.includes('/admin/') || false);
-  
+export default function LessonAdminEditComponent() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU, NS_LESSONS]);
   //const [lesson, setLesson] = useState(null);
-  const { lesson } = useLessonTeacher();
+  const { lesson } = useLesson();
 
   const [lessonEdit, setLessonEdit] = useState(null);
   const [modeAccordion, setModeAccordion] = useState('');
@@ -2083,63 +1686,25 @@ export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null
   return (
     <Container disableGutters sx={{ width: "100%" }}>
       <Grid container spacing={1} sx={{ width: "100%" }}>
-        {/* Section Professeur */}
-        <Grid size={12} sx={{ mb: 1 }}>
-          <TeacherHighlightComponent />
-        </Grid>
-        {/* Section Sessions */}
-        <Grid size={12} sx={{ mb: 1 }}>
-          <SessionsHighlightComponent />
-        </Grid>
         <Grid size={12}>
-          <Box component="div" onClick={() => {
-            if (openedView === "infos") {
-              setOpenedView("");
-            } else {
-              setOpenedView("infos");
-              setModeAccordion("");
-            }
-          }} sx={{ cursor: "pointer" }}>
+          <Box component="div" onClick={() => setOpenedView("infos")} sx={{ cursor: "pointer" }}>
             <AccordionComponent
               title={t("infos")}
-              onChange={() => {
-                if (openedView === "infos") {
-                  setOpenedView("");
-                } else {
-                  setOpenedView("infos");
-                  setModeAccordion("");
-                }
-              }}
+              onChange={() => setOpenedView("infos")}
               expanded={openedView === "infos"}
-              isAdmin={isAdmin}
             >
-              <InfosComponent isAdmin={isAdmin} />
+              <InfosComponent />
             </AccordionComponent>
           </Box>
         </Grid>
         <Grid size={12}>
-          <Box component="div" onClick={() => {
-            if (openedView === "photos") {
-              setOpenedView("");
-            } else {
-              setOpenedView("photos");
-              setModeAccordion("");
-            }
-          }} sx={{ cursor: "pointer" }}>
+          <Box component="div" onClick={() => setOpenedView("photos")} sx={{ cursor: "pointer" }}>
             <AccordionComponent
               title={t("photos")}
-              onChange={() => {
-                if (openedView === "photos") {
-                  setOpenedView("");
-                } else {
-                  setOpenedView("photos");
-                  setModeAccordion("");
-                }
-              }}
+              onChange={() => setOpenedView("photos")}
               expanded={openedView === "photos"}
-              isAdmin={isAdmin}
             >
-              <PhotosComponent isAdmin={isAdmin} />
+              <PhotosComponent />
             </AccordionComponent>
           </Box>
         </Grid>
@@ -2150,44 +1715,36 @@ export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null
             </Typography>
             <Stack spacing={0.5}>
               {contentSections.map((item) => (
-                <Box key={item} component="div" onClick={() => {
-                  if (modeAccordion === item) {
-                    setModeAccordion("");
-              } else {
-                setModeAccordion(item);
-                setOpenedView("");
-              }
-            }} sx={{ cursor: "pointer" }}>
+                <Box key={item} component="div" onClick={() => setModeAccordion(item)} sx={{ cursor: "pointer" }}>
                   <CustomAccordion
                     expanded={modeAccordion === item}
                     title={item}
                     array_name={item}
-                    isAdmin={isAdmin}
                   />
                 </Box>
               ))}
-              <Box component="div" onClick={() => {
-                if (modeAccordion === 'tags') {
-                  setModeAccordion("");
-                } else {
-                  setModeAccordion('tags');
-                  setOpenedView("");
-                }
-              }} sx={{ cursor: "pointer" }}>
+              <Box component="div" onClick={() => setModeAccordion('tags')} sx={{ cursor: "pointer" }}>
                 <CustomAccordionSubtitle
                   expanded={modeAccordion === 'tags'}
                   title={'tags'}
                   array_name={'tags'}
-                  isAdmin={isAdmin}
                 />
               </Box>
             </Stack>
 </Stack>
         </Grid>
-        {/* Section Historique des Sessions */}
-        <Grid size={12} sx={{ mt: 2 }}>
-          <SessionsHistoryComponent />
-        </Grid>
+        {lesson?.uid && (
+          <Grid size={12} sx={{ mt: 3 }} spacing={1}>
+            <Stack spacing={1}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
+                {t("onsite_lessons", { ns: ClassLesson.NS_COLLECTION }) || "Cours en présentiel"}
+              </Typography>
+              <LessonTeacherProvider uidSourceLesson={lesson.uid}>
+                <OnsiteLessonsListComponent />
+              </LessonTeacherProvider>
+            </Stack>
+          </Grid>
+        )}
       </Grid>
     </Container>
   );

@@ -1,9 +1,9 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import { ClassLesson, ClassLessonTranslate } from "@/classes/ClassLesson";
+import { ClassLesson, ClassLessonTeacher, ClassLessonTranslate } from "@/classes/ClassLesson";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { languages, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
-import { Box, Button, Divider, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Grid, Stack, Typography } from "@mui/material";
 
 import { Trans, useTranslation } from "react-i18next";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
@@ -32,6 +32,7 @@ import { ClassRoom } from "@/classes/ClassRoom";
 import { TimePicker } from "@mui/x-date-pickers";
 import FieldTextComponent from "@/components/elements/FieldTextComponent";
 import { ClassHardware } from "@/classes/ClassDevice";
+import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 
 const initialCourse = {
   id: "course_excel_101",
@@ -277,7 +278,7 @@ function CardFormat({ slot = null, setSession = null, format = "", session = nul
     //background:FORMAT_CONFIG['onsite']?.glow,
     //display: slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === format ? 'block' : 'none'
   }}>
-    <Stack spacing={1} alignItems={'start'} sx={{ background: '' }}>
+      <Stack spacing={1} alignItems={'start'} sx={{ background: '' }}>
       <BadgeFormatLessonContained format={format} />
       <Stack spacing={1.5} sx={{ background: '', width: '100%' }}>
         <FieldComponent
@@ -291,17 +292,20 @@ function CardFormat({ slot = null, setSession = null, format = "", session = nul
           onClear={() => onClearValue(`seats_availables_${format}`)}
           error={errors[`seats_availables_${format}`]}
         />
-        <FieldComponent
-          name={`url`}
-          type="text"
-          //disablePast={true}
-          //disableFuture={false}
-          label={t(`url`)}
-          value={session?.slots?.[0]?.url}
-          onChange={onChangeValue}
-          onClear={() => onClearValue(`url`)}
-          error={errors.url}
-        />
+        {
+          (format === 'online' || slot?.format === ClassSession.FORMAT.HYBRID) &&
+          <FieldComponent
+            name={`url`}
+            type="text"
+            //disablePast={true}
+            //disableFuture={false}
+            label={t(`url`)}
+            value={session?.slots?.[0]?.url}
+            onChange={onChangeValue}
+            onClear={() => onClearValue(`url`)}
+            error={errors.url}
+          />
+        }
       </Stack>
     </Stack>
     <style jsx>
@@ -356,13 +360,14 @@ function RenderContent({ mode = 'create',
   const { theme } = useThemeMode();
   const { primary } = theme.palette;
   const { user } = useAuth();
-  const { t } = useTranslation(ClassSession.NS_COLLECTION, NS_LANGS);
+  const { t } = useTranslation(ClassSession.NS_COLLECTION,ClassLessonTeacher.NS_COLLECTION, NS_LANGS);
   const errorsTranslate = t('errors', { returnObjects: true });
   const { lang } = useLanguage();
   const { users, getOneUser } = useUsers();
   const { session, update, slots } = useSession();
   const { rooms, getOneRoom } = useRoom();
   const { lessons, getOneLesson } = useLesson();
+  const { lesson } = useLessonTeacher();
   const [slot, setSlot] = useState(new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate }));
   //const [sessionNew, setSessionNew] = useState(null);
   //const [errors, setErrors] = useState({});
@@ -533,14 +538,30 @@ function RenderContent({ mode = 'create',
 
 
   return (<Stack>
-    <div className="page">
-      <main className="container">
+    <div>
+      <main>
         <section className="hero-card">
+          {
+            lesson && (
+              <Grid container spacing={1} sx={{ mb: 2 }}>
+                <Grid size="auto">
+                  <div className="badges">
+                    {lesson.certified && (
+                      <span className="badge-cert">
+                        🎓 {t('certified', { ns: ClassLessonTeacher.NS_COLLECTION })}
+                      </span>
+                    )}
+                  </div>
+                </Grid>
+              </Grid>
+            )
+          }
           <Grid container spacing={1}>
-            <Grid size={{ xs: 12, sm: 'grow' }}>
+            <Grid size={{ xs: 12, sm: 'auto' }}>
               <div className="teacher-card">
                 <Stack spacing={1.5}>
                   <SelectComponentDark
+                  required
                     name={'uid_lesson'}
                     label={t('uid_lesson')}
                     values={lessons.map(lesson => ({
@@ -552,20 +573,9 @@ function RenderContent({ mode = 'create',
                     hasNull={!(sessionNew?.uid_lesson)}
                     error={errors?.uid_lesson}
                   />
-                  <SelectComponentDark
-                    name={'uid_teacher'}
-                    label={t('uid_teacher')}
-                    values={users.filter(item => item.role === ClassUser.ROLE.TEACHER).map(teacher => ({
-                      value: teacher.getCompleteName() || teacher.title,
-                      id: teacher.uid
-                    }))}
-                    value={sessionNew?.uid_teacher || ""}
-                    onChange={(e) => onChangeValue(e, 'session')}
-                    hasNull={!(sessionNew?.uid_teacher)}
-                    error={errors?.uid_teacher}
-                  />
 
                   <FieldComponent
+                  required
                     name={'start_date'}
                     type="date"
                     property="slot"
@@ -581,6 +591,7 @@ function RenderContent({ mode = 'create',
                       <Grid container direction={'row'} spacing={1.5} alignItems={'center'}>
                         <Grid size={{ xs: 7, sm: 5 }}>
                           <FieldComponent
+                          required
                             name={'start_hour'}
                             type="hour"
                             //disablePast={true}
@@ -594,6 +605,7 @@ function RenderContent({ mode = 'create',
                         {
                           slot?.start_date && <Grid size={'grow'}>
                             <SelectComponentDark
+                            required
                               name={'duration'}
                               label={t('duration')}
                               values={ClassSessionSlot.ALL_DURATIONS.map(duration => ({
@@ -629,6 +641,7 @@ function RenderContent({ mode = 'create',
               <div className="teacher-card">
                 <Stack spacing={1.5}>
                   <SelectComponentDark
+                  required
                     name={'lang'}
                     label={t('lang')}
                     values={languages.map(lang => ({
@@ -641,6 +654,7 @@ function RenderContent({ mode = 'create',
                     error={errors?.lang}
                   />
                   <SelectComponentDark
+                  required
                     name={'level'}
                     label={t('level')}
                     values={ClassSession.ALL_LEVELS.map(level => ({
@@ -653,6 +667,7 @@ function RenderContent({ mode = 'create',
                     error={errors?.level}
                   />
                   <SelectComponentDark
+                  required
                     name={'format'}
                     label={t('format')}
                     values={ClassSession.ALL_FORMATS.map(format => ({
@@ -676,48 +691,27 @@ function RenderContent({ mode = 'create',
                         setErrors={setErrors}
                         format={'online'} />
                     }
+                    {
+                      (slot?.format === ClassSession.FORMAT.HYBRID || slot?.format === ClassSession.FORMAT.ONSITE) &&
+                      <CardFormat
+                        session={sessionNew}
+                        setSession={setSessionNew}
+                        slot={slot}
+                        errors={errors}
+                        setErrors={setErrors}
+                        format={'onsite'} />
+                    }
                   </Grid>
                 </Stack>
               </div>
             </Grid>
           </Grid>
-          {
-            sessionNew?.lesson && <div className="teacher-card">
-              <Stack spacing={1}>
-                <h2 className='teacher-label'>{t('certification')}</h2>
-                {sessionNew?.lesson?.certified ? (
-                  <>
-                    <p className="cert-main">
-                      {t('certification_block.title')}{" "}
-                      <strong>{SCHOOL_NAME}</strong>.
-                    </p>
-                    <ul className="list small">
-                      {
-                        t('certification_block.items', { returnObjects: true })?.map?.((text, i) => {
-                          return (<li key={`${text}-${i}`}>{text}</li>)
-                        })
-                      }
-                    </ul>
-                    {course.isOfficialCertificate && (
-                      <p className="cert-badge">
-                        {t('certification_official')}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="cert-main">
-                    {t('certification_not')}
-                  </p>
-                )}
-              </Stack>
-            </div>
-          }
         </section>
       </main>
       <style jsx>{`
                 .page {
                   background: transparent;
-                  padding: 10px 0px;
+                  padding: 0px;
                   color: var(--font-color);
                   display: flex;
                   justify-content: center;
@@ -743,9 +737,9 @@ function RenderContent({ mode = 'create',
                 }
         
                 .hero-card {
-                  display: grid;
-                  grid-template-columns: minmax(0, 3.5fr) minmax(260px, 0.75fr);
-                  gap: 18px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
                   border-radius: 18px;
                   border: 1px solid #1f2937;
                   border: transparent;
@@ -753,12 +747,6 @@ function RenderContent({ mode = 'create',
                   background: var(--card-color);
                   padding: 18px 18px 20px;
                   margin-bottom: 10px;
-                }
-        
-                @media (max-width: 900px) {
-                  .hero-card {
-                    grid-template-columns: 1fr;
-                  }
                 }
         
                 .hero-meta {
@@ -918,8 +906,17 @@ function RenderContent({ mode = 'create',
                   padding: 2px 10px;
                   font-size: 0.8rem;
                   background: #022c22;
+                  background: transparent;
                   color: #bbf7d0;
-                  border: 1px solid #16a34a;
+                  color: var(--font-color);
+                  border: 0.1px solid #16a34a;
+                }
+                
+                .badges {
+                  margin-top: 10px;
+                  display: flex;
+                  gap: 5px;
+                  flex-wrap: wrap;
                 }
         
                 .enroll-card {

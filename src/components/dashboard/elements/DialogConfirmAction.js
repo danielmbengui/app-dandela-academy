@@ -1,144 +1,224 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
-import { IconDashboard, IconEdit, IconMobile, } from "@/assets/icons/IconsComponent";
-import { THEME_DARK, THEME_LIGHT, WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_COMPUTERS, NS_DASHBOARD_HOME, } from "@/contexts/i18n/settings";
-import { useThemeMode } from "@/contexts/ThemeProvider";
-import { useTranslation } from "react-i18next";
-import { useAuth } from '@/contexts/AuthProvider';
-import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
-import { ClassColor } from '@/classes/ClassColor';
-import { Backdrop, Box, Chip, CircularProgress, Container, Divider, Grid, IconButton, Stack, Typography } from '@mui/material';
-import { ClassHardware, ClassDevice } from '@/classes/ClassDevice';
-import { orderBy, where } from 'firebase/firestore';
-import SelectComponent from '@/components/elements/SelectComponent';
-import SelectComponentDark from '@/components/elements/SelectComponentDark';
+import React, { useState } from 'react';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { cutString, getFormattedDate, getFormattedDateCompleteNumeric, getJsonValues } from '@/contexts/functions';
-import { useLanguage } from '@/contexts/LangProvider';
-import { ClassUserAdmin, ClassUserIntern, ClassUserSuperAdmin } from '@/classes/users/ClassUser';
+import { useThemeMode } from "@/contexts/ThemeProvider";
 import ButtonCancel from './ButtonCancel';
 import ButtonConfirm from './ButtonConfirm';
-import DialogTypographyComponent from './DialogTypographyComponent';
-import FieldComponent from '@/components/elements/FieldComponent';
+import { IconCheckFilled } from "@/assets/icons/IconsComponent";
 
 export default function DialogConfirmAction({
-  //title="Confirmer action",
   title = "Souhaites-tu ajouter cet élément ?",
-  updateList = null,
   actionConfirm = null,
   actionCancel = null,
-  labelConfirm="Oui",
-  labelCancel="Non",
+  labelConfirm = "Oui",
+  labelCancel = "Non",
   open = false,
-  setOpen = null
+  setOpen = null,
+  icon = null,
+  severity = "info",
 }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
-  const { t } = useTranslation([ClassDevice.NS_COLLECTION]);
-  const { user } = useAuth();
-  const { lang } = useLanguage();
-  const [mode, setMode] = useState('create');
   const [processing, setProcessing] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [device, setDevice] = useState(new ClassDevice());
-  const [deviceEdit, setDeviceEdit] = useState(null);
 
-  const onChangeValue = (e) => {
-    const { name, value, type } = e.target;
-    console.log(name, value);
-    setDevice(prev => {
-      if (!prev || prev === null) {
-        return prev;
-      }
-      prev.updateFirestore({ [name]: type === 'date' ? new Date(value) : value });
-      console.log("WAAAA10", ClassDevice.getTypesByCategory(prev.category))
-      return prev.clone();
-    })
-  }
+  const handleConfirm = async () => {
+    if (!actionConfirm) return;
+    setProcessing(true);
+    try {
+      await actionConfirm();
+    } catch (error) {
+      console.error("Error in confirm action:", error);
+    } finally {
+      setProcessing(false);
+      if (setOpen) setOpen(false);
+    }
+  };
 
-  const handleClose = () => {
-    //setDevice(null);
-    //setDeviceEdit(null);
-    //setMode('read');
-    setOpen(false);
+  const handleCancel = () => {
+    if (actionCancel) {
+      actionCancel();
+    }
+    if (setOpen) setOpen(false);
+  };
+
+  const getSeverityColor = () => {
+    switch (severity) {
+      case 'warning':
+        return 'var(--warning)';
+      case 'error':
+        return 'var(--error)';
+      case 'success':
+        return 'var(--success)';
+      default:
+        return primary.main;
+    }
+  };
+
+  const getSeverityBg = () => {
+    switch (severity) {
+      case 'warning':
+        return 'var(--warning-shadow)';
+      case 'error':
+        return 'var(--error-shadow)';
+      case 'success':
+        return 'var(--success-shadow)';
+      default:
+        return 'var(--primary-shadow)';
+    }
   };
 
   return (
-    <Stack sx={{ width: '100%', height: '100%' }}>
-      <Dialog
-        //fullWidth
-        inert={processing}
-        maxWidth={'md'}
-        open={open}
-        //onClose={handleClose}
-        scroll={'paper'}
-        aria-labelledby="scroll-dialog-title"
-        aria-describedby="scroll-dialog-description"
+    <Dialog
+      open={open}
+      onClose={handleCancel}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="confirm-dialog-title"
+      aria-describedby="confirm-dialog-description"
+      sx={{
+        '& .MuiDialog-container': {
+          alignItems: 'center',
+        },
+        '& .MuiDialog-paper': {
+          borderRadius: '16px',
+          background: cardColor.main,
+          color: text.main,
+          margin: 2,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+        },
+      }}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+          },
+        },
+      }}
+    >
+      <DialogTitle
+        id="confirm-dialog-title"
         sx={{
-          '& .MuiDialog-container': {
-            p: 1,
-            //alignItems: 'stretch', // ⬅️ étire le container sur toute la hauteur
-          },
-          '& .MuiDialog-paper': {
-            borderRadius: '10px',
-            background: cardColor.main,
-            color: text.main,
-            minWidth: { xs: '100%', md: '400px' },
-            width: { xs: '100%', md: '' },
-            maxWidth: { xs: '100%', md: '50%' },
-            maxWidth: '100%',
-            margin: 1,
-            //borderRadius: 0,
-            //height: '100vh',      // ⬅️ plein écran en hauteur
-            //maxHeight: '100vh',   // ⬅️ enlève la limite par défaut
-            display: 'flex',
-            flexDirection: 'column',
-          },
-          // 🔹 Bordures générées par `DialogContent dividers`
-          '& .MuiDialogContent-dividers': {
-            //borderTopColor: greyLight.main,    // ou une couleur de ton thème
-            //borderBottomColor: greyLight.main,
-            borderTop: `0.1px solid ${cardColor.main}`,
-            borderBottom: `0.1px solid ${greyLight.main}`,
-          },
-
-          // 🔹 Si tu utilises aussi des <Divider /> à l’intérieur
-
+          p: 0,
+          position: 'relative',
         }}
       >
-        <DialogTitle id="scroll-dialog-title">
-          <Stack direction={'row'} justifyContent={'end'}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ p: 2.5, pb: 1 }}
+        >
+          <Box sx={{ flex: 1 }} />
+          <IconButton
+            onClick={handleCancel}
+            disabled={processing}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: greyLight.main,
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                background: 'var(--background-menu-item)',
+                color: text.main,
+                transform: 'rotate(90deg)',
+              },
+            }}
+            size="small"
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
 
-            <CloseIcon sx={{ cursor: 'pointer' }} onClick={actionCancel} />
-          </Stack>
-        </DialogTitle>
-        <DialogContent dividers={true} sx={{ p: { xs: 1, md: 3 }, pt: { xs: 0, md: 0 } }}>
-          <Stack spacing={2} alignItems={'center'}>
-            <Typography variant='h5'>{title}</Typography>
-            <Stack direction={'row'} spacing={1} alignItems={'center'}>
-              <ButtonCancel disabled={processing} label={labelCancel} variant='contained'
-                onClick={actionCancel} />
-              <ButtonConfirm loading={processing} disabled={processing} label={labelConfirm} variant='contained' 
-              onClick={()=>{
-                setProcessing(true);
-                actionConfirm();
-                setProcessing(false);
-                actionCancel();
-              }} 
+      <DialogContent sx={{ p: { xs: 3, sm: 4 }, pt: 2, pb: 3 }}>
+        <Stack spacing={3} alignItems="center">
+          {/* Icône de confirmation avec animation */}
+          <Box
+            sx={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: getSeverityBg(),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: `2px solid ${getSeverityColor()}`,
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                background: getSeverityBg(),
+                opacity: 0.3,
+                animation: 'ripple 2s ease-out infinite',
+                '@keyframes ripple': {
+                  '0%': {
+                    transform: 'scale(1)',
+                    opacity: 0.3,
+                  },
+                  '100%': {
+                    transform: 'scale(1.4)',
+                    opacity: 0,
+                  },
+                },
+              },
+            }}
+          >
+            {icon || (
+              <IconCheckFilled
+                width={36}
+                height={36}
+                color={getSeverityColor()}
               />
-            </Stack>
+            )}
+          </Box>
+
+          {/* Titre */}
+          <Typography
+            variant="h5"
+            component="h2"
+            sx={{
+              fontWeight: 600,
+              textAlign: 'center',
+              color: text.main,
+              lineHeight: 1.5,
+              px: 1,
+            }}
+          >
+            {title}
+          </Typography>
+
+          {/* Boutons d'action */}
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            sx={{ width: '100%', pt: 1 }}
+          >
+            <ButtonCancel
+              disabled={processing}
+              label={labelCancel}
+              variant="outlined"
+              onClick={handleCancel}
+              fullWidth
+              sx={{ order: { xs: 2, sm: 1 } }}
+            />
+            <ButtonConfirm
+              loading={processing}
+              disabled={processing}
+              label={labelConfirm}
+              variant="contained"
+              onClick={handleConfirm}
+              fullWidth
+              sx={{ order: { xs: 1, sm: 2 } }}
+            />
           </Stack>
-
-        </DialogContent>
-
-      </Dialog>
-    </Stack>
+        </Stack>
+      </DialogContent>
+    </Dialog>
   );
 }

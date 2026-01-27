@@ -1076,7 +1076,7 @@ export class ClassLessonTeacher extends ClassLesson {
             //updated.translates = updated.translates.map(item=>item.toJSON());
             console.log("want update", this);
             await setDoc(ref, this, { merge: true });
-            //console.log("UPDATE COMPLETED", { ...this })
+            console.log("UPDATE COMPLETED", this.translates)
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this; // -> ClassModule
         } catch (e) {
@@ -1122,7 +1122,8 @@ export class ClassLessonTeacher extends ClassLesson {
 }
 class LessonTeacherSerializer {
     static fieldsToRemove = [
-        'lesson'
+        'lesson',
+        'goals',
     ];
     static toJSON(lesson) {
         const fields = [...LessonSerializer.fieldsToRemove, ...this.fieldsToRemove];
@@ -1535,7 +1536,7 @@ export class ClassLessonTranslate {
             const ref = this.constructor.docRef(this._uid);
             this._last_edit_time = new Date();
             //const data = { ...patch, last_edit_time: new Date() };
-            await updateDoc(ref, this.toJSON(), { merge: true });
+            await setDoc(ref, this, { merge: true });
             console.log("UPDATE COMPLETED", { ...this })
             //return (await getDoc(ref)).data(); // -> ClassDevice
             return this.constructor.makeLessonTranslateInstance(this._uid, this.toJSON()); // -> ClassModule

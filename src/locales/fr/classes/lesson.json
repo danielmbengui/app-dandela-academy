@@ -33,8 +33,8 @@
   "duration_lesson": "{{duration}} de formation encadrée",
   "sessions_type": "Rythme",
   "dates": "Dates",
-  "title":"Titre",
-  "subtitle":"Sous-titre",
+  "title": "Titre",
+  "subtitle": "Sous-titre",
   "description": "À propos de ce cours",
   "goals": "Objectifs pédagogiques",
   "programs": "Programme",
@@ -43,8 +43,9 @@
   "modalities": "Modalités pratiques",
   "materials": "Matériel requis",
   "tags": "Points clés",
-  "infos":"Informations générales",
+  "infos": "Informations générales",
   "content": "Contenu du cours",
+  "photos": "Photos",
   "certification": "Certification",
   "certification_official": "✅ Certification reconnue dans le cadre des parcours Dandela Academy.",
   "certification_block": {
@@ -56,11 +57,27 @@
     ],
     "no_certification": "Ce cours ne délivre pas de certificat officiel mais une attestation de participation peut être fournie sur demande."
   },
+  "installements-title": "Installations équipées",
+  "installements-subtitle": "Vous pouvez vous rendre sur place et utiliser les ordinateurs de l'école.",
+  "price": "Prix",
+  "bank_account": "Compte de l'école",
+  "bank_name": "Banque",
+  "bank_express": "Transfert express",
+  "iban": "IBAN de l'école",
+  "payment": "Vous pouvez payer en ligne ou en présentiel.",
+  "payment_online": "Veuillez vous munir du justificatif de paiement.",
+  "payment_onsite": "Un terminal de paiement est disponible sur place.",
   "notes": "Infos importantes",
   "seats_taken": "Inscrits",
   "seats_availables": "Place(s) restante(s)",
   "multiple_payments": "Paiement échelonné possible",
   "security": "Inscription sécurisée • Tu recevras un email de confirmation avec toutes les informations pratiques.",
   "unknown": "Inconnu",
-  "btn-subscribe": "M'inscrire à ce cours"
+  "btn-see-lesson": "Retour au cours",
+  "btn-subscribe": "M'inscrire à ce cours",
+  "onsite_lessons": "Cours en présentiel",
+  "errors": {
+    "title": "Le titre doit contenir entre {{min}} et {{max}} caractères",
+    "subtitle": "Le sous-titre doit contenir entre {{min}} et {{max}} caractères"
+  }
 }

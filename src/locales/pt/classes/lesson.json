@@ -45,6 +45,7 @@
   "tags": "Pontos-chave",
   "infos": "Informações gerais",
   "content": "Conteúdo do curso",
+  "photos": "Fotos",
   "certification": "Certificação",
   "certification_official": "✅ Certificação reconhecida no âmbito dos percursos da Dandela Academy.",
   "certification_block": {
@@ -56,11 +57,27 @@
     ],
     "no_certification": "Este curso não fornece um certificado oficial, mas uma declaração de participação pode ser emitida mediante pedido."
   },
+  "installements-title": "Instalações equipadas",
+  "installements-subtitle": "Pode deslocar-se ao local e utilizar os computadores da escola.",
+  "price": "Preço",
+  "bank_account": "Conta da escola",
+  "bank_name": "Banco",
+  "bank_express": "Transferência expressa",
+  "iban": "IBAN da escola",
+  "payment": "Pode pagar online ou presencialmente.",
+  "payment_online": "Por favor, leve o comprovativo de pagamento.",
+  "payment_onsite": "Existe um terminal de pagamento disponível no local.",
   "notes": "Informações importantes",
   "seats_taken": "Inscritos",
   "seats_availables": "Vaga(s) disponível(is)",
   "multiple_payments": "Pagamento parcelado disponível",
   "security": "Inscrição segura • Receberás um e-mail de confirmação com todas as informações práticas.",
   "unknown": "Desconhecido",
-  "btn-subscribe": "Inscrever-me neste curso"
+  "btn-see-lesson": "Voltar ao curso",
+  "btn-subscribe": "Inscrever-me neste curso",
+  "onsite_lessons": "Cursos presenciais",
+  "errors": {
+    "title": "O título deve conter entre {{min}} e {{max}} caracteres",
+    "subtitle": "O subtítulo deve conter entre {{min}} e {{max}} caracteres"
+  }
 }

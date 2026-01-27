@@ -45,6 +45,7 @@
   "tags": "Key points",
   "infos": "General information",
   "content": "Course content",
+  "photos": "Photos",
   "certification": "Certification",
   "certification_official": "✅ Certification officially recognized within Dandela Academy programs.",
   "certification_block": {
@@ -56,11 +57,27 @@
     ],
     "no_certification": "This course does not provide an official certificate, but a participation certificate may be issued upon request."
   },
+  "installements-title": "Equipped facilities",
+  "installements-subtitle": "You can attend on site and use the school's computers.",
+  "price": "Price",
+  "bank_account": "School account",
+  "bank_name": "Bank",
+  "bank_express": "Express transfer",
+  "iban": "School IBAN",
+  "payment": "You can pay online or on site.",
+  "payment_online": "Please bring your payment receipt.",
+  "payment_onsite": "A payment terminal is available on site.",
   "notes": "Important information",
   "seats_taken": "Enrolled",
   "seats_availables": "Remaining seat(s)",
   "multiple_payments": "Installment payments available",
   "security": "Secure enrollment • You will receive a confirmation email with all practical information.",
   "unknown": "Unknown",
-  "btn-subscribe": "Enroll in this course"
+  "btn-see-lesson": "Back to course",
+  "btn-subscribe": "Enroll in this course",
+  "onsite_lessons": "On-site courses",
+  "errors": {
+    "title": "The title must contain between {{min}} and {{max}} characters",
+    "subtitle": "The subtitle must contain between {{min}} and {{max}} characters"
+  }
 }

@@ -94,6 +94,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
                 for (const snapshot of snap.docs) {
                     const _lesson = await snapshot.data();
+                    const uid = snapshot.id; // L'uid du document Firestore (ClassLessonTeacher)
                     const translate = _lesson.translates?.find(a => a.lang === lang);
                     const title = translate.title;
                     const subtitle = translate.subtitle;
@@ -113,6 +114,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                     //const translate = lesson.translates?.find(a => a.lang === lang);
                     const lesson_new = new ClassLessonTeacher({
                         ..._lesson.toJSON(),
+                        uid, // Ajouter l'uid du document
                         translate,
                         title,
                         subtitle,

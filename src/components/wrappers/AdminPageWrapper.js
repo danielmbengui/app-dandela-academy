@@ -33,7 +33,7 @@ import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import FirstConnexionComponent from '../auth/FirstConnexionComponent';
-import { ClassUser, ClassUserIntern } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserDandela, ClassUserIntern } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 import InstallPwaBanner from '../pwa/InstallPwaBanner';
 import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
@@ -43,6 +43,12 @@ import AccountAdminMenu from './AccountAdminMenu';
 import PreloaderAdmin from '../shared/PreloaderAdmin';
 
 const drawerWidth = 240;
+
+const MAIN_COLOR = {
+    color: "var(--warning)",
+    dark: "var(--warning-dark)",
+    shadow: "var(--warning-shadow-sm)",
+}
 
 export default function AdminPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>,isAuthorized=false, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU, NS_ROLES]);
@@ -94,25 +100,24 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                 <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
                     <Toolbar disableGutters variant="dense" sx={{ width: '100%', maxHeight: '30px', p: 2 }}>
                         <Stack direction={'row'} spacing={1} sx={{ width: '100%', height: '100%' }} justifyContent={'center'} alignItems={'center'}>
-                            <IconLogo color={"var(--warning)"} width={'50%'} />
-                            <Chip size='small' label={t(user?.role, {ns:NS_ROLES})} sx={{border:'0.1px solid var(--warning)', color:'var(--warning)', fontWeight:600, background:'var(--card-color)'}} />
+                            <IconLogo color={MAIN_COLOR.color} width={'50%'} />
                         </Stack>
                     </Toolbar>
                     <Divider />
                     <List sx={{ py: 2, px: 1.5, background: '', width: '100%', height: '100%', }}>
                         {
-                            ClassUserIntern.menuDashboard(user).map((menuItem, i) => {
+                            ClassUserDandela.menuDashboard(user).map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
                                 const isPath = path.includes(menuItem.path);
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{
                                             px: 1.5, py: 1, cursor: 'pointer',
-                                            background: isPath ? "var(--warning)" : 'var(--grey-shadow)',
+                                            background: isPath ? MAIN_COLOR.color : 'var(--grey-shadow)',
                                             borderRadius: '20px',
                                             color: isPath ? "var(--card-color)" : "var(--font-color)",
                                             "&:hover": {
-                                                background: 'var(--warning)',
+                                                background: MAIN_COLOR.color,
                                                 color: 'var(--card-color)',
                                             }
                                         }}>
@@ -160,12 +165,12 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                                                                 width: '100%'
                                                             }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
                                                                 <Grid size={'auto'} sx={{ background: '' }}>
-                                                                    <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: 'blue' }}>
+                                                                    <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
                                                                         {item.icon}
                                                                     </Stack>
                                                                 </Grid>
-                                                                <Grid size={'grow'} sx={{ background: 'orange' }}>
-                                                                    <Stack alignItems={'start'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: 'blue' }}>
+                                                                <Grid size={'grow'} sx={{ background: '' }}>
+                                                                    <Stack alignItems={'start'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
                                                                         <Typography fontSize={'14px'}>{t(item.name)}</Typography>
                                                                     </Stack>
 
@@ -216,11 +221,10 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                 <Toolbar disableGutters variant="dense" sx={{ minHeight: '40px', maxHeight: '40px', py: 1, px: 2, }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={{ xs: 'space-between', sm: 'end' }} sx={{ width: '100%', background: '' }}>
                         <IconButton
-                            //color="var(--primary)"
                             aria-label="open drawer"
                             edge="start"
                             onClick={handleDrawerToggle}
-                            sx={{ mr: 2, display: { sm: 'none' }, color: "var(--primary)" }}
+                            sx={{ mr: 2, display: { sm: 'none' }, color: MAIN_COLOR.color }}
                         >
                             <MenuIcon />
                         </IconButton>
@@ -315,11 +319,17 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                             // (debug)
                         }}
                     >
-                        <Stack justifyContent={'center'} sx={{ background: '', width: '100%', py: 1 }} spacing={{ xs: 1, sm: 0.5 }}>
+                        <Stack direction={'row'} spacing={1} alignItems={'start'} sx={{background:'', py:0.5}}>
+                            <Chip size='small' label={t(ClassUser.ROLE.ADMIN, { ns: NS_ROLES })} sx={{
+                                background: 'var(--warning-shadow-sm)',
+                                color: 'var(--warning)',
+                                border: '1px solid var(--warning)',
+                                fontWeight: 600
+                            }} />
                             <Breadcrumbs maxItems={2} sx={{ color: 'var(--font-color)' }} separator={<NavigateNextIcon />} aria-label="breadcrumb">
                                 {
                                     titles.length === 1 && <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                                        <div style={{ color: "var(--warning)" }}>{icon}</div>
+                                        <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
                                         <Typography variant='h5'>{titles[0].name}</Typography>
                                     </Stack>
                                 }
@@ -329,7 +339,7 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                                             return (<Link key={`${title}-${i}`} underline="hover" style={{ fontStyle: 'underline' }} color="inherit" href={title.url} >
                                                 <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                                                     {
-                                                        i === 0 && <div style={{ color: "var(--warning)" }}>{icon}</div>
+                                                        i === 0 && <div style={{ color: MAIN_COLOR.color }}>{icon}</div>
                                                     }
                                                     <Typography variant='h5' sx={{ textDecoration: 'underline' }}>{title.name}</Typography>
                                                 </Stack>
@@ -339,8 +349,6 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                                     })
                                 }
                             </Breadcrumbs>
-                            <Typography sx={{ color: 'var(--grey-light)' }}>{subtitle}</Typography>
-
                         </Stack>
                         <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{
                             overflowY: 'auto',

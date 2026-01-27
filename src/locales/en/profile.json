@@ -8,6 +8,7 @@
   "form": {
     "title_perso": "Personal information",
     "title_account": "Account information",
+    "title_teacher": "Teacher information",
     "title_settings": "Settings",
     "uid": "User ID",
     "display_name": "Username",

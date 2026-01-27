@@ -23,6 +23,8 @@ export const PAGE_TERMS_USAGE = "/terms/usage";
 export const PAGE_ADMIN_LESSONS = (uidUser) =>
   `/admin/${uidUser}/lessons`;
 export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";
+export const PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER = (uidUser, uidLesson, uidLessonTeacher) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/${uidLessonTeacher}`;
 //export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";
 //export const PAGE_TEACHER_LESSONS = "/teacher/lessons";
 //export const PAGE_TEACHER_UPDATE_ONE_LESSON = "/teacher/lessons/update";
@@ -32,6 +34,10 @@ export const PAGE_TEACHER_LESSONS = (uidUser) =>
 
 export const PAGE_TEACHER_ONE_LESSON = (uidUser,uidSourceLesson, uidLesson) =>
   `/teacher/${uidUser}/lessons/${uidSourceLesson}/${uidLesson}`;
+export const PAGE_TEACHER_SESSIONS = (uidUser, uidSourceLesson, uidLesson) =>
+  `/teacher/${uidUser}/lessons/${uidSourceLesson}/${uidLesson}/sessions`;
+export const PAGE_TEACHER_CREATE_SESSION = (uidUser, uidSourceLesson, uidLesson) =>
+  `/teacher/${uidUser}/lessons/${uidSourceLesson}/${uidLesson}/sessions/create`;
 
 export const PAGE_CONTACT = "/contact";
 

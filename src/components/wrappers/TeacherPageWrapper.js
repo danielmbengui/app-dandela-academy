@@ -12,7 +12,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Backdrop, Breadcrumbs, Button, Chip, Container, Grid, Stack } from '@mui/material';
+import { Backdrop, Breadcrumbs, Button, Chip, CircularProgress, Container, Grid, Stack } from '@mui/material';
 import { IconDropDown, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
@@ -387,10 +387,22 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                             },
                         }}>
                             {
-                                !isAuthorized && <NotAuthorizedComponent />
+                                // Pendant le chargement, afficher un loader au lieu du composant "non autorisé"
+                                isLoading ? (
+                                    <Stack 
+                                        alignItems="center" 
+                                        justifyContent="center" 
+                                        sx={{ width: "100%", minHeight: "50vh" }}
+                                    >
+                                        <CircularProgress size={40} color="primary" />
+                                    </Stack>
+                                ) : (
+                                    <>
+                                        {!isAuthorized && <NotAuthorizedComponent />}
+                                        {isAuthorized && children}
+                                    </>
+                                )
                             }
-
-                            {isAuthorized && children}
                         </Stack>
                     </Stack>
 

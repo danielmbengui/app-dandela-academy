@@ -48,5 +48,7 @@
   "send-link": "Envoyer le lien",
   "back-to-login": "Retour à l’accueil",
   "resend-link": "Renvoyer le lien",
-  "share-to": "Partager sur {{text}}"
+  "share-to": "Partager sur {{text}}",
+  "see-more": "Voir plus",
+  "see-less": "Voir moins"
 }

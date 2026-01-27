@@ -42,6 +42,10 @@
   "target_audiences": "Who is this for?",
   "modalities": "Practical details",
   "materials": "Required materials",
+  "tags": "Key points",
+  "infos": "General information",
+  "content": "Course content",
+  "photos": "Photos",
   "certification": "Certification",
   "certification_official": "✅ Certification officially recognised within Dandela Academy learning paths.",
   "certification_block": {
@@ -70,5 +74,9 @@
   "security": "Secure registration • You will receive a confirmation email with all practical information.",
   "unknown": "Unknown",
   "btn-see-lesson": "Back to course",
-  "btn-subscribe": "Register for a session"
+  "btn-subscribe": "Register for a session",
+  "errors":{
+    "title": "The title must contain between {{min}} and {{max}} characters",
+    "subtitle": "The subtitle must contain between {{min}} and {{max}} characters"
+  }
 }

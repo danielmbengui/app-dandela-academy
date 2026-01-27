@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
-import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
-import { NS_LESSONS } from "@/contexts/i18n/settings";
+import { PAGE_LESSONS, } from "@/contexts/constants/constants_pages";
+import { NS_LESSONS, } from "@/contexts/i18n/settings";
 import { LessonProvider } from "@/contexts/LessonProvider";
 import { LessonTeacherProvider } from "@/contexts/LessonTeacherProvider";
 import { SessionProvider } from "@/contexts/SessionProvider";
@@ -15,12 +15,11 @@ export const generateMetadata = generatePageMetadata({
 });
 
 export default async function LessonsLayout({ children, params }) {
-  const { uid: uidTeacher, uidSourceLesson, uidLesson } = await params;
-  return (
-    <LessonTeacherProvider uidSourceLesson={uidSourceLesson} uidTeacher={uidTeacher}>
+    const {uid:uidTeacher, uidSourceLesson, uidLesson} = await params;
+  console.log("uid teacher", uidTeacher)
+  return (<LessonTeacherProvider uidSourceLesson={uidSourceLesson} uidTeacher={uidTeacher}>
       <SessionProvider uidLesson={uidLesson} uidTeacher={uidTeacher}>
-        {children}
+      {children}
       </SessionProvider>
-    </LessonTeacherProvider>
-  );
+    </LessonTeacherProvider>);
 }

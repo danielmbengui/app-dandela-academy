@@ -42,6 +42,10 @@
   "target_audiences": "Pour qui ?",
   "modalities": "Modalités pratiques",
   "materials": "Matériel requis",
+  "tags": "Points clés",
+  "infos":"Informations générales",
+  "content": "Contenu du cours",
+  "photos": "Photos",
   "certification": "Certification",
   "certification_official": "✅ Certification reconnue dans le cadre des parcours Dandela Academy.",
   "certification_block": {
@@ -70,5 +74,9 @@
   "security": "Inscription sécurisée • Tu recevras un e-mail de confirmation avec toutes les informations pratiques.",
   "unknown": "Inconnu",
   "btn-see-lesson": "Retour au cours",
-  "btn-subscribe": "M'inscrire à une session"
+  "btn-subscribe": "M'inscrire à une session",
+  "errors": {
+    "title": "Le titre doit contenir entre {{min}} et {{max}} caractères",
+    "subtitle": "Le sous-titre doit contenir entre {{min}} et {{max}} caractères"
+  }
 }

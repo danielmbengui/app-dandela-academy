@@ -1,9 +1,7 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import { NS_LESSONS } from "@/contexts/i18n/settings";
-import { LessonProvider } from "@/contexts/LessonProvider";
 import { LessonTeacherProvider } from "@/contexts/LessonTeacherProvider";
-import { UsersProvider } from "@/contexts/UsersProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +12,13 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function TeacherLessonsLayout({ children, params }) {
-  const { uid: uidTeacher } = await params;
+export default async function AdminOneLessonTeacherLayout({ children, params }) {
+  const { uidLesson } = await params;
+  // uidLesson est le ClassLesson parent (uidSourceLesson)
+  // Pas besoin de uidTeacher car c'est pour admin
   return (
-    <UsersProvider>
-      <LessonProvider>
-        <LessonTeacherProvider uidTeacher={uidTeacher}>
-          {children}
-        </LessonTeacherProvider>
-      </LessonProvider>
-    </UsersProvider>
+    <LessonTeacherProvider uidSourceLesson={uidLesson}>
+      {children}
+    </LessonTeacherProvider>
   );
 }

@@ -1,8 +1,6 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_ADMIN_LESSONS, PAGE_LESSONS } from "@/contexts/constants/constants_pages";
 import { NS_LESSONS } from "@/contexts/i18n/settings";
-import { LessonProvider } from "@/contexts/LessonProvider";
-import { UsersProvider } from "@/contexts/UsersProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +11,8 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function AdminLessonsLayout({ children, params }) {
-  return (
-    <UsersProvider>
-      <LessonProvider>
-        {children}
-      </LessonProvider>
-    </UsersProvider>
-  );
+export default async function AdminOneLessonLayout({ children, params }) {
+  // Les providers LessonProvider et UsersProvider sont déjà fournis par le layout parent
+  // (admin/[uid]/lessons/layout.js)
+  return children;
 }
