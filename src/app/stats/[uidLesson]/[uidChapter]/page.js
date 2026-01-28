@@ -1,62 +1,38 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import React, { useEffect, useMemo } from "react";
 import {
   Container,
   Box,
   Typography,
-  Chip,
   Stack,
-  Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Grid,
-  Card,
-  CardContent,
-  IconButton,
   CircularProgress,
   LinearProgress,
 } from "@mui/material";
-
-
 import { useParams, useRouter } from "next/navigation";
 import { useLesson } from "@/contexts/LessonProvider";
-import { Trans, useTranslation } from "react-i18next";
-import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
+import { useTranslation } from "react-i18next";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
-import { IconArrowBack, IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp, IconBookOpen, IconCertificate, IconDuration, IconLessons, IconObjective, IconProgressUp, IconQuizz, IconStar, IconStats } from "@/assets/icons/IconsComponent";
-import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_STATS_ONE } from "@/contexts/i18n/settings";
+import { IconDuration, IconStats } from "@/assets/icons/IconsComponent";
+import { NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
 import { PAGE_CHAPTERS, PAGE_LESSONS, PAGE_STATS } from "@/contexts/constants/constants_pages";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
-import { ClassLessonChapterQuestion, ClassLessonChapterQuestionTranslation, ClassLessonChapterQuiz } from "@/classes/lessons/ClassLessonChapterQuiz";
-import CheckboxComponent from "@/components/elements/CheckboxComponent";
-import { addDaysToDate, capitalizeFirstLetter, formatChrono, getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedDateNumeric, mixArray } from "@/contexts/functions";
+import { formatChrono } from "@/contexts/functions";
 import AlertComponent from "@/components/elements/AlertComponent";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useAuth } from "@/contexts/AuthProvider";
-import OneStatComponent from "@/components/stats/OneStatComponent";
 import { useChapter } from "@/contexts/ChapterProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
 import Link from "next/link";
 import SchoolIcon from "@mui/icons-material/School";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import InsightsIcon from "@mui/icons-material/Insights";
-import QuizIcon from "@mui/icons-material/Quiz";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useStat } from "@/contexts/StatProvider";
-import { ClassLesson } from "@/classes/ClassLesson";
 import StatsChartsComponent from "@/components/stats/StatsChartsComponent";
 import StatsChapterListComponent from "@/components/stats/chapter/StatsChapterListComponent";
 import StatsChapterLineChart from "@/components/stats/chapter/StatsChapterLineChart";
 import StatsChapterBarChart from "@/components/stats/chapter/StatsChapterBarChart";
-import { user } from "@heroui/react";
 
 
 export default function OneStatChapterPage() {
@@ -66,8 +42,8 @@ export default function OneStatChapterPage() {
   //console.log("uid", uidStat)
   // const { lang } = useLanguage();
   const { user } = useAuth();
-  const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
-  const { setUidUser,getGlobalCountQuiz,stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
+  const { lesson, setUidLesson } = useLesson();
+  const { setUidUser, getGlobalCountQuiz, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent } = useStat();
   const { chapters, chapter, setUidChapter } = useChapter();
   useEffect(() => {
     for (const c of chapters) {
@@ -85,10 +61,9 @@ export default function OneStatChapterPage() {
     return filtered;
   }, [uidLesson,uidChapter, stats]);
 
-  const { countQuestions, score, percent, duration, durationTotal,countStats,countStatsTotal,countChapters } = useMemo(() => {
+  const { countQuestions, score, percent, duration, durationTotal, countStats, countStatsTotal } = useMemo(() => {
     const countStats = getGlobalCountQuiz(uidLesson, uidChapter, filteredStats);
     const countStatsTotal = getGlobalCountQuiz(uidLesson, "");
-    const countChapters = new Set([...filteredStats].map(s=>s.uid_chapter)).size;
     return {
       score: getGlobalScore(uidLesson, uidChapter, filteredStats),
       countQuestions: getGlobalCountQuestions(uidLesson, uidChapter, filteredStats),
@@ -97,224 +72,317 @@ export default function OneStatChapterPage() {
       durationTotal: getGlobalDuration(uidLesson),
       countStats,
       countStatsTotal,
-      countChapters
     };
-  }, [uidLesson, uidChapter, filteredStats]);
+  }, [uidLesson, uidChapter, filteredStats, getGlobalCountQuiz, getGlobalScore, getGlobalCountQuestions, getGlobalPercent, getGlobalDuration]);
 
-  return (<DashboardPageWrapper
-    titles={[
-      { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
-      { name: `${lesson?.uid_intern}. ${lesson?.translate?.title}`, url: `${PAGE_STATS}/${lesson?.uid}` },
-      { name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: `` },
-      //{ name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: `${PAGE_LESSONS}/${lesson?.uid}/chapters` },
-      //{ name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: '' },
-    ]}
-    //title={`Cours / ${lesson?.title}`}
-    //subtitle={lesson?.translate?.subtitle}
-    icon={<IconStats height={18} width={18} />}
-  >
-    <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
-      {
-        isLoadingStats ? <CircularProgress size={"16px"} /> : <Grid container spacing={1}>
-          <Grid size={12}>
+  return (
+    <DashboardPageWrapper
+      titles={[
+        { name: t('stats', { ns: NS_DASHBOARD_MENU }), url: PAGE_STATS },
+        { name: `${lesson?.uid_intern}. ${lesson?.translate?.title}`, url: `${PAGE_STATS}/${lesson?.uid}` },
+        { name: `${chapter?.uid_intern}. ${chapter?.translate?.title}`, url: `` },
+      ]}
+      icon={<IconStats height={18} width={18} />}
+    >
+      <Container maxWidth="lg" disableGutters sx={{ px: { xs: 1, sm: 2 }, py: 2, background: 'transparent' }}>
+        {isLoadingStats ? (
+          <Stack alignItems={'center'} sx={{ py: 4 }}>
+            <CircularProgress size={24} sx={{ color: 'var(--primary)' }} />
+          </Stack>
+        ) : (
+          <Stack spacing={3}>
             <CardHeader />
-          </Grid>
-          {
-            stats.length === 0 && <NoStatComponent />
-          }
-          {
-            stats.length>0 && <>
-            <Grid size={{ xs: 12, sm: 4 }}>
-            <KpiCard
-              icon={<InsightsIcon />}
-              title={t('global-rating')}
-              value={`${percent > 0 ? percent.toFixed(2) : 0}%`}
-              subtitle={`${t('score')} : ${score}/${countQuestions}`}
-              progress={percent}
-              total={`${score}/${countQuestions}`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <KpiCard
-              icon={<SchoolIcon />}
-              title={t('global-cover')}
-              value={`${countStats} ${t('quizs')}`}
-              subtitle={`${t('attempts')} : ${countStats}/${countStatsTotal}`}
-             progress={Math.min(100, (countStats / Math.max(1, countStatsTotal)) * 100)}
-             total={`${countStats}/${countStatsTotal}`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <KpiCard
-              icon={<IconDuration />}
-              title={t('global-duration')}
-              value={formatChrono(duration)}
-              subtitle={`${t('duration')} : ${formatChrono(duration)}`}
-              progress={Math.min(1000, (duration / Math.max(1, (durationTotal))) * 100)}
-              total={formatChrono(durationTotal)}
-            />
-          </Grid>
-          <Grid size={12}>
-            <StatsChartsComponent
-              listComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-              listAverageComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-              evolutionComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-              evolutionAverageComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-              //showEvolution={false}
-              showEvolutionAverage={false}
-              compareComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
-              compareAverageComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
-            />
-          </Grid>
-            </>
-          }
-        </Grid>
-      }
-    </Container>
-  </DashboardPageWrapper>);
+            
+            {stats.length === 0 && <NoStatComponent />}
+            
+            {stats.length > 0 && (
+              <>
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <KpiCard
+                      icon={<InsightsIcon sx={{ fontSize: '1.5rem' }} />}
+                      title={t('global-rating')}
+                      value={`${percent > 0 ? percent.toFixed(1) : 0}%`}
+                      subtitle={`${t('score')} : ${score}/${countQuestions}`}
+                      progress={percent}
+                      total={`${score}/${countQuestions}`}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <KpiCard
+                      icon={<SchoolIcon sx={{ fontSize: '1.5rem' }} />}
+                      title={t('global-cover')}
+                      value={`${countStats}`}
+                      subtitle={`${t('attempts')} : ${countStats}/${countStatsTotal}`}
+                      progress={Math.min(100, (countStats / Math.max(1, countStatsTotal)) * 100)}
+                      total={`${countStats}/${countStatsTotal}`}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <KpiCard
+                      icon={<IconDuration height={24} width={24} color="var(--primary)" />}
+                      title={t('global-duration')}
+                      value={formatChrono(duration)}
+                      subtitle={`${t('duration')} : ${formatChrono(duration)}`}
+                      progress={Math.min(100, (duration / Math.max(1, durationTotal)) * 100)}
+                      total={formatChrono(durationTotal)}
+                    />
+                  </Grid>
+                </Grid>
+                
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    border: '1px solid var(--card-border)',
+                    background: 'var(--card-color)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  }}
+                >
+                  <StatsChartsComponent
+                    listComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+                    listAverageComponent={<StatsChapterListComponent viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+                    evolutionComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+                    evolutionAverageComponent={<StatsChapterLineChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+                    showEvolutionAverage={false}
+                    compareComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_SCORE} />}
+                    compareAverageComponent={<StatsChapterBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />}
+                  />
+                </Paper>
+              </>
+            )}
+          </Stack>
+        )}
+      </Container>
+    </DashboardPageWrapper>
+  );
 }
 function NoStatComponent() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  return(<Grid size={12} sx={{py:1}}>
-    <Stack maxWidth={'sm'}>
-    <AlertComponent title={t('no-stats-title')} subtitle={t('no-stats-subtitle')} severity="info" />
-  </Stack>
-  </Grid>)
-}
-function AvatarIcon({ children, sx }) {
   return (
-    <Box
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: 3,
-        display: "grid",
-        placeItems: "center",
-        bgcolor: "rgba(37,99,235,0.12)",
-        color: "#2563EB",
-        border: "1px solid rgba(37,99,235,0.18)",
-        ...sx,
-      }}
-    >
-      {children}
-    </Box>
+    <Grid size={12} sx={{ py: 2 }}>
+      <Stack maxWidth={'sm'}>
+        <AlertComponent
+          title={t('no-stats-title')}
+          subtitle={t('no-stats-subtitle')}
+          severity="info"
+        />
+      </Stack>
+    </Grid>
   );
 }
+
 const CardHeader = () => {
   const router = useRouter();
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
   const { lesson } = useLesson();
-  const { chapters, chapter, setUidChapter } = useChapter();
-  const { stat, stats, setUidStat } = useStat();
+  const { chapters, chapter } = useChapter();
+  const { stats } = useStat();
 
-  return (<Stack sx={{ color: 'var(--font-color)', width: '100%' }}>
-    <Grid container>
-      <Grid size={{ xs: 12, sm: 6 }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        background: 'var(--card-color)',
+        borderRadius: 3,
+        width: '100%',
+        border: '1px solid var(--card-border)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+        mb: 3,
+      }}
+    >
+      <Stack spacing={2.5}>
+        <Stack spacing={1}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2rem' },
+              color: 'var(--font-color)',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+            }}
+          >
             {`${lesson?.uid_intern}. `}{lesson?.translate?.title}
           </Typography>
-          <Typography variant="body1" sx={{ color: "text.secondary" }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: 'var(--grey-light)',
+              lineHeight: 1.6,
+              fontSize: '1rem',
+            }}
+          >
             {`${chapter?.uid_intern}. `}{chapter?.translate?.title} • {t(chapter?.level)}
           </Typography>
+        </Stack>
 
-          <Stack spacing={1} direction={'row'} sx={{ pt: 1 }} alignItems={'center'}>
-            <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
-              <ButtonCancel label={t('btn-see-lesson')} />
-            </Link>
-            <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}/${chapter?.uid}`}>
-              <ButtonCancel label={t('btn-see-chapter')} />
-            </Link>
-          </Stack>
+        <Stack direction="row" spacing={2} flexWrap="wrap">
+          <Link href={`${PAGE_LESSONS}/${lesson?.uid}`}>
+            <ButtonCancel label={t('btn-see-lesson')} />
+          </Link>
+          <Link href={`${PAGE_LESSONS}/${lesson?.uid}${PAGE_CHAPTERS}/${chapter?.uid}`}>
+            <ButtonCancel label={t('btn-see-chapter')} />
+          </Link>
+        </Stack>
 
-          {
-            stats.length > 0 && <Stack spacing={1} alignItems={'start'} sx={{
-              background: 'var(--primary-shadow)',
-              borderRadius: '10px',
-              my: 1.5,
-              py: 1.5,
-              px: 1,
-            }}>
-              <Typography variant="body1" sx={{ color: "var(--primary-dark)" }}>
+        {stats.length > 0 && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              background: 'var(--primary-shadow-xs)',
+              borderRadius: 2,
+              border: '1px solid var(--card-border)',
+              display: 'inline-block',
+              width: 'fit-content',
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'var(--primary)',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  fontSize: '0.75rem',
+                }}
+              >
                 {t('chapters')}
               </Typography>
-              <SelectComponentDark
-                value={chapter?.uid || ''}
-                values={chapters.map(c => ({ id: c.uid, value: c.translate?.title }))}
-                onChange={(e) => {
-                  const { value: uidChapter } = e.target;
-                  //setUidChapter(uidChapter);
-                  router.push(`${PAGE_STATS}/${lesson?.uid}/${uidChapter}`);
-                }}
-                hasNull={false}
-              />
+              <Box sx={{ width: 'fit-content' }}>
+                <SelectComponentDark
+                  value={chapter?.uid || ''}
+                  values={chapters.map(c => ({ id: c.uid, value: c.translate?.title }))}
+                  onChange={(e) => {
+                    const { value: uidChapter } = e.target;
+                    router.push(`${PAGE_STATS}/${lesson?.uid}/${uidChapter}`);
+                  }}
+                  hasNull={false}
+                />
+              </Box>
             </Stack>
-          }
-        </Box>
-      </Grid>
-    </Grid>
-  </Stack>)
+          </Paper>
+        )}
+      </Stack>
+    </Paper>
+  );
 }
 
 function clamp(v) {
   const n = Number(v || 0);
   return Math.max(0, Math.min(100, n));
 }
+
 function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
   return (
     <Paper
       elevation={0}
       sx={{
-        borderRadius: 5,
-        p: 2.2,
-        py: 2,
-        px: 1.5,
-        //border: "0.1px solid var(--primary-shadow-sm)",
-        background: 'var(--primary-shadow)',
-        borderRadius: '10px',
-        color: "var(--font-color)",
+        p: 3,
+        borderRadius: 3,
+        border: '1px solid var(--card-border)',
+        background: 'var(--card-color)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        '&:hover': {
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+          transform: 'translateY(-4px)',
+          borderColor: 'var(--primary)',
+        },
       }}
     >
-      <Stack spacing={1.1}>
-        <Stack direction="row" spacing={1.2} alignItems="center">
-          <AvatarIcon>{icon}</AvatarIcon>
-          <Stack spacing={0.1} sx={{ minWidth: 0 }}>
-            <Typography variant="caption" color="var(--primary-dark)">
+      <Stack spacing={2}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: 2.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: 'var(--primary-shadow-xs)',
+              color: 'var(--primary)',
+              border: '1px solid var(--primary-shadow-sm)',
+              flexShrink: 0,
+            }}
+          >
+            {icon}
+          </Box>
+          <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'var(--grey-light)',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                fontSize: '0.75rem',
+              }}
+            >
               {title}
             </Typography>
-            <Typography variant="h4" color="var(--primary)" sx={{ fontWeight: 950, lineHeight: 1.05 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '1.75rem', sm: '2rem' },
+                color: 'var(--primary)',
+                lineHeight: 1.1,
+              }}
+            >
               {value}
             </Typography>
           </Stack>
         </Stack>
 
-        <Typography variant="body2" color="var(--grey-dark)">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'var(--grey-light)',
+            fontSize: '0.9rem',
+            lineHeight: 1.5,
+          }}
+        >
           {subtitle}
         </Typography>
 
-        <Grid container alignItems={'center'} spacing={1}>
-          <Grid size={'grow'}>
+        <Stack spacing={1}>
+          <Stack direction="row" alignItems="center" spacing={1.5} justifyContent="space-between">
             <LinearProgress
               variant="determinate"
               value={clamp(progress)}
               sx={{
-                height: 10,
-                width: '100%',
+                height: 8,
+                flex: 1,
                 borderRadius: 999,
-                bgcolor: "var(--primary-shadow-sm)",
+                bgcolor: 'var(--primary-shadow-sm)',
                 "& .MuiLinearProgress-bar": {
                   borderRadius: 999,
-                  bgcolor: "var(--primary)",
+                  bgcolor: 'var(--primary)',
                 },
               }}
             />
-          </Grid>
-          {
-            total && <Grid size={'auto'} alignItems={'center'}>
-              <Typography variant="caption" sx={{ fontSize: '12px', width: 'auto', height: '100%' }}>{total}</Typography>
-            </Grid>
-          }
-        </Grid>
+            {total && (
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: 'var(--grey-light)',
+                  minWidth: 'fit-content',
+                }}
+              >
+                {total}
+              </Typography>
+            )}
+          </Stack>
+        </Stack>
       </Stack>
     </Paper>
   );

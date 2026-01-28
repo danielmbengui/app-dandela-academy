@@ -1,0 +1,12 @@
+{
+    "title-page": "Sessions - Dandela Academy",
+    "description-page": "A view of available sessions for Dandela Academy courses",
+    "title": "Sessions",
+    "subtitle": "Browse all available sessions for Dandela Academy courses.",
+    "placeholder_search": "Search by course, category, level...",
+    "not-found": "No session matches the search",
+    "no-sort": "No sort",
+    "sort-by": "Sort by",
+    "lesson-teacher": "Lesson teacher",
+    "sort-order": "Order"
+}

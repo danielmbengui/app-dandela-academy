@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress, Container, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Container, Stack, Typography, IconButton } from "@mui/material";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
@@ -8,14 +8,15 @@ import ButtonConfirm from "../dashboard/elements/ButtonConfirm";
 import { useAuth } from "@/contexts/AuthProvider";
 import { ClassUser } from "@/classes/users/ClassUser";
 import { Trans, useTranslation } from "react-i18next";
-import { NS_COMPLETE_PROFILE, NS_FIRST_CONNEXION } from "@/contexts/i18n/settings";
+import { NS_COMPLETE_PROFILE, NS_FIRST_CONNEXION, NS_BUTTONS } from "@/contexts/i18n/settings";
 import ButtonImportFiles from "../elements/ButtonImportFiles";
 import FieldComponent from "../elements/FieldComponent";
-import { IconCamera, IconProfile } from "@/assets/icons/IconsComponent";
+import { IconCamera, IconProfile, IconPicture } from "@/assets/icons/IconsComponent";
 import { ClassFile } from "@/classes/ClassFile";
 import FieldPhoneComponent from "../elements/FieldPhoneComponent";
 import { ClassCountry } from "@/classes/ClassCountry";
 import CheckboxComponent from "../elements/CheckboxComponent";
+import { Icon } from "@iconify/react";
 
 const ProgressComponent = ({ length = 0, index = -1, disabledNext = true }) => {
   const slides = [...Array(length).keys()];
@@ -80,7 +81,11 @@ function SlideInfos({ length = 0, index = -1, textNext = "", user = null, userEd
   }
   const onClearValue = (name) => {
     //const { name, value } = e.target;
-    setErrors(prev => ({ ...prev, [name]: null }));
+    setErrors(prev => {
+      prev[name] = null;
+      delete prev[name];
+      return prev;
+    });
     setUserEdit((prev) => {
       if (!prev || prev === null) {
         const _user = user.clone();
@@ -215,53 +220,242 @@ function SlideInfos({ length = 0, index = -1, textNext = "", user = null, userEd
     </Stack>
   </Stack>)
 }
+function ImageComponent({ src = null, uid = '' }) {
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        borderRadius: 1,
+        overflow: 'hidden',
+        bgcolor: 'var(--grey-hyper-light)',
+      }}
+    >
+      <Image
+        src={src}
+        alt={`image-profile-${uid}`}
+        quality={100}
+        width={300}
+        height={300}
+        priority
+        style={{
+          width: '100%',
+          height: 'auto',
+          maxHeight: 300,
+          objectFit: 'contain',
+        }}
+      />
+    </Box>
+  );
+}
+
 function SlidePhoto({ length = 0, index = -1, textBack = "", textNext = "", files, setFiles, user = null, userEdit = null, setUserEdit = null, setIndex = null, progressComponent = <></> }) {
+  const { t } = useTranslation([NS_COMPLETE_PROFILE, NS_BUTTONS]);
   const next = async () => {
     setIndex((prev) => prev + 1);
   };
   const back = () => {
     setIndex((prev) => prev - 1);
   };
-  return (<Stack spacing={2}>
-    <Stack alignItems={'center'} spacing={1}>
-      <Stack direction={'row'} alignItems={'center'} spacing={1}>
-        {
-          files.length === 0 && <Box sx={{ p: 1.5, borderRadius: '50%', border: '0.1px solid var(--card-border)' }}>
-            <IconProfile height={45} width={45} color="var(--grey-light)" />
-          </Box>
-        }
-        <Box>
-          {
-            files.length > 0 && <Box sx={{ background: '', width: { sm: '50%' } }}>
-              {
-                ClassUser.createAvatarPhoto({ photo_url: URL.createObjectURL(files[0]), first_name: userEdit?.first_name, last_name: userEdit?.last_name, size: 150, fontSize: '10px' })
-              }
-            </Box>
-          }
-        </Box>
-      </Stack>
 
-      <ButtonImportFiles
-        files={files} setFiles={setFiles}
-        supported_files={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value)}
-        multiple={false} />
-    </Stack>
-    <Stack spacing={2} sx={{ width: '100%', pb: 3, }}>
-      <ProgressComponent length={length} index={index} />
-      <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} sx={{ background: '', width: '100%' }} spacing={1}>
-        <ButtonCancel
-          //disabled={isFirst || processing} 
-          onClick={back} size="large" label={textBack} sx={{ width: { xs: '100%', sm: '30%' } }} />
-        <ButtonConfirm
-          //loading={processing} 
-          //disabled={!userEdit?.first_name || !userEdit?.last_name || !userEdit?.birthday || Object.keys(errors).length > 0}
-          onClick={next}
-          size="large"
-          label={textNext}
-          sx={{ width: { xs: '100%', sm: '30%' } }} />
+  // Priorité à userEdit, puis user, en vérifiant que ce n'est pas une chaîne vide
+  const photoUrl = useMemo(() => {
+    // Si userEdit existe et a une photo_url (même vide), on l'utilise en priorité
+    if (userEdit && userEdit.photo_url !== undefined) {
+      const editPhoto = userEdit.photo_url;
+      return editPhoto && editPhoto.trim() !== '' ? editPhoto : null;
+    }
+    // Sinon, on utilise celle de user
+    const userPhoto = user?.photo_url;
+    return userPhoto && userPhoto.trim() !== '' ? userPhoto : null;
+  }, [userEdit?.photo_url, user?.photo_url]);
+  
+  const hasFile = files.length > 0;
+  const hasPhoto = !hasFile && photoUrl;
+
+  // Vérifier si on peut réinitialiser la photo (si la photo a été modifiée ou supprimée)
+  const canResetPhoto = useMemo(() => {
+    // Pas de bouton si user n'a pas de photo_url originale
+    if (!user?.photo_url || user.photo_url.trim() === '') return false;
+    
+    const originalPhoto = user.photo_url.trim();
+    
+    // Cas 1: Un fichier a été importé (nouvelle photo)
+    if (hasFile) return true;
+    
+    // Cas 2: La photo a été supprimée (userEdit.photo_url est vide mais user.photo_url existe)
+    if (userEdit && userEdit.photo_url !== undefined) {
+      const currentPhoto = (userEdit.photo_url || '').trim();
+      if (currentPhoto === '' && originalPhoto !== '') return true;
+    }
+    
+    // Cas 3: La photo a été modifiée (userEdit.photo_url est différent de user.photo_url)
+    if (userEdit && userEdit.photo_url !== undefined) {
+      const currentPhoto = (userEdit.photo_url || '').trim();
+      if (currentPhoto !== '' && currentPhoto !== originalPhoto) return true;
+    }
+    
+    return false;
+  }, [user?.photo_url, userEdit?.photo_url, hasFile]);
+
+  const handleRemoveFile = () => {
+    setFiles([]);
+  };
+
+  const handleSetFile = (newFiles) => {
+    setFiles(newFiles && newFiles.length > 0 ? newFiles : []);
+  };
+
+  const handleResetPhoto = () => {
+    if (setUserEdit && userEdit && user?.photo_url) {
+      // Supprimer les fichiers importés
+      setFiles([]);
+      // Restaurer la photo originale
+      setUserEdit(prev => {
+        if (!prev) return userEdit;
+        prev.update({ photo_url: user.photo_url });
+        return prev.clone();
+      });
+    }
+  };
+
+  const cardSx = {
+    bgcolor: 'var(--card-color)',
+    border: '1px solid var(--card-border)',
+    borderRadius: 2,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    p: 3,
+    transition: 'box-shadow 0.2s ease',
+    '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.08)' },
+  };
+
+  return (
+    <Stack spacing={2}>
+      <Box sx={cardSx}>
+        <Stack spacing={2} alignItems="center">
+          {!hasFile && !hasPhoto && (
+            <Stack spacing={1.5} alignItems="center" sx={{ width: '100%' }}>
+              <Box sx={{ p: 2, borderRadius: '50%', border: '0.1px solid var(--card-border)', bgcolor: 'var(--grey-hyper-light)' }}>
+                <IconProfile height={60} width={60} color="var(--grey-light)" />
+              </Box>
+              {canResetPhoto && (
+                <ButtonCancel
+                  icon={<IconPicture width={12} height={12} />}
+                  disabled={false}
+                  label={t('reset-photo', { ns: NS_BUTTONS })}
+                  size="small"
+                  onClick={handleResetPhoto}
+                />
+              )}
+              <ButtonImportFiles
+                files={[]}
+                setFiles={handleSetFile}
+                supported_files={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value)}
+                multiple={false}
+              />
+            </Stack>
+          )}
+
+          {!hasFile && hasPhoto && (
+            <Stack spacing={1.5} alignItems="stretch" sx={{ width: '100%' }}>
+              <Box sx={{ borderRadius: 1, overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+                <ImageComponent src={photoUrl} uid={userEdit?.uid || user?.uid || ''} />
+              </Box>
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={1} 
+                alignItems={{ xs: 'stretch', sm: 'center' }}
+                justifyContent={{ xs: 'stretch', sm: 'flex-start' }}
+                flexWrap="wrap"
+              >
+                <ButtonConfirm
+                  icon={<Icon icon="mdi:delete-outline" width={12} height={12} />}
+                  disabled={false}
+                  label={t('remove-photo', { ns: NS_BUTTONS })}
+                  size="small"
+                  sx={{ bgcolor: 'var(--error)', '&:hover': { bgcolor: 'var(--error-dark)' } }}
+                  onClick={() => {
+                    if (setUserEdit && userEdit) {
+                      setUserEdit(prev => {
+                        if (!prev) return userEdit;
+                        prev.update({ photo_url: '' });
+                        return prev.clone();
+                      });
+                    }
+                  }}
+                />
+                <ButtonImportFiles
+                  files={[]}
+                  setFiles={handleSetFile}
+                  supported_files={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value)}
+                  multiple={false}
+                />
+                {canResetPhoto && (
+                  <ButtonCancel
+                    icon={<IconPicture width={12} height={12} />}
+                    disabled={false}
+                    label={t('reset-photo', { ns: NS_BUTTONS })}
+                    size="small"
+                    onClick={handleResetPhoto}
+                  />
+                )}
+              </Stack>
+            </Stack>
+          )}
+
+          {hasFile && (
+            <Stack spacing={1.5} alignItems="stretch" sx={{ width: '100%' }}>
+              <Box sx={{ borderRadius: 1, overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+                <ImageComponent src={URL.createObjectURL(files[0])} uid={userEdit?.uid || user?.uid || ''} />
+              </Box>
+              <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap">
+                {canResetPhoto && (
+                  <ButtonCancel
+                    icon={<IconPicture width={12} height={12} />}
+                    disabled={false}
+                    label={t('reset-photo', { ns: NS_BUTTONS })}
+                    size="small"
+                    onClick={handleResetPhoto}
+                  />
+                )}
+                <Stack 
+                  onClick={handleRemoveFile} 
+                  direction="row" 
+                  spacing={1} 
+                  justifyContent="center" 
+                  alignItems="center" 
+                  sx={{ color: 'var(--error)', cursor: 'pointer' }}
+                >
+                  <IconButton sx={{ background: 'rgba(0,0,0,0.75)', cursor: 'pointer' }}>
+                    <Icon color="red" icon="mdi:delete-outline" width="16" height="16" />
+                  </IconButton>
+                  <Typography variant="body2" sx={{ color: 'var(--error)' }}>
+                    {ClassFile.formatFileName(files[0]?.name)}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+          )}
+        </Stack>
+      </Box>
+      <Stack spacing={2} sx={{ width: '100%', pb: 3 }}>
+        <ProgressComponent length={length} index={index} />
+        <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} sx={{ width: '100%' }} spacing={1}>
+          <ButtonCancel
+            onClick={back}
+            size="large"
+            label={textBack}
+            sx={{ width: { xs: '100%', sm: '30%' } }}
+          />
+          <ButtonConfirm
+            onClick={next}
+            size="large"
+            label={textNext}
+            sx={{ width: { xs: '100%', sm: '30%' } }}
+          />
+        </Stack>
       </Stack>
     </Stack>
-  </Stack>)
+  );
 }
 function SlideMarketing({ length = 0, index = -1, files, setFiles, textBack = "", textNext = "", user = null, userEdit = null, setUserEdit = null, setIndex = null, progressComponent = <></> }) {
   const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_COMPLETE_PROFILE]);
@@ -284,12 +478,13 @@ function SlideMarketing({ length = 0, index = -1, files, setFiles, textBack = ""
       setProcessing(true);
       const file = files[0] || null;
       var urlPhoto = "";
+      
+      // Cas 1: Un nouveau fichier a été importé
       if (file) {
         const filename = file.name;
         const extension = filename.split('.').pop().toLowerCase();
         const _path = `${ClassUser.COLLECTION}/${user.uid}/profile-photo`;
         const resultFile = await ClassFile.uploadFileToFirebase({
-          //id_user: user?.uid,
           file: file,
           path: _path,
         });
@@ -301,20 +496,38 @@ function SlideMarketing({ length = 0, index = -1, files, setFiles, textBack = ""
           type: resultFile?.type,
           size: resultFile?.size,
           tag: `profile`,
-          //source_uri: this._source_uri,
         }).toJSON();
-        console.log("neeeeeew file", newFile);
         urlPhoto = newFile?.uri || "";
+      } 
+      // Cas 2: La photo a été supprimée (userEdit.photo_url est vide mais user.photo_url existe)
+      else if (userEdit && userEdit.photo_url !== undefined && userEdit.photo_url.trim() === '' && user?.photo_url && user.photo_url.trim() !== '') {
+        urlPhoto = "";
       }
+      // Cas 3: La photo actuelle a été modifiée (userEdit.photo_url est différent de user.photo_url)
+      else if (userEdit && userEdit.photo_url !== undefined && userEdit.photo_url.trim() !== '') {
+        const currentPhoto = userEdit.photo_url.trim();
+        const originalPhoto = (user?.photo_url || '').trim();
+        if (currentPhoto !== originalPhoto) {
+          urlPhoto = currentPhoto;
+        } else {
+          // Pas de changement, garder la photo actuelle
+          urlPhoto = userEdit.photo_url || user?.photo_url || "";
+        }
+      }
+      // Cas 4: Pas de changement, garder la photo actuelle
+      else {
+        urlPhoto = userEdit?.photo_url || user?.photo_url || "";
+      }
+      
       const status = userEdit.email_verified ? ClassUser.STATUS.ONLINE : ClassUser.STATUS.MUST_ACTIVATE;
       const activated = userEdit.email_verified ? true : false;
       
       setUserEdit((prev) => {
         if (!prev || prev === null) {
-          user?.update({ photo_url: urlPhoto,activated:activated, status: status });
+          user?.update({ photo_url: urlPhoto, activated: activated, status: status });
           return user?.clone()
         }
-        prev.update({ photo_url: urlPhoto,activated:activated, status: status });
+        prev.update({ photo_url: urlPhoto, activated: activated, status: status });
         return prev.clone();
       });
       const _user = await userEdit.updateFirestore();
@@ -323,7 +536,6 @@ function SlideMarketing({ length = 0, index = -1, files, setFiles, textBack = ""
       console.log("ERrror file", error)
     } finally {
       setProcessing(false);
-      //console.log("neeeeeew usssssser", userEdit);
     }
     /*
     const _errors = {};
@@ -367,7 +579,17 @@ function SlideMarketing({ length = 0, index = -1, files, setFiles, textBack = ""
   };
   return (<Stack spacing={2}>
     <Stack alignItems={'start'} spacing={1}>
-      <Typography>{t('title-step-socials', { ns: NS_COMPLETE_PROFILE })}</Typography>
+      <Typography
+        sx={{
+          fontSize: { xs: '1.1rem', sm: '1.25rem' },
+          fontWeight: 600,
+          color: 'var(--font-color)',
+          mb: 0.5,
+          letterSpacing: '-0.01em',
+        }}
+      >
+        {t('title-step-socials', { ns: NS_COMPLETE_PROFILE })}
+      </Typography>
       <CheckboxComponent
         name={'newsletter'}
         type={'checkbox'}
@@ -390,6 +612,31 @@ function SlideMarketing({ length = 0, index = -1, files, setFiles, textBack = ""
         checked={(!userEdit?.phone_number || userEdit?.phone_number === '') ? false : userEdit?.okay_whatsapp}
         onChange={onChangeValue}
       />
+      {(!userEdit?.phone_number || userEdit?.phone_number === '') && (
+        <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: -0.5, ml: 1 }}>
+          <Typography
+            variant="body2"
+            component="span"
+            sx={{
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
+              color: 'var(--error)',
+              fontWeight: 600,
+            }}
+          >
+            *
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
+              color: 'var(--grey)',
+              fontStyle: 'italic',
+            }}
+          >
+            {t('phone-required-for-whatsapp', { ns: NS_COMPLETE_PROFILE })}
+          </Typography>
+        </Stack>
+      )}
     </Stack>
     <Stack spacing={2} sx={{ width: '100%', pb: 3, }}>
       <ProgressComponent length={length} index={index} />
@@ -436,10 +683,38 @@ export default function CompleteProfileComponent() {
   return (
     <Stack justifyContent={'center'} alignItems={'center'} sx={{ background: '', px: 1, textAlign: 'center', width: '100%', height: { xs: '100%', sm: 'auto' } }}>
       <Stack spacing={2} maxWidth={'sm'} justifyContent={'center'} sx={{ background: 'var(--card-color)', py: { xs: 2, sm: 1.5 }, px: 2, borderRadius: '10px' }}>
-        <Stack alignItems={'center'} sx={{ width: '100%' }}>
-          <h2>{t(`title`)}</h2>
-          <Box sx={{ maxWidth: { sm: '70%' }, }}>
-            <Typography sx={{ color: 'var(--grey-light)' }}>{t(`subtitle`)}</Typography>
+        <Stack alignItems={'center'} sx={{ width: '100%', mb: 1 }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+              fontWeight: 700,
+              color: 'var(--font-color)',
+              textAlign: 'center',
+              lineHeight: 1.3,
+              mb: { xs: 1, sm: 1.5 },
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, var(--font-color) 0%, var(--primary) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            {t(`title`)}
+          </Typography>
+          <Box sx={{ maxWidth: { xs: '100%', sm: '85%' }, px: { xs: 1, sm: 0 } }}>
+            <Typography 
+              sx={{ 
+                color: 'var(--grey-light)', 
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+                lineHeight: 1.7,
+                textAlign: 'center',
+                fontWeight: 400,
+                letterSpacing: '0.01em',
+              }}
+            >
+              {t(`subtitle`)}
+            </Typography>
           </Box>
         </Stack>
         <Container sx={{ background: '' }}>

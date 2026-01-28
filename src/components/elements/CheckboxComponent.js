@@ -21,6 +21,7 @@ export default function CheckboxComponent({ type, name, checked, onChange, label
           checked={checked}
           value={checked}
           onChange={onChange}
+          disabled={disabled}
           sx={{
     borderRadius: "4px",
 
@@ -43,9 +44,11 @@ export default function CheckboxComponent({ type, name, checked, onChange, label
         slotProps={{
           typography: {
             sx: {
-              color: 'var(--grey-title)',
+              color: disabled ? 'var(--grey-light)' : 'var(--grey-title)',
               fontWeight: 400,
-              fontSize: "0.9rem"
+              fontSize: "0.9rem",
+              opacity: disabled ? 0.6 : 1,
+              fontStyle: disabled ? 'italic' : 'normal',
               //pl:0
             }
           }

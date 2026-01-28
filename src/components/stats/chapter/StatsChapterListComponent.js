@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Box,
     Typography,
@@ -10,14 +10,12 @@ import {
     Grid,
     LinearProgress,
 } from "@mui/material";
-
-
 import { useRouter } from "next/navigation";
 import { useLesson } from "@/contexts/LessonProvider";
 import { useTranslation } from "react-i18next";
 import { IconArrowDown, IconArrowUp, IconCharts, IconProgressUp, IconStar } from "@/assets/icons/IconsComponent";
 import { PAGE_STATS } from "@/contexts/constants/constants_pages";
-import {capitalizeFirstLetter, formatChrono, getFormattedDateNumeric } from "@/contexts/functions";
+import { capitalizeFirstLetter, formatChrono, getFormattedDateNumeric } from "@/contexts/functions";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
 import { useChapter } from "@/contexts/ChapterProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
@@ -28,10 +26,21 @@ import CircularProgressChapter from "../CircularProgressChapter";
 
 function NoStatsComponent() {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    return(<Stack sx={{p:1.5, my:1, border:'0.1px solid var(--card-border)'}} alignItems={'start'}>
-      <Typography>{t('no-result')}</Typography>
-    </Stack>)
-  }
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 3,
+                borderRadius: 2,
+                border: '1px solid var(--card-border)',
+                bgcolor: 'var(--card-color)',
+                width: '100%',
+            }}
+        >
+            <Typography sx={{ color: 'var(--grey-light)' }}>{t('no-result')}</Typography>
+        </Paper>
+    );
+}
 function ViewScoreComponent({ chapter = null }) {
    // if (!chapter) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
@@ -69,89 +78,123 @@ function ViewScoreComponent({ chapter = null }) {
         return { statsFiltered: filtered_stats, hasStats };
     }, [chapter, stats, sort, direction]);
 
-    return (<Grid container spacing={1} sx={{ width: '100%' }}>
-        {
-            !hasStats && <NoStatsComponent />
-        }
-        {
-            hasStats && <>
-            <Grid size={12}>
-            <Stack spacing={1} alignItems={'center'} sx={{ background: '' }} direction={'row'}>
-                <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ background: 'var(--primary-shadow)', py: 1, px: 1.5, borderRadius: '10px' }}>
-                    <SelectComponentDark
-                        name={'sort'}
-                        value={sort}
-                        values={SORTS}
-                        onChange={(e) => {
-                            const { value } = e.target;
-                            setSort(value);
+    return (
+        <Stack spacing={2} sx={{ width: '100%' }}>
+            {!hasStats && <NoStatsComponent />}
+            {hasStats && (
+                <>
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            border: '1px solid var(--card-border)',
+                            bgcolor: 'var(--card-color)',
                         }}
-                        hasNull={false}
-                    />
-                    <Stack direction={'row'} alignItems={'center'}>
-                        <Box
-                            onClick={() => setDirection('asc')}
-                            sx={{
-                                color: direction === 'asc' ? 'var(--primary)' : '',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <IconArrowUp />
-                        </Box>
-                        <Box
-                            onClick={() => setDirection('desc')}
-                            sx={{
-                                color: direction === 'desc' ? 'var(--primary)' : '',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <IconArrowDown />
-                        </Box>
-                    </Stack>
-                </Stack>
-                <Typography variant="caption">{statsFiltered.length} {t('attempts')}</Typography>
-            </Stack>
-        </Grid>
-        {
-            statsFiltered?.map((stat, i) => {
-                const uidIntern = getOneStatIndex(stat.uid, statsFiltered) + 1;
-                return (<Grid size={'auto'} key={`${stat.uid}`}>
-                    <StatCard
-                        uidLesson={stat.uid_lesson}
-                        uidChapter={stat.uid_chapter}
-                        title="Meilleur résultat"
-                        statUidIntern={uidIntern}
-                        icon={stat.score === stat.answers.length ? <EmojiEventsIcon /> : <IconStar />}
-                        //attempt={filteredStats.best}
-                        tone="good"
-                        //status={bestStat?.status}
-                        stat={stat}
-                    />
-                </Grid>)
-            })
-        }
-            </>
-        }
-    </Grid>)
+                    >
+                        <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
+                            <Stack direction="row" spacing={1.5} alignItems="center">
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'var(--primary-shadow-xs)',
+                                        border: '1px solid var(--card-border)',
+                                    }}
+                                >
+                                    <Stack direction="row" spacing={1.5} alignItems="center">
+                                        <SelectComponentDark
+                                            name={'sort'}
+                                            value={sort}
+                                            values={SORTS}
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                setSort(value);
+                                            }}
+                                            hasNull={false}
+                                        />
+                                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                                            <Box
+                                                onClick={() => setDirection('asc')}
+                                                sx={{
+                                                    color: direction === 'asc' ? 'var(--primary)' : 'var(--grey-light)',
+                                                    cursor: 'pointer',
+                                                    transition: 'color 0.2s ease',
+                                                    '&:hover': {
+                                                        color: 'var(--primary)',
+                                                    },
+                                                }}
+                                            >
+                                                <IconArrowUp />
+                                            </Box>
+                                            <Box
+                                                onClick={() => setDirection('desc')}
+                                                sx={{
+                                                    color: direction === 'desc' ? 'var(--primary)' : 'var(--grey-light)',
+                                                    cursor: 'pointer',
+                                                    transition: 'color 0.2s ease',
+                                                    '&:hover': {
+                                                        color: 'var(--primary)',
+                                                    },
+                                                }}
+                                            >
+                                                <IconArrowDown />
+                                            </Box>
+                                        </Stack>
+                                    </Stack>
+                                </Paper>
+                            </Stack>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    color: 'var(--grey-light)',
+                                    fontWeight: 500,
+                                }}
+                            >
+                                {statsFiltered.length} {t('attempts')}
+                            </Typography>
+                        </Stack>
+                    </Paper>
+                    <Grid container spacing={2}>
+                        {statsFiltered?.map((stat) => {
+                            const uidIntern = getOneStatIndex(stat.uid, statsFiltered) + 1;
+                            return (
+                                <Grid size={{ xs: 12, sm: 'auto' }} key={`${stat.uid}`}>
+                                    <StatCard
+                                        uidLesson={stat.uid_lesson}
+                                        uidChapter={stat.uid_chapter}
+                                        title="Meilleur résultat"
+                                        statUidIntern={uidIntern}
+                                        icon={stat.score === stat.answers.length ? <EmojiEventsIcon /> : <IconStar />}
+                                        tone="good"
+                                        stat={stat}
+                                    />
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+                </>
+            )}
+        </Stack>
+    );
 }
 function ViewAverageComponent({ chapter = null, lesson = null }) {
     //if (!lesson || !chapter) return;
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
-    const { getGlobalCountQuiz, stats, getGlobalDuration, getGlobalPercent, getGlobalScore, getGlobalCountQuestions, getBestStat, getWorstStat } = useStat();
+    const { getGlobalCountQuiz, stats, getGlobalDuration, getGlobalScore, getGlobalCountQuestions } = useStat();
     const { chapters } = useChapter();
-    const { statsFiltered, chaptersFiltered, statusTab, countQuiz } = useMemo(() => {
-        const chaptersFiltered = chapters.filter(c => c.uid_lesson === lesson?.uid);
+    const { statsFiltered, statusTab, countQuiz } = useMemo(() => {
         const statsFiltered = stats.filter(s => s.uid_lesson === lesson?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
         const statusTab = [...ClassUserStat.ALL_STATUS].reverse();
         const countQuiz = getGlobalCountQuiz(chapter.uid_lesson, chapter.uid, statsFiltered);
         return {
             statsFiltered,
-            chaptersFiltered,
             statusTab,
             countQuiz
         };
-    }, [chapter, lesson, stats, chapters]);
+    }, [chapter, lesson, stats, getGlobalCountQuiz]);
 
     const chapterStats = [...statsFiltered].filter(s => s.uid_chapter === chapter.uid);
     const hasStats = chapterStats.length > 0;
@@ -161,227 +204,271 @@ function ViewAverageComponent({ chapter = null, lesson = null }) {
     const percent = getGlobalPercent(chapter.uid_lesson, chapter.uid, chapterStats);
 
     const colorAverage = STATUS_CONFIG['average'];
-    return (<Stack spacing={1} sx={{ py: 1 }} alignItems={'start'}>
-        {
-            !hasStats && <NoStatsComponent />
-        }
-        {
-            hasStats && <Grid direction="row" container spacing={1} sx={{
-                background: '', justifyContent: "center",
-                alignItems: "stretch",
-            }}>
-                <Grid size={{ xs: 12, sm: 3 }} sx={{ height: '100%', background: '' }}>
-                    <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                        sx={{
-                            py: 1,
-                            px: 1.5,
-                            border: '0.1px solid var(--card-border)',
-                            borderRadius: '10px',
-                        }}>
-                        <Chip size="small" label={t('average')} sx={{
-                            fontWeight: 950,
-                            bgcolor: colorAverage.background_bubble,
-                            color: colorAverage.color_icon,
-                            border: colorAverage.border,
-                        }} />
-                        <CircularProgressChapter
-                            score={countScore}
-                            questions={countQuestions}
-                            percent={percent}
-                            duration={totalDuration}
-                            size="large"
-                            status={'average'}
-                        />
-                    </Stack>
-                </Grid>
-                <Grid size={'grow'}>
-                    <Stack spacing={1}>
-                        <Grid container spacing={1}>
-                            {
-                                statusTab.map((status, i) => {
+    return (
+        <Stack spacing={2} sx={{ py: 1 }}>
+            {!hasStats && <NoStatsComponent />}
+            {hasStats && (
+                <Grid container spacing={2} sx={{ alignItems: "stretch" }}>
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 3,
+                                border: '1px solid var(--card-border)',
+                                borderRadius: 3,
+                                bgcolor: 'var(--card-color)',
+                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                                height: '100%',
+                            }}
+                        >
+                            <Stack justifyContent={'center'} alignItems={'center'} spacing={2}>
+                                <Chip
+                                    size="small"
+                                    label={t('average')}
+                                    sx={{
+                                        fontWeight: 700,
+                                        bgcolor: colorAverage.background_bubble,
+                                        color: colorAverage.color_icon,
+                                        border: `1px solid ${colorAverage.border}`,
+                                    }}
+                                />
+                                <CircularProgressChapter
+                                    score={countScore}
+                                    questions={countQuestions}
+                                    percent={percent}
+                                    duration={totalDuration}
+                                    size="large"
+                                    status={'average'}
+                                />
+                            </Stack>
+                        </Paper>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 9 }}>
+                        <Stack spacing={2}>
+                            <Grid container spacing={2}>
+                                {statusTab.map((status) => {
                                     const _stats = [...chapterStats].filter(stat => stat.status === status);
                                     const sizeStats = _stats.length;
                                     const percent = sizeStats / countQuiz * 100;
-                                    //const percent = getGlobalPercent(chapter.uid_lesson, chapter.uid, _stats);
                                     const countScore = getGlobalScore(chapter.uid_lesson, chapter.uid, _stats);
                                     const countQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, _stats);
                                     const duration = getGlobalDuration(chapter.uid_lesson, chapter.uid, _stats);
-                                    const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
                                     const colorBest = STATUS_CONFIG[status];
-                                    return (<Grid size={{ xs: 12, sm: 'auto' }} key={`${status}`}>
-                                        <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                                            sx={{
-                                                py: 1,
-                                                px: 1.5,
-                                                border: '0.1px solid var(--card-border)',
-                                                borderRadius: '10px',
-                                            }}>
-                                            <Chip size="small" label={t(status)} sx={{
-                                                fontWeight: 950,
-                                                bgcolor: colorBest.background_bubble,
-                                                color: colorBest.color_icon,
-                                                border: colorBest.border,
-                                            }} />
-                                            <CircularProgressChapter
-                                                score={sizeStats}
-                                                questions={countQuiz}
-                                                percent={percent}
-                                                duration={duration}
-                                                size="small"
-                                                status={status}
-                                            />
-                                        </Stack>
-                                    </Grid>)
-                                })
-                            }
-
-                        </Grid>
-                        <AverageComponent chapter={chapter} />
-                    </Stack>
+                                    return (
+                                        <Grid size={{ xs: 12, sm: 'auto' }} key={`${status}`}>
+                                            <Paper
+                                                elevation={0}
+                                                sx={{
+                                                    p: 2.5,
+                                                    border: '1px solid var(--card-border)',
+                                                    borderRadius: 3,
+                                                    bgcolor: 'var(--card-color)',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                                                    transition: 'all 0.3s ease',
+                                                    '&:hover': {
+                                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+                                                        transform: 'translateY(-2px)',
+                                                    },
+                                                }}
+                                            >
+                                                <Stack justifyContent={'center'} alignItems={'center'} spacing={1.5}>
+                                                    <Chip
+                                                        size="small"
+                                                        label={t(status)}
+                                                        sx={{
+                                                            fontWeight: 700,
+                                                            bgcolor: colorBest.background_bubble,
+                                                            color: colorBest.color_icon,
+                                                            border: `1px solid ${colorBest.border}`,
+                                                        }}
+                                                    />
+                                                    <CircularProgressChapter
+                                                        score={sizeStats}
+                                                        questions={countQuiz}
+                                                        percent={percent}
+                                                        duration={duration}
+                                                        size="small"
+                                                        status={status}
+                                                    />
+                                                </Stack>
+                                            </Paper>
+                                        </Grid>
+                                    );
+                                })}
+                            </Grid>
+                            <AverageComponent chapter={chapter} />
+                        </Stack>
+                    </Grid>
                 </Grid>
-            </Grid>
-        }
-    </Stack>)
+            )}
+        </Stack>
+    );
 }
 function AverageComponent({ chapter = null }) {
-    //if (!chapter) return;
     const router = useRouter();
     const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { getOneStatIndex, getGlobalCountQuiz, stat, setUidStat, isLoading: isLoadingStats, stats, getGlobalScore, getGlobalDuration, getGlobalCountQuestions, getGlobalPercent, getBestStat, getWorstStat, getGlobalCountLesson, getGlobalCountChapters, countHourTotalLessons } = useStat();
-    const { statsFiltered,
-        averageQuestions, averagePercent, averageDuration, averageScore,
-        bestStat, bestUidIntern,
-        worstStat, worstUidIntern,
-        colorBest, colorWorst } = useMemo(() => {
-            const filtered_stats = [...stats].filter(s => s.uid_chapter === chapter?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
-            const averageQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const averagePercent = getGlobalPercent(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const averageDuration = getGlobalDuration(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const totalScore = getGlobalScore(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const totalQuestions = getGlobalCountQuestions(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const averageScore = totalScore;
-            const bestStat = getBestStat(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const bestUidIntern = getOneStatIndex(bestStat.uid, filtered_stats) + 1;
+    const { getOneStatIndex, stats, getBestStat, getWorstStat } = useStat();
+    const { bestStat, bestUidIntern, worstStat, worstUidIntern, colorBest, colorWorst } = useMemo(() => {
+        const filtered_stats = [...stats].filter(s => s.uid_chapter === chapter?.uid).sort((a, b) => a.end_date.getTime() - b.end_date.getTime());
+        const bestStat = getBestStat(chapter.uid_lesson, chapter.uid, filtered_stats);
+        const bestUidIntern = getOneStatIndex(bestStat.uid, filtered_stats) + 1;
+        const worstStat = getWorstStat(chapter.uid_lesson, chapter.uid, filtered_stats);
+        const worstUidIntern = getOneStatIndex(worstStat.uid, filtered_stats) + 1;
+        const colorBest = STATUS_CONFIG[bestStat?.status];
+        const colorWorst = STATUS_CONFIG[worstStat?.status];
+        return {
+            bestStat,
+            bestUidIntern,
+            worstStat,
+            worstUidIntern,
+            colorBest,
+            colorWorst
+        };
+    }, [chapter, stats, getBestStat, getWorstStat, getOneStatIndex]);
 
-            const worstStat = getWorstStat(chapter.uid_lesson, chapter.uid, filtered_stats);
-            const worstUidIntern = getOneStatIndex(worstStat.uid, filtered_stats) + 1;
-            const colorBest = STATUS_CONFIG[bestStat?.status];
-            const colorWorst = STATUS_CONFIG[worstStat?.status];
-            return {
-                statsFiltered: filtered_stats,
-                averageQuestions,
-                averagePercent,
-                averageDuration,
-                averageScore,
-                bestStat,
-                bestUidIntern,
-                worstStat,
-                worstUidIntern,
-                colorBest,
-                colorWorst
-            };
-        }, [chapter]);
-
-    return (<Grid container
-        alignItems={'center'}
-        justifyContent={'start'}
-        spacing={2}>
-        <Grid size={{ xs: 12, sm: 6 }} alignItems={'center'}>
-            <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                onClick={() => router.push(ClassUserStat.createUrl(chapter.uid_lesson, chapter.uid, worstStat.uid))}
-                sx={{
-                    py: 1,
-                    px: 1.5,
-                    border: '0.1px solid var(--card-border)',
-                    borderRadius: '10px',
-                    cursor: 'pointer'
-                }}>
-                <Typography>{t('worst')}</Typography>
-                {
-                    worstStat && worstStat.score === worstStat.answers?.length ?
-                        <EmojiEventsIcon sx={{ color: colorWorst?.color_icon, fontSize: '30px' }} /> :
-                        <IconCharts height={30} width={30} color={colorWorst?.color_icon} />
-                }
-
-                <CircularProgressStatComponent
-                    score={worstStat?.score}
-                    questions={worstStat?.answers?.length}
-                    percent={worstStat?.score / worstStat?.answers?.length * 100}
-                    duration={worstStat?.duration}
-                    size="medium"
-                    status={worstStat?.status}
-                />
-                <Typography sx={{ color: colorWorst?.color }}>{capitalizeFirstLetter(t('quiz'))} n°{worstUidIntern}</Typography>
-                <Chip size="small" label={getFormattedDateNumeric(worstStat?.end_date)} sx={{
-                    fontWeight: 950,
-                    bgcolor: colorWorst?.background_bubble,
-                    color: colorWorst?.color,
-                    border: `1px solid ${colorWorst?.border}`,
-                }} />
-            </Stack>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }} alignItems={'center'}>
-            <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                onClick={() => router.push(ClassUserStat.createUrl(chapter.uid_lesson, chapter.uid, bestStat.uid))}
-                sx={{
-                    py: 1,
-                    px: 1.5,
-                    border: '0.1px solid var(--card-border)',
-                    borderRadius: '10px',
-                    cursor: 'pointer'
-                }}>
-                <Typography>{t('best')}</Typography>
-                {
-                    bestStat && bestStat.score === bestStat.answers?.length ?
-                        <EmojiEventsIcon sx={{ color: colorBest?.color_icon, fontSize: '30px' }} /> :
-                        <IconCharts height={30} width={30} color={colorBest?.color_icon} />
-                }
-
-                <CircularProgressStatComponent
-                    score={bestStat?.score}
-                    questions={bestStat?.answers?.length}
-                    percent={bestStat?.score / bestStat?.answers?.length * 100}
-                    duration={bestStat?.duration}
-                    progress={42} stat={bestStat}
-                    size="medium"
-                    status={bestStat?.status}
-                />
-                <Typography sx={{ color: colorWorst?.color }}>{capitalizeFirstLetter(t('quiz'))} n°{bestUidIntern}</Typography>
-                <Chip size="small" label={getFormattedDateNumeric(bestStat?.end_date)} sx={{
-                    fontWeight: 950,
-                    bgcolor: colorBest?.background_bubble,
-                    color: colorBest?.color,
-                    border: `1px solid ${colorBest?.border}`,
-                }} />
-            </Stack>
-        </Grid>
-    </Grid>)
-}
-function AvatarIcon({ children, sx }) {
     return (
-        <Box
-            sx={{
-                width: 40,
-                height: 40,
-                borderRadius: 3,
-                display: "grid",
-                placeItems: "center",
-                bgcolor: "rgba(37,99,235,0.12)",
-                color: "#2563EB",
-                border: "1px solid rgba(37,99,235,0.18)",
-                ...sx,
-            }}
-        >
-            {children}
-        </Box>
+        <Grid container spacing={2} alignItems={'center'} justifyContent={'start'}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <Paper
+                    elevation={0}
+                    onClick={() => router.push(ClassUserStat.createUrl(chapter.uid_lesson, chapter.uid, worstStat.uid))}
+                    sx={{
+                        p: 3,
+                        border: `1px solid ${colorWorst?.border || 'var(--card-border)'}`,
+                        borderRadius: 3,
+                        bgcolor: 'var(--card-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                            transform: 'translateY(-4px)',
+                            borderColor: colorWorst?.border || 'var(--primary)',
+                        },
+                    }}
+                >
+                    <Stack justifyContent={'center'} alignItems={'center'} spacing={2}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                color: 'var(--font-color)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px',
+                            }}
+                        >
+                            {t('worst')}
+                        </Typography>
+                        {worstStat && worstStat.score === worstStat.answers?.length ? (
+                            <EmojiEventsIcon sx={{ color: colorWorst?.color_icon, fontSize: '3rem' }} />
+                        ) : (
+                            <IconCharts height={40} width={40} color={colorWorst?.color_icon} />
+                        )}
+                        <CircularProgressStatComponent
+                            score={worstStat?.score}
+                            questions={worstStat?.answers?.length}
+                            percent={worstStat?.score / worstStat?.answers?.length * 100}
+                            duration={worstStat?.duration}
+                            size="medium"
+                            status={worstStat?.status}
+                        />
+                        <Typography
+                            sx={{
+                                fontWeight: 600,
+                                color: colorWorst?.color,
+                                fontSize: '0.95rem',
+                            }}
+                        >
+                            {capitalizeFirstLetter(t('quiz'))} n°{worstUidIntern}
+                        </Typography>
+                        <Chip
+                            size="small"
+                            label={getFormattedDateNumeric(worstStat?.end_date)}
+                            sx={{
+                                fontWeight: 700,
+                                bgcolor: colorWorst?.background_bubble,
+                                color: colorWorst?.color,
+                                border: `1px solid ${colorWorst?.border}`,
+                            }}
+                        />
+                    </Stack>
+                </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <Paper
+                    elevation={0}
+                    onClick={() => router.push(ClassUserStat.createUrl(chapter.uid_lesson, chapter.uid, bestStat.uid))}
+                    sx={{
+                        p: 3,
+                        border: `1px solid ${colorBest?.border || 'var(--card-border)'}`,
+                        borderRadius: 3,
+                        bgcolor: 'var(--card-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                            transform: 'translateY(-4px)',
+                            borderColor: colorBest?.border || 'var(--primary)',
+                        },
+                    }}
+                >
+                    <Stack justifyContent={'center'} alignItems={'center'} spacing={2}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                color: 'var(--font-color)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px',
+                            }}
+                        >
+                            {t('best')}
+                        </Typography>
+                        {bestStat && bestStat.score === bestStat.answers?.length ? (
+                            <EmojiEventsIcon sx={{ color: colorBest?.color_icon, fontSize: '3rem' }} />
+                        ) : (
+                            <IconCharts height={40} width={40} color={colorBest?.color_icon} />
+                        )}
+                        <CircularProgressStatComponent
+                            score={bestStat?.score}
+                            questions={bestStat?.answers?.length}
+                            percent={bestStat?.score / bestStat?.answers?.length * 100}
+                            duration={bestStat?.duration}
+                            size="medium"
+                            status={bestStat?.status}
+                        />
+                        <Typography
+                            sx={{
+                                fontWeight: 600,
+                                color: colorBest?.color,
+                                fontSize: '0.95rem',
+                            }}
+                        >
+                            {capitalizeFirstLetter(t('quiz'))} n°{bestUidIntern}
+                        </Typography>
+                        <Chip
+                            size="small"
+                            label={getFormattedDateNumeric(bestStat?.end_date)}
+                            sx={{
+                                fontWeight: 700,
+                                bgcolor: colorBest?.background_bubble,
+                                color: colorBest?.color,
+                                border: `1px solid ${colorBest?.border}`,
+                            }}
+                        />
+                    </Stack>
+                </Paper>
+            </Grid>
+        </Grid>
     );
 }
 function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "", uidChapter = "" }) {
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
     const router = useRouter();
     const { getOneLesson } = useLesson();
-    const { getOneChapter, chapters } = useChapter();
+    const { getOneChapter } = useChapter();
     const [lesson, setLesson] = useState(stat?.lesson);
     const [chapter, setChapter] = useState(stat?.chapter);
     const good = tone === "good";
@@ -396,31 +483,32 @@ function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "",
         color_icon: good ? "#15803D" : "#B45309",
         background_bar: good ? "#15803D" : "#B45309",
     };
-    var icon = <IconProgressUp />;
-    var background = "";
-    var border = "0.1px solid var(--card-border)";
-    var borderIcon = "0.1px solid transparent";
-    var fontColor = "var(--font-color)";
-    var borderChip = "1px solid var(--card-border)";
-    var backgroundChip = "transparent";
-    var colorChip = "var(--font-color)";
-    var fontWeight = 500;
-    if (stat.status === ClassUserStat.STATUS.MAX) {
+    let icon = <IconProgressUp />;
+    let background = "";
+    let border = "1px solid var(--card-border)";
+    let borderIcon = "1px solid transparent";
+    let fontColor = "var(--font-color)";
+    let borderChip = "1px solid var(--card-border)";
+    let backgroundChip = "transparent";
+    let colorChip = "var(--font-color)";
+    let fontWeight = 500;
+    
+    if (stat?.status === ClassUserStat.STATUS.MAX) {
         icon = <EmojiEventsIcon />;
         background = color?.background;
-        border = `0.1px solid ${color?.border}`;
-        borderIcon = `0.1px solid ${color?.border}`;
+        border = `2px solid ${color?.border}`;
+        borderIcon = `1px solid ${color?.border}`;
         fontColor = color?.color;
         borderChip = `1px solid ${color?.border}`;
         backgroundChip = color?.background_bubble;
         colorChip = color?.color;
-        fontWeight = 950;
-    } else if (stat.status === ClassUserStat.STATUS.EXCELLENT || stat.status === ClassUserStat.STATUS.GOOD) {
+        fontWeight = 700;
+    } else if (stat?.status === ClassUserStat.STATUS.EXCELLENT || stat?.status === ClassUserStat.STATUS.GOOD) {
         icon = <IconStar />;
     } else {
         icon = <IconProgressUp />;
     }
-    //console.log("COLORS", color);
+    
     useEffect(() => {
         if (stat) {
             const _lesson = getOneLesson(stat?.uid_lesson);
@@ -431,54 +519,89 @@ function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "",
             setLesson(null);
             setChapter(null);
         }
-    }, [uidLesson, uidChapter, stat?.uid_lesson, stat?.uid_chapter]);
+    }, [uidLesson, uidChapter, stat?.uid_lesson, stat?.uid_chapter, getOneLesson, getOneChapter]);
+    
     if (!stat) {
         return (
             <Paper
                 elevation={0}
                 sx={{
-                    borderRadius: 5,
-                    p: 2.2,
-                    border: "1px solid rgba(15, 23, 42, 0.10)",
+                    borderRadius: 3,
+                    p: 3,
+                    border: "1px solid var(--card-border)",
+                    bgcolor: 'var(--card-color)',
                 }}
             >
-                <Typography variant="h5" noWrap sx={{ fontWeight: 950 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
                     {title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{ color: 'var(--grey-light)' }}>
                     {t('no-result')}
                 </Typography>
             </Paper>
         );
     }
-    //const p = percent(attempt);
+    
     return (
         <Paper
             elevation={0}
             sx={{
-                borderRadius: 5,
-                p: 2,
+                borderRadius: 3,
+                p: 3,
                 border: border,
-                bgcolor: background,
-                maxWidth: '350px',
-                cursor: 'pointer'
+                bgcolor: background || 'var(--card-color)',
+                maxWidth: '100%',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                '&:hover': {
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                    transform: 'translateY(-4px)',
+                    borderColor: color?.border || 'var(--primary)',
+                },
             }}
             onClick={() => router.push(`${PAGE_STATS}/${stat.uid_lesson}/${stat.uid_chapter}/${stat.uid}`)}
         >
-            <Stack spacing={1} sx={{ width: '100%' }}>
-                <Typography>{t('quiz')} n°{statUidIntern}</Typography>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ color: color?.color }}>
-                        <AvatarIcon
+            <Stack spacing={2} sx={{ width: '100%' }}>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontWeight: 600,
+                        color: color?.color || 'var(--primary)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        fontSize: '0.75rem',
+                    }}
+                >
+                    {t('quiz')} n°{statUidIntern}
+                </Typography>
+                
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1.5}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box
                             sx={{
-                                bgcolor: color?.background_icon,
-                                color: color?.color_icon,
-                                border: borderIcon
+                                width: 48,
+                                height: 48,
+                                borderRadius: 2.5,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                bgcolor: color?.background_icon || 'var(--primary-shadow-xs)',
+                                color: color?.color_icon || 'var(--primary)',
+                                border: borderIcon,
+                                flexShrink: 0,
                             }}
                         >
                             {icon}
-                        </AvatarIcon>
-                        <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
+                        </Box>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                lineHeight: 1.2,
+                                color: color?.color || 'var(--font-color)',
+                            }}
+                        >
                             {t(stat?.status)}
                         </Typography>
                     </Stack>
@@ -486,7 +609,7 @@ function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "",
                         size="small"
                         label={`${parseInt((stat?.score / stat?.answers?.length) * 100)}%`}
                         sx={{
-                            fontWeight: 950,
+                            fontWeight: 700,
                             bgcolor: color?.background_bubble,
                             color: color?.color,
                             border: `1px solid ${color?.border}`,
@@ -494,48 +617,70 @@ function StatCard({ title, tone, statUidIntern = 0, stat = null, uidLesson = "",
                     />
                 </Stack>
 
-                <Typography variant="body2" color={fontColor}>
-                    <b>{lesson?.translate?.title}</b>
-                </Typography>
-                <Typography variant="caption" color={fontColor}>
-                    {chapter?.translate?.title}
-                </Typography>
+                <Stack spacing={0.5}>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            fontWeight: 600,
+                            color: fontColor,
+                        }}
+                    >
+                        {lesson?.translate?.title}
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            color: fontColor,
+                            opacity: 0.8,
+                        }}
+                    >
+                        {chapter?.translate?.title}
+                    </Typography>
+                </Stack>
 
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                    <Chip size="small"
-                        label={`${stat?.score}/${stat?.answers?.length}`} sx={{
+                    <Chip
+                        size="small"
+                        label={`${stat?.score}/${stat?.answers?.length}`}
+                        sx={{
                             fontWeight: fontWeight,
                             bgcolor: backgroundChip,
                             color: colorChip,
                             border: borderChip,
-                        }} />
-                    <Chip size="small"
-                        label={formatChrono(stat?.duration)} sx={{
+                        }}
+                    />
+                    <Chip
+                        size="small"
+                        label={formatChrono(stat?.duration)}
+                        sx={{
                             fontWeight: fontWeight,
                             bgcolor: backgroundChip,
                             color: colorChip,
                             border: borderChip,
-                        }} />
-                    <Chip size="small"
-                        label={getFormattedDateNumeric(stat?.end_date)} sx={{
+                        }}
+                    />
+                    <Chip
+                        size="small"
+                        label={getFormattedDateNumeric(stat?.end_date)}
+                        sx={{
                             fontWeight: fontWeight,
                             bgcolor: backgroundChip,
                             color: colorChip,
                             border: borderChip,
-                        }} />
+                        }}
+                    />
                 </Stack>
 
                 <LinearProgress
                     variant="determinate"
                     value={clamp((stat?.score / stat?.answers?.length) * 100)}
                     sx={{
-                        height: 10,
+                        height: 8,
                         borderRadius: 999,
-                        bgcolor: color?.background_bubble,
-                        border: `0.1px solid ${color?.background_bubble}`,
+                        bgcolor: color?.background_bubble || 'var(--primary-shadow-sm)',
                         "& .MuiLinearProgress-bar": {
                             borderRadius: 999,
-                            bgcolor: color?.background_bar,
+                            bgcolor: color?.background_bar || 'var(--primary)',
                         },
                     }}
                 />
@@ -549,21 +694,13 @@ function clamp(v) {
 }
 export default function StatsChapterListComponent({ stats = [], isOpenDetails = false, setIsOpenDetails = null, viewMode = ClassUserStat.VIEW_MODE_SCORE }) {
     const isViewScore = viewMode === ClassUserStat.VIEW_MODE_SCORE;
-    const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-    const { lesson, } = useLesson();
-    const { chapter, chapters } = useChapter();
-    const { getBestStat } = useStat();
+    const { lesson } = useLesson();
+    const { chapter } = useChapter();
 
-    return (<Grid container spacing={1} sx={{ background: '', width: '100%', }}>
-
-        {
-            isViewScore && <ViewScoreComponent chapter={chapter} />
-        }
-
-        <Grid size={12}>
-            {
-                !isViewScore && <ViewAverageComponent lesson={lesson} chapter={chapter} />
-            }
-        </Grid>
-    </Grid>)
+    return (
+        <Stack spacing={3} sx={{ width: '100%' }}>
+            {isViewScore && <ViewScoreComponent chapter={chapter} />}
+            {!isViewScore && <ViewAverageComponent lesson={lesson} chapter={chapter} />}
+        </Stack>
+    );
 }

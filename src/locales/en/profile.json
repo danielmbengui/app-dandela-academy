@@ -20,5 +20,6 @@
     "role": "Role",
     "lang": "Language",
     "theme": "Theme"
-  }
+  },
+  "profile-photo": "Profile photo"
 }

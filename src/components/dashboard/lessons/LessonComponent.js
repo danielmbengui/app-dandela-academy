@@ -142,32 +142,60 @@ function SlotRow({ slot = null }) {
       isOpen={open}
       setIsOpen={setOpen}
     />
-    <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1} direction={'row'}>
-      <span style={{
-        width: '6px',
-        height: '6px',
-        borderRadius: '999px',
-        background: colorSlot?.color,
-        boxShadow: `0px 0px 8px ${colorSlot?.glow}`,
-      }} />
-      <Typography sx={{ fontSize: '0.9rem' }}>{`${session?.code} (${session?.uid_intern})`}</Typography>
-      <Typography variant="caption">{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
-      <Box
-        onClick={() => {
-          setMode('read');
-          setUidSession(slot?.uid_session);
-          setUidSlot(slot?.uid_intern);
-          setOpen(true);
+    <div className="slot-row">
+      <Stack key={`${slot?.uid_session}-${slot?.uid_intern}`} alignItems={'center'} spacing={1.5} direction={'row'}>
+        <span className="slot-dot" style={{
+          background: colorSlot?.color,
+          boxShadow: `0px 0px 12px ${colorSlot?.glow}`,
+        }} />
+        <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--font-color)' }}>{`${session?.code} (${session?.uid_intern})`}</Typography>
+        <Typography variant="caption" sx={{ fontSize: '0.85rem', color: 'var(--grey-light)' }}>{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
+        <Box
+          onClick={() => {
+            setMode('read');
+            setUidSession(slot?.uid_session);
+            setUidSlot(slot?.uid_intern);
+            setOpen(true);
 
-        }}
-        sx={{
-          //color: 'red',
-          cursor: 'pointer',
-          "&:hover": { color: "var(--primary)" },
-        }}>
-        <IconVisible height={20} />
-      </Box>
-    </Stack>
+          }}
+          className="slot-view-icon"
+          sx={{
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            "&:hover": { 
+              color: "var(--primary)",
+              transform: 'scale(1.1)'
+            },
+          }}>
+          <IconVisible height={20} />
+        </Box>
+      </Stack>
+    </div>
+    <style jsx>{`
+      .slot-row {
+        padding: 12px;
+        border-radius: 12px;
+        background: var(--card-color);
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+        margin-bottom: 8px;
+      }
+      .slot-row:hover {
+        background: var(--card-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transform: translateX(4px);
+      }
+      .slot-dot {
+        width: 8px;
+        height: 8px;
+        borderRadius: 999px;
+        flex-shrink: 0;
+      }
+      .slot-view-icon {
+        margin-left: auto;
+        color: var(--grey-light);
+      }
+    `}</style>
   </>)
 }
 function NextSessionsComponent() {
@@ -177,7 +205,7 @@ function NextSessionsComponent() {
 
   return (<>
     <div className="hero-right-top">
-      <Stack spacing={1}>
+      <Stack spacing={1.5}>
         <p className="teacher-label">{t('next-sessions')}</p>
         <Stack spacing={0.5}>
           {
@@ -190,7 +218,7 @@ function NextSessionsComponent() {
               })
           }
           {
-            slots.filter(slot => slot.start_date.getTime() > today.getTime()).length === 0 && <Stack>
+            slots.filter(slot => slot.start_date.getTime() > today.getTime()).length === 0 && <Stack sx={{ color: 'var(--grey-light)', fontSize: '0.9rem', py: 2 }}>
               {t('next-sessions-not')}
             </Stack>
 
@@ -200,21 +228,29 @@ function NextSessionsComponent() {
     </div>
     <style jsx>{`
                   .hero-right-top {
-                  border-radius: 14px;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
+                  border-radius: 16px;
+                  border: 1px solid var(--card-border);
+                  padding: 20px;
+                  background: var(--card-color);
+                  transition: all 0.3s ease;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+                .hero-right-top:hover {
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                  transform: translateY(-2px);
                 }
                                   .teacher-label {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  color: var(--font-color);
+                  letter-spacing: -0.01em;
                 }
                 .teacher-label-text {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                  margin-bottom: 6px;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  color: var(--font-color);
+                  margin-bottom: 12px;
+                  letter-spacing: -0.01em;
                 }
   `}</style>
   </>)
@@ -226,7 +262,7 @@ function PreviousSessionsComponent() {
 
   return (<>
     <div className="hero-right-top">
-      <Stack spacing={1}>
+      <Stack spacing={1.5}>
         <p className="teacher-label">{t('previous-sessions')}</p>
         <Stack spacing={0.5}>
           {
@@ -239,7 +275,7 @@ function PreviousSessionsComponent() {
               })
           }
           {
-            slots.filter(slot => slot.start_date.getTime() <= today.getTime()).length === 0 && <Stack>
+            slots.filter(slot => slot.start_date.getTime() <= today.getTime()).length === 0 && <Stack sx={{ color: 'var(--grey-light)', fontSize: '0.9rem', py: 2 }}>
               {t('previous-sessions-not')}
             </Stack>
 
@@ -249,21 +285,29 @@ function PreviousSessionsComponent() {
     </div>
     <style jsx>{`
                   .hero-right-top {
-                  border-radius: 14px;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
+                  border-radius: 16px;
+                  border: 1px solid var(--card-border);
+                  padding: 20px;
+                  background: var(--card-color);
+                  transition: all 0.3s ease;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+                .hero-right-top:hover {
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                  transform: translateY(-2px);
                 }
                                   .teacher-label {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  color: var(--font-color);
+                  letter-spacing: -0.01em;
                 }
                 .teacher-label-text {
-                  font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                  margin-bottom: 6px;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  color: var(--font-color);
+                  margin-bottom: 12px;
+                  letter-spacing: -0.01em;
                 }
   `}</style>
   </>)
@@ -294,8 +338,8 @@ export default function LessonComponent() {
   }, [lesson])
 
   return (<Stack sx={{ color: "var(--font-color)" }}>
-    <div className="page">
-      <main className="container">
+    <div>
+      <main>
         <section className="hero-card">
           <div className="hero-left">
             <p className="breadcrumb">{t(lesson?.category).toUpperCase()}</p>
@@ -315,21 +359,31 @@ export default function LessonComponent() {
               {lesson?.translate?.description}
             </p>
             {
-              lesson?.translate?.photo_url && <Box sx={{ mt: 1.5, background: '', width: { xs: '100%', sm: '70%' } }}>
+              lesson?.translate?.photo_url && <Box sx={{ 
+                mt: 2, 
+                width: { xs: '100%', sm: '70%' },
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                }
+              }}>
                 <Image
                   src={lesson?.translate?.photo_url || ''}
                   alt={`lesson-${lesson?.uid}`}
                   quality={100}
                   width={300}
                   height={150}
-                  //loading="lazy"
                   priority
                   style={{
                     width: '100%',
                     height: 'auto',
-                    //maxHeight:'400px',
-                    borderRadius: '8px',
+                    borderRadius: '16px',
                     objectFit: 'cover',
+                    display: 'block',
                   }}
                 />
               </Box>
@@ -341,21 +395,24 @@ export default function LessonComponent() {
             {/* PROFESSEUR */}
             <div className="teacher-card">
               <p className="teacher-label-text">{t('title-online', { ns: NS_LESSONS_ONE })}</p>
-              <List dense disablePadding sx={{ mb: 1.5 }}>
+              <List dense disablePadding sx={{ mb: 2 }}>
                 {
                   chapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((chapter, i) => {
-                    return (<ListItem key={`${chapter.uid_intern}-${i}`} disableGutters sx={{ px: 1 }}>
-                      <Link href={`${PAGE_LESSONS}/${chapter.uid_lesson}${PAGE_CHAPTERS}/${chapter.uid}`}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1}
-                          //onClick={() => setIndex(i)}
+                    return (<ListItem key={`${chapter.uid_intern}-${i}`} disableGutters sx={{ px: 0, mb: 0.5 }}>
+                      <Link href={`${PAGE_LESSONS}/${chapter.uid_lesson}${PAGE_CHAPTERS}/${chapter.uid}`} className="chapter-link">
+                        <Stack direction={'row'} alignItems={'center'} spacing={1.5}
                           sx={{
-                            //color: index === i ? 'var(--primary)' : '',
+                            padding: '8px 12px',
+                            borderRadius: '10px',
+                            transition: 'all 0.3s ease',
                             ":hover": {
+                              backgroundColor: 'var(--primary-shadow-xs)',
                               color: 'var(--primary)',
                               cursor: 'pointer',
+                              transform: 'translateX(4px)',
                             }
                           }}>
-                          <Typography sx={{ fontSize: '0.85rem' }} >{`${chapter.uid_intern}. `}{chapter.translate?.title}</Typography>
+                          <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }} >{`${chapter.uid_intern}. `}{chapter.translate?.title}</Typography>
                         </Stack>
                       </Link>
                     </ListItem>)
@@ -371,12 +428,12 @@ export default function LessonComponent() {
         </section>
 
         {
-          lesson?.translate?.tags?.length > 0 && <Grid spacing={1} container sx={{ mb: 1 }}>
+          lesson?.translate?.tags?.length > 0 && <Grid spacing={2} container sx={{ mb: 3 }}>
             {lesson?.translate?.tags?.map((item, i) => (
               <Grid size={{ xs: 12, sm: 4 }} key={`${item.title}${i}`}>
-                <div className="card">
-                  <h2>{item.title}</h2>
-                  <p className="description">{item.subtitle}</p>
+                <div className="tag-card">
+                  <h3 className="tag-title">{item.title}</h3>
+                  <p className="tag-description">{item.subtitle}</p>
                 </div>
               </Grid>
             ))}
@@ -499,7 +556,6 @@ export default function LessonComponent() {
       </main>
       <style jsx>{`
                 .page {
-                 
                   background: transparent;
                   padding: 0px 0px;
                   color: var(--font-color);
@@ -509,123 +565,138 @@ export default function LessonComponent() {
                 .container {
                   width: 100%;
                   padding: 0px;
-                  background:transparent;
+                  background: transparent;
                 }
                 .hero-description {
-                  margin: 6px 0 10px;
-                  font-size: 0.9rem;
-                  color: var(--font-color);
+                  margin: 12px 0 16px;
+                  font-size: 1rem;
+                  line-height: 1.6;
+                  color: var(--grey-light);
                   max-width: 620px;
+                  transition: color 0.3s ease;
                 }
         
                 .header {
                   display: flex;
                   justify-content: space-between;
                   gap: 16px;
-                  margin-bottom: 22px;
+                  margin-bottom: 24px;
                   flex-wrap: wrap;
                 }
         
                 .hero-card {
                   display: grid;
                   grid-template-columns: minmax(0, 2fr) minmax(260px, 1.2fr);
-                  gap: 18px;
-                  border-radius: 18px;
-                  border: 1px solid #1f2937;
-                  border: transparent;
-                  background: radial-gradient(circle at top left, #111827, #020617);
+                  gap: 24px;
+                  border-radius: 20px;
+                  border: 1px solid var(--card-border);
                   background: var(--card-color);
-                  padding: 18px 18px 20px;
-                  margin-bottom: 10px;
+                  padding: 28px 28px 32px;
+                  margin-bottom: 24px;
+                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
         
                 @media (max-width: 900px) {
                   .hero-card {
                     grid-template-columns: 1fr;
+                    padding: 20px;
+                    gap: 20px;
                   }
                 }
         
                 .hero-meta {
                   display: flex;
                   flex-wrap: wrap;
-                  gap: 8px;
+                  gap: 10px;
                 }
         
                 .hero-right {
-                  border-radius: 14px;
-                  border: 1px solid #1f2937;
+                  border-radius: 16px;
                   border: none;
-                  background: #020617;
                   background: transparent;
-                  padding: 14px 14px 16px;
-                   padding: 0px;
+                  padding: 0px;
                   display: flex;
                   flex-direction: column;
-                  gap: 8px;
+                  gap: 16px;
                 }
                 .hero-right-top {
-                  border-radius: 14px;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
+                  border-radius: 16px;
+                  border: 1px solid var(--card-border);
+                  padding: 20px;
+                  background: var(--card-color);
+                  transition: all 0.3s ease;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+                .hero-right-top:hover {
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                  transform: translateY(-2px);
                 }
                 .teacher-card {
-                  margin-top: 8px;
-                  border-radius: 10px;
-                  border: 1px solid #111827;
-                  border: 0.1px solid var(--card-border);
-                  padding: 10px 10px 12px;
-                  padding: 15px;
-                  background: radial-gradient(circle at top left, #111827, #020617);
-                  background: transparent;
-                  font-size: 0.85rem;
-                   
+                  margin-top: 0px;
+                  border-radius: 16px;
+                  border: 1px solid var(--card-border);
+                  padding: 20px;
+                  background: var(--card-color);
+                  font-size: 0.9rem;
+                  transition: all 0.3s ease;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+                .teacher-card:hover {
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                  transform: translateY(-2px);
                 }
         
                 .teacher-label {
                   font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  color: var(--font-color);
+                  letter-spacing: -0.01em;
                 }
                 .teacher-label-text {
                   font-size: 0.75rem;
-                  font-size: 1.05rem;
-                  color: #9ca3af;
-                  margin-bottom: 6px;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  color: var(--font-color);
+                  margin-bottom: 12px;
+                  letter-spacing: -0.01em;
                 }
         
                 .teacher-main {
                   display: flex;
                   align-items: center;
-                  gap: 8px;
-                  margin-bottom: 6px;
+                  gap: 12px;
+                  margin-bottom: 12px;
                 }
         
                 .teacher-text {
-                  font-size: 0.83rem;
+                  font-size: 0.9rem;
                 }
         
                 .teacher-name {
                   margin: 0;
-                  font-weight: 500;
-                  line-height: 1rem;
+                  font-weight: 600;
+                  line-height: 1.4;
+                  color: var(--font-color);
                 }
         
                 .teacher-role {
                   margin: 0;
                   color: var(--grey-light);
-                  font-size: 0.78rem;
+                  font-size: 0.85rem;
                 }
         
                 .teacher-bio {
-                  margin: 4px 0 4px;
-                  font-size: 0.8rem;
-                  color: var(--font-color);
+                  margin: 8px 0 12px;
+                  font-size: 0.88rem;
+                  color: var(--grey-light);
+                  line-height: 1.5;
                 }
         
                 .teacher-email {
-                  margin: 0 0 6px;
-                  font-size: 0.78rem;
+                  margin: 0 0 8px;
+                  font-size: 0.82rem;
                   color: var(--grey-light);
                 }
         
@@ -633,54 +704,64 @@ export default function LessonComponent() {
                   color: var(--grey-light);
                 }
                 .hero-seats {
-                  margin-top: 6px;
-                  font-size: 0.85rem;
+                  margin-top: 8px;
+                  font-size: 0.9rem;
                 }
                 .seats-sub {
-                  margin: 2px 0 4px;
-                  font-size: 0.78rem;
-                  color: #9ca3af;
+                  margin: 4px 0 6px;
+                  font-size: 0.82rem;
+                  color: var(--grey-light);
                 }
                 .seats-bar {
                   width: 100%;
-                  height: 7px;
+                  height: 8px;
                   border-radius: 999px;
-                  background: #020617;
-                  border: 1px solid #111827;
-                  border: 1px solid var(--card-bord);
-                  background: linear-gradient(90deg, #22c55e, #16a34a);
+                  background: var(--grey-hyper-light);
                   overflow: hidden;
                 }
         
                 .seats-fill {
                   height: 100%;
-                  background: linear-gradient(90deg, #22c55e, #16a34a);
-                  background: red;
+                  background: linear-gradient(90deg, var(--success), #16a34a);
+                  transition: width 0.3s ease;
                 }
         
                 .breadcrumb {
-                  margin: 0 0 4px;
-                  font-size: 0.75rem;
-                  color: var(--font-color);
+                  margin: 0 0 8px;
+                  font-size: 0.8rem;
+                  font-weight: 600;
+                  color: var(--primary);
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  transition: color 0.3s ease;
                 }
         
                 h1 {
-                  margin: 0;
-                  font-size: 1.5rem;
-                  line-height: 1.5rem;
+                  margin: 0 0 8px;
+                  font-size: 2rem;
+                  line-height: 1.2;
+                  font-weight: 700;
                   color: var(--font-color);
+                  letter-spacing: -0.02em;
+                }
+        
+                @media (max-width: 600px) {
+                  h1 {
+                    font-size: 1.6rem;
+                  }
                 }
         
                 .muted {
-                  margin-top: 5px;
-                  font-size: 0.9rem;
-                  color: #9ca3af;
+                  margin-top: 8px;
+                  font-size: 1rem;
+                  color: var(--grey-light);
+                  line-height: 1.5;
                 }
         
                 .badges {
-                  margin-top: 10px;
+                  margin-top: 16px;
                   display: flex;
-                  gap: 5px;
+                  gap: 8px;
                   flex-wrap: wrap;
                 }
         
@@ -688,85 +769,96 @@ export default function LessonComponent() {
                   display: inline-flex;
                   align-items: center;
                   gap: 6px;
-                  border-radius: 999px;
+                  border-radius: 12px;
                   border-width: 1px;
                   border-style: solid;
-                  padding: 2px 9px;
-                  font-size: 0.8rem;
-                  background: #020617;
+                  padding: 6px 12px;
+                  font-size: 0.85rem;
+                  font-weight: 500;
+                  transition: all 0.3s ease;
                 }
         
                 .badge-dot {
-                  width: 7px;
-                  height: 7px;
+                  width: 8px;
+                  height: 8px;
                   border-radius: 999px;
                 }
         
                 .badge-cert {
-                  border-radius: 999px;
-                  padding: 2px 10px;
-                  font-size: 0.8rem;
-                  background: #022c22;
-                  background: transparent;
-                  color: #bbf7d0;
-                  color: var(--font-color);
-                  border: 0.1px solid #16a34a;
+                  border-radius: 12px;
+                  padding: 6px 14px;
+                  font-size: 0.85rem;
+                  font-weight: 500;
+                  background: rgba(34, 197, 94, 0.1);
+                  color: var(--success);
+                  border: 1px solid rgba(34, 197, 94, 0.3);
+                  transition: all 0.3s ease;
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 6px;
+                }
+                .badge-cert:hover {
+                  background: rgba(34, 197, 94, 0.15);
+                  transform: translateY(-1px);
                 }
         
                 .enroll-card {
                   background: var(--card-color);
-                  border-radius: 10px;
-                  padding: 16px 16px 18px;
-                  border: 1px solid var(--card-color);
-                  
+                  border-radius: 16px;
+                  padding: 24px;
+                  border: 1px solid var(--card-border);
                   min-width: 260px;
                   max-width: 320px;
+                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                  transition: all 0.3s ease;
                 }
         
                 .price {
                   margin: 0;
-                  font-size: 1.7rem;
-                  font-weight: 600;
+                  font-size: 1.9rem;
+                  font-weight: 700;
                 }
         
                 .currency {
-                  font-size: 1rem;
-                  color: #9ca3af;
+                  font-size: 1.1rem;
+                  color: var(--grey-light);
                   margin-left: 4px;
+                  font-weight: 500;
                 }
         
                 .price-helper {
-                  margin: 4px 0 0;
-                  font-size: 0.8rem;
-                  color: #9ca3af;
+                  margin: 6px 0 0;
+                  font-size: 0.85rem;
+                  color: var(--grey-light);
                 }
         
                 .installments {
-                  margin: 8px 0 0;
-                  font-size: 0.8rem;
-                  color: #e5e7eb;
+                  margin: 10px 0 0;
+                  font-size: 0.85rem;
+                  color: var(--font-color);
                 }
         
                 .dates {
                   display: flex;
-                  gap: 12px;
-                  margin-top: 10px;
-                  font-size: 0.85rem;
+                  gap: 16px;
+                  margin-top: 12px;
+                  font-size: 0.9rem;
                 }
         
                 .date-label {
                   margin: 0;
-                  font-size: 0.75rem;
-                  color: #9ca3af;
+                  font-size: 0.8rem;
+                  color: var(--grey-light);
                 }
         
                 .date-value {
-                  margin: 2px 0 0;
+                  margin: 4px 0 0;
+                  font-weight: 500;
                 }
         
                 .seats {
-                  margin-top: 10px;
-                  font-size: 0.85rem;
+                  margin-top: 12px;
+                  font-size: 0.9rem;
                 }
         
                 .seats-line {
@@ -774,47 +866,51 @@ export default function LessonComponent() {
                 }
         
                 .seats-left {
-                  margin: 2px 0 0;
-                  font-size: 0.78rem;
-                  color: #9ca3af;
+                  margin: 4px 0 0;
+                  font-size: 0.82rem;
+                  color: var(--grey-light);
                 }
         
                 .btn {
-                  border-radius: 999px;
-                  padding: 8px 14px;
-                  border: 1px solid #374151;
-                  background: #020617;
-                  color: #e5e7eb;
-                  font-size: 0.9rem;
+                  border-radius: 12px;
+                  padding: 10px 18px;
+                  border: 1px solid var(--card-border);
+                  background: var(--card-color);
+                  color: var(--font-color);
+                  font-size: 0.95rem;
+                  font-weight: 500;
                   cursor: pointer;
+                  transition: all 0.3s ease;
                 }
         
                 .primary {
-                  background: linear-gradient(135deg, #2563eb, #4f46e5);
+                  background: linear-gradient(135deg, var(--primary), #4f46e5);
                   border-color: transparent;
+                  color: white;
                 }
         
                 .btn-enroll {
                   width: 100%;
-                  margin-top: 12px;
+                  margin-top: 16px;
                 }
         
                 .btn-disabled {
-                  background: #111827;
+                  background: var(--grey-hyper-light);
                   cursor: not-allowed;
+                  opacity: 0.6;
                 }
         
                 .secure-note {
-                  margin: 8px 0 0;
-                  font-size: 0.75rem;
-                  color: #9ca3af;
+                  margin: 10px 0 0;
+                  font-size: 0.78rem;
+                  color: var(--grey-light);
                 }
         
                 .grid {
                   display: grid;
                   grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-                  gap: 16px;
-                  margin-bottom: 30px;
+                  gap: 20px;
+                  margin-bottom: 40px;
                 }
         
                 @media (max-width: 900px) {
@@ -827,6 +923,7 @@ export default function LessonComponent() {
                   }
                   .grid {
                     grid-template-columns: 1fr;
+                    gap: 16px;
                   }
                 }
         
@@ -834,73 +931,157 @@ export default function LessonComponent() {
                 .side-col {
                   display: flex;
                   flex-direction: column;
-                  gap: 12px;
+                  gap: 16px;
                 }
         
                 .card {
                   background: var(--card-color);
                   color: var(--font-color);
-                    color: var(--grey-light);
-                  border-radius: 16px;
-                  padding: 14px 14px 16px;
+                  border-radius: 18px;
+                  padding: 24px;
+                  border: 1px solid var(--card-border);
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+                .card:hover {
+                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+                  transform: translateY(-2px);
                 }
         
                 .card h2 {
-                  margin: 0 0 10px;
-                  font-size: 1.05rem;
+                  margin: 0 0 16px;
+                  padding: 0;
+                  font-size: 1.25rem;
+                  font-weight: 700;
+                  color: var(--font-color);
+                  letter-spacing: -0.01em;
                 }
         
                 .description {
                   margin: 0;
-                  padding-left: 10px;
-                  font-size: 0.9rem;
+                  padding-left: 0;
+                  font-size: 0.95rem;
                   color: var(--grey-light);
-                  color: var(--font-color);
+                  line-height: 1.7;
                 }
         
                 .list {
                   list-style: none;
                   padding-left: 0;
                   margin: 0;
-                  font-size: 0.88rem;
-                            color: var(--grey-light);
-                              color: var(--font-color);
+                  font-size: 0.92rem;
+                  color: var(--font-color);
                 }
         
                 .list li {
-                  margin-bottom: 4px;
+                  margin-bottom: 10px;
                   position: relative;
-                  padding-left: 0.75rem;
+                  padding-left: 24px;
+                  line-height: 1.6;
+                  color: var(--grey-light);
                 }
 
                 .list li::before {
-                  content: "-";
+                  content: "✓";
                   position: absolute;
                   left: 0;
+                  color: var(--primary);
+                  font-weight: 600;
+                  font-size: 1rem;
                 }
         
                 .list.ordered {
                   padding-left: 20px;
+                  list-style: decimal;
+                }
+        
+                .list.ordered li {
+                  padding-left: 0;
+                }
+        
+                .list.ordered li::marker {
+                  color: var(--primary);
+                  font-weight: 600;
+                }
+        
+                .list.ordered li::before {
+                  display: none;
                 }
         
                 .list.small {
-                  font-size: 0.8rem;
+                  font-size: 0.88rem;
+                }
+                .list.small li {
+                  margin-bottom: 8px;
+                  padding-left: 20px;
+                }
+                .list.small li::before {
+                  font-size: 0.9rem;
                 }
         
                 .cert-main {
-                  margin: 0 0 8px;
-                  font-size: 0.9rem;
+                  margin: 0 0 12px;
+                  font-size: 0.95rem;
                   color: var(--font-color);
+                  line-height: 1.6;
                 }
         
                 .cert-badge {
-                  margin-top: 8px;
-                  font-size: 0.8rem;
-                  padding: 4px 8px;
-                  border-radius: 8px;
-                  background: #022c22;
-                  color: #bbf7d0;
-                  border: 1px solid #16a34a;
+                  margin-top: 12px;
+                  font-size: 0.85rem;
+                  padding: 8px 12px;
+                  border-radius: 10px;
+                  background: rgba(34, 197, 94, 0.1);
+                  color: var(--success);
+                  border: 1px solid rgba(34, 197, 94, 0.3);
+                  display: inline-block;
+                  font-weight: 500;
+                  transition: all 0.3s ease;
+                }
+                .cert-badge:hover {
+                  background: rgba(34, 197, 94, 0.15);
+                  transform: translateY(-1px);
+                }
+                
+                .tag-card {
+                  background: var(--card-color);
+                  color: var(--font-color);
+                  border-radius: 18px;
+                  padding: 24px;
+                  border: 1px solid var(--card-border);
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                  height: 100%;
+                  display: flex;
+                  flex-direction: column;
+                }
+                .tag-card:hover {
+                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+                  transform: translateY(-4px);
+                  border-color: var(--primary);
+                }
+                .tag-title {
+                  margin: 0 0 12px;
+                  font-size: 1.15rem;
+                  font-weight: 700;
+                  color: var(--font-color);
+                  letter-spacing: -0.01em;
+                }
+                .tag-description {
+                  margin: 0;
+                  font-size: 0.92rem;
+                  color: var(--grey-light);
+                  line-height: 1.6;
+                  flex: 1;
+                }
+                
+                .chapter-link {
+                  text-decoration: none;
+                  color: inherit;
+                  display: block;
+                }
+                .chapter-link:hover {
+                  text-decoration: none;
                 }
               `}</style>
     </div>

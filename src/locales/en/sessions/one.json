@@ -1,0 +1,8 @@
+{
+  "title-page": "Session – Dandela Academy",
+  "description-page": "Session details and registration",
+  "back_to_list": "Back to sessions",
+  "not_found": "Session not found",
+  "login_to_subscribe": "Log in to register for this session",
+  "slot_subscribe_before": "Registration open until {{date}} at {{hour}}"
+}

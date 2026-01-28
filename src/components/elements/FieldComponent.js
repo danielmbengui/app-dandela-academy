@@ -35,20 +35,19 @@ export default function FieldComponent({ label, name, value, disabled = false, o
     const { lang } = useLanguage();
     const [valueDate, setValueDate] = useState(value ? dayjs(value) : null); // valeur interne (dayjs|null)
     const { theme } = useThemeMode();
-    const { primary, primaryShadow, background } = theme.palette;
+    const { primary, primaryShadow, background, cardColor } = theme.palette;
     const [processing, setProcessing] = useState(false);
+    // Construire le label avec l'astérisque si required
+    const labelWithRequired = label ? (required ? `${label} *` : label) : '';
+    
     return (
-        <Stack alignItems={'start'}>
-            {
-                label && <label className="text-contentColor dark:text-contentColor-dark block" style={{ fontSize: '0.9rem', marginBottom: '7px' }}>
-                    {label}{required && <b style={{ color: 'red' }}>*</b>}
-                </label>
-            }
-            <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{width:'100%'}}>
+        <Stack alignItems={'start'} sx={{ width: '100%' }}>
+            <Stack direction={'row'} spacing={1} alignItems={'flex-start'} sx={{width:'100%'}}>
                 {
                     type !== 'text' && <>
                         {
                             type === "phone" && <TextFieldPhoneComponent
+                                label={labelWithRequired}
                                 prefixe={prefixe}
                                 name={name}
                                 setPrefixe={setPrefixe}
@@ -60,13 +59,13 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 onClear={onClear}
                                 placeholder={placeholder}
                                 fullWidth={fullWidth}
-                                error={error}
+                                error={!!error}
                                 disabled={disabled}
                             />
                         }
                         {
                             type === 'password' && <TextFieldPasswordComponent
-                                //id={name}
+                                label={labelWithRequired}
                                 name={name}
                                 disabled={disabled}
                                 icon={icon}
@@ -74,17 +73,16 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 onChange={onChange}
                                 onClear={onClear}
                                 placeholder={placeholder}
-                                error={error}
+                                error={!!error}
+                                helperText={error || ''}
                                 type={type}
-                                //helperText={error}
                                 fullWidth={fullWidth}
-                                className={`${inputBase} ${error ? 'border-red-500' : ''}`}
                             />
                         }
                         {
                             type === 'multiline' && <TextAreaComponent
-                                //label={label}
-                                        isAdmin={isAdmin}
+                                label={labelWithRequired}
+                                isAdmin={isAdmin}
                                 name={name}
                                 icon={icon}
                                 type={'text'}
@@ -94,7 +92,8 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 fullWidth={fullWidth}
                                 onChange={onChange}
                                 onClear={onClear}
-                                error={error}
+                                error={!!error}
+                                helperText={error || ''}
                                 disabled={disabled}
                                 {...props}
                             />
@@ -105,39 +104,78 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 <DatePicker
                                     disablePast={disablePast}
                                     disableFuture={disableFuture}
-                                    //label={label} 
+                                    label={labelWithRequired}
                                     format="DD-MM-YYYY"
                                     minDate={disablePast ? dayjs(new Date()) : null}
                                     maxDate={disableFuture ? dayjs(new Date()) : null}
-                                    //type="date"
                                     name={name}
-                                    value={value ? dayjs(value) : null} // convertir string -> dayjs
+                                    value={value ? dayjs(value) : null}
                                     onChange={(newValue) => {
                                         onChange({
                                             target: {
                                                 type: "date",
                                                 name: name,
-                                                value: newValue ? newValue.format("YYYY-MM-DD") : "" // ici on repasse en string
+                                                value: newValue ? newValue.format("YYYY-MM-DD") : ""
                                             }
                                         });
                                     }}
-                                    //inputClass={inputBase}
-                                    //className={inputBase}
                                     slotProps={{
                                         textField: {
                                             size: 'small',
+                                            error: !!error,
+                                            helperText: error || '',
+                                            fullWidth: fullWidth,
                                             slotProps: {
                                                 input: {
                                                     sx: {
-                                                        maxHeight: '2rem',
-                                                        borderRadius: '5px',
-                                                        borderColor: 'var(--card-border)'
+                                                        fontSize: '14px',
+                                                        maxHeight: '1.9rem',
+                                                        color: cardColor.contrastText,
+                                                        background: cardColor.main,
+                                                    }
+                                                },
+                                                inputLabel: {
+                                                    sx: {
+                                                        '&.Mui-focused': {
+                                                            color: isAdmin ? 'var(--admin)' : primary.main,
+                                                        },
+                                                        '&.Mui-error': {
+                                                            color: 'error.main',
+                                                        },
+                                                        '&.Mui-disabled': {
+                                                            color: 'var(--grey-light)',
+                                                        },
                                                     }
                                                 }
                                             },
                                             sx: {
                                                 width: '100%',
-
+                                                borderRadius: '7px',
+                                                '& .MuiOutlinedInput-root': {
+                                                    '& fieldset': {
+                                                        border: `0.1px solid var(--grey-hyper-light)`,
+                                                    },
+                                                    '&:hover fieldset': {
+                                                        border: `0.1px solid ${isAdmin ? 'var(--admin)' : primary.main}`,
+                                                    },
+                                                    '&.Mui-focused fieldset': {
+                                                        border: `1px solid ${isAdmin ? 'var(--admin)' : primary.main}`,
+                                                    },
+                                                    '&.Mui-error fieldset': {
+                                                        border: `0.1px solid var(--error)`,
+                                                    },
+                                                    '&.Mui-disabled': {
+                                                        cursor: 'not-allowed',
+                                                        pointerEvents: 'auto',
+                                                    },
+                                                    '&.Mui-disabled fieldset': {
+                                                        border: `0.1px solid var(--card-border)`,
+                                                        color: 'var(--grey-light)',
+                                                    },
+                                                    '&.Mui-disabled .MuiOutlinedInput-input': {
+                                                        cursor: 'not-allowed',
+                                                    },
+                                                },
                                             }
                                         },
                                     }}
@@ -150,42 +188,76 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                                 <TimePicker
                                     disablePast={disablePast}
                                     disableFuture={disableFuture}
-                                    //label={label} 
-                                    //minTime={disablePast ? dayjs(new Date()) : null}
-                                    //maxDate={disableFuture ? dayjs(new Date()) : null}
+                                    label={labelWithRequired}
                                     format="HH:mm"
-                                    
-                                    //maxDate={disableFuture ? dayjs(new Date()) : null}
-                                    //type="date"
-                                    //sx={{maxHeight: '40px',}}
                                     name={name}
-                                    value={value ? dayjs(value) : null} // convertir string -> dayjs
+                                    value={value ? dayjs(value) : null}
                                     onChange={(newValue) => {
                                         onChange({
                                             target: {
                                                 type: "hour",
                                                 name: name,
-                                                value: newValue ? newValue : "" // ici on repasse en string
+                                                value: newValue ? newValue : ""
                                             }
                                         });
                                     }}
-                                    //inputClass={inputBase}
-                                    //className={inputBase}
                                     slotProps={{
                                         textField: {
                                             size: 'small',
+                                            error: !!error,
+                                            helperText: error || '',
+                                            fullWidth: fullWidth,
                                             slotProps: {
                                                 input: {
                                                     sx: {
-                                                        maxHeight: '2rem',
-                                                        borderRadius: '5px',
-                                                        borderColor: 'var(--card-border)'
+                                                        fontSize: '14px',
+                                                        maxHeight: '1.9rem',
+                                                        color: cardColor.contrastText,
+                                                        background: cardColor.main,
+                                                    }
+                                                },
+                                                inputLabel: {
+                                                    sx: {
+                                                        '&.Mui-focused': {
+                                                            color: isAdmin ? 'var(--admin)' : primary.main,
+                                                        },
+                                                        '&.Mui-error': {
+                                                            color: 'error.main',
+                                                        },
+                                                        '&.Mui-disabled': {
+                                                            color: 'var(--grey-light)',
+                                                        },
                                                     }
                                                 }
                                             },
                                             sx: {
                                                 width: '100%',
-
+                                                borderRadius: '7px',
+                                                '& .MuiOutlinedInput-root': {
+                                                    '& fieldset': {
+                                                        border: `0.1px solid var(--grey-hyper-light)`,
+                                                    },
+                                                    '&:hover fieldset': {
+                                                        border: `0.1px solid ${isAdmin ? 'var(--admin)' : primary.main}`,
+                                                    },
+                                                    '&.Mui-focused fieldset': {
+                                                        border: `1px solid ${isAdmin ? 'var(--admin)' : primary.main}`,
+                                                    },
+                                                    '&.Mui-error fieldset': {
+                                                        border: `0.1px solid var(--error)`,
+                                                    },
+                                                    '&.Mui-disabled': {
+                                                        cursor: 'not-allowed',
+                                                        pointerEvents: 'auto',
+                                                    },
+                                                    '&.Mui-disabled fieldset': {
+                                                        border: `0.1px solid var(--card-border)`,
+                                                        color: 'var(--grey-light)',
+                                                    },
+                                                    '&.Mui-disabled .MuiOutlinedInput-input': {
+                                                        cursor: 'not-allowed',
+                                                    },
+                                                },
                                             }
                                         },
                                     }}
@@ -197,20 +269,19 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                 }
                 {
                     (type === 'text' || type === 'email' || type === "number") && <TextFieldComponent
-                        //id={name}
+                        label={labelWithRequired}
                         isAdmin={isAdmin}
                         name={name}
                         disabled={disabled}
                         icon={icon}
-                        value={value}
+                        value={value || ''}
                         onChange={onChange}
                         onClear={onClear}
                         placeholder={placeholder}
-                        error={error}
+                        error={!!error}
+                        helperText={error || ''}
                         type={type}
                         autoComplete={autoComplete}
-                        //helperText={error}
-                        //className={`${inputBase} ${error ? 'border-red-500' : ''}`}
                         fullWidth={fullWidth}
                         {...props}
                     />
@@ -296,8 +367,6 @@ export default function FieldComponent({ label, name, value, disabled = false, o
                     </Stack>
                 }
             </Stack>
-
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </Stack>
     );
 }

@@ -49,15 +49,15 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
         }
     }, [user, uidTeacher]);
     useEffect(() => {
-        if (user && uidLesson && uidSession) {
+        if (user && uidSession) {
             const _session = getOneSession(uidSession);
-            setSession(_session);
+            setSession(_session ?? null);
             const listener = listenToOneSession(uidSession);
             return () => listener?.();
         } else {
             setSession(null);
         }
-    }, [user, uidLesson, uidSession]);
+    }, [user, uidSession]);
     useEffect(() => {
         if (uidSlot && session) {
             //const _session = getOneSession(uidSession);

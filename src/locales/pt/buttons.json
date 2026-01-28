@@ -50,5 +50,8 @@
   "resend-link": "Reenviar o link",
   "share-to": "Partilhar em {{text}}",
   "see-more": "Ver mais",
-  "see-less": "Ver menos"
+  "see-less": "Ver menos",
+  "see-all": "Ver tudo",
+  "save-photo": "Guardar foto",
+  "cancel": "Cancelar"
 }

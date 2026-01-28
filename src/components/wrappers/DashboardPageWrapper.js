@@ -394,7 +394,13 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             </Box>
             {
                 user?.status === ClassUser.STATUS.FIRST_CONNEXION && <Backdrop
-                    sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
+                    sx={{ 
+                        zIndex: 1_000_000_000, 
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        background: 'rgba(0, 0, 0, 0.3)',
+                        borderTopLeftRadius: { xs: 0, sm: '15px' } 
+                    }}
                     open={true}>
                     <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%' }}>
                         <FirstConnexionComponent />
@@ -403,7 +409,13 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
             }
             {
                 user?.status === ClassUser.STATUS.MUST_COMPLETE_PROFILE && <Backdrop
-                    sx={{ zIndex: 1_000_000_000, background: 'rgba(0,0,0,0.85)', borderTopLeftRadius: { xs: 0, sm: '15px' } }}
+                    sx={{ 
+                        zIndex: 1_000_000_000, 
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        background: 'rgba(0, 0, 0, 0.3)',
+                        borderTopLeftRadius: { xs: 0, sm: '15px' } 
+                    }}
                     open={true}>
                     <Stack spacing={2} alignItems={'center'} justifyContent={'center'} sx={{ p: { xs: 0, sm: 2 }, background: '', height: '100%', width: '100%' }}>
                         <CompleteProfileComponent />

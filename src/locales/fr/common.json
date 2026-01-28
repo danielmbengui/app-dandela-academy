@@ -21,5 +21,14 @@
   "chapter": "Chapitre",
   "chapters": "Chapitres",
   "subchapter": "Section",
-  "subchapters": "Sections"
+  "subchapters": "Sections",
+  "all": "Tous",
+  "dates": "Dates",
+  "teacher": "Professeur",
+  "status": "Statut",
+  "seats": "Places",
+  "ascending": "Croissant",
+  "descending": "Décroissant",
+  "order": "Ordre",
+  "sort": "Trier"
 }

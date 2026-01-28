@@ -68,6 +68,43 @@ export default function TextFieldPhoneComponent({
     const [codeCountry, setCodeCountry] = useState(ClassCountry.DEFAULT_CODE);
     const [prefixe, setPrefixe] = useState(ClassCountry.DEFAULT_PREFIXE);
     const [phone, setPhone] = useState("");
+    
+    // Synchroniser les états internes avec la prop value quand elle change
+    useEffect(() => {
+        if (!value || value.trim() === '') {
+            setPhone("");
+            setCodeCountry(ClassCountry.DEFAULT_CODE);
+            setPrefixe(ClassCountry.DEFAULT_PREFIXE);
+            return;
+        }
+        
+        // Extraire le codeCountry et le prefixe depuis la valeur
+        const extractedCode = ClassCountry.extractCodeCountryFromPhoneNumber(value);
+        const extractedPrefixe = ClassCountry.extractPrefixeFromPhoneNumber(value);
+        
+        if (extractedCode && extractedPrefixe) {
+            setCodeCountry(extractedCode);
+            setPrefixe(extractedPrefixe);
+            // Extraire le numéro sans le préfixe
+            const phoneWithoutPrefixe = value.replace(extractedPrefixe, '').trim();
+            setPhone(phoneWithoutPrefixe);
+        } else {
+            // Si on ne peut pas extraire, essayer de parser avec parseAndValidatePhone
+            const parsed = parseAndValidatePhone(value);
+            if (parsed.country) {
+                setCodeCountry(parsed.country);
+                // Trouver le prefixe correspondant au pays
+                const country = ClassCountry.COUNTRIES.find(c => c.code === parsed.country);
+                if (country && country.prefixes.length > 0) {
+                    const matchedPrefixe = `+${country.prefixes[0]}`;
+                    setPrefixe(matchedPrefixe);
+                    const phoneWithoutPrefixe = value.replace(matchedPrefixe, '').trim();
+                    setPhone(phoneWithoutPrefixe);
+                }
+            }
+        }
+    }, [value]);
+    
     const { formatPhone, isValidPhone, errorPhone } = useMemo(() => {
         const isValidPhone = phone === '' ? true : parseAndValidatePhone(`${prefixe}${phone}`, codeCountry).is_valid;
         const errorPhone = isValidPhone ? '' : t('errors.phone_number');
@@ -77,7 +114,7 @@ export default function TextFieldPhoneComponent({
             isValidPhone: isValidPhone,
             errorPhone
         };
-    }, [codeCountry, phone, prefixe]);
+    }, [codeCountry, phone, prefixe, t]);
     return (<Stack alignItems={'start'} sx={{ width: '100%' }}>
         <Stack alignItems={'center'} direction={'row'} sx={{ width: '100%' }} spacing={1}>
             <Box sx={{ minWidth: '20%' }}>
@@ -114,9 +151,8 @@ export default function TextFieldPhoneComponent({
                 type={'number'}
                 disabled={disabled}
                 fullWidth={fullWidth}
-            //helperText={errorPhone}
-            //style={{width:'100%'}}
-            //helperText={"Téléphone invalide"}
+                error={error || !isValidPhone}
+                helperText={error || errorPhone || ''}
             />
         </Stack>
         

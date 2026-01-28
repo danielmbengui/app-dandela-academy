@@ -85,8 +85,8 @@ export default function StatsChartsComponent({
   const [viewMode, setViewMode] = useState(VIEW_MODE_SCORE);
   const { isMobile } = useUserDevice();
   return (
-    <div style={{ padding: 0 }}>
-      <Stack direction={'row'} spacing={1} alignItems={'center'}>
+    <Stack spacing={3}>
+      <Stack direction={'row'} spacing={2} alignItems={'center'} flexWrap="wrap">
         <ToggleButtonGroup
           orientation={isMobile ? 'vertical' : 'horizontal'}
           exclusive
@@ -94,46 +94,37 @@ export default function StatsChartsComponent({
           onChange={(_, v) => v && setView(v)}
           size="small"
           sx={{
-            gap: 1,
-            backgroundColor: "var(--primary-shadow)",
+            gap: 0.5,
+            backgroundColor: "var(--primary-shadow-xs)",
             padding: 0.5,
-            borderRadius: 10,
+            borderRadius: 2.5,
+            border: '1px solid var(--card-border)',
 
             "& .MuiToggleButton-root": {
-              /* ÉTAT PAR DÉFAUT */
-              borderRadius: 10,
+              borderRadius: 2,
               fontWeight: 600,
               textTransform: "none",
-              border: "0.1px solid transparent",
+              border: "1px solid transparent",
               color: "var(--primary)",
-              paddingX: 2,
-              transition: "all 0.2s ease",
+              paddingX: 2.5,
+              paddingY: 1,
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 
               "&:hover": {
-                backgroundColor: "var(--primary)",
-                color: "var(--card-color)",
+                backgroundColor: "var(--primary-shadow-sm)",
+                color: "var(--primary)",
               },
 
               "&.Mui-selected": {
                 backgroundColor: "var(--primary)",
                 color: "var(--card-color)",
-                border: "0.1px solid var(--primary)",
-                //fontWeight: 700,
+                border: "1px solid var(--primary)",
+                boxShadow: '0 2px 8px var(--primary-shadow-sm)',
 
                 "&:hover": {
                   backgroundColor: "var(--primary)",
                   color: "var(--card-color)",
                 },
-              },
-              "&.Mui-selected[value='correct']": {
-                //backgroundColor: "var(--success)",
-                //color: "var(--card-color)",
-                //border: "0.1px solid var(--success)",
-              },
-              "&.Mui-selected[value='wrong']": {
-                //backgroundColor: "var(--error)",
-                //color: "var(--card-color)",
-                //border: "0.1px solid var(--error)",
               },
             },
           }}
@@ -171,7 +162,7 @@ export default function StatsChartsComponent({
         />
       </Stack>
 
-      <Stack alignItems={'start'} sx={{ px: 1.5, py: 1, height: { xs: '80vh', sm: '100%' }, minHeight: '80vh', width: '100%' }}>
+      <Stack alignItems={'start'} sx={{ minHeight: '60vh', width: '100%' }}>
         {
           view === VIEW_LIST && <>
             {
@@ -241,12 +232,23 @@ export default function StatsChartsComponent({
           }
         </>}
       </Stack>
-    </div>
+    </Stack>
   );
 }
 function NoViewComponent() {
   const { t } = useTranslation([ClassUserStat.NS_COLLECTION]);
-  return (<Stack sx={{ p: 1.5, my: 1, border: '0.1px solid var(--card-border)' }} alignItems={'start'}>
-    <Typography>{t('view.not-enabled')}</Typography>
-  </Stack>)
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        border: '1px solid var(--card-border)',
+        bgcolor: 'var(--card-color)',
+        width: '100%',
+      }}
+    >
+      <Typography sx={{ color: 'var(--grey-light)' }}>{t('view.not-enabled')}</Typography>
+    </Paper>
+  );
 }

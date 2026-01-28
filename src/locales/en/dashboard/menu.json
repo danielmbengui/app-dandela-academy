@@ -12,6 +12,8 @@
   "teams": "Team",
   "students": "Students",
   "tutors": "Teachers",
+  "teachers": "Teachers",
   "settings": "Settings",
-  "stats": "Results"
+  "stats": "Results",
+  "sessions": "Sessions"
 }

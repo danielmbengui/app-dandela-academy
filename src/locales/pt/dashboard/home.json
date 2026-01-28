@@ -36,6 +36,14 @@
     "profile": {
       "title": "Configurar o perfil",
       "subtitle": "Todas as preferências da conta"
+    },
+    "sessions": {
+      "title": "Ver as sessões",
+      "subtitle": "Sessões de cursos presenciais"
+    },
+    "settings": {
+      "title": "Configurações",
+      "subtitle": "Configuração da aplicação"
     }
   },
   "events": {
@@ -53,5 +61,12 @@
   },
   "enrolled-lessons": "Cursos inscritos",
   "active-lessons": "Cursos ativos",
-  "completed-lessons": "Cursos concluídos"
+  "completed-lessons": "Cursos concluídos",
+  "progression": "Progressão das pontuações",
+  "status-distribution": "Distribuição dos estatutos",
+  "best-results": "Melhores resultados",
+  "chapters-to-complete": "Capítulos a completar",
+  "no-results": "Nenhum resultado disponível",
+  "no-data": "Nenhum dado disponível",
+  "all-chapters-completed": "Todos os capítulos estão completos! 🎉"
 }

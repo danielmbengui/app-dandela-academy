@@ -74,17 +74,50 @@ export default function FirstConnexionComponent({ onFinish }) {
   return (
     <Stack justifyContent={'center'} alignItems={'center'} sx={{ background: '', px: 1, textAlign: 'center', width: '100%', height: { xs: '100%', sm: 'auto' } }}>
       <Stack spacing={2} maxWidth={'md'} justifyContent={'center'} alignItems={'end'} sx={{ background: 'var(--card-color)', py: { xs: 2, sm: 1.5 }, px: 2, borderRadius: '10px' }}>
-        <Stack direction={'row'} spacing={1} alignItems={'center'}>
-          <Typography onClick={complete} fontWeight={500} sx={{ color: processing ? 'var(--grey-light)' : 'var(--primary)', fontSize: '16px', cursor: processing ? 'default' : 'pointer' }}>{t('btn-skip')}</Typography>
+        <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'flex-end'} sx={{ width: '100%' }}>
+          <Typography 
+            onClick={complete} 
+            sx={{ 
+              color: processing ? 'var(--grey-light)' : 'var(--primary)', 
+              fontSize: { xs: '14px', sm: '15px' },
+              fontWeight: 600,
+              cursor: processing ? 'default' : 'pointer',
+              transition: 'all 0.2s ease',
+              letterSpacing: '0.3px',
+              '&:hover': {
+                opacity: processing ? 1 : 0.8,
+                transform: processing ? 'none' : 'translateY(-1px)',
+              }
+            }}
+          >
+            {t('btn-skip')}
+          </Typography>
           {
-            processing && <CircularProgress size={16} sx={{ color: 'var(--grexy-light)' }} />
+            processing && <CircularProgress size={16} sx={{ color: 'var(--primary)' }} />
           }
         </Stack>
 
         {
           SLIDES.map((slide, i) => {
-            return (<Stack key={`${slide.title}`} alignItems={'center'} sx={{display:i===index?'flex':'none', background: '', width: '100%' }} spacing={1.5}>
-              <h2>{t(slide.title)}</h2>
+            return (<Stack key={`${slide.title}`} alignItems={'center'} sx={{display:i===index?'flex':'none', background: '', width: '100%' }} spacing={2}>
+              <Typography
+                variant="h2"
+                sx={{
+                  fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+                  fontWeight: 700,
+                  color: 'var(--font-color)',
+                  textAlign: 'center',
+                  lineHeight: 1.3,
+                  mb: { xs: 0.5, sm: 1 },
+                  letterSpacing: '-0.02em',
+                  background: 'linear-gradient(135deg, var(--font-color) 0%, var(--primary) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                {t(slide.title)}
+              </Typography>
               <Box
                 //ref={videoRef}
                 component="video"
@@ -112,8 +145,19 @@ export default function FirstConnexionComponent({ onFinish }) {
                   display: "block",
                 }}
               />
-              <Box sx={{ maxWidth: { sm: '80%' }, }}>
-                <p style={{ color: 'var(--grey-light)' }}>{t(slide.description)}</p>
+              <Box sx={{ maxWidth: { xs: '100%', sm: '85%' }, px: { xs: 1, sm: 0 }, mt: { xs: 0.5, sm: 1 } }}>
+                <Typography 
+                  sx={{ 
+                    color: 'var(--grey-light)', 
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    lineHeight: 1.7,
+                    textAlign: 'center',
+                    fontWeight: 400,
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {t(slide.description)}
+                </Typography>
               </Box>
             </Stack>)
           })
@@ -168,17 +212,6 @@ export default function FirstConnexionComponent({ onFinish }) {
           max-height: 100%;
         }
 
-        h2 {
-          margin: 0;
-          font-size: 1.35rem;
-        }
-
-        p {
-          margin: 0;
-          font-size: 0.9rem;
-          color: var(--grey-light);
-          line-height: 1.35rem;
-        }
 
         .progress {
           display: flex;

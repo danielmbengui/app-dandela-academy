@@ -16,8 +16,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS } from "@/contexts/constants/constants_pages";
-import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS, PAGE_SESSIONS, PAGE_TEACHERS } from "@/contexts/constants/constants_pages";
+import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSession, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -525,7 +525,7 @@ export class ClassUser {
         return (PAGE_DASHBOARD_HOME)
     }
     /**************** MENU ****************/
-    static menuDashboard(user = null) {
+    static menuDashboard() {
         var menu = [
             {
                 name: "dashboard",
@@ -554,13 +554,19 @@ export class ClassUser {
                 path: PAGE_STATS,
                 icon: <IconStats width={16} height={16} />,
             },
+            {
+                name: "teachers",
+                path: PAGE_TEACHERS,
+                icon: <IconTeachers width={16} height={16} />,
+            },
+            {
+                name: "sessions",
+                path: PAGE_SESSIONS,
+                icon: <IconSession width={20} height={20} />,
+            },
+
 
             /*
-            {
-                name: "computers",
-                path: PAGE_DASHBOARD_COMPUTERS,
-                icon: <IconComputers width={20} height={20} />,
-            },
             {
                 name: "users",
                 path: PAGE_DASHBOARD_USERS,
@@ -583,20 +589,6 @@ export class ClassUser {
                 icon: <IconSettings width={20} height={20} />,
             },
         ];
-        if (user instanceof ClassUserIntern) {
-            menu = [
-                {
-                    name: "lessons",
-                    path: PAGE_ADMIN_UPDATE_ONE_LESSON,
-                    icon: <IconLessons width={18} height={18} />,
-                },
-                {
-                    name: "chapters",
-                    path: "admin/chapter/update",
-                    icon: <IconLessons width={18} height={18} />,
-                },
-            ]
-        }
         return menu
     }
     // ---------- Converter intégré ----------

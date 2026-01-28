@@ -19,5 +19,14 @@
   "chapter": "Chapter",
   "chapters": "Chapters",
   "subchapter": "Section",
-  "subchapters": "Sections"
+  "subchapters": "Sections",
+  "all": "All",
+  "dates": "Dates",
+  "teacher": "Teacher",
+  "status": "Status",
+  "seats": "Seats",
+  "ascending": "Ascending",
+  "descending": "Descending",
+  "order": "Order",
+  "sort": "Sort"
 }

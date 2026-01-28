@@ -2,5 +2,9 @@
   "title-page": "Professeurs - Dandela Academy",
   "description-page": "La liste des professeurs disponibles",
   "title": "Professeurs",
-  "subtitle": "Découvre nos professeurs et inscris-toi à leurs prochaines sessions"
+  "subtitle": "Découvre nos professeurs et inscris-toi à leurs prochaines sessions",
+  "open-sessions": "Sessions ouvertes",
+  "no-open-sessions": "Aucune session ouverte",
+  "no-lessons": "Aucun cours disponible",
+  "placeholder_search": "Rechercher un cours..."
 }

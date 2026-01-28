@@ -1,71 +1,121 @@
-import React, { useState } from "react";
-import { Alert, Chip, CircularProgress, Stack, Typography } from "@mui/material";
-import { IconEmail } from "@/assets/icons/IconsComponent";
+import { CircularProgress, Stack, Typography, Box, Paper } from "@mui/material";
 import { useAuth } from "@/contexts/AuthProvider";
-import { set } from "zod";
-import { useThemeMode } from "@/contexts/ThemeProvider";
 import Link from "next/link";
-import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_FORGOT_PASSWORD, PAGE_REGISTER, PAGE_STATS } from "@/contexts/constants/constants_pages";
-import { ClassColor } from "@/classes/ClassColor";
+import { PAGE_STATS } from "@/contexts/constants/constants_pages";
 import { Trans, useTranslation } from "react-i18next";
-import { NS_LOGIN, NS_NOT_AUTHORIZED, NS_REGISTER, NS_ROLES, NS_STATS, NS_STATS_ONE } from "@/contexts/i18n/settings";
-import { useRouter } from "next/navigation";
-import { isValidEmail } from "@/contexts/functions";
-import { ClassUser } from "@/classes/users/ClassUser";
-import FieldComponent from "@/components/elements/FieldComponent";
-import AlertComponent from "@/components/elements/AlertComponent";
-import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
+import { NS_STATS_ONE } from "@/contexts/i18n/settings";
 import LockIcon from "@mui/icons-material/Lock";
 import ButtonCancel from "../dashboard/elements/ButtonCancel";
-import Preloader from "../shared/Preloader";
 
 export default function NotAuthorizedStatComponent() {
-    const router = useRouter();
-    const { t } = useTranslation([NS_STATS_ONE, NS_ROLES]);
-    const { user, isLoading, login, logout } = useAuth();
+    const { t } = useTranslation([NS_STATS_ONE]);
+    const { user, isLoading } = useAuth();
 
     if (isLoading) {
-        return (<CircularProgress />)
-    }
-    return (<Stack spacing={3} maxWidth={'sm'} sx={{ color: "var(--font-color)", width: '100%', py: 3, px: { xs: 3, sm: 5 }, background: 'var(--card-color)', borderRadius: '5px' }}>
-        <Stack spacing={3} alignItems="center">
-            <Stack spacing={2} alignItems={'center'} sx={{ textAlign: 'center' }}>
-                <Stack spacing={1} alignItems={'center'}>
-                    <LockIcon sx={{ fontSize: 48 }} color="error" />
-                    <Typography variant="h4" fontWeight={600}>
-                        {t('not-authorized-title')}
-                    </Typography>
-                    <Trans
-                        t={t}
-                        i18nKey={'not-authorized-subtitle'}
-                        values={{ email: user?.email }}
-                        components={{
-                            span: <Typography variant="body2" color="text.secondary" />,
-                            b: <strong />
-                        }}
-                    />
-                </Stack>
+        return (
+            <Stack alignItems="center" justifyContent="center" sx={{ py: 8 }}>
+                <CircularProgress size={32} />
             </Stack>
+        );
+    }
+    
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                maxWidth: 'sm',
+                width: '100%',
+                p: { xs: 3, sm: 4 },
+                bgcolor: 'var(--card-color)',
+                borderRadius: 3,
+                border: '1px solid var(--card-border)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+            }}
+        >
+            <Stack spacing={3.5} alignItems="center">
+                <Stack spacing={2.5} alignItems="center" sx={{ textAlign: 'center' }}>
+                    <Box
+                        sx={{
+                            width: 72,
+                            height: 72,
+                            borderRadius: 3.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: 'var(--error-shadow-xs)',
+                            color: 'var(--error)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            '&:hover': {
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+                            },
+                        }}
+                    >
+                        <LockIcon sx={{ fontSize: 36 }} />
+                    </Box>
+                    
+                    <Stack spacing={1}>
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                lineHeight: 1.2,
+                                color: 'var(--font-color)',
+                            }}
+                        >
+                            {t('not-authorized-title')}
+                        </Typography>
+                        
+                        <Trans
+                            t={t}
+                            i18nKey={'not-authorized-subtitle'}
+                            values={{ email: user?.email }}
+                            components={{
+                                span: (
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            color: 'var(--grey-light)',
+                                            lineHeight: 1.6,
+                                        }}
+                                    />
+                                ),
+                                b: <strong style={{ color: 'var(--font-color)' }} />
+                            }}
+                        />
+                    </Stack>
+                </Stack>
 
-            {(
-                <Stack spacing={1} alignItems="center" sx={{ textAlign: 'center' }}>
-                    <Typography variant="caption" color="text.secondary">
+                <Box
+                    sx={{
+                        width: '100%',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'var(--error-shadow-xs)',
+                        border: '1px solid var(--error-shadow-sm)',
+                    }}
+                >
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            color: 'var(--error-dark)',
+                            textAlign: 'center',
+                            fontWeight: 500,
+                        }}
+                    >
                         {t('not-authorized-error')}
                     </Typography>
+                </Box>
+
+                <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, width: '100%' }}>
+                    <Link href={PAGE_STATS} style={{ width: '100%' }}>
+                        <ButtonCancel
+                            label={t('not-authorized-btn-back')}
+                            fullWidth
+                        />
+                    </Link>
                 </Stack>
-            )}
-
-            <Stack direction="row" spacing={2} alignItems={'center'} sx={{ mt: 1, }}>
-                <Link href={PAGE_STATS}>
-                    <ButtonCancel
-                        //onClick={handleLogout}
-                        label={t('not-authorized-btn-back')}
-                        //variant="outlined"
-                        fullWidth
-                    />
-                </Link>
             </Stack>
-        </Stack>
-
-    </Stack>);
+        </Paper>
+    );
 }

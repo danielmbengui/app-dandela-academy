@@ -13,7 +13,7 @@
   "goals-subtitle": "À la fin de ce cours tu seras capable de :",
   "subchapters": "Structure du cours",
   "subchapters-subtitle": "Le cours est organisé en leçons courtes, chacune avec une partie théorique et un exercice pratique.",
-  "subchapters-last": "<b>Dernière étape !</b><br/>Le quiz ci-dessous t’aidera à consolider ce que tu viens d’apprendre.",
+  "subchapters-last": "<b>Dernière étape !</b><br/>Le quiz ci-dessous t'aidera à consolider ce que tu viens d'apprendre.",
   "keys": "Points clés",
   "exercises": "Exercice pratique",
   "progression": "Progression",
@@ -29,6 +29,10 @@
   "quiz-btn-start": "Démarrer le quiz",
   "quiz-finished": "<b>Bravo pour avoir terminé le quiz !</b><br/>Tu as obtenu {{score}}.<br/>Tu as répondu correctement à {{percentage}}% des questions.<br/>Tu as complété le questionnaire en {{duration}}.<br/><br/>Prochaine tentative possible dès le <b>{{nextDate}}</b>.",
   "quiz-duration": "Temps",
-  "quiz-warning": "Le quiz est chronométré et ne peut être passé qu’une fois tous les 30 jours.<br/>Clique sur <b>\"Démarrer le quiz\"</b> lorsque tu es prêt(e).",
-  "quiz-subtitle": "*Ce test ne peut être passé qu’une seule fois. Ton score sera sauvegardé pour te permettre de suivre ta progression dans le temps."
+  "quiz-warning": "Le quiz est chronométré et ne peut être passé qu'une fois tous les 30 jours.<br/>Clique sur <b>\"Démarrer le quiz\"</b> lorsque tu es prêt(e).",
+  "quiz-subtitle": "*Ce test ne peut être passé qu'une seule fois. Ton score sera sauvegardé pour te permettre de suivre ta progression dans le temps.",
+  "locked": "Verrouillé",
+  "completed": "Terminé",
+  "in-progress": "En cours",
+  "available": "Disponible"
 }

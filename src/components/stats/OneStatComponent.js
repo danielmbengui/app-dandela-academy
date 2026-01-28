@@ -93,179 +93,205 @@ export default function OneStatComponent() {
         return _questions;
     }, [attempt.uid, attempt.questions, filter]);
     return (
-        <Stack spacing={1}>
-            <Box sx={{ bgcolor: "", minHeight: "100vh" }}>
-                <Stack sx={{ background: '', }} spacing={2}>
-                <Grid container spacing={1} sx={{ width: '100%' }}>
-                            <Grid size={{ xs: 12, sm: 3.5 }}>
-                                <Stack spacing={1}>
-                                    {
-                                        !hasMaxStat && <Paper
-                                            elevation={0}
-                                            sx={{
-                                                borderRadius: 5,
-                                                p: 2.2,
-                                                py: 2,
-                                                px: { xs: 1.5, sm: 2 },
-                                                border: "0.1px solid var(--card-border)",
-                                            }}
-                                        >
-                                            <Stack spacing={1.2}>
-                                                <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
-                                                    {t('distribution')}
-                                                </Typography>
-
-                                                <Stack direction="row" spacing={1} flexWrap="wrap">
-                                                    <Chip
-                                                        icon={<CheckCircleIcon />}
-                                                        label={`${correctCount} ${t('result.trues')}`}
-                                                        sx={chipGood}
-                                                        variant="outlined"
-                                                    />
-                                                    <Chip
-                                                        icon={<CancelIcon />}
-                                                        label={`${wrongCount} ${t('result.falses')}`}
-                                                        sx={chipBad}
-                                                        variant="outlined"
-                                                    />
-                                                </Stack>
-
-                                                <Stack spacing={0.8}>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        {t('result.trues-answers')}
-                                                    </Typography>
-                                                    <LinearProgress
-                                                        variant="determinate"
-                                                        value={attempt.questions.length ? (correctCount / attempt.questions.length) * 100 : 0}
-                                                        sx={{
-                                                            height: 10,
-                                                            borderRadius: 999,
-                                                            bgcolor: "rgba(34,197,94,0.10)",
-                                                            "& .MuiLinearProgress-bar": { bgcolor: "#22C55E", borderRadius: 999 },
-                                                        }}
-                                                    />
-
-                                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-                                                        {t('result.falses-answers')}
-                                                    </Typography>
-                                                    <LinearProgress
-                                                        variant="determinate"
-                                                        value={attempt.questions.length ? (wrongCount / attempt.questions.length) * 100 : 0}
-                                                        sx={{
-                                                            height: 10,
-                                                            borderRadius: 999,
-                                                            bgcolor: "rgba(239,68,68,0.10)",
-                                                            "& .MuiLinearProgress-bar": { bgcolor: "#EF4444", borderRadius: 999 },
-                                                        }}
-                                                    />
-                                                </Stack>
-                                            </Stack>
-                                        </Paper>
-                                    }
-
-                                    {
-                                        hasMaxStat && <Stack sx={{ position: 'relative' }}>
-                                            <CongratulationsComponent stat={stat} />
-                                        </Stack>
-                                    }
-                                </Stack>
-                            </Grid>
-                            <Grid size={{ xs: 12, sm: 'grow' }}>
-                                <Paper
-                                    elevation={0}
+        <Stack spacing={3}>
+            <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                    {!hasMaxStat && (
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                borderRadius: 3,
+                                p: 3,
+                                border: '1px solid var(--card-border)',
+                                bgcolor: 'var(--card-color)',
+                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                            }}
+                        >
+                            <Stack spacing={2.5}>
+                                <Typography
+                                    variant="h6"
                                     sx={{
-                                        borderRadius: 5,
-                                        p: 2.2,
-                                        py: 2,
-                                        px: { xs: 1.5, sm: 2 },
-                                        border: "0.1px solid var(--card-border)",
+                                        fontWeight: 700,
+                                        lineHeight: 1.2,
                                     }}
                                 >
-                                    <Stack spacing={1.2}>
-                                        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-                                            <Typography variant="h5" sx={{ fontWeight: 950, lineHeight: 1.1 }}>
-                                                {t('questions')}
-                                            </Typography>
+                                    {t('distribution')}
+                                </Typography>
 
-                                            <ToggleButtonGroup
-                                                exclusive
-                                                value={filter}
-                                                onChange={(_, v) => v && setFilter(v)}
-                                                size="small"
-                                                sx={{
-                                                    gap: 1,
-                                                    backgroundColor: "var(--primary-shadow)",
-                                                    padding: 0.5,
-                                                    borderRadius: 4,
+                                <Stack direction="row" spacing={1.5} flexWrap="wrap">
+                                    <Chip
+                                        icon={<CheckCircleIcon />}
+                                        label={`${correctCount} ${t('result.trues')}`}
+                                        sx={chipGood}
+                                        variant="outlined"
+                                    />
+                                    <Chip
+                                        icon={<CancelIcon />}
+                                        label={`${wrongCount} ${t('result.falses')}`}
+                                        sx={chipBad}
+                                        variant="outlined"
+                                    />
+                                </Stack>
 
-                                                    "& .MuiToggleButton-root": {
-                                                        /* ÉTAT PAR DÉFAUT */
-                                                        borderRadius: 10,
-                                                        fontWeight: 600,
-                                                        textTransform: "none",
-                                                        border: "0.1px solid transparent",
-                                                        color: "var(--primary)",
-                                                        paddingX: 2,
-                                                        transition: "all 0.2s ease",
-
-                                                        "&:hover": {
-                                                            backgroundColor: "var(--primary)",
-                                                            color: "var(--card-color)",
-                                                        },
-
-                                                        "&.Mui-selected": {
-                                                            backgroundColor: "var(--primary)",
-                                                            color: "var(--card-color)",
-                                                            border: "0.1px solid var(--primary)",
-                                                            //fontWeight: 700,
-
-                                                            "&:hover": {
-                                                                backgroundColor: "var(--primary)",
-                                                                color: "var(--card-color)",
-                                                            },
-                                                        },
-                                                        "&.Mui-selected[value='correct']": {
-                                                            //backgroundColor: "var(--success)",
-                                                            //color: "var(--card-color)",
-                                                            //border: "0.1px solid var(--success)",
-                                                        },
-                                                        "&.Mui-selected[value='wrong']": {
-                                                            //backgroundColor: "var(--error)",
-                                                            //color: "var(--card-color)",
-                                                            //border: "0.1px solid var(--error)",
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                <ToggleButton value="all">{t("result.filter-all")}</ToggleButton>
-                                                <ToggleButton value="correct">{t("result.filter-trues")}</ToggleButton>
-                                                <ToggleButton value="wrong">{t("result.filter-falses")}</ToggleButton>
-                                            </ToggleButtonGroup>
-
-                                        </Stack>
-
-                                        <Divider sx={{ borderColor: "var(--card-border)" }} />
-
-                                        <Stack spacing={1}>
-                                            {
-
-                                                questionsFiltered?.map((q, index) => (
-                                                    <QuestionCard key={q.uid_intern} stat={attempt} q={q} index={index} isCorrect={q.is_correct} />
-                                                ))
-
-                                            }
-                                            {!questionsFiltered.length ? (
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {t('result.filter-no-questions')}
-                                                </Typography>
-                                            ) : null}
-                                        </Stack>
+                                <Stack spacing={1.5}>
+                                    <Stack spacing={0.5}>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                fontWeight: 600,
+                                                color: 'var(--grey-light)',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                fontSize: '0.7rem',
+                                            }}
+                                        >
+                                            {t('result.trues-answers')}
+                                        </Typography>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={attempt.questions.length ? (correctCount / attempt.questions.length) * 100 : 0}
+                                            sx={{
+                                                height: 8,
+                                                borderRadius: 999,
+                                                bgcolor: 'var(--success-shadow-sm)',
+                                                "& .MuiLinearProgress-bar": {
+                                                    bgcolor: 'var(--success)',
+                                                    borderRadius: 999,
+                                                },
+                                            }}
+                                        />
                                     </Stack>
-                                </Paper>
-                            </Grid>
-                        </Grid>
-                </Stack>
-            </Box>
+
+                                    <Stack spacing={0.5}>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                fontWeight: 600,
+                                                color: 'var(--grey-light)',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                fontSize: '0.7rem',
+                                            }}
+                                        >
+                                            {t('result.falses-answers')}
+                                        </Typography>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={attempt.questions.length ? (wrongCount / attempt.questions.length) * 100 : 0}
+                                            sx={{
+                                                height: 8,
+                                                borderRadius: 999,
+                                                bgcolor: 'var(--error-shadow-sm)',
+                                                "& .MuiLinearProgress-bar": {
+                                                    bgcolor: 'var(--error)',
+                                                    borderRadius: 999,
+                                                },
+                                            }}
+                                        />
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+                        </Paper>
+                    )}
+
+                    {hasMaxStat && (
+                        <CongratulationsComponent stat={stat} />
+                    )}
+                </Grid>
+                
+                <Grid size={{ xs: 12, sm: 8 }}>
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            borderRadius: 3,
+                            p: 3,
+                            border: '1px solid var(--card-border)',
+                            bgcolor: 'var(--card-color)',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                        }}
+                    >
+                        <Stack spacing={2.5}>
+                            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        fontWeight: 700,
+                                        lineHeight: 1.2,
+                                    }}
+                                >
+                                    {t('questions')}
+                                </Typography>
+
+                                <ToggleButtonGroup
+                                    exclusive
+                                    value={filter}
+                                    onChange={(_, v) => v && setFilter(v)}
+                                    size="small"
+                                    sx={{
+                                        gap: 0.5,
+                                        bgcolor: 'var(--primary-shadow-xs)',
+                                        p: 0.5,
+                                        borderRadius: 2,
+                                        "& .MuiToggleButton-root": {
+                                            borderRadius: 1.5,
+                                            fontWeight: 600,
+                                            textTransform: 'none',
+                                            border: '1px solid transparent',
+                                            color: 'var(--primary)',
+                                            px: 2,
+                                            py: 0.5,
+                                            transition: 'all 0.2s ease',
+                                            "&:hover": {
+                                                bgcolor: 'var(--primary-shadow-sm)',
+                                            },
+                                            "&.Mui-selected": {
+                                                bgcolor: 'var(--primary)',
+                                                color: 'var(--card-color)',
+                                                border: '1px solid var(--primary)',
+                                                "&:hover": {
+                                                    bgcolor: 'var(--primary)',
+                                                },
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <ToggleButton value="all">{t("result.filter-all")}</ToggleButton>
+                                    <ToggleButton value="correct">{t("result.filter-trues")}</ToggleButton>
+                                    <ToggleButton value="wrong">{t("result.filter-falses")}</ToggleButton>
+                                </ToggleButtonGroup>
+                            </Stack>
+
+                            <Divider sx={{ borderColor: 'var(--card-border)' }} />
+
+                            <Stack spacing={2}>
+                                {questionsFiltered?.map((q, index) => (
+                                    <QuestionCard
+                                        key={q.uid_intern}
+                                        stat={attempt}
+                                        q={q}
+                                        index={index}
+                                        isCorrect={q.is_correct}
+                                    />
+                                ))}
+                                
+                                {!questionsFiltered.length && (
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            color: 'var(--grey-light)',
+                                            fontStyle: 'italic',
+                                            textAlign: 'center',
+                                            py: 2,
+                                        }}
+                                    >
+                                        {t('result.filter-no-questions')}
+                                    </Typography>
+                                )}
+                            </Stack>
+                        </Stack>
+                    </Paper>
+                </Grid>
+            </Grid>
         </Stack>
     );
 }
@@ -730,75 +756,123 @@ function MiniStat({ label, value, icon }) {
     );
 }
 function QuestionCard({ stat = null, q, index, isCorrect = false }) {
-    //const isCorrect = !!q.is_correct;
-    //const {stat} = useStat();
     const { t } = useTranslation([ClassUserStat.NS_COLLECTION, ClassLessonChapterQuiz.NS_COLLECTION]);
 
     return (
         <Paper
             elevation={0}
             sx={{
-                borderRadius: 5,
-                p: 1.8,
-                border: `0.1px solid ${isCorrect ? "var(--success-shadow-sm)" : "var(--error-shadow-sm)"}`,
-                bgcolor: isCorrect ? "var(--success-shadow)" : "var(--error-shadow)",
-                color:'black'
+                borderRadius: 3,
+                p: 2.5,
+                border: `1px solid ${isCorrect ? 'var(--success-shadow-sm)' : 'var(--error-shadow-sm)'}`,
+                bgcolor: isCorrect ? 'var(--success-shadow-xs)' : 'var(--error-shadow-xs)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                    boxShadow: `0 4px 12px ${isCorrect ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)'}`,
+                    transform: 'translateY(-2px)',
+                },
             }}
         >
-            <Stack spacing={1.1}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-                    <Stack spacing={0.35} sx={{ minWidth: 0 }}>
-                        <Typography variant="body2" color={`var(--${isCorrect ? 'success' : 'error'}-dark)`} sx={{ fontWeight: 900 }}>
+            <Stack spacing={2}>
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                    <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontWeight: 700,
+                                color: isCorrect ? 'var(--success-dark)' : 'var(--error-dark)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                fontSize: '0.75rem',
+                            }}
+                        >
                             {t('question')} {q?.uid_intern}
                         </Typography>
-                        <Typography variant="body1" sx={{ color: `var(--${isCorrect ? 'success' : 'error'}-dark)`, fontWeight: 950, lineHeight: 1.1 }}>
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                color: isCorrect ? 'var(--success-dark)' : 'var(--error-dark)',
+                                fontWeight: 600,
+                                lineHeight: 1.4,
+                            }}
+                        >
                             {q.translate?.question || q.question}
                         </Typography>
                     </Stack>
 
                     <Chip
-                        icon={isCorrect ? <IconCheckFilled color="var(--success)" height={22} width={22} /> : <IconCloseFilled color="var(--error)" height={20} width={20} />}
+                        icon={isCorrect ? (
+                            <IconCheckFilled color="var(--success)" height={20} width={20} />
+                        ) : (
+                            <IconCloseFilled color="var(--error)" height={20} width={20} />
+                        )}
                         label={isCorrect ? t('result.filter-true') : t('result.filter-false')}
                         sx={isCorrect ? chipGood : chipBad}
                         variant="outlined"
                     />
                 </Stack>
 
-                {/* Choices */}
-                {<Stack spacing={0.6}>
-                    <Typography variant="caption" color={isCorrect ? "var(--success-dark)" : "var(--error-dark)"}>
-                        {t('choices', {ns:ClassLessonChapterQuiz.NS_COLLECTION})} {":"}
+                <Stack spacing={1.5}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            fontWeight: 600,
+                            color: isCorrect ? 'var(--success-dark)' : 'var(--error-dark)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontSize: '0.7rem',
+                        }}
+                    >
+                        {t('choices', { ns: ClassLessonChapterQuiz.NS_COLLECTION })}:
                     </Typography>
-                    <Grid container spacing={1}>
+                    <Grid container spacing={1.5}>
                         {q.translate?.proposals?.map((c) => {
                             const isUser = c.uid_intern === q.answer?.uid_proposal;
                             const isRight = (isUser && c.uid_intern === q.answer?.uid_answer) || stat?.status === ClassUserStat.STATUS.MAX;
-                            //isRight || stat?.status === ClassUserStat.STATUS.MAX
+                            
                             return (
-                                <Grid size={{ xs: 12, sm: 'auto' }} key={c.uid_intern}>
+                                <Grid size={{ xs: 12, sm: 6, md: 'auto' }} key={c.uid_intern}>
                                     <Chip
                                         label={c.value}
-                                        icon={isRight ? <IconCheckFilled height={18} width={18} /> : isUser ? <IconCloseFilled height={18} width={18} /> : undefined}
+                                        icon={isRight ? (
+                                            <IconCheckFilled height={16} width={16} />
+                                        ) : isUser ? (
+                                            <IconCloseFilled height={16} width={16} />
+                                        ) : undefined}
                                         sx={{
-                                            fontWeight: 800,
-                                            borderRadius: 3,
-                                            border: `0.1px solid ${isRight ? "var(--success)" : isUser ? "var(--error)" : isCorrect ? "var(--success-shadow-xl)" : "var(--error-shadow-xl)"}`,
+                                            fontWeight: 600,
+                                            borderRadius: 2,
+                                            border: `1px solid ${
+                                                isRight
+                                                    ? 'var(--success)'
+                                                    : isUser
+                                                        ? 'var(--error)'
+                                                        : isCorrect
+                                                            ? 'var(--success-shadow-md)'
+                                                            : 'var(--error-shadow-md)'
+                                            }`,
                                             bgcolor: isRight
-                                                ? "var(--success-shadow-xs)"
+                                                ? 'var(--success-shadow-xs)'
                                                 : isUser
-                                                    ? "var(--error-shadow-xs)"
-                                                    : "transparent",
-                                            color: isRight ? "var(--success)" : isUser ? "var(--error)" : isCorrect ? "var(--success-dark)" : "var(--error-dark)",
-                                            "& .MuiChip-icon": { color: isRight ? "var(--success)" : "var(--error)" },
-                                            maxWidth: "100%",
+                                                    ? 'var(--error-shadow-xs)'
+                                                    : 'transparent',
+                                            color: isRight
+                                                ? 'var(--success)'
+                                                : isUser
+                                                    ? 'var(--error)'
+                                                    : isCorrect
+                                                        ? 'var(--success-dark)'
+                                                        : 'var(--error-dark)',
+                                            "& .MuiChip-icon": {
+                                                color: isRight ? 'var(--success)' : 'var(--error)',
+                                            },
+                                            maxWidth: '100%',
                                             minWidth: 0,
                                             height: 'auto',
-                                            //display: "flex",
-
-                                            // 👇 le vrai ellipsis doit être sur le label
                                             "& .MuiChip-label": {
                                                 display: 'block',
                                                 whiteSpace: 'normal',
+                                                py: 0.5,
                                             },
                                         }}
                                         size="small"
@@ -807,40 +881,52 @@ function QuestionCard({ stat = null, q, index, isCorrect = false }) {
                             );
                         })}
                     </Grid>
-                    <Grid container spacing={1.2}>
-                        <Grid item xs={12} md={6}>
-                            <InfoBox
-                                label={t('your-answer')}
-                                value={q.proposal_text || "—"}
-                                tone={isCorrect ? "good" : "bad"}
-                            />
-                        </Grid>
-                    </Grid>
-                </Stack>}
-
+                    
+                    <InfoBox
+                        label={t('your-answer')}
+                        value={q.proposal_text || "—"}
+                        tone={isCorrect ? "good" : "bad"}
+                    />
+                </Stack>
             </Stack>
         </Paper>
     );
 }
 function InfoBox({ label, value, tone }) {
     const isGood = tone === "good";
-    const isBad = tone === "bad";
 
     return (
         <Paper
             elevation={0}
             sx={{
-                borderRadius: 4,
-                p: 1.3,
-                border: `0.1px solid ${isGood ? 'var(--success-shadow-sm)' : 'var(--error-shadow-sm)'}`,
-                bgcolor: isGood ? 'var(--success-shadow)' : 'var(--error-shadow)',
+                borderRadius: 2,
+                p: 2,
+                border: `1px solid ${isGood ? 'var(--success-shadow-sm)' : 'var(--error-shadow-sm)'}`,
+                bgcolor: isGood ? 'var(--success-shadow-xs)' : 'var(--error-shadow-xs)',
             }}
         >
-            <Stack spacing={0.3}>
-                <Typography variant="caption" color={isGood ? 'var(--success-dark)' : 'var(--error-dark)'} sx={{ fontWeight: 600 }}>
+            <Stack spacing={0.5}>
+                <Typography
+                    variant="caption"
+                    sx={{
+                        fontWeight: 600,
+                        color: isGood ? 'var(--success-dark)' : 'var(--error-dark)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        fontSize: '0.7rem',
+                    }}
+                >
                     {label}
                 </Typography>
-                <Typography variant="body2" color={isGood ? 'var(--success)' : 'var(--error)'} sx={{ fontWeight: 900, }} noWrap title={String(value)}>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontWeight: 600,
+                        color: isGood ? 'var(--success)' : 'var(--error)',
+                    }}
+                    noWrap
+                    title={String(value)}
+                >
                     {value}
                 </Typography>
             </Stack>

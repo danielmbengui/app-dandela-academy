@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IconCheckFilled, IconDashboard, IconDropDown, IconDropUp, IconLogoImage, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, NS_DAYS, } from "@/contexts/i18n/settings";
+import { NS_BUTTONS, NS_DASHBOARD_HOME, NS_DAYS, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -16,7 +16,7 @@ import { ClassUser, ClassUserStudent, ClassUserTeacher } from '@/classes/users/C
 import { useSession } from '@/contexts/SessionProvider';
 import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_USERS, PAGE_LESSONS, PAGE_STATS } from '@/contexts/constants/constants_pages';
+import { PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_USERS, PAGE_LESSONS, PAGE_STATS, PAGE_SESSIONS, PAGE_SETTINGS } from '@/contexts/constants/constants_pages';
 import { getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from '@/contexts/functions';
 import DialogCompleteProfile from '@/components/dashboard/complete-profile/DialogCompleteProfile';
 import { useStat } from '@/contexts/StatProvider';
@@ -316,7 +316,7 @@ function EvolutionCard({ stat = null, previousStat = null, onClick = () => { } }
 function EvolutionListComponent({ stats = [] }) {
   const DEFAULT_VIEW = 3;
   const router = useRouter();
-  const { t } = useTranslation([NS_DASHBOARD_HOME]);
+  const { t } = useTranslation([NS_DASHBOARD_HOME, NS_BUTTONS]);
   const [filter, setFilter] = useState('part');
 
   const seeMore = () => {
@@ -372,7 +372,7 @@ function EvolutionListComponent({ stats = [] }) {
       <div className="card-header">
         <h2>{t('recent-actualities')}</h2>
         <Link href={PAGE_STATS} >
-          <span className="link-btn">{t('see-all')}</span>
+          <span className="link-btn">{t('see-all', { ns: NS_BUTTONS })}</span>
         </Link>
       </div>
       <Stack spacing={1}>
@@ -468,16 +468,22 @@ export default function DashboardComponent({ stats = [] }) {
                 link={PAGE_STATS}
               />
               <QuickLink
-                label={t('links.calendar.title')}
-                description={t('links.calendar.subtitle')}
-                emoji="📅"
-                link={PAGE_DASHBOARD_CALENDAR}
+                label={t('links.sessions.title')}
+                description={t('links.sessions.subtitle')}
+                emoji="👨‍🏫"
+                link={PAGE_SESSIONS}
               />
               <QuickLink
                 label={t('links.profile.title')}
                 description={t('links.profile.subtitle')}
-                emoji="👥"
+                emoji="👤"
                 link={PAGE_DASHBOARD_PROFILE}
+              />
+              <QuickLink
+                label={t('links.settings.title')}
+                description={t('links.settings.subtitle')}
+                emoji="⚙️"
+                link={PAGE_SETTINGS}
               />
             </div>
           </div>

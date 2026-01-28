@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IconCertificate, IconDashboard, IconDuration, IconLessons, IconLogoImage, } from "@/assets/icons/IconsComponent";
 import { WEBSITE_START_YEAR } from "@/contexts/constants/constants";
-import { NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, } from "@/contexts/i18n/settings";
+import { NS_BUTTONS, NS_DASHBOARD_HOME, NS_DASHBOARD_MENU, } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Trans, useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -29,6 +29,11 @@ import DashboardChartsComponent from '@/components/dashboard/DashboardChartsComp
 import { useLesson } from '@/contexts/LessonProvider';
 import { useStat } from '@/contexts/StatProvider';
 import { useChapter } from '@/contexts/ChapterProvider';
+import StatsBarChart from '@/components/stats/StatsBarChart';
+import { ClassUserStat } from '@/classes/users/ClassUserStat';
+import { PAGE_STATS } from '@/contexts/constants/constants_pages';
+import { useRouter } from 'next/navigation';
+import Chip from '@mui/material/Chip';
 
 // Mapping des statuts → label + couleurs
 const STATUS_CONFIG = {
@@ -2712,6 +2717,305 @@ function clamp(v) {
   const n = Number(v || 0);
   return Math.max(0, Math.min(100, n));
 }
+
+function StatusDistributionCard({ statusDistribution = [] }) {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION, NS_DASHBOARD_HOME]);
+  const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        p: 3,
+        border: '1px solid var(--card-border)',
+        bgcolor: 'var(--card-color)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      }}
+    >
+      <Stack spacing={2.5}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          {t("status-distribution", { ns: NS_DASHBOARD_HOME })}
+        </Typography>
+        <Stack spacing={2}>
+          {statusDistribution
+            .filter(item => item.count > 0)
+            .map(({ status, count, percent }) => {
+              const color = STATUS_CONFIG[status];
+              return (
+                <Stack key={status} spacing={1}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Chip
+                      size="small"
+                      label={t(status)}
+                      sx={{
+                        fontWeight: 600,
+                        bgcolor: color?.background_bubble,
+                        color: color?.color,
+                        border: `1px solid ${color?.border}`,
+                      }}
+                    />
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--font-color)' }}>
+                      {count} ({parseInt(percent)}%)
+                    </Typography>
+                  </Stack>
+                  <LinearProgress
+                    variant="determinate"
+                    value={clamp(percent)}
+                    sx={{
+                      height: 6,
+                      borderRadius: 999,
+                      bgcolor: color?.background_bubble || 'var(--primary-shadow-sm)',
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 999,
+                        bgcolor: color?.background_bar || 'var(--primary)',
+                      },
+                    }}
+                  />
+                </Stack>
+              );
+            })}
+          {statusDistribution.filter(item => item.count > 0).length === 0 && (
+            <Typography variant="body2" sx={{ color: 'var(--grey-light)', textAlign: 'center', py: 2 }}>
+              {t("no-data")}
+            </Typography>
+          )}
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+}
+
+function BestStatsCard({ bestStats = [] }) {
+  const { t } = useTranslation([ClassUserStat.NS_COLLECTION, NS_DASHBOARD_HOME, NS_BUTTONS]);
+  const router = useRouter();
+  const { getOneLesson } = useLesson();
+  const { getOneChapter } = useChapter();
+  const STATUS_CONFIG = ClassUserStat.STATUS_CONFIG || [];
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        p: 3,
+        border: '1px solid var(--card-border)',
+        bgcolor: 'var(--card-color)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      }}
+    >
+      <Stack spacing={2.5}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {t("best-results", { ns: NS_DASHBOARD_HOME })}
+          </Typography>
+          {bestStats.length > 0 && (
+            <Link href={PAGE_STATS} style={{ textDecoration: 'none' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'var(--primary)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  '&:hover': { opacity: 0.8 },
+                }}
+              >
+                {t("see-all", { ns: NS_BUTTONS })} →
+              </Typography>
+            </Link>
+          )}
+        </Stack>
+        <Stack spacing={1.5}>
+          {bestStats.length > 0 ? (
+            bestStats.map((stat) => {
+              const lesson = getOneLesson(stat.uid_lesson);
+              const chapter = getOneChapter(stat.uid_chapter);
+              const percent = (stat.score / stat.answers?.length) * 100;
+              const color = STATUS_CONFIG[stat.status];
+              
+              return (
+                <Paper
+                  key={stat.uid}
+                  elevation={0}
+                  onClick={() => router.push(`${PAGE_STATS}/${stat.uid_lesson}/${stat.uid_chapter}/${stat.uid}`)}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: `1px solid ${color?.border || 'var(--card-border)'}`,
+                    bgcolor: color?.background || 'var(--card-color)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  <Stack spacing={1}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: color?.background_icon || 'var(--primary-shadow-xs)',
+                            color: color?.color_icon || 'var(--primary)',
+                          }}
+                        >
+                          <EmojiEventsIcon sx={{ fontSize: 18 }} />
+                        </Box>
+                        <Stack spacing={0.2}>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: color?.color || 'var(--font-color)' }}>
+                            {lesson?.uid_intern}. {lesson?.translate?.title}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'var(--grey-light)' }}>
+                            {chapter?.uid_intern}. {chapter?.translate?.title}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                      <Chip
+                        size="small"
+                        label={`${parseInt(percent)}%`}
+                        sx={{
+                          fontWeight: 700,
+                          bgcolor: color?.background_bubble,
+                          color: color?.color,
+                          border: `1px solid ${color?.border}`,
+                        }}
+                      />
+                    </Stack>
+                    <LinearProgress
+                      variant="determinate"
+                      value={clamp(percent)}
+                      sx={{
+                        height: 6,
+                        borderRadius: 999,
+                        bgcolor: color?.background_bubble || 'var(--primary-shadow-sm)',
+                        "& .MuiLinearProgress-bar": {
+                          borderRadius: 999,
+                          bgcolor: color?.background_bar || 'var(--primary)',
+                        },
+                      }}
+                    />
+                  </Stack>
+                </Paper>
+              );
+            })
+          ) : (
+            <Typography variant="body2" sx={{ color: 'var(--grey-light)', textAlign: 'center', py: 2 }}>
+              {t("no-results")}
+            </Typography>
+          )}
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+}
+
+function UpcomingChaptersCard({ upcomingChapters = [] }) {
+  const { t } = useTranslation([NS_DASHBOARD_HOME, NS_BUTTONS]);
+  const router = useRouter();
+  const { getOneLesson } = useLesson();
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        p: 3,
+        border: '1px solid var(--card-border)',
+        bgcolor: 'var(--card-color)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      }}
+    >
+      <Stack spacing={2.5}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {t("chapters-to-complete")}
+          </Typography>
+          {upcomingChapters.length > 0 && (
+            <Link href={PAGE_LESSONS} style={{ textDecoration: 'none' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'var(--primary)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  '&:hover': { opacity: 0.8 },
+                }}
+              >
+                {t("see-all", { ns: NS_BUTTONS })} →
+              </Typography>
+            </Link>
+          )}
+        </Stack>
+        <Stack spacing={1.5}>
+          {upcomingChapters.length > 0 ? (
+            upcomingChapters.map((chapter) => {
+              const lesson = getOneLesson(chapter.uid_lesson);
+              
+              return (
+                <Paper
+                  key={chapter.uid}
+                  elevation={0}
+                  onClick={() => router.push(`${PAGE_LESSONS}/${chapter.uid_lesson}/chapters/${chapter.uid}`)}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid var(--card-border)',
+                    bgcolor: 'var(--card-color)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
+                      transform: 'translateY(-2px)',
+                      borderColor: 'var(--primary)',
+                    },
+                  }}
+                >
+                  <Stack spacing={1}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Box
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          bgcolor: 'var(--primary-shadow-xs)',
+                          color: 'var(--primary)',
+                        }}
+                      >
+                        <SchoolIcon sx={{ fontSize: 18 }} />
+                      </Box>
+                      <Stack spacing={0.2} sx={{ flex: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {chapter?.uid_intern}. {chapter?.translate?.title}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'var(--grey-light)' }}>
+                          {lesson?.uid_intern}. {lesson?.translate?.title}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                  </Stack>
+                </Paper>
+              );
+            })
+          ) : (
+            <Typography variant="body2" sx={{ color: 'var(--grey-light)', textAlign: 'center', py: 2 }}>
+              {t("all-chapters-completed")}
+            </Typography>
+          )}
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+}
 function KpiCardProgress({ icon, title, value, subtitle, progress = 0, total = null }) {
   return (
     <Paper
@@ -2772,36 +3076,92 @@ function KpiCardProgress({ icon, title, value, subtitle, progress = 0, total = n
   );
 }
 function KpiCard({ icon, title, value, subtitle, progress = 0, total = null }) {
-  const cardSx = {
-    borderRadius: 2,
-    p: 2,
-    bgcolor: "var(--card-color)",
-    color: "var(--font-color)",
-    border: "1px solid var(--card-border)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    transition: "box-shadow 0.2s ease, border-color 0.2s ease",
-    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)", borderColor: "var(--primary-shadow-sm)" },
-  };
-
   return (
-    <Box sx={cardSx}>
-      <Stack spacing={1.5}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <AvatarIcon>{icon}</AvatarIcon>
-          <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-            <Typography variant="caption" sx={{ color: "var(--grey)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        p: 3,
+        bgcolor: "var(--card-color)",
+        color: "var(--font-color)",
+        border: "1px solid var(--card-border)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "&:hover": {
+          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+          transform: "translateY(-2px)",
+          borderColor: "var(--primary)",
+        },
+      }}
+    >
+      <Stack spacing={2}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: 2.5,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "var(--primary-shadow-xs)",
+              color: "var(--primary)",
+              flexShrink: 0,
+            }}
+          >
+            {icon}
+          </Box>
+          <Stack spacing={0.3} sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "var(--grey-light)",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                fontSize: "0.7rem",
+              }}
+            >
               {title}
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.2, color: "var(--font-color)" }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                lineHeight: 1.2,
+                color: "var(--font-color)",
+              }}
+            >
               {value}
             </Typography>
           </Stack>
         </Stack>
-        <Typography variant="body2" sx={{ color: "var(--grey)", fontSize: "0.85rem" }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "var(--grey-light)",
+            fontSize: "0.85rem",
+          }}
+        >
           {subtitle}
         </Typography>
+        {progress > 0 && (
+          <LinearProgress
+            variant="determinate"
+            value={clamp(progress)}
+            sx={{
+              height: 6,
+              borderRadius: 999,
+              bgcolor: "var(--primary-shadow-sm)",
+              "& .MuiLinearProgress-bar": {
+                borderRadius: 999,
+                bgcolor: "var(--primary)",
+              },
+            }}
+          />
+        )}
       </Stack>
-    </Box>
+    </Paper>
   );
 }
 export default function DashboardHomePage() {
@@ -2839,7 +3199,7 @@ setUidUser(user?.uid);
       countStats,
       averageScore, duration
     }
-  }, [stats]);
+  }, [stats, getGlobalPercent, getGlobalDuration]);
   const countCompletedLessons = useMemo(() => {
       if(countStats===0) return 0;
       var countCompletedLessons = 0;
@@ -2852,7 +3212,33 @@ setUidUser(user?.uid);
         }
       }
       return (countCompletedLessons);
-    }, [countStats]);
+    }, [countStats, lessons, chapters, stats]);
+
+  // Calculs pour les nouvelles sections (AVANT le return conditionnel)
+  const { bestStats, statusDistribution, upcomingChapters } = useMemo(() => {
+    // Meilleurs résultats récents (top 5)
+    const bestStats = [...stats]
+      .sort((a, b) => {
+        const percentA = (a.score / a.answers?.length) * 100;
+        const percentB = (b.score / b.answers?.length) * 100;
+        return percentB - percentA;
+      })
+      .slice(0, 5);
+
+    // Répartition des statuts
+    const statusDistribution = ClassUserStat.ALL_STATUS.map(status => {
+      const count = stats.filter(s => s.status === status).length;
+      return { status, count, percent: stats.length > 0 ? (count / stats.length) * 100 : 0 };
+    });
+
+    // Chapitres à compléter (chapitres non commencés)
+    const startedChapters = new Set(stats.map(s => s.uid_chapter));
+    const upcomingChapters = chapters
+      .filter(chapter => !startedChapters.has(chapter.uid))
+      .slice(0, 5);
+
+    return { bestStats, statusDistribution, upcomingChapters };
+  }, [stats, chapters]);
 
   const wrapperProps = {
     titles: [{ name: t("dashboard", { ns: NS_DASHBOARD_MENU }), url: PAGE_DASHBOARD_HOME }],
@@ -2862,7 +3248,15 @@ setUidUser(user?.uid);
   if (isLoadingLessons || isLoadingChapters || isLoadingStats) {
     return (
       <DashboardPageWrapper {...wrapperProps}>
-        <Stack alignItems="center" justifyContent="center" sx={{ minHeight: 280 }} spacing={2}>
+        <Stack 
+          alignItems="center" 
+          justifyContent="center" 
+          sx={{ 
+            minHeight: 'calc(100vh - 200px)',
+            width: '100%'
+          }} 
+          spacing={2}
+        >
           <CircularProgress size={40} sx={{ color: "var(--primary)" }} />
           <Typography variant="body2" sx={{ color: "var(--grey)" }}>
             {t("loading", { ns: NS_DASHBOARD_HOME })}
@@ -2875,38 +3269,88 @@ setUidUser(user?.uid);
   return (
     <DashboardPageWrapper {...wrapperProps}>
       <Container maxWidth="lg" disableGutters sx={{ px: { xs: 2, sm: 3 }, py: 2 }}>
-        <Grid container spacing={3} alignItems="stretch">
-          <Grid size={12}>
-            <CardHeader user={user} />
+        <Stack spacing={3}>
+          <CardHeader user={user} />
+                    {/* KPI Cards */}
+                    <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <KpiCard
+                icon={<IconLessons />}
+                title={t("lesson-start")}
+                value={`${countStartedLessons}/${countLessons}`}
+                subtitle={`${t("chapter-completed")} : ${countCompletedChapters}/${countChapters}`}
+                progress={countLessons > 0 ? (countStartedLessons / countLessons) * 100 : 0}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <KpiCard
+                icon={<IconCertificate />}
+                title={t("lesson-completed")}
+                value={`${countCompletedLessons}/${countLessons}`}
+                subtitle={`${t("average")} : ${parseInt(averageScore)}%`}
+                progress={countLessons > 0 ? (countCompletedLessons / countLessons) * 100 : 0}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <KpiCard
+                icon={<IconDuration />}
+                title={t("duration")}
+                value={formatChrono(duration)}
+                subtitle={`${countStats} ${t("attempts")}`}
+              />
+            </Grid>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <KpiCard
-              icon={<IconLessons />}
-              title={t("lesson-start")}
-              value={`${countStartedLessons}/${countLessons}`}
-              subtitle={`${t("chapter-completed")} : ${countCompletedChapters}/${countChapters}`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <KpiCard
-              icon={<IconCertificate />}
-              title={t("lesson-completed")}
-              value={`${countCompletedLessons}/${countLessons}`}
-              subtitle={`${t("average")} : ${parseInt(averageScore)}%`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <KpiCard
-              icon={<IconDuration />}
-              title={t("duration")}
-              value={formatChrono(duration)}
-              subtitle={`${countStats} ${t("attempts")}`}
-            />
-          </Grid>
+          {/* Section principale avec accès rapide et actualités */}
           <Grid size={12}>
             <DashboardComponent stats={stats} />
           </Grid>
-        </Grid>
+
+
+
+          {/* Graphique de progression et répartition */}
+          {stats.length > 0 && (
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    borderRadius: 3,
+                    p: 3,
+                    border: '1px solid var(--card-border)',
+                    bgcolor: 'var(--card-color)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  }}
+                >
+                  <Stack spacing={2.5}>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      {t("progression")}
+                    </Typography>
+                    <StatsBarChart viewMode={ClassUserStat.VIEW_MODE_AVERAGE} />
+                  </Stack>
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <StatusDistributionCard statusDistribution={statusDistribution} />
+              </Grid>
+            </Grid>
+          )}
+
+          {/* Meilleurs résultats et chapitres à compléter */}
+          {(bestStats.length > 0 || upcomingChapters.length > 0) && (
+            <Grid container spacing={3}>
+              {bestStats.length > 0 && (
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <BestStatsCard bestStats={bestStats} />
+                </Grid>
+              )}
+              {upcomingChapters.length > 0 && (
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <UpcomingChaptersCard upcomingChapters={upcomingChapters} />
+                </Grid>
+              )}
+            </Grid>
+          )}
+        </Stack>
       </Container>
     </DashboardPageWrapper>
   );

@@ -1,41 +1,36 @@
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
-import { IconCalendar, IconIdea, IconRemove } from "@/assets/icons/IconsComponent";
-import AccordionComponent from "@/components/dashboard/elements/AccordionComponent";
+import { IconCamera } from "@/assets/icons/IconsComponent";
 import FieldComponent from "@/components/elements/FieldComponent";
 import { useAuth } from "@/contexts/AuthProvider";
-import { getFormattedDate, getFormattedDateCompleteNumeric } from "@/contexts/functions";
-import { languages, NS_COMMON, NS_PROFILE, NS_FORM, NS_LANGS, NS_ROLES, NS_BUTTONS } from "@/contexts/i18n/settings";
+import { getFormattedDateCompleteNumeric } from "@/contexts/functions";
+import { languages, NS_COMMON, NS_PROFILE, NS_LANGS, NS_ROLES, NS_BUTTONS } from "@/contexts/i18n/settings";
 import { useLanguage } from "@/contexts/LangProvider";
 import { useThemeMode } from "@/contexts/ThemeProvider";
-import { Backdrop, Box, Button, Chip, CircularProgress, Divider, Grid, IconButton, Paper, Stack, Typography } from "@mui/material";
-import Link from "next/link";
-import React, { useEffect, useState, useMemo } from "react";
+import { Box, Chip, Stack, Typography } from "@mui/material";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import Field from "../elements/Field";
 import { ClassUser, ClassUserTeacher } from "@/classes/users/ClassUser";
-import SelectComponent from "@/components/elements/SelectComponent";
-import { THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from "@/contexts/constants/constants";
 import FieldTextComponent from "@/components/elements/FieldTextComponent";
-import CardComponent from "@/components/elements/CardComponent";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
-import { t } from "i18next";
-import CheckboxComponent from "@/components/elements/CheckboxComponent";
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import { ClassColor } from "@/classes/ClassColor";
+import { ClassFile } from "@/classes/ClassFile";
 
 function ProfilePage() {
-  const { lang, changeLang } = useLanguage();
-  const { user, isLoading, update, processing } = useAuth();
+  const { lang } = useLanguage();
+  const { user, update, processing } = useAuth();
   const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE, NS_BUTTONS]);
   const translateLabels = t('form', { ns: NS_PROFILE, returnObjects: true })
-  const { theme, changeTheme, mode, modeApp } = useThemeMode();
-  const { greyLight } = theme.palette;
+  const { theme } = useThemeMode();
 
   const [userEdit, setUserEdit] = useState(user);
   const [errors, setErrors] = useState({});
   const [processingTeacher, setProcessingTeacher] = useState(false);
   const [newTag, setNewTag] = useState('');
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [processingPhoto, setProcessingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
   
   useEffect(() => {
     setUserEdit(user.clone());
@@ -172,46 +167,195 @@ function ProfilePage() {
     });
   };
   const handleSave = async (e) => {
-    //e.preventDefault();
-    //setUser(draft);
-    //setIsEditing(false);
     await update(userEdit);
-    // Ici tu pourras appeler ton API / Firestore / etc.
-    // ex: await fetch("/api/user", { method: "PUT", body: JSON.stringify(draft) })
     console.log("Profil sauvegardé :", userEdit);
+  };
+
+  // Fonction pour déclencher le sélecteur de fichier
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Fonction pour gérer le changement de fichier
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 0) {
+      setPhotoFiles(selectedFiles);
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.photo;
+        return newErrors;
+      });
+    }
+    // Réinitialiser l'input pour permettre de sélectionner le même fichier à nouveau
+    e.target.value = '';
+  };
+
+  // Fonction pour sauvegarder la photo de profil
+  const handleSavePhoto = async () => {
+    if (!photoFiles.length || processingPhoto) return;
+    
+    setProcessingPhoto(true);
+    try {
+      const file = photoFiles[0];
+      const _path = `${ClassUser.COLLECTION}/${user.uid}/profile-photo`;
+      
+      const resultFile = await ClassFile.uploadFileToFirebase({
+        file: file,
+        path: _path,
+      });
+      
+      const newFile = new ClassFile({
+        id: "",
+        uri: resultFile?.uri || "",
+        path: resultFile?.path,
+        name: resultFile?.name,
+        type: resultFile?.type,
+        size: resultFile?.size,
+        tag: `profile`,
+      }).toJSON();
+      
+      const urlPhoto = newFile?.uri || "";
+      
+      // Mettre à jour userEdit avec la nouvelle photo
+      const updatedUserEdit = userEdit.clone();
+      updatedUserEdit.update({ photo_url: urlPhoto });
+      
+      // Sauvegarder dans Firestore via updateFirestore
+      const updatedUser = await updatedUserEdit.updateFirestore();
+      if (updatedUser) {
+        await update(updatedUser);
+        setUserEdit(updatedUser.clone());
+        setPhotoFiles([]);
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.photo;
+          return newErrors;
+        });
+        console.log("Photo de profil sauvegardée :", updatedUser);
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'upload de la photo :", error);
+      setErrors(prev => ({
+        ...prev,
+        photo: "Une erreur est survenue lors de l'upload de la photo."
+      }));
+    } finally {
+      setProcessingPhoto(false);
+    }
   };
   return (
     <div>
       <main>
         <header className="header">
-          {
-            user?.showAvatar({ size: 60, fontSize: '18px' })
-          }
-          <div>
-            <h1>
-              {user?.first_name} {user?.last_name.toUpperCase()}
-            </h1>
-            <p className="muted">
-              @{user?.display_name} • {t(user?.role, { ns: NS_ROLES })} • {user?.type}
-            </p>
-          </div>
+          <Stack direction="row" spacing={3} alignItems="center" sx={{ flex: 1 }}>
+            {/* Avatar cliquable avec icône camera */}
+            <Box 
+              sx={{ 
+                position: 'relative',
+                cursor: 'pointer',
+                '&:hover .camera-overlay': {
+                  opacity: 1,
+                }
+              }}
+              onClick={handleAvatarClick}
+            >
+              {photoFiles.length > 0 ? (
+                ClassUser.createAvatarPhoto({ 
+                  photo_url: URL.createObjectURL(photoFiles[0]), 
+                  first_name: userEdit?.first_name, 
+                  last_name: userEdit?.last_name, 
+                  size: 60, 
+                  fontSize: '18px' 
+                })
+              ) : (
+                user?.showAvatar({ size: 60, fontSize: '18px' })
+              )}
+              {/* Overlay avec icône camera */}
+              <Box
+                className="camera-overlay"
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  borderRadius: '50%',
+                  background: 'rgba(0, 0, 0, 0.5)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease',
+                  pointerEvents: 'none',
+                }}
+              >
+                <IconCamera width={24} height={24} color="white" />
+              </Box>
+            </Box>
+            <div style={{ flex: 1 }}>
+              <h1>
+                {user?.first_name} {user?.last_name.toUpperCase()}
+              </h1>
+              <p className="muted">
+                @{user?.display_name} • {t(user?.role, { ns: NS_ROLES })} • {user?.type}
+              </p>
+            </div>
+          </Stack>
           <div className="header-actions">
-            {
-              user && userEdit && !user.same(userEdit) && <Stack spacing={1} direction={'row'} alignItems={'center'}>
-                <ButtonCancel
-                  label="Annuler"
-                  onClick={() => setUserEdit(user.clone())}
-                  disabled={processing}
-                />
-                <ButtonConfirm
-                  label="Modifier mon profil"
-                  onClick={handleSave}
-                  loading={processing}
-                />
-              </Stack>
-            }
+            <Stack spacing={1} direction={'row'} alignItems={'center'}>
+              {/* Boutons pour sauvegarder ou annuler la photo si une photo est sélectionnée */}
+              {photoFiles.length > 0 && (
+                <>
+                  <ButtonCancel
+                    label={t('cancel', { ns: NS_BUTTONS, defaultValue: 'Annuler' })}
+                    onClick={() => setPhotoFiles([])}
+                    disabled={processingPhoto}
+                  />
+                  <ButtonConfirm
+                    label={t('save-photo', { ns: NS_BUTTONS, defaultValue: 'Enregistrer la photo' })}
+                    onClick={handleSavePhoto}
+                    loading={processingPhoto}
+                    disabled={processingPhoto}
+                  />
+                </>
+              )}
+              {/* Boutons pour les modifications du profil */}
+              {user && userEdit && !user.same(userEdit) && (
+                <>
+                  <ButtonCancel
+                    label="Annuler"
+                    onClick={() => setUserEdit(user.clone())}
+                    disabled={processing}
+                  />
+                  <ButtonConfirm
+                    label="Modifier mon profil"
+                    onClick={handleSave}
+                    loading={processing}
+                  />
+                </>
+              )}
+            </Stack>
           </div>
         </header>
+
+        {/* Input file caché */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ClassFile.SUPPORTED_IMAGES_TYPES.map(type => type.value).join(',')}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
+        
+        {/* Message d'erreur pour la photo */}
+        {errors.photo && (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="caption" sx={{ color: 'error.main' }}>
+              {errors.photo}
+            </Typography>
+          </Box>
+        )}
 
         <form onSubmit={handleSave} className="grid">
           {/* Infos personnelles */}

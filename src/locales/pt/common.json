@@ -19,5 +19,14 @@
   "chapter": "Capítulo",
   "chapters": "Capítulos",
   "subchapter": "Secção",
-  "subchapters": "Secções"
+  "subchapters": "Secções",
+  "all": "Todos",
+  "dates": "Datas",
+  "teacher": "Professor",
+  "status": "Estado",
+  "seats": "Lugares",
+  "ascending": "Crescente",
+  "descending": "Decrescente",
+  "order": "Ordem",
+  "sort": "Ordenar"
 }

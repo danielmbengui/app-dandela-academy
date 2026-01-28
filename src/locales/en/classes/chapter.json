@@ -13,7 +13,7 @@
   "goals-subtitle": "By the end of this course, you will be able to:",
   "subchapters": "Course structure",
   "subchapters-subtitle": "The course is organized into short lessons, each including a theory section and a practical exercise.",
-  "subchapters-last": "<b>Final step!</b><br/>The quiz below will help you consolidate what you’ve just learned.",
+  "subchapters-last": "<b>Final step!</b><br/>The quiz below will help you consolidate what you've just learned.",
   "keys": "Key points",
   "exercises": "Practical exercise",
   "progression": "Progress",
@@ -30,5 +30,9 @@
   "quiz-finished": "<b>Congratulations on completing the quiz!</b><br/>You scored {{score}}.<br/>You answered {{percentage}}% of the questions correctly.<br/>You completed the quiz in {{duration}}.<br/><br/>Next attempt available from <b>{{nextDate}}</b>.",
   "quiz-duration": "Time",
   "quiz-warning": "The quiz is timed and can only be taken once every 30 days.<br/>Click <b>\"Start quiz\"</b> when you are ready.",
-  "quiz-subtitle": "*This test can only be taken once. Your score will be saved so you can track your progress over time."
+  "quiz-subtitle": "*This test can only be taken once. Your score will be saved so you can track your progress over time.",
+  "locked": "Locked",
+  "completed": "Completed",
+  "in-progress": "In Progress",
+  "available": "Available"
 }

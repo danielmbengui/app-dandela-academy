@@ -2,5 +2,9 @@
   "title-page": "Teachers - Dandela Academy",
   "description-page": "The list of available teachers",
   "title": "Teachers",
-  "subtitle": "Discover our teachers and register for their upcoming sessions"
+  "subtitle": "Discover our teachers and register for their upcoming sessions",
+  "open-sessions": "Open sessions",
+  "no-open-sessions": "No open sessions",
+  "no-lessons": "No courses available",
+  "placeholder_search": "Search for a course..."
 }

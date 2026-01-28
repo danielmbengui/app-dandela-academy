@@ -1,0 +1,13 @@
+{
+    "title-page": "Sessions - Dandela Academy",
+    "description-page": "Une vue des sessions disponibles pour les cours de Dandela Academy",
+    "title": "Sessions",
+    "subtitle": "Consulte toutes les sessions disponibles pour les cours de Dandela Academy.",
+    "placeholder_search": "Chercher par cours, catégorie, niveau...",
+    "not-found": "Aucune session ne correspond à la recherche",
+    "no-sort": "Aucun tri",
+    "sort-by": "Trier par",
+    "lesson-teacher": "Professeur de la leçon",
+    "sort-order": "Ordre"
+  }
+  

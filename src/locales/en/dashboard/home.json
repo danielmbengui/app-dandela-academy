@@ -36,6 +36,14 @@
     "profile": {
       "title": "Set up profile",
       "subtitle": "All account preferences"
+    },
+    "sessions": {
+      "title": "View sessions",
+      "subtitle": "On-site course sessions"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Application configuration"
     }
   },
   "events": {
@@ -53,5 +61,12 @@
   },
   "enrolled-lessons": "Enrolled courses",
   "active-lessons": "Active courses",
-  "completed-lessons": "Completed courses"
+  "completed-lessons": "Completed courses",
+  "progression": "Score progression",
+  "status-distribution": "Status distribution",
+  "best-results": "Best results",
+  "chapters-to-complete": "Chapters to complete",
+  "no-results": "No results available",
+  "no-data": "No data available",
+  "all-chapters-completed": "All chapters are completed! 🎉"
 }

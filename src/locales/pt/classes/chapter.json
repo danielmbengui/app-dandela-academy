@@ -30,5 +30,9 @@
   "quiz-finished": "<b>Parabéns por concluíres o questionário!</b><br/>Obtiveste {{score}}.<br/>Respondeste corretamente a {{percentage}}% das perguntas.<br/>Concluíste o questionário em {{duration}}.<br/><br/>Próxima tentativa disponível a partir de <b>{{nextDate}}</b>.",
   "quiz-duration": "Tempo",
   "quiz-warning": "O questionário é cronometrado e só pode ser realizado uma vez a cada 30 dias.<br/>Clica em <b>\"Iniciar questionário\"</b> quando estiveres pronto(a).",
-  "quiz-subtitle": "*Este teste só pode ser realizado uma vez. A tua pontuação será guardada para acompanhares a tua progressão ao longo do tempo."
+  "quiz-subtitle": "*Este teste só pode ser realizado uma vez. A tua pontuação será guardada para acompanhares a tua progressão ao longo do tempo.",
+  "locked": "Bloqueado",
+  "completed": "Concluído",
+  "in-progress": "Em progresso",
+  "available": "Disponível"
 }

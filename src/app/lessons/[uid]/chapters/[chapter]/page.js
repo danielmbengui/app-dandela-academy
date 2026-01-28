@@ -69,477 +69,309 @@ const CongratulationsComponent = ({ stat = null, setIndexSub = null }) => {
     const goAnswer = () => {
         router.push(ClassUserStat.createUrl(stat?.uid_lesson, stat?.uid_chapter, stat?.uid));
     }
-    // score: `${stat?.score}/${stat?.answers?.length}`,
-    //nextDate: getFormattedDateCompleteNumeric(stat?.next_trying_date),
-    //percentage: (stat?.score / stat?.answers?.length * 100).toFixed(2),
-    //duration: formatChrono(duration),
-    return (<>
-        <div className="results-summary-container">
-            <div className="confetti">
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-                <div className="confetti-piece"></div>
-            </div>
-            <div className="results-summary-container__result">
-                <Stack justifyContent={'center'} alignItems={'center'} spacing={1}
-                    sx={{
-                        //py: 1,
-                        //px: 1.5,
-                        //border: '0.1px solid var(--card-border)',
-                        //borderRadius: '10px',
-                        width: '100%'
-                    }}>
-                    {
-                        /*
-                        worstStat && worstStat.score === worstStat.answers?.length ?
-                            <EmojiEventsIcon sx={{ color: colorWorst?.color_icon, fontSize: '30px' }} /> :
-                            <IconCharts height={30} width={30} color={colorWorst?.color_icon} />
-                            */
-                    }
-                    <EmojiEventsIcon sx={{ color: colorStat?.color, fontSize: '30px' }} />
+    const percentage = stat?.score / stat?.answers?.length * 100;
+    
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 4,
+                background: 'linear-gradient(135deg, var(--card-color) 0%, var(--winner-shadow-xs) 100%)',
+                borderRadius: 4,
+                width: '100%',
+                border: `2px solid ${colorStat?.border || 'var(--success)'}`,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+                position: 'relative',
+                overflow: 'hidden',
+            }}
+        >
+            {/* Confetti Animation */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    overflow: 'hidden',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                    '@keyframes makeItRain': {
+                        from: {
+                            opacity: 0,
+                        },
+                        '50%': {
+                            opacity: 1,
+                        },
+                        to: {
+                            transform: 'translateY(250px)',
+                        },
+                    },
+                }}
+            >
+                {[...Array(20)].map((_, i) => (
+                    <Box
+                        key={i}
+                        sx={{
+                            position: 'absolute',
+                            width: '10px',
+                            height: '20px',
+                            bgcolor: ['var(--success)', 'var(--primary)', 'var(--warning)', '#ff6b6b', '#4ecdc4'][i % 5],
+                            top: 0,
+                            left: `${(i * 5) % 100}%`,
+                            opacity: 0,
+                            animation: 'makeItRain 3000ms infinite linear',
+                            animationDelay: `${(i * 100)}ms`,
+                            animationDuration: `${2000 + (i * 50)}ms`,
+                        }}
+                    />
+                ))}
+            </Box>
+
+            <Stack spacing={3} sx={{ position: 'relative', zIndex: 1 }}>
+                {/* Icon and Progress */}
+                <Stack alignItems={'center'} spacing={2}>
+                    <Box
+                        sx={{
+                            p: 2,
+                            borderRadius: '50%',
+                            bgcolor: colorStat?.background_bubble || 'var(--success-shadow-xs)',
+                            border: `2px solid ${colorStat?.border || 'var(--success)'}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <EmojiEventsIcon sx={{ color: colorStat?.color || 'var(--success)', fontSize: '3rem' }} />
+                    </Box>
                     <CircularProgressStatComponent
                         score={stat?.score}
                         questions={stat?.answers?.length}
-                        percent={stat?.score / stat?.answers?.length * 100}
+                        percent={percentage}
                         duration={stat?.duration}
                         size="large"
                         status={stat?.status}
                     />
-                    <Chip size="small" label={getFormattedDateCompleteNumeric(stat?.end_date)} sx={{
-                        fontWeight: 950,
-                        bgcolor: colorStat?.background_bubble,
-                        color: colorStat?.color,
-                        border: `1px solid ${colorStat?.border}`,
-                    }} />
+                    <Chip
+                        label={getFormattedDateCompleteNumeric(stat?.end_date)}
+                        sx={{
+                            fontWeight: 700,
+                            bgcolor: colorStat?.background_bubble || 'var(--success-shadow-xs)',
+                            color: colorStat?.color || 'var(--success)',
+                            border: `1px solid ${colorStat?.border || 'var(--success)'}`,
+                            px: 2,
+                            py: 0.5,
+                        }}
+                    />
                 </Stack>
-                <Stack sx={{ py: 3 }}>
-                    <Typography fontSize={'20px'} sx={{ textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, color: 'var(--grey-dark)' }}>{t('finished.congrats')}</Typography>
-                    <Typography sx={{ color: 'var(--grey-light)' }}>{t('finished.max-score')}</Typography>
+
+                {/* Congratulations Text */}
+                <Stack alignItems={'center'} spacing={1}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            textTransform: 'uppercase',
+                            letterSpacing: '2px',
+                            fontWeight: 700,
+                            color: 'var(--font-color)',
+                            textAlign: 'center',
+                            fontSize: { xs: '1.5rem', sm: '2rem' },
+                        }}
+                    >
+                        {t('finished.congrats')}
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: 'var(--grey-light)',
+                            textAlign: 'center',
+                            fontSize: '1.1rem',
+                        }}
+                    >
+                        {t('finished.max-score')}
+                    </Typography>
                 </Stack>
-                <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{zIndex:1_000_000}}>
+
+                {/* Action Buttons */}
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent={'center'}>
                     <ButtonCancel onClick={goBack} label={t('btn-back')} />
                     <ButtonConfirm onClick={goAnswer} label={t('btn-see-answers')} />
                 </Stack>
-            </div>
-        </div>
-        <style jsx>{`
-.results-summary-container {
-  font-family: "Hanken Grotesk", sans-serif;
-  display: flex;
-  width: 100%;
-  border-radius: 10px;
-  border:0.1px solid var(--card-border);
-  height: 100%;
-}
-@media (min-width: 600px) {
-  .results-summary-container {
-    width: 100%;
-  }
-}
-
-.heading-primary,
-.heading-secondary,
-.heading-tertiary {
-  color: var(--grey-dark);
-  text-transform: capitalize;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.heading-primary {
-  font-size: 2rem;
-  font-weight: 600;
-  background-image: linear-gradient(to right, var(--success), var(--success));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  transform: scale(1.6);
-}
-
-.heading-secondary {
-  font-size: 20px;
-  font-weight: 600;
-  margin-top: 20px;
-  letter-spacing: 1px;
-  
-    white-space: nowrap;   
-  overflow: hidden;     
-  text-overflow: ellipsis; 
-}
-
-.heading-tertiary {
-  font-size: 20px;
-  font-weight: 500;
-  color: hsl(221, 100%, 96%);
-}
-
-.paragraph {
-  font-size: 17px;
-  line-height: 1.4;
-  color: var(--grey-light);
-}
-
-.paragraph-text-box {
-  width: 100%;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.margin-1 {
-  margin-bottom: 10px;
-}
-
-.results-summary-container__result {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  border-radius:10px;
-  padding: 20px;  
-  animation: gradient 9s infinite alternate linear;
-}
-
-  .result-box {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background-image: linear-gradient(-45deg, var(--success), var(--success-shadow));
-    background-image: var(--card-color);
-    background-color: var(--card-color);
-    border: 0.1px solid var(--success);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-   }
-
-    .result {
-    margin-top: -8px;
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--font-color);
-    }
-    .time {
-    margin-top: 5px;
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--grey-light);
-    }
-}
-
-.btn {
-  width: 240px;
-  padding: 10px;
-  color: #ffffff;
-  background-image: linear-gradient(to right, #aa076b, #61045f);
-  border: none;
-  border-radius: 100px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  font-weight: 500;
-  cursor: pointer;
-  margin: 20px 0 2px 0;
-  transition: all 0.3s;
-}
-
-.btn:hover {
-  transform: translateY(5px);
-  background-image: linear-gradient(to left, #aa076b, #61045f);
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 0% 95%;
-    background-image: linear-gradient(45deg, var(--card-color),var(--card-color));
-  }
-
-  50% {
-        background-position: 0% 95%;
-    background-image: linear-gradient(to bottom, var(--card-color),var(--card-color));
-  }
-
-  100% {
-    background-position: 0% 95%;
-    background-image: linear-gradient(to bottom, var(--card-color),var(--card-color),var(--card-color));
-  }
-}
-
-.confetti {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  width: 90%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 1000;
-}
-
-.confetti-piece {
-  position: absolute;
-  width: 10px;
-  height: 20px;
-  background-color: hsl(39, 100%, 56%);
-  top: 0;
-  opacity: 0;
-  animation: makeItRain 3000ms infinite linear;
-}
-
-.confetti-piece:nth-child(1) {
-  left: 7%;
-  transform: rotate(-10deg);
-  animation-delay: 182ms;
-  animation-duration: 2000ms;
-}
-
-.confetti-piece:nth-child(2) {
-  left: 14%;
-  transform: rotate(20deg);
-  animation-delay: 161ms;
-  animation-duration: 2076ms;
-}
-
-.confetti-piece:nth-child(3) {
-  left: 21%;
-  transform: rotate(-51deg);
-  animation-delay: 481ms;
-  animation-duration: 2103ms;
-}
-
-.confetti-piece:nth-child(4) {
-  left: 28%;
-  transform: rotate(61deg);
-  animation-delay: 334ms;
-  animation-duration: 1008ms;
-}
-
-.confetti-piece:nth-child(5) {
-  left: 35%;
-  transform: rotate(-52deg);
-  animation-delay: 302ms;
-  animation-duration: 1776ms;
-}
-
-.confetti-piece:nth-child(6) {
-  left: 42%;
-  transform: rotate(38deg);
-  animation-delay: 180ms;
-  animation-duration: 1168ms;
-}
-
-.confetti-piece:nth-child(7) {
-  left: 49%;
-  transform: rotate(11deg);
-  animation-delay: 395ms;
-  animation-duration: 1200ms;
-}
-
-.confetti-piece:nth-child(8) {
-  left: 56%;
-  transform: rotate(49deg);
-  animation-delay: 14ms;
-  animation-duration: 1887ms;
-}
-
-.confetti-piece:nth-child(9) {
-  left: 63%;
-  transform: rotate(-72deg);
-  animation-delay: 149ms;
-  animation-duration: 1805ms;
-}
-
-.confetti-piece:nth-child(10) {
-  left: 70%;
-  transform: rotate(10deg);
-  animation-delay: 351ms;
-  animation-duration: 2059ms;
-}
-
-.confetti-piece:nth-child(11) {
-  left: 77%;
-  transform: rotate(4deg);
-  animation-delay: 307ms;
-  animation-duration: 1132ms;
-}
-
-.confetti-piece:nth-child(12) {
-  left: 84%;
-  transform: rotate(42deg);
-  animation-delay: 464ms;
-  animation-duration: 1776ms;
-}
-
-.confetti-piece:nth-child(13) {
-  left: 91%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 1818ms;
-}
-
-.confetti-piece:nth-child(14) {
-  left: 94%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 818ms;
-}
-
-.confetti-piece:nth-child(15) {
-  left: 96%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(16) {
-  left: 98%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(17) {
-  left: 50%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 2818ms;
-}
-
-.confetti-piece:nth-child(18) {
-  left: 60%;
-  transform: rotate(-72deg);
-  animation-delay: 429ms;
-  animation-duration: 1818ms;
-}
-
-.confetti-piece:nth-child(odd) {
-  background-color: hsl(0, 100%, 67%);
-}
-
-.confetti-piece:nth-child(even) {
-  z-index: 1;
-}
-
-.confetti-piece:nth-child(4n) {
-  width: 6px;
-  height: 14px;
-  animation-duration: 4000ms;
-  background-color: #c33764;
-}
-
-.confetti-piece:nth-child(5n) {
-  width: 3px;
-  height: 10px;
-  animation-duration: 4000ms;
-  background-color: #b06ab3;
-}
-
-.confetti-piece:nth-child(3n) {
-  width: 4px;
-  height: 12px;
-  animation-duration: 2500ms;
-  animation-delay: 3000ms;
-  background-color: #dd2476;
-}
-
-.confetti-piece:nth-child(3n-7) {
-  background-color: hsl(166, 100%, 37%);
-}
-
-@keyframes makeItRain {
-  from {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    transform: translateY(250px);
-  }
-}
-
-    `}</style>
-    </>)
+            </Stack>
+        </Paper>
+    )
 }
 const CardHeader = () => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     const { chapter } = useChapter();
     const { lesson } = useLesson();
-    return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
-        <Grid container>
-            <Grid size={{ xs: 12, sm: 6 }}>
-                <Box>
-                    <Stack direction={'row'} alignItems={'center'} spacing={0.5}>
-                        <Chip label={t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })} size="small" variant="outlined" />
-                        <Chip label={t(chapter?.level)} size="small" variant="outlined" />
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700, my: 1 }}>
-                        <Trans
-                            t={t}
-                            i18nKey={'duration'}
-                            values={{
-                                start: chapter?.estimated_start_duration,
-                                end: chapter?.estimated_end_duration
-                            }}
-                        />
-                    </Typography>
-                    <Typography variant="h4" component="h1" sx={{ color: "var(--font-color)", fontWeight: 700, my: 0.5 }}>
-                        {chapter?.translate?.title}
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: "text.secondary" }}>
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 3,
+                background: 'var(--card-color)',
+                borderRadius: 3,
+                width: '100%',
+                border: '1px solid var(--card-border)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                mb: 3,
+            }}
+        >
+            <Stack spacing={2}>
+                <Stack direction={'row'} alignItems={'center'} spacing={1.5} flexWrap="wrap">
+                    <Chip
+                        label={t(lesson?.category, { ns: ClassLesson.NS_COLLECTION })}
+                        size="small"
+                        sx={{
+                            bgcolor: 'var(--primary-shadow-xs)',
+                            color: 'var(--primary)',
+                            fontWeight: 600,
+                            border: '1px solid var(--primary-shadow-sm)',
+                        }}
+                    />
+                    <Chip
+                        label={t(chapter?.level)}
+                        size="small"
+                        sx={{
+                            bgcolor: 'var(--card-color)',
+                            color: 'var(--font-color)',
+                            fontWeight: 600,
+                            border: '1px solid var(--card-border)',
+                        }}
+                    />
+                    <Chip
+                        icon={<IconDuration height={16} width={16} color="var(--grey-light)" />}
+                        label={
+                            <Trans
+                                t={t}
+                                i18nKey={'duration_short'}
+                                values={{
+                                    start: chapter?.estimated_start_duration,
+                                    end: chapter?.estimated_end_duration
+                                }}
+                            />
+                        }
+                        size="small"
+                        sx={{
+                            bgcolor: 'var(--card-color)',
+                            color: 'var(--grey-light)',
+                            fontWeight: 500,
+                            border: '1px solid var(--card-border)',
+                        }}
+                    />
+                </Stack>
+                <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
+                        color: "var(--font-color)",
+                        fontWeight: 700,
+                        fontSize: { xs: '1.75rem', sm: '2rem' },
+                        letterSpacing: '-0.02em',
+                        lineHeight: 1.2,
+                    }}
+                >
+                    {chapter?.translate?.title}
+                </Typography>
+                {chapter?.translate?.description && (
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: "var(--grey-light)",
+                            lineHeight: 1.7,
+                            fontSize: '1rem',
+                        }}
+                    >
                         {chapter?.translate?.description}
                     </Typography>
-
-                </Box>
-            </Grid>
-        </Grid>
-    </Stack>)
+                )}
+            </Stack>
+        </Paper>
+    );
 }
 const CardGoals = () => {
     const { t } = useTranslation([ClassLessonChapter.NS_COLLECTION]);
     const { chapter } = useChapter();
-    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%', color: 'var(--font-color)' }}>
-        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
-            <IconObjective height={18} width={18} color="var(--primary)" />
-            <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('goals')}</Typography>
-        </Stack>
-        <Typography variant="caption" sx={{ mb: 0.5 }}>{t('goals-subtitle')}</Typography>
-        <List dense disablePadding>
-            {
-                chapter?.translate?.goals?.map((goal, i) => {
-                    return (<ListItem key={`${goal}`} disableGutters sx={{ px: 1 }}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                            <CheckCircleIcon color="success" fontSize="small" />
-                            <Typography sx={{ fontSize: '0.85rem' }} >{goal}</Typography>
-                        </Stack>
-                    </ListItem>)
-                })
-            }
-        </List>
-    </Stack>)
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 3,
+                background: 'var(--card-color)',
+                borderRadius: 3,
+                width: '100%',
+                border: '1px solid var(--card-border)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+            }}
+        >
+            <Stack spacing={2}>
+                <Stack direction={'row'} spacing={1.5} alignItems={'center'}>
+                    <Box
+                        sx={{
+                            p: 1,
+                            borderRadius: 2,
+                            bgcolor: 'var(--primary-shadow-xs)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <IconObjective height={20} width={20} color="var(--primary)" />
+                    </Box>
+                    <Stack>
+                        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'var(--font-color)', letterSpacing: '-0.01em' }}>
+                            {t('goals')}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'var(--grey-light)', mt: 0.5 }}>
+                            {t('goals-subtitle')}
+                        </Typography>
+                    </Stack>
+                </Stack>
+                <Stack spacing={1.5}>
+                    {chapter?.translate?.goals?.map((goal, i) => (
+                        <Paper
+                            key={`${goal}-${i}`}
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                borderRadius: 2,
+                                border: '1px solid var(--card-border)',
+                                bgcolor: 'var(--card-color)',
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    borderColor: 'var(--primary)',
+                                    bgcolor: 'var(--primary-shadow-xs)',
+                                    transform: 'translateX(4px)',
+                                }
+                            }}
+                        >
+                            <Stack direction={'row'} alignItems={'flex-start'} spacing={1.5}>
+                                <CheckCircleIcon
+                                    sx={{
+                                        color: 'var(--success)',
+                                        fontSize: '1.5rem',
+                                        flexShrink: 0,
+                                        mt: 0.25,
+                                    }}
+                                />
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.95rem',
+                                        fontWeight: 500,
+                                        color: 'var(--font-color)',
+                                        lineHeight: 1.6,
+                                    }}
+                                >
+                                    {goal}
+                                </Typography>
+                            </Stack>
+                        </Paper>
+                    ))}
+                </Stack>
+            </Stack>
+        </Paper>
+    );
 }
 const CardSubChapters = ({
     index = -1,
@@ -550,46 +382,208 @@ const CardSubChapters = ({
     const { lesson, setUidLesson, getOneLesson, isLoading: isLoadingLesson } = useLesson();
     const { chapter, chapters, subchapters, lastStat, setUidChapter, subchapter, setSubchapter, stats } = useChapter();
 
-    // const { subchapters } = useChapter();
-    return (<Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%', color: 'var(--font-color)' }}>
-        <Stack direction={'row'} spacing={1} alignItems={'center'} sx={{ mb: 1 }}>
-            <IconBookOpen height={18} width={18} color="var(--primary)" />
-            <Typography variant="h4" sx={{ fontWeight: '500' }}>{t('subchapters')}</Typography>
-        </Stack>
-        <Typography variant="caption" sx={{ mb: 0.5 }}>{t('subchapters-subtitle')} {chapter?.translate?.subchapters_title}</Typography>
-        <List dense disablePadding>
-            {
-                subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
-                    return (<ListItem key={`${sub.uid_intern}`} disableGutters sx={{ px: 1 }}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1}
-                            onClick={() => setIndex(i)}
-                            sx={{
-                                color: index === i ? 'var(--primary)' : '',
-                                ":hover": {
-                                    color: 'var(--primary)',
-                                    cursor: index === i ? 'text' : 'pointer',
-                                }
-                            }}>
-                            <Typography sx={{ fontSize: '0.85rem' }} >{`${sub.uid_intern}. `}{sub.translate?.title}</Typography>
-                        </Stack>
-                    </ListItem>)
-                })
-            }
-            <ListItem disableGutters sx={{ px: 1 }}>
-                <Stack direction={'row'} alignItems={'center'} spacing={1}
-                    onClick={() => setIndex(subchapters.length)}
-                    sx={{
-                        color: index === subchapters.length ? 'var(--primary)' : '',
-                        ":hover": {
-                            color: 'var(--primary)',
-                            cursor: index === subchapters.length ? 'text' : 'pointer',
-                        }
-                    }}>
-                    <Typography sx={{ fontSize: '0.85rem' }} >{`${subchapters.length + 1}. `}{t('quiz')}</Typography>
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 3,
+                background: 'var(--card-color)',
+                borderRadius: 3,
+                width: '100%',
+                border: '1px solid var(--card-border)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+            }}
+        >
+            <Stack spacing={2}>
+                {/* Header */}
+                <Stack direction={'row'} spacing={1.5} alignItems={'center'}>
+                    <Box
+                        sx={{
+                            p: 1,
+                            borderRadius: 2,
+                            bgcolor: 'var(--primary-shadow-xs)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <IconBookOpen height={20} width={20} color="var(--primary)" />
+                    </Box>
+                    <Stack>
+                        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'var(--font-color)', letterSpacing: '-0.01em' }}>
+                            {t('subchapters')}
+                        </Typography>
+                        {chapter?.translate?.subchapters_title && (
+                            <Typography variant="caption" sx={{ color: 'var(--grey-light)', mt: 0.5 }}>
+                                {chapter?.translate?.subchapters_title}
+                            </Typography>
+                        )}
+                    </Stack>
                 </Stack>
-            </ListItem>
-        </List>
-    </Stack>)
+
+                {!chapter?.translate?.subchapters_title && (
+                    <Typography variant="body2" sx={{ color: 'var(--grey-light)', mb: 1 }}>
+                        {t('subchapters-subtitle')}
+                    </Typography>
+                )}
+
+                {/* Subchapters List */}
+                <Stack spacing={1.5}>
+                    {subchapters?.sort((a, b) => a.uid_intern - b.uid_intern).map((sub, i) => {
+                        const isActive = index === i;
+                        return (
+                            <Paper
+                                key={`${sub.uid_intern}`}
+                                elevation={0}
+                                onClick={() => setIndex(i)}
+                                sx={{
+                                    p: 2,
+                                    borderRadius: 2,
+                                    border: `1px solid ${isActive ? 'var(--primary)' : 'var(--card-border)'}`,
+                                    bgcolor: isActive ? 'var(--primary-shadow-xs)' : 'var(--card-color)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    '&:hover': {
+                                        borderColor: 'var(--primary)',
+                                        bgcolor: isActive ? 'var(--primary-shadow-xs)' : 'var(--primary-shadow-xs)',
+                                        transform: 'translateX(4px)',
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                                    }
+                                }}
+                            >
+                                <Stack direction={'row'} alignItems={'center'} spacing={2}>
+                                    <Box
+                                        sx={{
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: 2,
+                                            bgcolor: isActive ? 'var(--primary)' : 'var(--grey-hyper-light)',
+                                            color: isActive ? 'white' : 'var(--grey-light)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 700,
+                                            fontSize: '0.875rem',
+                                            flexShrink: 0,
+                                            transition: 'all 0.3s ease',
+                                        }}
+                                    >
+                                        {sub.uid_intern}
+                                    </Box>
+                                    <Stack direction={'row'} alignItems={'center'} spacing={1.5} sx={{ flex: 1 }}>
+                                        <MenuBookIcon
+                                            sx={{
+                                                fontSize: '1.25rem',
+                                                color: isActive ? 'var(--primary)' : 'var(--grey-light)',
+                                                transition: 'color 0.3s ease',
+                                            }}
+                                        />
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.95rem',
+                                                fontWeight: isActive ? 600 : 500,
+                                                color: isActive ? 'var(--primary)' : 'var(--font-color)',
+                                                transition: 'all 0.3s ease',
+                                            }}
+                                        >
+                                            {sub.translate?.title}
+                                        </Typography>
+                                    </Stack>
+                                    {isActive && (
+                                        <Box
+                                            sx={{
+                                                width: 8,
+                                                height: 8,
+                                                borderRadius: '50%',
+                                                bgcolor: 'var(--primary)',
+                                                boxShadow: '0 0 12px var(--primary)',
+                                                flexShrink: 0,
+                                            }}
+                                        />
+                                    )}
+                                </Stack>
+                            </Paper>
+                        );
+                    })}
+
+                    {/* Quiz Item */}
+                    <Paper
+                        elevation={0}
+                        onClick={() => setIndex(subchapters.length)}
+                        sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            border: `1px solid ${index === subchapters.length ? 'var(--primary)' : 'var(--card-border)'}`,
+                            bgcolor: index === subchapters.length ? 'var(--primary-shadow-xs)' : 'var(--card-color)',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            background: index === subchapters.length
+                                ? 'linear-gradient(135deg, var(--primary-shadow-xs) 0%, var(--primary-shadow-sm) 100%)'
+                                : 'var(--card-color)',
+                            '&:hover': {
+                                borderColor: 'var(--primary)',
+                                bgcolor: index === subchapters.length ? 'var(--primary-shadow-xs)' : 'var(--primary-shadow-xs)',
+                                transform: 'translateX(4px)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                            }
+                        }}
+                    >
+                        <Stack direction={'row'} alignItems={'center'} spacing={2}>
+                            <Box
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 2,
+                                    bgcolor: index === subchapters.length ? 'var(--primary)' : 'var(--success)',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 700,
+                                    fontSize: '0.875rem',
+                                    flexShrink: 0,
+                                    transition: 'all 0.3s ease',
+                                }}
+                            >
+                                {subchapters.length + 1}
+                            </Box>
+                            <Stack direction={'row'} alignItems={'center'} spacing={1.5} sx={{ flex: 1 }}>
+                                <QuizIcon
+                                    sx={{
+                                        fontSize: '1.25rem',
+                                        color: index === subchapters.length ? 'var(--primary)' : 'var(--success)',
+                                        transition: 'color 0.3s ease',
+                                    }}
+                                />
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.95rem',
+                                        fontWeight: index === subchapters.length ? 600 : 500,
+                                        color: index === subchapters.length ? 'var(--primary)' : 'var(--font-color)',
+                                        transition: 'all 0.3s ease',
+                                    }}
+                                >
+                                    {t('quiz')}
+                                </Typography>
+                            </Stack>
+                            {index === subchapters.length && (
+                                <Box
+                                    sx={{
+                                        width: 8,
+                                        height: 8,
+                                        borderRadius: '50%',
+                                        bgcolor: 'var(--primary)',
+                                        boxShadow: '0 0 12px var(--primary)',
+                                        flexShrink: 0,
+                                    }}
+                                />
+                            )}
+                        </Stack>
+                    </Paper>
+                </Stack>
+            </Stack>
+        </Paper>
+    );
 }
 const CardSubChaptersContent = ({
     index = -1,
@@ -619,99 +613,261 @@ const CardSubChaptersContent = ({
         setIndex(prev => prev + 1);
     }
 
-    return (<Stack sx={{ background: '', width: '100%', color: 'var(--font-color)' }}>
-        <Grid container>
-            <Grid size={{ xs: 12, sm: 12 }}>
-                <Stack sx={{ py: 2, px: 1.5, background: 'var(--card-color)', borderRadius: '10px', width: '100%' }}>
-                    <Stack direction={'row'} spacing={1} alignItems={'center'}>
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 3,
+                background: 'var(--card-color)',
+                borderRadius: 3,
+                width: '100%',
+                border: '1px solid var(--card-border)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+            }}
+        >
+            <Stack spacing={3}>
+                {/* Header with Navigation */}
+                <Stack direction={'row'} spacing={2} alignItems={'center'} justifyContent={'space-between'}>
+                    <Stack direction={'row'} spacing={1.5} alignItems={'center'} sx={{ flex: 1 }}>
                         <IconButton
                             onClick={() => setIndex(prev => prev - 1)}
                             disabled={index === 0}
-                            sx={{ color: index === 0 ? 'var(--grey-light)' : 'var(--primary)' }}>
+                            sx={{
+                                color: index === 0 ? 'var(--grey-light)' : 'var(--primary)',
+                                border: '1px solid var(--card-border)',
+                                '&:hover': {
+                                    bgcolor: 'var(--primary-shadow-xs)',
+                                    borderColor: 'var(--primary)',
+                                },
+                                '&:disabled': {
+                                    opacity: 0.5,
+                                }
+                            }}
+                        >
                             <IconArrowLeft />
                         </IconButton>
-                        <Typography>{`${subchapter?.uid_intern}. `}{subchapter?.translate?.title}</Typography>
+                        <Stack sx={{ flex: 1 }}>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    fontWeight: 700,
+                                    fontSize: '1.25rem',
+                                    color: 'var(--font-color)',
+                                    letterSpacing: '-0.01em',
+                                }}
+                            >
+                                {`${subchapter?.uid_intern}. `}{subchapter?.translate?.title}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'var(--grey-light)', mt: 0.5 }}>
+                                {t('subchapters')} • {index + 1} / {subchapters.length}
+                            </Typography>
+                        </Stack>
                         <IconButton
                             onClick={() => setIndex(prev => prev + 1)}
                             disabled={index === subchapters.length - 1}
-                            sx={{ color: index === subchapters.length - 1 ? 'var(--grey-light)' : 'var(--primary)' }}>
+                            sx={{
+                                color: index === subchapters.length - 1 ? 'var(--grey-light)' : 'var(--primary)',
+                                border: '1px solid var(--card-border)',
+                                '&:hover': {
+                                    bgcolor: 'var(--primary-shadow-xs)',
+                                    borderColor: 'var(--primary)',
+                                },
+                                '&:disabled': {
+                                    opacity: 0.5,
+                                }
+                            }}
+                        >
                             <IconArrowRight />
                         </IconButton>
                     </Stack>
-                    <Grid container spacing={1}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Stack alignItems={'start'} spacing={1.5} sx={{ py: 2, px: 1.5, border: '0.1px solid var(--card-border)', borderRadius: '10px', width: '100%' }}>
-                                {
-                                    subchapter?.translate?.goals?.map?.((goal, i) => {
-                                        return (<Typography sx={{ fontWeight: 600 }} key={`${goal}`}>{goal}</Typography>)
-                                    })
-                                }
-                                <Stack alignItems={'start'} spacing={1}>
-                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={t('keys')} size="small" variant="outlined" />
-                                    <Stack spacing={0.5} sx={{ px: 1.5 }}>
-                                        {
-                                            subchapter?.translate?.keys?.map?.((key, i) => {
-                                                return (<Typography key={`${key}`} sx={{ fontSize: '0.85rem' }} >{`- `}{key}</Typography>)
-                                            })
-                                        }
-                                    </Stack>
-                                </Stack>
-                                <Stack alignItems={'start'} spacing={1}>
-                                    <Chip sx={{ border: '0.1px solid var(--primary)' }} label={t('exercises')} size="small" variant="outlined" />
-                                    <Stack spacing={0.5} sx={{ px: 1.5 }}>
-                                        {
-                                            subchapter?.translate?.exercises?.map?.((exercise, i) => {
-                                                return (<Typography key={`${exercise}`} sx={{ fontSize: '0.85rem' }} >{`- `}{exercise}</Typography>)
-                                            })
-                                        }
-                                    </Stack>
-                                </Stack>
+                </Stack>
 
-                                <Stack direction={'row'} sx={{ pt: 3 }} spacing={0.5} alignItems={'center'}>
-                                    {
-                                        index > 0 && <ButtonCancel onClick={goBack} disabled={index === 0} label={t('previous', { ns: NS_BUTTONS })} />
-                                    }
-                                    {
-                                        index < subchapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index === subchapters.length - 1} label={t('next', { ns: NS_BUTTONS })} />
-                                    }
-                                    {
-                                        index === subchapters.length - 1 && <ButtonConfirm onClick={goNext} disabled={index < subchapters.length - 1} label={t('quiz-btn')} />
-                                    }
+                <Grid container spacing={3}>
+                    {/* Content Section */}
+                    <Grid size={{ xs: 12, sm: subchapter?.translate?.photo_url ? 6 : 12 }}>
+                        <Stack spacing={2.5}>
+                            {/* Goals */}
+                            {subchapter?.translate?.goals?.length > 0 && (
+                                <Stack spacing={1.5}>
+                                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--font-color)' }}>
+                                        {t('goals')}
+                                    </Typography>
+                                    <Stack spacing={1}>
+                                        {subchapter?.translate?.goals?.map?.((goal, i) => (
+                                            <Paper
+                                                key={`${goal}-${i}`}
+                                                elevation={0}
+                                                sx={{
+                                                    p: 1.5,
+                                                    borderRadius: 2,
+                                                    border: '1px solid var(--card-border)',
+                                                    bgcolor: 'var(--card-color)',
+                                                }}
+                                            >
+                                                <Typography sx={{ fontWeight: 500, fontSize: '0.95rem', color: 'var(--font-color)' }}>
+                                                    {goal}
+                                                </Typography>
+                                            </Paper>
+                                        ))}
+                                    </Stack>
                                 </Stack>
+                            )}
+
+                            {/* Keys */}
+                            {subchapter?.translate?.keys?.length > 0 && (
+                                <Stack spacing={1.5}>
+                                    <Chip
+                                        label={t('keys')}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: 'var(--primary-shadow-xs)',
+                                            color: 'var(--primary)',
+                                            fontWeight: 600,
+                                            border: '1px solid var(--primary-shadow-sm)',
+                                            width: 'fit-content',
+                                        }}
+                                    />
+                                    <Stack spacing={1}>
+                                        {subchapter?.translate?.keys?.map?.((key, i) => (
+                                            <Stack
+                                                key={`${key}-${i}`}
+                                                direction={'row'}
+                                                spacing={1.5}
+                                                sx={{
+                                                    px: 2,
+                                                    py: 1.5,
+                                                    borderRadius: 2,
+                                                    border: '1px solid var(--card-border)',
+                                                    bgcolor: 'var(--card-color)',
+                                                }}
+                                            >
+                                                <CheckCircleIcon
+                                                    sx={{
+                                                        color: 'var(--primary)',
+                                                        fontSize: '1.25rem',
+                                                        flexShrink: 0,
+                                                        mt: 0.25,
+                                                    }}
+                                                />
+                                                <Typography sx={{ fontSize: '0.9rem', color: 'var(--font-color)', lineHeight: 1.6 }}>
+                                                    {key}
+                                                </Typography>
+                                            </Stack>
+                                        ))}
+                                    </Stack>
+                                </Stack>
+                            )}
+
+                            {/* Exercises */}
+                            {subchapter?.translate?.exercises?.length > 0 && (
+                                <Stack spacing={1.5}>
+                                    <Chip
+                                        label={t('exercises')}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: 'var(--success-shadow-xs)',
+                                            color: 'var(--success)',
+                                            fontWeight: 600,
+                                            border: '1px solid var(--success-shadow-sm)',
+                                            width: 'fit-content',
+                                        }}
+                                    />
+                                    <Stack spacing={1}>
+                                        {subchapter?.translate?.exercises?.map?.((exercise, i) => (
+                                            <Stack
+                                                key={`${exercise}-${i}`}
+                                                direction={'row'}
+                                                spacing={1.5}
+                                                sx={{
+                                                    px: 2,
+                                                    py: 1.5,
+                                                    borderRadius: 2,
+                                                    border: '1px solid var(--card-border)',
+                                                    bgcolor: 'var(--card-color)',
+                                                }}
+                                            >
+                                                <AssignmentTurnedInIcon
+                                                    sx={{
+                                                        color: 'var(--success)',
+                                                        fontSize: '1.25rem',
+                                                        flexShrink: 0,
+                                                        mt: 0.25,
+                                                    }}
+                                                />
+                                                <Typography sx={{ fontSize: '0.9rem', color: 'var(--font-color)', lineHeight: 1.6 }}>
+                                                    {exercise}
+                                                </Typography>
+                                            </Stack>
+                                        ))}
+                                    </Stack>
+                                </Stack>
+                            )}
+
+                            {/* Navigation Buttons */}
+                            <Stack direction={'row'} spacing={1.5} sx={{ pt: 2 }}>
+                                {index > 0 && (
+                                    <ButtonCancel
+                                        onClick={goBack}
+                                        disabled={index === 0}
+                                        label={t('previous', { ns: NS_BUTTONS })}
+                                    />
+                                )}
+                                {index < subchapters.length - 1 && (
+                                    <ButtonConfirm
+                                        onClick={goNext}
+                                        disabled={index === subchapters.length - 1}
+                                        label={t('next', { ns: NS_BUTTONS })}
+                                    />
+                                )}
+                                {index === subchapters.length - 1 && (
+                                    <ButtonConfirm
+                                        onClick={goNext}
+                                        disabled={index < subchapters.length - 1}
+                                        label={t('quiz-btn')}
+                                    />
+                                )}
                             </Stack>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Stack
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    //height: 220,
-                                    //borderRadius: 2,
-                                    overflow: "hidden",
-                                    border: "1px solid",
-                                    border: "0.1px solid transparent",
-                                    //background:'red',
+                        </Stack>
+                    </Grid>
 
+                    {/* Image Section */}
+                    {subchapter?.translate?.photo_url && (
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Box
+                                sx={{
+                                    position: 'relative',
+                                    width: '100%',
+                                    borderRadius: 3,
+                                    overflow: 'hidden',
+                                    border: '1px solid var(--card-border)',
+                                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                                    }
                                 }}
                             >
-                                {
-                                    subchapter?.translate?.photo_url && <Image
-                                        src={subchapter?.translate?.photo_url || ""}
-                                        alt={subchapter?.translate.title}
-                                        //fill
-                                        height={100}
-                                        width={200}
-                                        style={{ objectFit: "cover", width: '100%', height: 'auto' }}
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                    />
-                                }
-                            </Stack>
+                                <Image
+                                    src={subchapter?.translate?.photo_url || ""}
+                                    alt={subchapter?.translate?.title || ""}
+                                    width={600}
+                                    height={400}
+                                    style={{
+                                        objectFit: "cover",
+                                        width: '100%',
+                                        height: 'auto',
+                                        display: 'block',
+                                    }}
+                                    sizes="(max-width: 600px) 100vw, 50vw"
+                                />
+                            </Box>
                         </Grid>
-                    </Grid>
-                </Stack>
-            </Grid>
-        </Grid>
-    </Stack>)
+                    )}
+                </Grid>
+            </Stack>
+        </Paper>
+    )
 }
 const NewQuizComponent = ({ setIndexSub = null }) => {
     const router = useRouter();
@@ -1231,6 +1387,7 @@ const CardQuizz = ({
                                     {
                                         // index < 0 &&
                                         canStartQuiz &&
+                                        (!bestStat || (bestStat && bestStat.score < bestStat.answers?.length)) &&
                                         //stats?.[0]?.score < stats?.[0]?.answers?.length && stats?.[0]?.next_trying_date?.getTime() <= new Date().getTime() && 
                                         <ButtonConfirm label={t('btn-start')} onClick={startQuiz} />
                                     }
@@ -1349,72 +1506,59 @@ export default function ExcelBeginnerCoursePage() {
         //subtitle={lesson?.translate?.subtitle}
         icon={<IconLessons />}
     >
-        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
-            <Grid container spacing={1}>
-                <Grid size={12}>
-                    <CardHeader lesson={lesson} chapter={chapter} />
-                </Grid>
-                {
-                    !showComponent && <Grid size={12}>
-                        <CircularProgress size={'16px'} sx={{ fontSize: '20px' }} />
-                    </Grid>
-                }
-                {
-                    showComponent && previousChapter && !hasPreviousStats && <Grid size={{ xs: 12, sm: 8 }}>
-                        <AlertComponent
-                            severity="error"
-                            title={t('title-tip')}
-                            subtitle={t('tip')}
-                            buttonConfirmComponent={<Link href={`${PAGE_LESSONS}/${lesson?.uid}/chapters/${previousChapter?.uid}`}>
+        <Container maxWidth="lg" disableGutters sx={{ px: { xs: 1, sm: 2 }, py: 2, background: 'transparent' }}>
+            <Stack spacing={3}>
+                <CardHeader lesson={lesson} chapter={chapter} />
+                
+                {!showComponent && (
+                    <Stack alignItems={'center'} sx={{ py: 4 }}>
+                        <CircularProgress size={24} sx={{ color: 'var(--primary)' }} />
+                    </Stack>
+                )}
+                
+                {showComponent && previousChapter && !hasPreviousStats && (
+                    <AlertComponent
+                        severity="error"
+                        title={t('title-tip')}
+                        subtitle={t('tip')}
+                        buttonConfirmComponent={
+                            <Link href={`${PAGE_LESSONS}/${lesson?.uid}/chapters/${previousChapter?.uid}`}>
                                 <ButtonConfirm
                                     label={t('btn-previous-chapter')}
                                     style={{ background: 'var(--error)', color: 'var(--card-color)' }}
                                 />
-                            </Link>}
-                        />
-                    </Grid>
-                }
+                            </Link>
+                        }
+                    />
+                )}
 
-                {
-                    showComponent && previousChapter && hasPreviousStats && indexSub < subchapters.length && <>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <CardGoals
-                            //chapter={chapter} 
-                            />
+                {showComponent && previousChapter && hasPreviousStats && indexSub < subchapters.length && (
+                    <>
+                        <Grid container spacing={3}>
+                            <Grid size={{ xs: 12, lg: 6 }}>
+                                <CardGoals />
+                            </Grid>
+                            <Grid size={{ xs: 12, lg: 6 }}>
+                                <CardSubChapters
+                                    index={indexSub}
+                                    setIndex={setIndexSub}
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <CardSubChapters
-                                index={indexSub}
-                                setIndex={setIndexSub}
-                            //subchapters={subchapters}
-                            //lesson={lesson}
-                            //chapter={chapter}
-                            />
-                        </Grid>
-                        <Grid size={12}>
-                            <CardSubChaptersContent
-                                index={indexSub}
-                                setIndex={setIndexSub}
-                            //chapter={chapter}
-                            //subchapters={subchapters}
-                            //subchapter={subchapter}
-                            //setSubchapter={setSubchapter}
-                            //lesson={lesson}
-                            />
-                        </Grid>
-                    </>
-                }
-                {
-                    showComponent && previousChapter && hasPreviousStats &&
-                    indexSub === subchapters.length &&
-                    <Grid size={{ xs: 12, sm: 12 }}>
-                        <CardQuizz
-                            indexSub={indexSub}
-                            setIndexSub={setIndexSub}
+                        <CardSubChaptersContent
+                            index={indexSub}
+                            setIndex={setIndexSub}
                         />
-                    </Grid>
-                }
-            </Grid>
+                    </>
+                )}
+                
+                {showComponent && previousChapter && hasPreviousStats && indexSub === subchapters.length && (
+                    <CardQuizz
+                        indexSub={indexSub}
+                        setIndexSub={setIndexSub}
+                    />
+                )}
+            </Stack>
         </Container>
     </DashboardPageWrapper>);
 }
