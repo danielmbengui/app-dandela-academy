@@ -82,5 +82,16 @@
   "create-course": "Create a course",
   "create-course-desc": "Create a new course for your students",
   "manage-sessions": "Manage sessions",
-  "manage-sessions-desc": "Organize and manage your course sessions"
+  "manage-sessions-desc": "Organize and manage your course sessions",
+  "admin-dashboard-subtitle": "Overview: users, courses, sessions and results.",
+  "admin-stat-users": "Users on the platform",
+  "admin-stat-courses": "Online + on-site courses",
+  "admin-no-users": "No users",
+  "admin-no-courses": "No courses",
+  "admin-all-courses": "All courses",
+  "admin-action-users-desc": "View and manage all users",
+  "admin-action-lessons-desc": "Manage online and on-site courses",
+  "admin-action-sessions-desc": "View all sessions",
+  "admin-action-results": "Results",
+  "admin-action-results-desc": "Global results and statistics"
 }

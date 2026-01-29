@@ -1,6 +1,7 @@
 {
-  "all":"Tous les rôles",
-  "super-admin":"Super Admin",
+  "all": "Tous les rôles",
+  "intern": "Stagiaire",
+  "super-admin": "Super Admin",
   "admin":"Admin",
   "team":"Équipe",
   "teacher":"Professeur",

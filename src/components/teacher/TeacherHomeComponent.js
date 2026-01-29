@@ -290,7 +290,7 @@ function TeacherLessonsList() {
                   </Typography>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Chip
-                      label={lesson.format || ClassLesson.FORMAT.ONSITE}
+                      label={t(lesson.format || ClassLesson.FORMAT.ONSITE, { ns: ClassLesson.NS_COLLECTION })}
                       size="small"
                       sx={{
                         fontSize: '0.7rem',

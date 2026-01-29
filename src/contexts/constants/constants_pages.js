@@ -21,6 +21,8 @@ export const PAGE_SETTINGS = "/settings";
 export const PAGE_TERMS_PRIVACY = "/terms/privacy";
 export const PAGE_TERMS_USAGE = "/terms/usage";
 
+export const PAGE_ADMIN_HOME = (uidUser) =>
+  `/admin/${uidUser}`;
 export const PAGE_ADMIN_LESSONS = (uidUser) =>
   `/admin/${uidUser}/lessons`;
 export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";

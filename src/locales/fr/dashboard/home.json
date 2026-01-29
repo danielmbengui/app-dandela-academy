@@ -82,6 +82,17 @@
     "create-course": "Créer un cours",
     "create-course-desc": "Crée un nouveau cours pour tes étudiants",
     "manage-sessions": "Gérer les sessions",
-    "manage-sessions-desc": "Organise et gère tes sessions de cours"
-  }
+    "manage-sessions-desc": "Organise et gère tes sessions de cours",
+    "admin-dashboard-subtitle": "Vue d’ensemble : utilisateurs, cours, sessions et résultats.",
+    "admin-stat-users": "Utilisateurs sur la plateforme",
+    "admin-stat-courses": "Cours en ligne + présentiel",
+    "admin-no-users": "Aucun utilisateur",
+    "admin-no-courses": "Aucun cours",
+    "admin-all-courses": "Tous les cours",
+    "admin-action-users-desc": "Voir et gérer tous les utilisateurs",
+    "admin-action-lessons-desc": "Gérer les cours en ligne et en présentiel",
+    "admin-action-sessions-desc": "Voir toutes les sessions",
+    "admin-action-results": "Résultats",
+    "admin-action-results-desc": "Résultats globaux et statistiques"
+}
   

@@ -82,5 +82,16 @@
   "create-course": "Criar um curso",
   "create-course-desc": "Cria um novo curso para os teus estudantes",
   "manage-sessions": "Gerir sessões",
-  "manage-sessions-desc": "Organiza e gere as tuas sessões de curso"
+  "manage-sessions-desc": "Organiza e gere as tuas sessões de curso",
+  "admin-dashboard-subtitle": "Visão geral: utilizadores, cursos, sessões e resultados.",
+  "admin-stat-users": "Utilizadores na plataforma",
+  "admin-stat-courses": "Cursos online + presenciais",
+  "admin-no-users": "Nenhum utilizador",
+  "admin-no-courses": "Nenhum curso",
+  "admin-all-courses": "Todos os cursos",
+  "admin-action-users-desc": "Ver e gerir todos os utilizadores",
+  "admin-action-lessons-desc": "Gerir cursos online e presenciais",
+  "admin-action-sessions-desc": "Ver todas as sessões",
+  "admin-action-results": "Resultados",
+  "admin-action-results-desc": "Resultados globais e estatísticas"
 }
