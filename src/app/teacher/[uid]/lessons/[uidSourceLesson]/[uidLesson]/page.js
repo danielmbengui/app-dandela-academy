@@ -59,15 +59,7 @@ export default function TeacherOneLessonUpdatePage() {
                         style={{ textDecoration: 'none' }}
                     >
                         <ButtonCancel 
-                            label={t('dialog.btn-back-lesson', { ns: ClassSession.NS_COLLECTION }) || 'Créer une session'}
-                        />
-                    </Link>
-                    <Link 
-                        href={PAGE_TEACHER_CREATE_SESSION(uid, uidSourceLesson, uidLesson)}
-                        style={{ textDecoration: 'none' }}
-                    >
-                        <ButtonConfirm 
-                            label={t('dialog.btn-create-session', { ns: ClassSession.NS_COLLECTION }) || 'Créer une session'}
+                            label={t('dialog.btn-back-lesson', { ns: ClassSession.NS_COLLECTION }) || 'Retour'}
                         />
                     </Link>
                 </Stack>

@@ -37,8 +37,8 @@ export const PAGE_TEACHER_SESSIONS_LIST = (uidUser) =>
   `/teacher/${uidUser}/sessions`;
 export const PAGE_TEACHER_CREATE_SESSION_LIST = (uidUser) =>
   `/teacher/${uidUser}/sessions/create`;
-export const PAGE_TEACHER_EDIT_SESSION = (uidUser, uidSession) =>
-  `/teacher/${uidUser}/sessions/${uidSession}`;
+export const PAGE_TEACHER_EDIT_SESSION = (uidUser, uidLesson, uidSession) =>
+  `/teacher/${uidUser}/sessions/${uidLesson}/${uidSession}`;
 
 export const PAGE_TEACHER_ONE_LESSON = (uidUser,uidSourceLesson, uidLesson) =>
   `/teacher/${uidUser}/lessons/${uidSourceLesson}/${uidLesson}`;

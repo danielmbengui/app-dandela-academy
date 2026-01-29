@@ -60,6 +60,8 @@
   "installements-title": "Instalações equipadas",
   "installements-subtitle": "Pode deslocar-se ao local e utilizar os computadores da escola.",
   "price": "Preço",
+  "old_price": "Preço antigo",
+  "currency": "Moeda",
   "bank_account": "Conta da escola",
   "bank_name": "Banco",
   "bank_express": "Transferência expressa",

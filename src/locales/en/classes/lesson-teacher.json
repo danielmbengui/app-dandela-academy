@@ -60,6 +60,8 @@
   "installements-title": "Equipped facilities",
   "installements-subtitle": "You can attend on site and use the school’s computers.",
   "price": "Price",
+  "old_price": "Old price",
+  "currency": "Currency",
   "bank_account": "School account",
   "bank_name": "Bank",
   "bank_express": "Express transfer",

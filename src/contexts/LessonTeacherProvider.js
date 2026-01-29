@@ -37,22 +37,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
     const successTranslate = t('success', { returnObjects: true });
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
-    useEffect(() => {
-        if (user) {
-            const listener = listenToLessons(uidSourceLesson, uidTeacher);
-            return () => listener?.();
-        }
-    }, [lang, uidSourceLesson, user, uidTeacher]);
-    useEffect(() => {
-        if (user && uidLesson) {
-            const _lesson = getOneLesson(uidLesson);
-            setLesson(_lesson);
-            const listener = listenToOneLesson(uidSourceLesson, uidLesson);
-            return () => listener?.();
-        } else {
-            setLesson(null);
-        }
-    }, [user, uidLesson, uidSourceLesson]);
     // écoute du doc utilisateur
     const listenToLessons = useCallback((uidSourceLesson = "", uidTeacher = "") => {
         //if(!user) return;
@@ -86,7 +70,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 setIsLoading(false);
                 return;
             }
-            // console.log("constraints provider", snap.size)
+            console.log("constraints provider", snap.size)
             try {
                 const _lessons = [];
                 //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
@@ -158,6 +142,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             setIsLoading(false);
             return;
         }
+        
         const uid = uidLesson;
         const ref = ClassLessonTeacher.docRef(uidSourceLesson, uid);
         const unsubscribe = onSnapshot(ref, async (snap) => {
@@ -167,6 +152,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 setIsLoading(false);
                 return;
             }
+            
             const _lesson = snap.data();
             //const lesson = _lesson.uid_lesson ? await ClassLessonTeacher.fetchFromFirestore(_lesson.uid_lesson, lang) : null;
             //const teacher = _lesson.uid_teacher ? await ClassUserTeacher.fetchFromFirestore(_lesson.uid_teacher) : null;
@@ -218,6 +204,7 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 return prev.clone();
             });
             //setIsConnected(true);
+            console.log("one lesson teacher provider", lesson_new.clone())
             setIsLoading(false);
             //setUser(fbUser);
             //setIsConnected(true);
@@ -225,6 +212,24 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
         });
         return unsubscribe;
     }, [user, uidSourceLesson, uidLesson]);
+    useEffect(() => {
+        if (user) {
+            const listener = listenToLessons(uidSourceLesson, uidTeacher);
+            return () => listener?.();
+        }
+    }, [lang, uidSourceLesson, user, uidTeacher]);
+    useEffect(() => {
+        
+        if (user && uidSourceLesson && uidLesson) {
+            const _lesson = getOneLesson(uidLesson);
+            setLesson(_lesson);
+            setIsLoading(false);
+            const listener = listenToOneLesson(uidSourceLesson, uidLesson);
+            return () => listener?.();
+        } else {
+            setLesson(null);
+        }
+    }, [user, uidLesson, uidSourceLesson]);
     async function refreshList() {
         var _lessons = [];
         const constraints = [];

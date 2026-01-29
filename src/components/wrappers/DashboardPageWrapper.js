@@ -180,12 +180,12 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                 </Stack>
                 {
                     user instanceof ClassUserTeacher && <Link href={PAGE_TEACHER_HOME(user?.uid)} target={isPwa ? '_self' : '_blank'}>
-                <ButtonConfirm label={t('see-app', {ns:NS_BUTTONS})} />
+                <ButtonConfirm label={t('manage-data', {ns:NS_BUTTONS})} />
                 </Link>
                 }
                 {
                     user instanceof ClassUserDandela && <Link href={PAGE_ADMIN_LESSONS(user?.uid)} target={isPwa ? '_self' : '_blank'}>
-                <ButtonConfirm isAdmin={true} label={t('see-app', {ns:NS_BUTTONS})} />
+                <ButtonConfirm isAdmin={true} label={t('manage-data', {ns:NS_BUTTONS})} />
                 </Link>
                 }
             </Stack>

@@ -231,8 +231,8 @@ function SessionRow({ session = null, lastChild = false }) {
   };
 
   const handleRowClick = () => {
-    if (session?.uid && user instanceof ClassUserTeacher) {
-      router.push(PAGE_TEACHER_EDIT_SESSION(user.uid, session.uid));
+    if (session?.uid && session?.uid_lesson && user instanceof ClassUserTeacher) {
+      router.push(PAGE_TEACHER_EDIT_SESSION(user.uid, session.uid_lesson, session.uid));
     }
   };
 

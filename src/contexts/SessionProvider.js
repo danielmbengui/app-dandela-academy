@@ -13,7 +13,7 @@ import { ClassSession, ClassLessonSessionTranslate } from '@/classes/ClassSessio
 import { useLanguage } from './LangProvider';
 import { ClassUser, ClassUserAdministrator, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { ClassRoom } from '@/classes/ClassRoom';
-import { ClassLesson } from '@/classes/ClassLesson';
+import { ClassLesson, ClassLessonTeacher } from '@/classes/ClassLesson';
 import Preloader from '@/components/shared/Preloader';
 import { useAuth } from './AuthProvider';
 
@@ -21,7 +21,7 @@ import { useAuth } from './AuthProvider';
 const SessionContext = createContext(null);
 export const useSession = () => useContext(SessionContext);
 
-export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
+export function SessionProvider({ children, uidLesson = "", uidTeacher = null }) {
     const { lang } = useLanguage();
     const { user } = useAuth();
     const { t } = useTranslation([ClassSession.NS_COLLECTION]);
@@ -42,45 +42,19 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
     //  const successTranslate = t('success', { returnObjects: true });
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
-    useEffect(() => {
-        if (user) {
-            const listener = listenToSessions(user, uidTeacher);
-            return () => listener?.();
-        }
-    }, [user, uidTeacher]);
-    useEffect(() => {
-        if (user && uidSession) {
-            const _session = getOneSession(uidSession);
-            setSession(_session ?? null);
-            const listener = listenToOneSession(uidSession);
-            return () => listener?.();
-        } else {
-            setSession(null);
-        }
-    }, [user, uidSession]);
-    useEffect(() => {
-        if (uidSlot && session) {
-            //const _session = getOneSession(uidSession);
-            const _slot = session.slots?.find?.(a => a.uid_intern === uidSlot);
-            setSlot(_slot);
-        } else {
-            setSlot(null);
-        }
-    }, [uidSlot, session]);
-
     // écoute du doc utilisateur
     const listenToSessions = useCallback((user, uidTeacher) => {
-        if(!user || user === null) return;
+        if (!user || user === null) return;
         const colRef = ClassSession.colRef(); // par ex.
         const constraints = [];
         if (!(user instanceof ClassUserIntern)) {
             //constraints.push(where("start_date", ">", new Date()));
-            constraints.push(where("status", "in", [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED]));
+            constraints.push(where("status", "in", [ClassSession.STATUS.OPEN, ClassSession.STATUS.FULL, ClassSession.STATUS.SUBSCRIPTION_EXPIRED]));
         }
         if (uidLesson) {
             constraints.push(where("uid_lesson", "==", uidLesson));
         }                //const coll = this.colRef();
-        if(uidTeacher) {
+        if (uidTeacher) {
             constraints.push(where("uid_teacher", "==", uidTeacher));
         }
         const q = constraints.length
@@ -96,7 +70,7 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
             }
             var _sessions = [];
             var _slots = [];
-            
+
             for (const snapshot of snap.docs) {
                 const session = snapshot.data();
                 const lesson = session.uid_lesson ? await ClassLesson.fetchFromFirestore(session.uid_lesson, lang) : null;
@@ -111,7 +85,7 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
                 session_new.teacher = teacher;
                 session_new.room = room;
                 _sessions.push(session_new);
-                var _slots_session = session_new.slots.filter(slot => [ClassSession.STATUS.OPEN,ClassSession.STATUS.FULL,ClassSession.STATUS.SUBSCRIPTION_EXPIRED].includes(slot.status));
+                var _slots_session = session_new.slots.filter(slot => [ClassSession.STATUS.OPEN, ClassSession.STATUS.FULL, ClassSession.STATUS.SUBSCRIPTION_EXPIRED].includes(slot.status));
                 if (user instanceof ClassUserIntern) {
                     //constraints.push(where("status", "!=", ClassSession.STATUS.DRAFT));
                     _slots_session = session_new.slots;
@@ -126,7 +100,7 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
             setIsLoadingSlots(false);
         });
         return snapshotSessions;
-    }, [uidLesson, uidTeacher, lang]);
+    }, [user, uidLesson, uidTeacher, lang]);
     const listenToOneSession = useCallback((uidSession) => {
         if (!uidSession) {
             setSession(null);
@@ -143,18 +117,20 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
                 setIsLoading(false);
                 return;
             }
+            console.log("SESSION provider listen one", uidSession);
             const _session = snap.data();
-            const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
-            const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
-            const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
+            //const lesson = _session.uid_lesson ? await ClassLessonTeacher.fetchFromFirestore(_session.uid_lesson, lang) : null;
+           // const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
+           // const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
             //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
             const session_new = new ClassSession({
                 ..._session.toJSON(),
+                //lesson:lesson,
                 // translate: translate,
             });
-            session_new.lesson = lesson;
-            session_new.teacher = teacher;
-            session_new.room = room;
+           // session_new.lesson = lesson;
+           // session_new.teacher = teacher;
+           // session_new.room = room;
 
             setSession(prev => {
                 if (!prev || prev === null) return session_new;
@@ -172,7 +148,39 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, [uidSession, uidLesson]);
+    }, [uidSession]);
+    useEffect(() => {
+        if (user) {
+            const listener = listenToSessions(user, uidTeacher);
+            return () => listener?.();
+        } else {
+            setIsLoading(false);
+        }
+    }, [user, uidTeacher, listenToSessions]);
+    useEffect(() => {
+        if (user && uidSession) {
+            setIsLoading(true);
+            const _session = getOneSession(uidSession);
+            setSession(_session ?? null);
+            const listener = listenToOneSession(uidSession);
+            return () => listener?.();
+        } else {
+            setSession(null);
+            setIsLoading(false);
+        }
+        console.log("SESSION provider", uidSession);
+    }, [user, uidSession, listenToOneSession]);
+    useEffect(() => {
+        if (uidSlot && session) {
+            //const _session = getOneSession(uidSession);
+            const _slot = session.slots?.find?.(a => a.uid_intern === uidSlot);
+            setSlot(_slot);
+        } else {
+            setSlot(null);
+        }
+    }, [uidSlot, session]);
+
+
 
     async function refreshList() {
         var _sessions = [];

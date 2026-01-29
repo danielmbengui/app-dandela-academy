@@ -26,13 +26,14 @@ import { useSession } from "@/contexts/SessionProvider";
 import { ClassSession } from "@/classes/ClassSession";
 import { PAGE_TEACHER_SESSIONS } from "@/contexts/constants/constants_pages";
 import { getFormattedDateNumeric, getFormattedHour } from "@/contexts/functions";
+import { ClassCountry } from "@/classes/ClassCountry";
 
 const MIN_LENGTH_TITLE = 3;
 const MAX_LENGTH_TITLE = 1_000;
 
 const makeId = () => (crypto?.randomUUID?.() ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
-const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_name = "", isAdmin = false }) => {
+const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_name = "", isAdmin = false, onChange = null }) => {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS]);
   const { lesson } = useLessonTeacher();
   const [lessonEdit, setLessonEdit] = useState(null);
@@ -153,9 +154,10 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
   };
 
   return (
-    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={isAdmin}>
-      <Stack spacing={1} alignItems="stretch" sx={{ py: 1.5, px: 1 }}>
-        {array?.map?.((item, i) => {
+    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={isAdmin} onChange={onChange}>
+      <Box onClick={(e) => e.stopPropagation()}>
+        <Stack spacing={1} alignItems="stretch" sx={{ py: 1.5, px: 1 }}>
+          {array?.map?.((item, i) => {
           const orig = originalRef.current || [];
           return (
             <Grid
@@ -289,10 +291,11 @@ const CustomAccordion = ({ expanded = false, title = "", subtitle = "", array_na
           />
         </Stack>
       )}
+      </Box>
     </AccordionComponent>
   );
 }
-const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = "", isAdmin = false }) => {
+const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = "", isAdmin = false, onChange = null }) => {
   const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_BUTTONS]);
   const { lesson } = useLessonTeacher();
   const [lessonEdit, setLessonEdit] = useState(null);
@@ -510,11 +513,12 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
     "&:hover": { bgcolor: "var(--primary-shadow)" },
   };
   return (
-    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={isAdmin}>
-      <Stack spacing={1} alignItems="stretch" sx={{ py: 1.5, px: 1 }}>
-        {array?.map?.((item, i) => {
-          const orig = originalRef.current || [];
-          const primaryColor = isAdmin ? 'warning' : 'primary';
+    <AccordionComponent title={t(title)} expanded={expanded} isAdmin={isAdmin} onChange={onChange}>
+      <Box onClick={(e) => e.stopPropagation()}>
+        <Stack spacing={1} alignItems="stretch" sx={{ py: 1.5, px: 1 }}>
+          {array?.map?.((item, i) => {
+            const orig = originalRef.current || [];
+            const primaryColor = isAdmin ? 'warning' : 'primary';
           return (
             <Grid
               key={item.id}
@@ -713,6 +717,7 @@ const CustomAccordionSubtitle = ({ expanded = false, title = "", array_name = ""
           />
         </Stack>
       )}
+      </Box>
     </AccordionComponent>
   );
 }
@@ -1825,227 +1830,151 @@ function SessionsHighlightComponent() {
   );
 }
 
-function SessionsHistoryComponent() {
-  const { sessions, isLoading } = useSession();
-  const { t } = useTranslation([ClassSession.NS_COLLECTION]);
-  const params = useParams();
-  const { uid, uidSourceLesson, uidLesson } = params;
-  const [showHistory, setShowHistory] = useState(false);
+function PriceComponent({ isAdmin = false }) {
+  const { t } = useTranslation([ClassLessonTeacher.NS_COLLECTION, NS_BUTTONS]);
+  const { lesson } = useLessonTeacher();
+  const [lessonEdit, setLessonEdit] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [state, setState] = useState({
+    processing: false,
+    text: ""
+  });
 
-  // Filtrer les sessions passées
-  const pastSessions = useMemo(() => {
-    if (!sessions || sessions.length === 0) {
-      // Créer des données fictives pour démonstration si aucune session n'existe
-      const now = new Date();
-      const mockSessions = [];
-      for (let i = 1; i <= 3; i++) {
-        const pastDate = new Date(now);
-        pastDate.setMonth(pastDate.getMonth() - i);
-        const endDate = new Date(pastDate);
-        endDate.setHours(endDate.getHours() + 2);
-        
-        mockSessions.push({
-          uid: `mock-${i}`,
-          uid_intern: i,
-          title: `${t('session', { ns: ClassSession.NS_COLLECTION })} #${i} - ${t('finished', { ns: ClassSession.NS_COLLECTION })}`,
-          status: ClassSession.STATUS.FINISHED,
-          slots: [{
-            end_date: { seconds: Math.floor(endDate.getTime() / 1000) }
-          }]
-        });
-      }
-      return mockSessions;
-    }
-    
-    const now = new Date();
-    const filtered = sessions.filter((session) => {
-      // Vérifier si la session est terminée ou si toutes les dates de fin sont passées
-      if (session.status === ClassSession.STATUS.FINISHED) return true;
-      
-      // Vérifier les slots pour voir si tous sont passés
-      if (session.slots && session.slots.length > 0) {
-        const allSlotsPast = session.slots.every((slot) => {
-          if (!slot.end_date) return false;
-          let endDate = null;
-          if (slot.end_date.seconds) {
-            endDate = new Date(slot.end_date.seconds * 1000);
-          } else if (slot.end_date instanceof Date) {
-            endDate = slot.end_date;
-          }
-          return endDate && endDate < now;
-        });
-        return allSlotsPast;
-      }
-      return false;
-    });
-    
-    // Si aucune session passée n'existe, créer des données fictives
-    if (filtered.length === 0) {
-      const mockSessions = [];
-      for (let i = 1; i <= 3; i++) {
-        const pastDate = new Date(now);
-        pastDate.setMonth(pastDate.getMonth() - i);
-        const endDate = new Date(pastDate);
-        endDate.setHours(endDate.getHours() + 2);
-        
-        mockSessions.push({
-          uid: `mock-${i}`,
-          uid_intern: i,
-          title: `${t('session', { ns: ClassSession.NS_COLLECTION })} #${i} - ${t('finished', { ns: ClassSession.NS_COLLECTION })}`,
-          status: ClassSession.STATUS.FINISHED,
-          slots: [{
-            end_date: { seconds: Math.floor(endDate.getTime() / 1000) }
-          }]
-        });
-      }
-      return mockSessions;
-    }
-    
-    return filtered.sort((a, b) => {
-      // Trier par date de fin (plus récent en premier)
-      const getLastEndDate = (session) => {
-        if (!session.slots || session.slots.length === 0) return new Date(0);
-        const dates = session.slots.map((slot) => {
-          if (!slot.end_date) return new Date(0);
-          if (slot.end_date.seconds) return new Date(slot.end_date.seconds * 1000);
-          if (slot.end_date instanceof Date) return slot.end_date;
-          return new Date(0);
-        });
-        return new Date(Math.max(...dates));
-      };
-      return getLastEndDate(b) - getLastEndDate(a);
-    });
-  }, [sessions, t]);
+  useEffect(() => {
+    setLessonEdit(lesson?.clone());
+  }, [lesson]);
 
-  const cardSx = {
-    bgcolor: "var(--card-color)",
-    color: "var(--font-color)",
-    borderRadius: 2,
-    border: "1px solid var(--card-border)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    p: 3,
-    transition: "box-shadow 0.2s ease",
-    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
+  const samePrices = useMemo(() => {
+    if (!lesson || !lessonEdit) return true;
+    if (lesson?.price !== lessonEdit?.price) return false;
+    if (lesson?.old_price !== lessonEdit?.old_price) return false;
+    if (lesson?.currency !== lessonEdit?.currency) return false;
+    return true;
+  }, [lesson, lessonEdit]);
+
+  const disabledButton = useMemo(() => {
+    if (samePrices) return true;
+    if (state.processing) return true;
+    return false;
+  }, [samePrices, state.processing]);
+
+  const onChangeValue = (e) => {
+    const { name, value } = e.target;
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      const numValue = name === 'currency' ? value : parseFloat(value) || 0;
+      prev.update({ [name]: numValue });
+      return prev.clone();
+    });
   };
 
-  if (isLoading) {
-    return null;
-  }
+  const onClearValue = (name) => {
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      const newValue = name === 'currency' ? ClassCountry.DEFAULT_CURRENCY : 0;
+      prev.update({ [name]: newValue });
+      return prev.clone();
+    });
+  };
 
-  if (!pastSessions || pastSessions.length === 0) {
-    return null;
-  }
+  const onResetValue = (name) => {
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setLessonEdit(prev => {
+      if (!prev || prev === null) return lesson.clone();
+      const lessonValue = lesson[name];
+      prev.update({ [name]: lessonValue });
+      return prev.clone();
+    });
+  };
+
+  const onResetAllValues = () => {
+    setLessonEdit(lesson?.clone());
+    setErrors({});
+  };
+
+  const onSubmit = async () => {
+    try {
+      setState(prev => ({ ...prev, processing: true, text: "Traitement..." }));
+      setState(prev => ({ ...prev, text: "Modification du prix..." }));
+      const patched = await lessonEdit?.updateFirestore();
+      setLessonEdit(patched);
+    } catch (err) {
+      setState(prev => ({ ...prev, processing: false, text: "" }));
+    } finally {
+      setState(prev => ({ ...prev, processing: false, text: "" }));
+    }
+  };
+
+  const currencies = ClassCountry.CURRENCIES.map(currency => ({
+    id: currency,
+    value: currency
+  }));
 
   return (
-    <Box sx={cardSx}>
-      <Stack spacing={2}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "var(--font-color)" }}>
-            {t('history', { ns: ClassSession.NS_COLLECTION }) || 'Historique'} ({pastSessions.length})
-          </Typography>
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => setShowHistory(!showHistory)}
-            sx={{
-              color: "var(--primary)",
-              textTransform: "none",
-              fontWeight: 500,
-              "&:hover": {
-                bgcolor: "rgba(25, 118, 210, 0.08)"
-              }
-            }}
-          >
-            {showHistory 
-              ? (t('view_less', { ns: ClassSession.NS_COLLECTION }) || 'Voir moins')
-              : (t('view_more', { ns: ClassSession.NS_COLLECTION }) || 'Voir plus')}
-          </Button>
+    <Stack spacing={2} sx={{ py: 1.5, px: 1 }}>
+      <FieldComponent
+        label={t('price')}
+        type="number"
+        name="price"
+        value={lessonEdit?.price || 0}
+        onChange={onChangeValue}
+        onClear={() => onClearValue('price')}
+        resetable={lesson?.price !== lessonEdit?.price}
+        onCancel={() => onResetValue('price')}
+        fullWidth
+        disabled={state.processing}
+        isAdmin={isAdmin}
+        inputProps={{ min: 0, step: 0.01 }}
+      />
+      <FieldComponent
+        label={t('old_price')}
+        type="number"
+        name="old_price"
+        value={lessonEdit?.old_price || 0}
+        onChange={onChangeValue}
+        onClear={() => onClearValue('old_price')}
+        resetable={lesson?.old_price !== lessonEdit?.old_price}
+        onCancel={() => onResetValue('old_price')}
+        fullWidth
+        disabled={state.processing}
+        isAdmin={isAdmin}
+        inputProps={{ min: 0, step: 0.01 }}
+      />
+      <SelectComponentDark
+        label={t('currency')}
+        name="currency"
+        value={lessonEdit?.currency || ClassCountry.DEFAULT_CURRENCY}
+        values={currencies}
+        onChange={onChangeValue}
+        hasNull={false}
+        disabled={state.processing}
+      />
+      {!samePrices && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="flex-end"
+          spacing={1.5}
+          sx={{ px: 1.5, py: 1, borderTop: "1px solid var(--card-border)" }}
+        >
+          <ButtonCancel
+            onClick={onResetAllValues}
+            disabled={state.processing}
+            label={t("reset", { ns: NS_BUTTONS })}
+            isAdmin={isAdmin}
+          />
+          <ButtonConfirm
+            loading={state.processing}
+            onClick={onSubmit}
+            disabled={disabledButton}
+            label={t("edit", { ns: NS_BUTTONS })}
+            isAdmin={isAdmin}
+          />
         </Stack>
-        {showHistory && (
-          <>
-            <Divider />
-            <Grid container spacing={2}>
-              {pastSessions.map((session) => {
-                const lastSlot = session.slots && session.slots.length > 0 
-                  ? session.slots[session.slots.length - 1] 
-                  : null;
-                let endDate = null;
-                
-                if (lastSlot?.end_date) {
-                  if (lastSlot.end_date.seconds) {
-                    endDate = new Date(lastSlot.end_date.seconds * 1000);
-                  } else if (lastSlot.end_date instanceof Date) {
-                    endDate = lastSlot.end_date;
-                  }
-                }
-
-                return (
-                  <Grid key={session.uid} size={{ xs: 12, sm: 6, md: 4 }}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        border: "1px solid var(--card-border)",
-                        bgcolor: "var(--card-color)",
-                        opacity: 0.8,
-                        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                        "&:hover": {
-                          borderColor: "var(--grey)",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-                        }
-                      }}
-                    >
-                      <Stack spacing={1.5}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                          <Typography
-                            variant="subtitle1"
-                            sx={{
-                              fontWeight: 600,
-                              color: "var(--font-color)",
-                              fontSize: "0.95rem"
-                            }}
-                            noWrap
-                          >
-                            {session.title || `${t('session', { ns: ClassSession.NS_COLLECTION })} #${session.uid_intern}`}
-                          </Typography>
-                          <Chip
-                            label={t('finished', { ns: ClassSession.NS_COLLECTION }) || 'Terminé'}
-                            size="small"
-                            sx={{
-                              bgcolor: "rgba(0,0,0,0.05)",
-                              color: "var(--grey)",
-                              border: "1px solid var(--card-border)",
-                              fontWeight: 600,
-                              fontSize: "0.7rem",
-                              height: "20px"
-                            }}
-                          />
-                        </Stack>
-                        {endDate && (
-                          <Stack spacing={0.5}>
-                            <Typography variant="caption" sx={{ color: "var(--grey)", fontSize: "0.75rem" }}>
-                              {t('ended_on', { ns: ClassSession.NS_COLLECTION }) || 'Terminé le'} {getFormattedDateNumeric(endDate)}
-                            </Typography>
-                          </Stack>
-                        )}
-                        {session.slots && session.slots.length > 0 && (
-                          <Typography variant="caption" sx={{ color: "var(--grey)", fontSize: "0.75rem" }}>
-                            {session.slots.length} {session.slots.length > 1 
-                              ? t('slots_plural', { ns: ClassSession.NS_COLLECTION }) 
-                              : t('slot', { ns: ClassSession.NS_COLLECTION })}
-                          </Typography>
-                        )}
-                      </Stack>
-                    </Paper>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </>
-        )}
-      </Stack>
-    </Box>
+      )}
+    </Stack>
   );
 }
 
@@ -2083,23 +2012,7 @@ export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null
   return (
     <Container disableGutters sx={{ width: "100%" }}>
       <Grid container spacing={1} sx={{ width: "100%" }}>
-        {/* Section Professeur */}
-        <Grid size={12} sx={{ mb: 1 }}>
-          <TeacherHighlightComponent />
-        </Grid>
-        {/* Section Sessions */}
-        <Grid size={12} sx={{ mb: 1 }}>
-          <SessionsHighlightComponent />
-        </Grid>
         <Grid size={12}>
-          <Box component="div" onClick={() => {
-            if (openedView === "infos") {
-              setOpenedView("");
-            } else {
-              setOpenedView("infos");
-              setModeAccordion("");
-            }
-          }} sx={{ cursor: "pointer" }}>
             <AccordionComponent
               title={t("infos")}
               onChange={() => {
@@ -2113,19 +2026,12 @@ export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null
               expanded={openedView === "infos"}
               isAdmin={isAdmin}
             >
-              <InfosComponent isAdmin={isAdmin} />
+              <Box onClick={(e) => e.stopPropagation()}>
+                <InfosComponent isAdmin={isAdmin} />
+              </Box>
             </AccordionComponent>
-          </Box>
         </Grid>
         <Grid size={12}>
-          <Box component="div" onClick={() => {
-            if (openedView === "photos") {
-              setOpenedView("");
-            } else {
-              setOpenedView("photos");
-              setModeAccordion("");
-            }
-          }} sx={{ cursor: "pointer" }}>
             <AccordionComponent
               title={t("photos")}
               onChange={() => {
@@ -2139,9 +2045,29 @@ export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null
               expanded={openedView === "photos"}
               isAdmin={isAdmin}
             >
-              <PhotosComponent isAdmin={isAdmin} />
+              <Box onClick={(e) => e.stopPropagation()}>
+                <PhotosComponent isAdmin={isAdmin} />
+              </Box>
             </AccordionComponent>
-          </Box>
+        </Grid>
+        <Grid size={12}>
+            <AccordionComponent
+              title={t("price")}
+              onChange={() => {
+                if (openedView === "price") {
+                  setOpenedView("");
+                } else {
+                  setOpenedView("price");
+                  setModeAccordion("");
+                }
+              }}
+              expanded={openedView === "price"}
+              isAdmin={isAdmin}
+            >
+              <Box onClick={(e) => e.stopPropagation()}>
+                <PriceComponent isAdmin={isAdmin} />
+              </Box>
+            </AccordionComponent>
         </Grid>
         <Grid size={12} sx={{ mt: 1.5 }} spacing={1}>
 <Stack spacing={1}>
@@ -2150,43 +2076,38 @@ export default function LessonTeacherEditComponent({ isAdmin: propIsAdmin = null
             </Typography>
             <Stack spacing={0.5}>
               {contentSections.map((item) => (
-                <Box key={item} component="div" onClick={() => {
-                  if (modeAccordion === item) {
-                    setModeAccordion("");
-              } else {
-                setModeAccordion(item);
-                setOpenedView("");
-              }
-            }} sx={{ cursor: "pointer" }}>
-                  <CustomAccordion
-                    expanded={modeAccordion === item}
-                    title={item}
-                    array_name={item}
-                    isAdmin={isAdmin}
-                  />
-                </Box>
-              ))}
-              <Box component="div" onClick={() => {
-                if (modeAccordion === 'tags') {
-                  setModeAccordion("");
-                } else {
-                  setModeAccordion('tags');
-                  setOpenedView("");
-                }
-              }} sx={{ cursor: "pointer" }}>
-                <CustomAccordionSubtitle
-                  expanded={modeAccordion === 'tags'}
-                  title={'tags'}
-                  array_name={'tags'}
+                <CustomAccordion
+                  key={item}
+                  expanded={modeAccordion === item}
+                  title={item}
+                  array_name={item}
                   isAdmin={isAdmin}
+                  onChange={() => {
+                    if (modeAccordion === item) {
+                      setModeAccordion("");
+                    } else {
+                      setModeAccordion(item);
+                      setOpenedView("");
+                    }
+                  }}
                 />
-              </Box>
+              ))}
+              <CustomAccordionSubtitle
+                expanded={modeAccordion === 'tags'}
+                title={'tags'}
+                array_name={'tags'}
+                isAdmin={isAdmin}
+                onChange={() => {
+                  if (modeAccordion === 'tags') {
+                    setModeAccordion("");
+                  } else {
+                    setModeAccordion('tags');
+                    setOpenedView("");
+                  }
+                }}
+              />
             </Stack>
 </Stack>
-        </Grid>
-        {/* Section Historique des Sessions */}
-        <Grid size={12} sx={{ mt: 2 }}>
-          <SessionsHistoryComponent />
         </Grid>
       </Grid>
     </Container>

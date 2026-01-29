@@ -22,6 +22,7 @@ export default function PwaProvider({ children }) {
             window.navigator.standalone === true;
 
         setIsPWA(isStandalone);
+        console.log("IsStandalone", isStandalone)
         setIsBrowser(!isStandalone);
 
         const ios =

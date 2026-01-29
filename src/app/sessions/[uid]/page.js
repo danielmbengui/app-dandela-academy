@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { useSession } from "@/contexts/SessionProvider";
 import { useAuth } from "@/contexts/AuthProvider";
+import { useSchool } from "@/contexts/SchoolProvider";
 import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LangProvider";
@@ -11,6 +12,7 @@ import {
   formatDuration,
   getFormattedDateNumeric,
   getFormattedHour,
+  formatPrice,
 } from "@/contexts/functions";
 import {
   Box,
@@ -45,6 +47,8 @@ import {
   IconArrowBack,
   IconClock,
 } from "@/assets/icons/IconsComponent";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import ButtonRemove from "@/components/dashboard/elements/ButtonRemove";
@@ -181,7 +185,7 @@ function SlotSubscribeBlock({ slot, session, update, user }) {
 
           return (
             <Grid key={format} size={{ xs: 12, sm: formats.length > 1 ? 6 : 12 }}>
-                <Paper
+              <Paper
                 variant="outlined"
                 sx={{
                   p: 1.5,
@@ -272,9 +276,11 @@ function SlotCard({ slot, session, update, user }) {
     NS_SESSIONS_ONE,
   ]);
   const { lang } = useLanguage();
+  const { school } = useSchool();
 
   const statusCfg = ClassSessionSlot.STATUS_CONFIG[slot?.status];
   const iconProps = { width: 18, height: 18 };
+  const showPrice = session?.price > 0;
 
   return (
     <Paper
@@ -322,6 +328,21 @@ function SlotCard({ slot, session, update, user }) {
             />
           )}
           <BadgeFormatLesson format={slot?.format} />
+          {showPrice && (
+            <Chip
+              size="small"
+              icon={<AttachMoneyIcon sx={{ fontSize: 14 }} />}
+              label={formatPrice(session.price, session.currency)}
+              sx={{
+                height: 24,
+                fontWeight: 600,
+                bgcolor: 'var(--primary-shadow)',
+                color: 'var(--primary)',
+                border: '1px solid var(--primary)',
+                "& .MuiChip-label": { px: 1.25 },
+              }}
+            />
+          )}
           {slot?.last_subscribe_time && (
             <Typography variant="caption" sx={{ color: "var(--grey-light)", ml: "auto" }}>
               {t("slot_subscribe_before", {
@@ -334,6 +355,70 @@ function SlotCard({ slot, session, update, user }) {
         </Stack>
 
         <Stack spacing={2} sx={{ p: { xs: 2, sm: 2.5 } }}>
+          {showPrice && school && (
+            <Box
+              sx={{
+                pb: 2,
+                borderBottom: "1px solid",
+                borderColor: "var(--card-border)",
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                <AccountBalanceIcon sx={{ fontSize: 18, color: 'var(--grey-light)' }} />
+                <Typography variant="subtitle2" sx={{ color: 'var(--grey-light)' }} fontWeight={600}>
+                  {t("bank_account", { ns: ClassLesson.NS_COLLECTION })}
+                </Typography>
+              </Stack>
+              <Stack spacing={1}>
+                {school?.bank_account && (
+                  <MetaRow
+                    icon={<Box sx={{ width: 18, height: 18 }} />}
+                    label={t("bank_account", { ns: ClassLesson.NS_COLLECTION })}
+                    value={school.bank_account}
+                  />
+                )}
+                {school?.iban && (
+                  <MetaRow
+                    icon={<Box sx={{ width: 18, height: 18 }} />}
+                    label={t("iban", { ns: ClassLesson.NS_COLLECTION })}
+                    value={school.iban}
+                  />
+                )}
+                {school?.bank_name && (
+                  <MetaRow
+                    icon={<Box sx={{ width: 18, height: 18 }} />}
+                    label={t("bank_name", { ns: ClassLesson.NS_COLLECTION })}
+                    value={school.bank_name}
+                  />
+                )}
+                {school?.bank_express && (
+                  <MetaRow
+                    icon={<Box sx={{ width: 18, height: 18 }} />}
+                    label={t("bank_express", { ns: ClassLesson.NS_COLLECTION })}
+                    value={school.bank_express}
+                  />
+                )}
+              </Stack>
+              <Box sx={{ mt: 2.5, mb: 1 }}>
+                <AlertComponent
+                  severity="error"
+                  subtitle={
+                    <Stack spacing={0.5}>
+                      <Typography variant="body2" component="span">
+                        {t("payment", { ns: ClassLesson.NS_COLLECTION })}
+                      </Typography>
+                      <Typography variant="body2" component="span">
+                        {t("payment_online", { ns: ClassLesson.NS_COLLECTION })}
+                      </Typography>
+                      <Typography variant="body2" component="span">
+                        {t("payment_onsite", { ns: ClassLesson.NS_COLLECTION })}
+                      </Typography>
+                    </Stack>
+                  }
+                />
+              </Box>
+            </Box>
+          )}
           <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <MetaRow
@@ -410,7 +495,7 @@ export default function OneSessionPage() {
   const params = useParams();
   const { user } = useAuth();
   const { lang } = useLanguage();
-  const {setUidLesson, lessons, getOneLesson} = useLessonTeacher();
+  const { setUidLesson, lessons, getOneLesson } = useLessonTeacher();
   const { session, update, setUidSession, isLoading } = useSession();
   const { t } = useTranslation([
     ClassSession.NS_COLLECTION,
@@ -428,17 +513,6 @@ export default function OneSessionPage() {
     if (uid) setUidSession(uid);
     return () => setUidSession(null);
   }, [uid, setUidSession]);
-
-  useEffect(() => {
-    /*
-    if (!session?.uid_lesson || !session?.uid_teacher) {
-      setLessonTeacher(null);
-      return;
-    }
-    */
-    //setUidLesson(session.uid_lesson);
-  }, [session?.uid_lesson, session?.uid_teacher, lang]);
-
 
 
   const slotsToShow = useMemo(() => {
@@ -462,34 +536,26 @@ export default function OneSessionPage() {
 
   const lessonTitle = useMemo(
     () =>
-      lesson?.title ?? "yaaaaa" ??
-      session?.lesson?.translate?.title ??
-      session?.lesson?.title,
-    [lesson, session?.lesson]
+      lesson?.title || ""
+    [lesson]
   );
 
   const courseImage = useMemo(
     () =>
-      lesson?.photo_url ??
-      session?.lesson?.translate?.photo_url ??
-      session?.lesson?.photo_url,
-    [lesson, session?.lesson]
+      lesson?.photo_url || ""
+    [lesson]
   );
 
   const courseDescription = useMemo(
     () =>
-      lesson?.description ??
-      session?.lesson?.translate?.description ??
-      session?.lesson?.description,
-    [lesson, session?.lesson]
+      lesson?.description || ""
+    [lesson]
   );
 
   const courseSubtitle = useMemo(
     () =>
-      lesson?.subtitle ??
-      session?.lesson?.translate?.subtitle ??
-      session?.lesson?.subtitle,
-    [lesson, session?.lesson]
+      lesson?.subtitle || ""
+    [lesson]
   );
 
   if (isLoading && !session) {
@@ -556,62 +622,47 @@ export default function OneSessionPage() {
             bgcolor: "var(--card-color)",
           }}
         >
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                md: courseImage ? "minmax(360px, 480px) 1fr" : "1fr",
-              },
-              gap: { xs: 0, md: courseImage ? 1.5 : 0 },
-              alignItems: "stretch",
-              minWidth: 0,
-            }}
-          >
+          <Grid container spacing={0} sx={{ alignItems: "stretch" }}>
             {courseImage && (
-              <Box
-                sx={{
-                  position: "relative",
-                  width: { xs: "100%", md: "100%" },
-                  minWidth: 0,
-                  maxWidth: "100%",
-                  minHeight: { xs: 220, md: 280 },
-                  bgcolor: 'var(--card-color)',
-                  overflow: "hidden",
-                  gridColumn: { xs: "1 / -1", md: "auto" },
-                  "& img": {
-                    objectFit: { xs: "cover", md: "contain" },
-                    objectPosition: { xs: "center center", md: "left center" },
-                  },
-                }}
-              >
-                <Image
-                  src={courseImage}
-                  alt={lessonTitle ?? ""}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 480px"
-                  priority
-                />
+              <Grid size={{ xs: 12, md: 2 }}>
                 <Box
                   sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(270deg, transparent 0%, var(--card-color) 70%)",
-                    opacity: { xs: 0.6, md: 0 },
-                    pointerEvents: "none",
+                    position: "relative",
+                    width: "100%",
+                    height: { xs: 220, md: "100%" },
+                    minHeight: { xs: 220 },
+                    bgcolor: 'var(--card-color)',
+                    overflow: "hidden",
+                    "& img": {
+                      objectFit: { xs: "cover", md: "contain" },
+                      objectPosition: { xs: "center center", md: "left center" },
+                    },
                   }}
-                />
-              </Box>
+                >
+                  <Image
+                    src={courseImage}
+                    alt={lessonTitle ?? ""}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 480px"
+                    priority
+                    style={{
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+              </Grid>
             )}
 
-            <Stack
-              spacing={2}
-              sx={{
-                p: { xs: 2, sm: 3, md: 3.5 },
-                pl: { md: courseImage ? 0 : undefined },
-              }}
-              justifyContent="center"
-            >
+            <Grid size={{ xs: 12, md: courseImage ? 7 : 12 }}>
+              <Stack
+                spacing={2}
+                sx={{
+                  p: { xs: 2, sm: 3, md: 3.5 },
+                  minWidth: 0,
+                  width: "100%",
+                }}
+                justifyContent="center"
+              >
               <Typography variant="h4" fontWeight={700} sx={{ lineHeight: 1.3, color: 'var(--font-color)' }}>
                 {lessonTitle}
               </Typography>
@@ -629,10 +680,10 @@ export default function OneSessionPage() {
                     sx={{ fontWeight: 600 }}
                   />
                 )}
-                {session?.lesson?.category && (
+                {lesson?.category && (
                   <Chip
                     size="small"
-                    label={t(session.lesson.category, { ns: ClassLesson.NS_COLLECTION })}
+                    label={t(lesson.category, { ns: ClassLesson.NS_COLLECTION })}
                     sx={{ bgcolor: 'var(--primary-shadow)' }}
                   />
                 )}
@@ -665,8 +716,10 @@ export default function OneSessionPage() {
                   {courseDescription}
                 </Typography>
               )}
-            </Stack>
-          </Box>
+              </Stack>
+            </Grid>
+          </Grid>
+
         </Paper>
 
         {/* Slots */}

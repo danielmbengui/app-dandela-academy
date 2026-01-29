@@ -7,8 +7,9 @@ import { Stack, CircularProgress } from "@mui/material";
 import { ClassSession, ClassSessionSlot } from "@/classes/ClassSession";
 import { ClassUserTeacher } from "@/classes/users/ClassUser";
 import { useAuth } from "@/contexts/AuthProvider";
-import { useSession } from "@/contexts/SessionProvider";
-import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
+import { SessionProvider, useSession } from "@/contexts/SessionProvider";
+import { LessonTeacherProvider, useLessonTeacher } from "@/contexts/LessonTeacherProvider";
+import { LessonProvider } from "@/contexts/LessonProvider";
 import { useUsers } from "@/contexts/UsersProvider";
 import { NS_DASHBOARD_MENU, NS_BUTTONS } from "@/contexts/i18n/settings";
 import { PAGE_TEACHER_SESSIONS_LIST } from "@/contexts/constants/constants_pages";
@@ -311,5 +312,15 @@ function CreateSessionContent() {
 }
 
 export default function CreateSessionPage() {
-    return <CreateSessionContent />;
+    const params = useParams();
+    const { uid: uidTeacher } = params;
+    return (
+        <LessonProvider uidTeacher={uidTeacher}>
+            <LessonTeacherProvider uidTeacher={uidTeacher}>
+                <SessionProvider uidTeacher={uidTeacher}>
+                    <CreateSessionContent />
+                </SessionProvider>
+            </LessonTeacherProvider>
+        </LessonProvider>
+    );
 }

@@ -22,9 +22,10 @@ import { useThemeMode } from "@/contexts/ThemeProvider";
 import BadgeFormatLessonContained from "../lessons/BadgeFormatLessonContained";
 import ButtonRemove from "../elements/ButtonRemove";
 import { useSession } from "@/contexts/SessionProvider";
-import { useLesson } from "@/contexts/LessonProvider";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
 import FieldComponent from "@/components/elements/FieldComponent";
+import TextFieldComponentDark from "@/components/elements/TextFieldComponentDark";
+import { ClassCountry } from "@/classes/ClassCountry";
 import { UsersProvider, useUsers } from "@/contexts/UsersProvider";
 import { ClassUser, ClassUserTeacher } from "@/classes/users/ClassUser";
 import { RoomProvider, useRoom } from "@/contexts/RoomProvider";
@@ -304,6 +305,7 @@ function CardFormat({ slot = null, setSession = null, format = "", session = nul
             onChange={onChangeValue}
             onClear={() => onClearValue(`url`)}
             error={errors.url}
+            fullWidth={true}
           />
         }
       </Stack>
@@ -363,8 +365,14 @@ function RenderContent({ mode = 'create',
   const { users, getOneUser } = useUsers();
   const { session, update, slots } = useSession();
   const { rooms, getOneRoom } = useRoom();
-  const { lessons, getOneLesson } = useLesson();
-  const { lesson } = useLessonTeacher();
+  const { lessons, getOneLesson, lesson, isLoading: isLoadingLessons } = useLessonTeacher();
+  
+  // Debug: vérifier si les cours sont chargés
+  useEffect(() => {
+    console.log("SessionCreateComponent - lessons:", lessons?.length, lessons);
+    console.log("SessionCreateComponent - isLoadingLessons:", isLoadingLessons);
+    console.log("SessionCreateComponent - user:", user?.uid);
+  }, [lessons, isLoadingLessons, user]);
   const [slot, setSlot] = useState(new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate }));
   //const [sessionNew, setSessionNew] = useState(null);
   //const [errors, setErrors] = useState({});
@@ -373,16 +381,7 @@ function RenderContent({ mode = 'create',
   const [course, setCourse] = useState(initialCourse);
   const FORMAT_CONFIG = ClassSession.FORMAT_CONFIG;
   const formatCfg = FORMAT_CONFIG[session?.format];
-  const [dialogOptions, setDialogOptions] = useState({
-    title: "Souhaites-tu ajouter cet élément ?",
-    updateList: null,
-    actionConfirm: null,
-    actionCancel: null,
-    labelConfirm: "Oui",
-    labelCancel: "Non",
-    open: false,
-    setOpen: null
-  });
+
   
   // Synchroniser slot avec sessionNew.slots[0] seulement quand nécessaire
   const currentSlotRef = useRef(null);
@@ -426,16 +425,16 @@ function RenderContent({ mode = 'create',
     }
     // Ne créer une nouvelle session que si elle n'existe pas déjà (laissé au parent de l'initialiser)
     // Vérifier sessionNew via une fonction pour éviter de l'ajouter aux dépendances
+    // En mode 'edit', le parent gère l'initialisation de sessionNew, donc on ne doit pas le remettre à null
     if (mode === 'create' && !sessionNew && !initializedRef.current && setSessionNew) {
       initializedRef.current = true;
       const initialSlot = new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate });
       const newDefaultSession = new ClassSession({ slots: [initialSlot] });
       setSessionNew(newDefaultSession);
       setSlot(initialSlot);
-    } else if (mode !== 'create' && sessionNew && setSessionNew) {
-      initializedRef.current = false;
-      setSessionNew(null);
     }
+    // Supprimé: else if qui remettait sessionNew à null en mode edit
+    // En mode edit, le parent (EditSessionContent) gère déjà l'initialisation de sessionEdit
   }, [mode]);
 
   const calculateEndDate = (start_date = null, duration = 0) => {
@@ -555,12 +554,19 @@ function RenderContent({ mode = 'create',
       
       if (mode === 'session') {
         if (name === 'uid_lesson') {
-          const lesson = getOneLesson(value);
+          const lesson = lessons.find(l => l.uid_lesson === value) || null;
           prev.update({ uid_lesson: value, lesson: lesson });
         }
         if (name === 'uid_teacher') {
           const teacher = getOneUser(value);
           prev.update({ uid_teacher: value, teacher: teacher });
+        }
+        if (name === 'price') {
+          const priceValue = value === '' || value === null || value === undefined ? 0 : parseFloat(value) || 0;
+          prev.update({ price: priceValue });
+        }
+        if (name === 'currency') {
+          prev.update({ currency: value });
         }
       }
 
@@ -569,7 +575,7 @@ function RenderContent({ mode = 'create',
   }
 
 
-  return (<Stack>
+  return (<Stack sx={{ width: '100%' }}>
     <div>
       <main>
         <section className="hero-card">
@@ -578,6 +584,7 @@ function RenderContent({ mode = 'create',
               <Grid container spacing={1} sx={{ mb: 2 }}>
                 <Grid size="auto">
                   <div className="badges">
+                    
                     {lesson.certified && (
                       <span className="badge-cert">
                         🎓 {t('certified', { ns: ClassLessonTeacher.NS_COLLECTION })}
@@ -596,15 +603,20 @@ function RenderContent({ mode = 'create',
                   required
                     name={'uid_lesson'}
                     label={t('uid_lesson')}
-                    values={lessons.map(lesson => ({
+                    values={lessons?.filter(lesson => lesson.uid_lesson).map(lesson => ({
                       value: lesson.translate?.title || lesson.title,
-                      id: lesson.uid
-                    }))}
+                      id: lesson.uid_lesson
+                    })) || []}
                     value={sessionNew?.uid_lesson || ""}
                     onChange={(e) => onChangeValue(e, 'session')}
                     hasNull={!(sessionNew?.uid_lesson)}
                     error={errors?.uid_lesson}
                   />
+                  {!isLoadingLessons && (!lessons || lessons.length === 0) && (
+                    <Typography sx={{ color: 'var(--grey-dark)', fontSize: '0.85rem' }}>
+                      {t('no-lessons-available', { ns: ClassLessonTeacher.NS_COLLECTION }) || 'Aucun cours disponible'}
+                    </Typography>
+                  )}
 
                   <Grid container direction={'row'} spacing={1.5} alignItems={'flex-end'}>
                     <Grid size={{ xs: 12, sm: 6 }}>
@@ -704,6 +716,41 @@ function RenderContent({ mode = 'create',
                     hasNull={!(slot?.format)}
                     error={errors?.format}
                   />
+
+                  <Grid container spacing={1.5} alignItems="center">
+                    <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <TextFieldComponentDark
+                        name={'price'}
+                        type="number"
+                        label={t('price')}
+                        value={sessionNew?.price !== undefined && sessionNew?.price !== null ? String(sessionNew.price) : ""}
+                        onChange={(e) => onChangeValue(e, 'session')}
+                        onClear={() => {
+                          setErrors(prev => ({ ...prev, price: '', main: '' }));
+                          setSessionNew(prev => {
+                            if (!prev) return null;
+                            prev.update({ price: 0 });
+                            return prev.clone();
+                          });
+                        }}
+                        error={errors?.price}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <SelectComponentDark
+                        name={'currency'}
+                        values={ClassCountry.CURRENCIES.map(currency => ({
+                          value: currency,
+                          id: currency
+                        }))}
+                        value={sessionNew?.currency || ""}
+                        onChange={(e) => onChangeValue(e, 'session')}
+                        hasNull={false}
+                        error={errors?.currency}
+                      />
+                    </Grid>
+                  </Grid>
 
                   <Grid container spacing={1}>
                     {

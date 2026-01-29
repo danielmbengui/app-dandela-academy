@@ -61,7 +61,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
     const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
     const { user, isLoading, logout } = useAuth();
 
-    const { show, setShow, isPwa } = usePwa();
+    const { show, setShow, isPWA } = usePwa();
     const router = useRouter();
     const path = usePathname();
 
@@ -194,12 +194,12 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                         }
                     </List>
                     {
-                    user instanceof ClassUserTeacher && <Link href={PAGE_DASHBOARD_HOME} target={isPwa ? '_self' : '_blank'}>
+                    user instanceof ClassUserTeacher && <Link href={PAGE_DASHBOARD_HOME} target={isPWA ? '_self' : '_blank'}>
                 <ButtonCancel label={t('see-app', {ns:NS_BUTTONS})} />
                 </Link>
                 }
                 {
-                    user instanceof ClassUserDandela && <Link href={PAGE_DASHBOARD_HOME} target={isPwa ? '_self' : '_blank'}>
+                    user instanceof ClassUserDandela && <Link href={PAGE_DASHBOARD_HOME} target={isPWA ? '_self' : '_blank'}>
                 <ButtonConfirm isAdmin={true} label={t('see-app', {ns:NS_BUTTONS})} />
                 </Link>
                 }
@@ -456,7 +456,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                 </Backdrop>
             }
             {
-                !isPwa && show && <InstallPwaBanner showPwaComponent={show} skipAction={() => setShow(false)} />
+                !isPWA && show && <InstallPwaBanner showPwaComponent={show} skipAction={() => setShow(false)} />
             }
         </Box>
     );

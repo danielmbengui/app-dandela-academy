@@ -201,12 +201,11 @@ export function AuthProvider({ children }) {
             if (email_verified !== fbUser.emailVerified) {
                 await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
-            const _user = data;
-            setUser(prev => {
-                if (!prev || prev === null) return _user.clone();
-                prev = _user.clone();
-                return prev.clone();
-            });
+            // Convertir les données en instance de ClassUser pour éviter les problèmes de clone
+            const _user = await ClassUser.fetchFromFirestore(uid);
+            if (_user) {
+                setUser(_user);
+            }
             setIsConnected(true);
             setIsLoading(false);
             //setUser(fbUser);
@@ -331,6 +330,7 @@ export function AuthProvider({ children }) {
             setIsLoading(true);
             var student = await ClassUserStudent.fetchFromFirestore(uid);
             if (!student) {
+                // Créer un nouvel utilisateur seulement s'il n'existe pas
                 student = new ClassUserStudent({
                     uid: uid,
                     email: email,
@@ -340,14 +340,28 @@ export function AuthProvider({ children }) {
                     phone_number: phoneNumber || "",
                     photo_url: photoURL || "",
                 });
+                await student.createFirestore();
             } else {
+                // Mettre à jour seulement les champs nécessaires si l'utilisateur existe déjà
+                const updates = {};
+                if (student.email_verified !== emailVerified) {
+                    updates.email_verified = emailVerified;
+                }
                 if (student.status !== ClassUser.STATUS.FIRST_CONNEXION && student.status !== ClassUser.STATUS.MUST_COMPLETE_PROFILE) {
-                    student.update({
-                        status: ClassUser.STATUS.ONLINE,
-                    });
+                    updates.status = ClassUser.STATUS.ONLINE;
+                }
+                if (phoneNumber && student.phone_number !== phoneNumber) {
+                    updates.phone_number = phoneNumber;
+                }
+                if (photoURL && student.photo_url !== photoURL) {
+                    updates.photo_url = photoURL;
+                }
+                if (Object.keys(updates).length > 0) {
+                    await ClassUser.update(uid, updates);
+                    // Recharger l'utilisateur depuis Firestore pour avoir les données complètes
+                    student = await ClassUserStudent.fetchFromFirestore(uid);
                 }
             }
-            await student.createFirestore();
             setProvider(providerName);
             setIsLoading(false);
             if (path?.includes(PAGE_LOGIN) || path?.includes(PAGE_REGISTER)) {

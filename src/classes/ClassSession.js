@@ -117,6 +117,7 @@ export class ClassSession {
         uid = "",
         uid_intern = "",
         uid_lesson = "",
+        uid_lesson_source = "",
         uid_teacher = "",
         uid_room = "",
         lesson = null,
@@ -138,6 +139,7 @@ export class ClassSession {
         this._uid = uid;
         this._uid_intern = uid_intern;
         this._uid_lesson = uid_lesson;
+        this._uid_lesson_source = uid_lesson_source;
         this._uid_teacher = uid_teacher;
         this._uid_room = uid_room;
         this._lesson = lesson;
@@ -147,6 +149,7 @@ export class ClassSession {
         this._title = title;
         this._title_normalized = title_normalized;
         this._price = price;
+        this._old_price = old_price;
         this._currency = currency;
         this._start_date = start_date;
         this._end_date = end_date;
@@ -164,6 +167,9 @@ export class ClassSession {
 
     get uid_lesson() { return this._uid_lesson; }
     set uid_lesson(value) { this._uid_lesson = value; }
+
+    get uid_lesson_source() { return this._uid_lesson_source; }
+    set uid_lesson_source(value) { this._uid_lesson_source = value; }
 
     get uid_teacher() { return this._uid_teacher; }
     set uid_teacher(value) { this._uid_teacher = value; }

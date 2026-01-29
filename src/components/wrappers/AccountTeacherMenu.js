@@ -39,7 +39,7 @@ export default function AccountTeacherMenu() {
   const { isMobile, isLaptop, device, hasScreen } = useUserDevice();
   const [showPwa, setShowPwa] = useState(false);
   const path = usePathname();
-  const { show, setShow, isPwa } = usePwa();
+  const { show, setShow, isPWA } = usePwa();
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -229,7 +229,7 @@ export default function AccountTeacherMenu() {
           */
         }
         {
-          !isPwa && <Stack>
+          !isPWA && <Stack>
             <Typography sx={{ 
               ml: 2.5, 
               mt: 1,
