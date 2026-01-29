@@ -9,6 +9,7 @@ import { ClassUserTeacher } from "@/classes/users/ClassUser";
 import { ClassCountry } from "@/classes/ClassCountry";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useSession } from "@/contexts/SessionProvider";
+import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 import { NS_DASHBOARD_MENU, NS_BUTTONS } from "@/contexts/i18n/settings";
 import { PAGE_TEACHER_SESSIONS_LIST } from "@/contexts/constants/constants_pages";
 import { IconSession } from "@/assets/icons/IconsComponent";
@@ -35,6 +36,7 @@ function EditSessionContent() {
     const uidSession = params.uidSession;
     const { t } = useTranslation([ClassSession.NS_COLLECTION, NS_DASHBOARD_MENU, NS_BUTTONS]);
     const { session, update, setUidSession, isLoading } = useSession();
+    const { lessons, getOneLesson } = useLessonTeacher();
     const errorsTranslate = t('errors', { returnObjects: true });
 
     const [sessionEdit, setSessionEdit] = useState(null);
@@ -68,14 +70,34 @@ function EditSessionContent() {
         return user instanceof ClassUserTeacher && user?.uid === uidTeacher;
     }, [user, uidTeacher]);
 
+    // Fonction helper pour convertir une date en format string pour l'input date
+    const formatDateForInput = (date) => {
+        if (!date) return '';
+        if (date instanceof Date) {
+            return date.toISOString().split('T')[0];
+        }
+        // Si c'est un Timestamp Firestore ou autre format
+        const jsDate = ClassSession._toJsDate(date);
+        return jsDate ? jsDate.toISOString().split('T')[0] : '';
+    };
+
     const onChangeValue = (e) => {
         const { value, name, type } = e.target;
         setErrors(prev => ({ ...prev, [name]: '', main: '' }));
         setSessionEdit(prev => {
             if (!prev) return null;
             const updated = prev.clone();
+            
             if (type === 'number') {
                 updated[name] = parseFloat(value) || 0;
+            } else if (type === 'date') {
+                // Convertir la date string en Date object
+                updated[name] = value ? new Date(value) : null;
+            } else if (name === 'uid_lesson') {
+                // Gérer la sélection de leçon
+                const lesson = getOneLesson(value);
+                updated.uid_lesson = value;
+                updated.lesson = lesson;
             } else {
                 updated[name] = value;
             }
@@ -90,6 +112,8 @@ function EditSessionContent() {
             const updated = prev.clone();
             if (name === 'price' || name === 'old_price') {
                 updated[name] = 0;
+            } else if (name === 'start_date' || name === 'end_date') {
+                updated[name] = null;
             } else {
                 updated[name] = '';
             }
@@ -106,6 +130,28 @@ function EditSessionContent() {
             setErrors({});
 
             // Validation des champs
+            if (!sessionEdit?.uid_lesson || sessionEdit?.uid_lesson.trim() === '') {
+                _errors.uid_lesson = errorsTranslate.uid_lesson || "Sélectionne un cours";
+            }
+            if (!sessionEdit?.code || sessionEdit?.code.trim() === '') {
+                _errors.code = errorsTranslate.code || "Entre un code";
+            }
+            if (!sessionEdit?.title || sessionEdit?.title.trim() === '') {
+                _errors.title = errorsTranslate.title || "Entre un nom";
+            }
+            if (!sessionEdit?.start_date) {
+                _errors.start_date = errorsTranslate.start_date || "Sélectionne une date de début";
+            }
+            if (!sessionEdit?.end_date) {
+                _errors.end_date = errorsTranslate.end_date || "Sélectionne une date de fin";
+            }
+            if (sessionEdit?.start_date && sessionEdit?.end_date) {
+                const startDate = sessionEdit.start_date instanceof Date ? sessionEdit.start_date : ClassSession._toJsDate(sessionEdit.start_date);
+                const endDate = sessionEdit.end_date instanceof Date ? sessionEdit.end_date : ClassSession._toJsDate(sessionEdit.end_date);
+                if (startDate && endDate && startDate > endDate) {
+                    _errors.end_date = "La date de fin doit être après la date de début";
+                }
+            }
             if (sessionEdit?.price === undefined || sessionEdit?.price === null || sessionEdit?.price < 0) {
                 _errors.price = errorsTranslate.price || "Indique un prix valide";
             }
@@ -114,6 +160,9 @@ function EditSessionContent() {
             }
             if (sessionEdit?.old_price !== undefined && sessionEdit?.old_price !== null && sessionEdit?.old_price < 0) {
                 _errors.old_price = "L'ancien prix doit être positif";
+            }
+            if (!sessionEdit?.status || sessionEdit?.status.trim() === '') {
+                _errors.status = errorsTranslate.status || "Sélectionne un statut";
             }
 
             if (Object.keys(_errors).length > 0) {
@@ -192,48 +241,142 @@ function EditSessionContent() {
             icon={<IconSession />}
         >
             <Stack spacing={3} sx={{ width: '100%', minHeight: '100%' }}>
-                <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <FieldComponent
-                            required
-                            name="price"
-                            type="number"
-                            label={t('price', { ns: ClassSession.NS_COLLECTION })}
-                            value={sessionEdit?.price || 0}
-                            onChange={onChangeValue}
-                            onClear={() => onClearValue('price')}
-                            error={errors?.price}
-                            inputProps={{ min: 0, step: 0.01 }}
-                        />
+                <div className="hero-card">
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12 }}>
+                            <SelectComponentDark
+                                required
+                                name="uid_lesson"
+                                label={t('uid_lesson', { ns: ClassSession.NS_COLLECTION })}
+                                values={lessons.map(lesson => ({
+                                    value: lesson.translate?.title || lesson.title,
+                                    id: lesson.uid
+                                }))}
+                                value={sessionEdit?.uid_lesson || ''}
+                                onChange={onChangeValue}
+                                hasNull={!sessionEdit?.uid_lesson}
+                                error={errors?.uid_lesson}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FieldComponent
+                                required
+                                name="code"
+                                type="text"
+                                label={t('code', { ns: ClassSession.NS_COLLECTION })}
+                                value={sessionEdit?.code || ''}
+                                onChange={onChangeValue}
+                                onClear={() => onClearValue('code')}
+                                error={errors?.code}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <SelectComponentDark
+                                required
+                                name="status"
+                                label={t('status', { ns: ClassSession.NS_COLLECTION })}
+                                values={Object.values(ClassSession.STATUS)
+                                    .filter(status => status !== ClassSession.STATUS.UNKNOWN)
+                                    .map(status => ({
+                                        value: t(status, { ns: ClassSession.NS_COLLECTION }),
+                                        id: status
+                                    }))}
+                                value={sessionEdit?.status || ''}
+                                onChange={onChangeValue}
+                                hasNull={!sessionEdit?.status}
+                                error={errors?.status}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12 }}>
+                            <FieldComponent
+                                required
+                                name="title"
+                                type="text"
+                                label={t('title', { ns: ClassSession.NS_COLLECTION })}
+                                value={sessionEdit?.title || ''}
+                                onChange={onChangeValue}
+                                onClear={() => onClearValue('title')}
+                                error={errors?.title}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <FieldComponent
-                            name="old_price"
-                            type="number"
-                            label={t('old_price', { ns: ClassSession.NS_COLLECTION })}
-                            value={sessionEdit?.old_price || 0}
-                            onChange={onChangeValue}
-                            onClear={() => onClearValue('old_price')}
-                            error={errors?.old_price}
-                            inputProps={{ min: 0, step: 0.01 }}
-                        />
+                </div>
+
+                <div className="hero-card">
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FieldComponent
+                                required
+                                name="start_date"
+                                type="date"
+                                label={t('start_date', { ns: ClassSession.NS_COLLECTION })}
+                                value={formatDateForInput(sessionEdit?.start_date)}
+                                onChange={onChangeValue}
+                                onClear={() => onClearValue('start_date')}
+                                error={errors?.start_date}
+                                disablePast={false}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FieldComponent
+                                required
+                                name="end_date"
+                                type="date"
+                                label={t('end_date', { ns: ClassSession.NS_COLLECTION })}
+                                value={formatDateForInput(sessionEdit?.end_date)}
+                                onChange={onChangeValue}
+                                onClear={() => onClearValue('end_date')}
+                                error={errors?.end_date}
+                                disablePast={false}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <SelectComponentDark
-                            required
-                            name="currency"
-                            label={t('currency', { ns: ClassSession.NS_COLLECTION })}
-                            values={ClassCountry.CURRENCIES.map(currency => ({
-                                value: currency,
-                                id: currency
-                            }))}
-                            value={sessionEdit?.currency || ''}
-                            onChange={onChangeValue}
-                            hasNull={!sessionEdit?.currency}
-                            error={errors?.currency}
-                        />
+                </div>
+
+                <div className="hero-card">
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FieldComponent
+                                required
+                                name="price"
+                                type="number"
+                                label={t('price', { ns: ClassSession.NS_COLLECTION })}
+                                value={sessionEdit?.price || 0}
+                                onChange={onChangeValue}
+                                onClear={() => onClearValue('price')}
+                                error={errors?.price}
+                                inputProps={{ min: 0, step: 0.01 }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FieldComponent
+                                name="old_price"
+                                type="number"
+                                label={t('old_price', { ns: ClassSession.NS_COLLECTION })}
+                                value={sessionEdit?.old_price || 0}
+                                onChange={onChangeValue}
+                                onClear={() => onClearValue('old_price')}
+                                error={errors?.old_price}
+                                inputProps={{ min: 0, step: 0.01 }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <SelectComponentDark
+                                required
+                                name="currency"
+                                label={t('currency', { ns: ClassSession.NS_COLLECTION })}
+                                values={ClassCountry.CURRENCIES.map(currency => ({
+                                    value: currency,
+                                    id: currency
+                                }))}
+                                value={sessionEdit?.currency || ''}
+                                onChange={onChangeValue}
+                                hasNull={!sessionEdit?.currency}
+                                error={errors?.currency}
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
+                </div>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" alignItems="center">
                     {errors.main && (
@@ -260,6 +403,18 @@ function EditSessionContent() {
                 labelConfirm={t('btn-save', { ns: ClassSession.NS_COLLECTION }) || "Enregistrer"}
                 labelCancel={t('back', { ns: NS_BUTTONS }) || 'Annuler'}
             />
+            <style jsx>{`
+                .hero-card {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                    border-radius: 18px;
+                    border: 1px solid var(--card-border);
+                    background: var(--card-color);
+                    padding: 18px 18px 20px;
+                    margin-bottom: 10px;
+                }
+            `}</style>
         </TeacherPageWrapper>
     );
 }

@@ -12,7 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
-import { Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Paper, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { IconBarChart, IconLineChart, IconList } from "@/assets/icons/IconsComponent";
 import { useTranslation } from "react-i18next";
 import { ClassUserStat } from "@/classes/users/ClassUserStat";
