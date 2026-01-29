@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import DashboardPageWrapper from "@/components/wrappers/DashboardPageWrapper";
 import { useSession } from "@/contexts/SessionProvider";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -495,7 +495,7 @@ export default function OneSessionPage() {
   const params = useParams();
   const { user } = useAuth();
   const { lang } = useLanguage();
-  const { setUidLesson, lessons, getOneLesson } = useLessonTeacher();
+  const { setUidLesson, lessons, getOneLesson, isLoading: isLoadingLessons } = useLessonTeacher();
   const { session, update, setUidSession, isLoading } = useSession();
   const { t } = useTranslation([
     ClassSession.NS_COLLECTION,
@@ -508,12 +508,65 @@ export default function OneSessionPage() {
 
   const uid = params?.uid;
   const [lessonTeacher, setLessonTeacher] = useState(null);
+  const [isLoadingLesson, setIsLoadingLesson] = useState(false);
+  const loadedLessonUidRef = useRef(null);
 
   useEffect(() => {
     if (uid) setUidSession(uid);
     return () => setUidSession(null);
   }, [uid, setUidSession]);
 
+  // Mettre à jour lessonTeacher quand la leçon devient disponible dans lessons
+  useEffect(() => {
+    if (!session?.uid_lesson || isLoadingLessons) return;
+    
+    const lessonFromCache = getOneLesson(session.uid_lesson);
+    if (lessonFromCache) {
+      setLessonTeacher(lessonFromCache);
+      loadedLessonUidRef.current = session.uid_lesson;
+    }
+  }, [lessons, session?.uid_lesson, getOneLesson, isLoadingLessons]);
+
+  // Charger la leçon depuis Firestore si elle n'est pas dans lessons
+  useEffect(() => {
+    const loadLesson = async () => {
+      if (!session?.uid_lesson) {
+        setLessonTeacher(null);
+        loadedLessonUidRef.current = null;
+        return;
+      }
+
+      // Si on a déjà chargé cette leçon, ne pas recharger
+      if (loadedLessonUidRef.current === session.uid_lesson) return;
+      
+      // Vérifier d'abord dans lessons (cache)
+      const lessonFromCache = getOneLesson(session.uid_lesson);
+      if (lessonFromCache) {
+        setLessonTeacher(lessonFromCache);
+        loadedLessonUidRef.current = session.uid_lesson;
+        return;
+      }
+
+      // Attendre un peu pour voir si lessons se charge
+      if (isLoadingLessons) return;
+
+      // Si pas trouvée dans le cache après le chargement, charger depuis Firestore
+      setIsLoadingLesson(true);
+      try {
+        const fetchedLesson = await ClassLessonTeacher.fetchFromFirestore(session.uid_lesson, lang);
+        if (fetchedLesson) {
+          setLessonTeacher(fetchedLesson);
+          loadedLessonUidRef.current = session.uid_lesson;
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement de la leçon:", error);
+      } finally {
+        setIsLoadingLesson(false);
+      }
+    };
+
+    loadLesson();
+  }, [session?.uid_lesson, getOneLesson, lang, isLoadingLessons]);
 
   const slotsToShow = useMemo(() => {
     if (!session?.slots?.length) return [];
@@ -521,10 +574,14 @@ export default function OneSessionPage() {
       SLOT_STATUSES_SUBSCRIBE.includes(s.status)
     );
   }, [session?.slots]);
+  
   const lesson = useMemo(() => {
     if (!session?.uid_lesson) return null;
-    return getOneLesson(session.uid_lesson);
-  }, [session?.uid_lesson]);
+    // D'abord chercher dans lessons (cache)
+    const lessonFromCache = getOneLesson(session.uid_lesson);
+    // Sinon utiliser lessonTeacher chargé depuis Firestore
+    return lessonFromCache || lessonTeacher;
+  }, [session?.uid_lesson, getOneLesson, lessonTeacher]);
 
   const sessionTitle = useMemo(
     () =>
