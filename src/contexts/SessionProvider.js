@@ -126,7 +126,7 @@ export function SessionProvider({ children, uidLesson = "",uidTeacher=null }) {
             setIsLoadingSlots(false);
         });
         return snapshotSessions;
-    }, [uidLesson, uidTeacher]);
+    }, [uidLesson, uidTeacher, lang]);
     const listenToOneSession = useCallback((uidSession) => {
         if (!uidSession) {
             setSession(null);

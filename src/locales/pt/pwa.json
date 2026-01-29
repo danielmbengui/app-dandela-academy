@@ -1,0 +1,19 @@
+{
+  "app-title": "Dandela Academy App",
+  "description": "Instala a aplicação para uma melhor experiência do utilizador.",
+  "faster": "Mais rápido",
+  "notifications": "Notificações",
+  "native-experience": "Experiência nativa",
+  "installation-steps": "Passos de instalação:",
+  "ios-step-1": "Toca no ícone <b>Partilhar</b> (⬆️)",
+  "ios-step-2": "Seleciona <b>\"Adicionar ao ecrã inicial\"</b>",
+  "ios-step-3": "Confirma tocando em <b>Adicionar</b>",
+  "ios-note": "👉 A aplicação aparecerá como uma app nativa no teu ecrã inicial.",
+  "macos-step-1": "Na barra de menu, clica em <b>Ficheiro</b> (📁)",
+  "macos-step-2": "Seleciona <b>\"Adicionar ao Dock\"</b>",
+  "macos-step-3": "Confirma a adição",
+  "macos-note": "👉 A aplicação abrirá depois numa janela dedicada.",
+  "later": "Mais tarde",
+  "install": "Instalar",
+  "download-app": "Transferir a aplicação"
+}

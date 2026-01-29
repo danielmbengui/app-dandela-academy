@@ -27,13 +27,13 @@ import LoginPageWrapper from './LoginPageWrapper';
 import LoginComponent from '../auth/login/LoginComponent';
 import OtherPageWrapper from './OtherPageWrapper';
 import NotAuthorizedComponent from '../auth/NotAuthorizedComponent';
-import { PAGE_NOT_AUTHORIZED } from '@/contexts/constants/constants_pages';
+import { PAGE_DASHBOARD_HOME, PAGE_NOT_AUTHORIZED, PAGE_TEACHER_HOME } from '@/contexts/constants/constants_pages';
 import { useTheme } from '@mui/material/styles';
 import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import FirstConnexionComponent from '../auth/FirstConnexionComponent';
-import { ClassUser, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserDandela, ClassUserIntern, ClassUserTeacher } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 import InstallPwaBanner from '../pwa/InstallPwaBanner';
 import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
@@ -42,6 +42,7 @@ import { usePwa } from '@/contexts/PwaProvider';
 import AccountAdminMenu from './AccountAdminMenu';
 import PreloaderAdmin from '../shared/PreloaderAdmin';
 import AccountTeacherMenu from './AccountTeacherMenu';
+import ButtonCancel from '../dashboard/elements/ButtonCancel';
 
 const drawerWidth = 240;
 
@@ -109,8 +110,12 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                         {
                             ClassUserTeacher.menuDashboard(user).map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
-                                const isPath = path.includes(menuItem.path);
-                                console.log("MYYY PATH", path, menuItem.path)
+                                // Vérifier si le path correspond exactement ou si c'est une sous-page
+                                const isExactMatch = path === menuItem.path;
+                                const isSubPath = path.startsWith(menuItem.path + '/');
+                                // Pour la page d'accueil, seulement correspondance exacte (pas de sous-pages)
+                                const isHomePage = menuItem.path === PAGE_TEACHER_HOME(user?.uid);
+                                const isPath = isHomePage ? isExactMatch : (isExactMatch || isSubPath);
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{
@@ -188,6 +193,16 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                             })
                         }
                     </List>
+                    {
+                    user instanceof ClassUserTeacher && <Link href={PAGE_DASHBOARD_HOME} target={isPwa ? '_self' : '_blank'}>
+                <ButtonCancel label={t('see-app', {ns:NS_BUTTONS})} />
+                </Link>
+                }
+                {
+                    user instanceof ClassUserDandela && <Link href={PAGE_DASHBOARD_HOME} target={isPwa ? '_self' : '_blank'}>
+                <ButtonConfirm isAdmin={true} label={t('see-app', {ns:NS_BUTTONS})} />
+                </Link>
+                }
                 </Stack>
             </Stack>
         </Stack>
@@ -201,7 +216,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
     }, [user, path]);
 
     // const container = window !== undefined ? () => window().document.body : undefined;
-    if (isLoading || (user && !isAllowed)) {
+    if (isLoading) {
         return (<Preloader />);
     }
     if (!user) {
@@ -209,7 +224,7 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
             <LoginComponent />
         </LoginPageWrapper>);
     }
-    //if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
+    if (user && !isAllowed) return <Preloader />; // afficher le loader le temps de la redirection vers la page non autorisé
     return (
         <Box sx={{ display: 'flex', background: 'var(--card-color)', overflow: 'hidden', height: '100vh', }}>
             <AppBar
@@ -398,8 +413,10 @@ export default function TeacherPageWrapper({ children, titles = [], title = "", 
                                     </Stack>
                                 ) : (
                                     <>
-                                        {!isAuthorized && <NotAuthorizedComponent />}
-                                        {isAuthorized && children}
+                                        {/* Afficher le composant si autorisé ou si on est encore en train de vérifier (null) */}
+                                        {(isAuthorized === true || isAuthorized === null) && children}
+                                        {/* Afficher l'erreur seulement si explicitement non autorisé (false) */}
+                                        {isAuthorized === false && <NotAuthorizedComponent />}  
                                     </>
                                 )
                             }

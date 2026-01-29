@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -12,32 +11,22 @@ import ListItemButton from '@mui/material/ListItemButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Backdrop, Breadcrumbs, Button, Chip, Container, Grid, Stack } from '@mui/material';
+import { Backdrop, Breadcrumbs, Chip, Container, Grid, Stack } from '@mui/material';
 import { IconDropDown, IconLogo } from '@/assets/icons/IconsComponent';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useThemeMode } from '@/contexts/ThemeProvider';
-import { ClassColor } from '@/classes/ClassColor';
 import { useTranslation } from 'react-i18next';
-import { NS_BUTTONS, NS_DASHBOARD_MENU, NS_ROLES } from '@/contexts/i18n/settings';
-import { usePathname, useRouter } from 'next/navigation';
+import { NS_DASHBOARD_MENU, NS_ROLES } from '@/contexts/i18n/settings';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import Preloader from '../shared/Preloader';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import LoginPageWrapper from './LoginPageWrapper';
 import LoginComponent from '../auth/login/LoginComponent';
-import OtherPageWrapper from './OtherPageWrapper';
 import NotAuthorizedComponent from '../auth/NotAuthorizedComponent';
-import { PAGE_NOT_AUTHORIZED } from '@/contexts/constants/constants_pages';
-import { useTheme } from '@mui/material/styles';
-import MobileStepper from '@mui/material/MobileStepper';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import FirstConnexionComponent from '../auth/FirstConnexionComponent';
-import { ClassUser, ClassUserDandela, ClassUserIntern } from '@/classes/users/ClassUser';
+import { ClassUser, ClassUserDandela } from '@/classes/users/ClassUser';
 import CompleteProfileComponent from '../auth/CompleteProfileComponent';
 import InstallPwaBanner from '../pwa/InstallPwaBanner';
-import ButtonConfirm from '../dashboard/elements/ButtonConfirm';
-import AccountMenu from './AccountMenu';
 import { usePwa } from '@/contexts/PwaProvider';
 import AccountAdminMenu from './AccountAdminMenu';
 import PreloaderAdmin from '../shared/PreloaderAdmin';
@@ -50,17 +39,13 @@ const MAIN_COLOR = {
     shadow: "var(--warning-shadow-sm)",
 }
 
-export default function AdminPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>,isAuthorized=false, ...props }) {
+export default function AdminPageWrapper({ children, titles = [], title = "", subtitle = "", icon = <></>, isAuthorized = false, ...props }) {
     const { t } = useTranslation([NS_DASHBOARD_MENU, NS_ROLES]);
-    const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
-    const { theme } = useThemeMode();
-    const { primary, background, cardColor, backgroundMenu, text, blueDark } = theme.palette;
-    const { user, isLoading, logout } = useAuth();
+    const { user, isLoading } = useAuth();
 
-    const {show, setShow,isPwa} = usePwa();
-    const router = useRouter();
+    const { show, setShow, isPwa } = usePwa();
     const path = usePathname();
 
     const handleDrawerClose = () => {
@@ -86,15 +71,7 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
             sx={{
                 height: '100vh',
                 width: '100%',
-                background: 'var(--warning-dark)',
                 background: 'var(--card-color)',
-                //backgroundColor:'red',
-                //backgroundImage: 'url("/images/login/back.png")',
-                //backgroundSize: 'cover',        // l'image couvre tout l'écran
-                //backgroundPosition: 'center',   // centrée
-                //backgroundRepeat: 'no-repeat',  // pas de répétition
-                //background: 'black',
-                //border: '3px solid red',
             }}>
             <Stack spacing={3} alignItems={'center'} justifyContent={'space-between'} sx={{ pb: 2, px: 1, width: '100%', height: '100%' }}>
                 <Stack sx={{ width: '100%', height: '100%' }} alignItems={'center'}>
@@ -158,25 +135,28 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                                             hasSubs && <Stack spacing={1} sx={{ pl: 3, pt: 1, pb: 2, background: '' }}>
                                                 {
                                                     menuItem.subs?.map((item, i) => {
-                                                        return (<ListItemButton key={`${item.name}-${i}`} disableGutters sx={{ background: '' }}>
-                                                            <Grid container spacing={0.5} sx={{
-                                                                justifyContent: "start",
-                                                                alignItems: "stretch",
-                                                                width: '100%'
-                                                            }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
-                                                                <Grid size={'auto'} sx={{ background: '' }}>
-                                                                    <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
-                                                                        {item.icon}
-                                                                    </Stack>
-                                                                </Grid>
-                                                                <Grid size={'grow'} sx={{ background: '' }}>
-                                                                    <Stack alignItems={'start'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
-                                                                        <Typography fontSize={'14px'}>{t(item.name)}</Typography>
-                                                                    </Stack>
-
-                                                                </Grid>
-                                                            </Grid>
-                                                        </ListItemButton>)
+                                                        return (
+                                                            <Link key={`${item.name}-${i}`} href={item.path || menuItem.path}>
+                                                                <ListItemButton disableGutters sx={{ background: '' }}>
+                                                                    <Grid container spacing={0.5} sx={{
+                                                                        justifyContent: "start",
+                                                                        alignItems: "stretch",
+                                                                        width: '100%'
+                                                                    }} direction={'row'} justifyContent={'center'} alignItems={'center'}>
+                                                                        <Grid size={'auto'} sx={{ background: '' }}>
+                                                                            <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
+                                                                                {item.icon}
+                                                                            </Stack>
+                                                                        </Grid>
+                                                                        <Grid size={'grow'} sx={{ background: '' }}>
+                                                                            <Stack alignItems={'start'} justifyContent={'center'} sx={{ width: '100%', height: '100%', background: '' }}>
+                                                                                <Typography fontSize={'14px'}>{t(item.name)}</Typography>
+                                                                            </Stack>
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                </ListItemButton>
+                                                            </Link>
+                                                        )
                                                     })
                                                 }
                                             </Stack>
@@ -352,20 +332,14 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                         </Stack>
                         <Stack maxWidth={'lg'} alignItems={'start'} justifyContent={'start'} sx={{
                             overflowY: 'auto',
-                            //overflowY: 'auto', 
-                            background: '', minHeight: 0,
+                            background: '',
+                            minHeight: 0,
                             width: '100%',
                             minWidth: '100%',
-                            height: '100vh', py: 1,
-                            width: "100%",
-                            flex: 1,          // prend le reste
-                            minHeight: 0,     // ✅ clé
-                            //overflowY: "auto",// ✅ scroll ici
-                            //pr: 1,            // optionnel pour éviter que le scrollbar colle au bord
+                            py: 1,
+                            flex: 1,
                             scrollbarWidth: "thin",
                             scrollbarColor: "rgba(0,0,0,0.35) transparent",
-
-                            // Chrome/Safari/Edge
                             "&::-webkit-scrollbar": {
                                 width: "10px",
                             },
@@ -383,9 +357,8 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                             },
                         }}>
                             {
-                                !isAuthorized &&  <NotAuthorizedComponent />
+                                !isAuthorized && <NotAuthorizedComponent />
                             }
-                              
                             {isAuthorized && children}
                         </Stack>
                     </Stack>
@@ -428,4 +401,16 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
         </Box>
     );
 }
+
+AdminPageWrapper.propTypes = {
+    children: PropTypes.node,
+    titles: PropTypes.arrayOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        url: PropTypes.string,
+    })),
+    title: PropTypes.string,
+    subtitle: PropTypes.string,
+    icon: PropTypes.node,
+    isAuthorized: PropTypes.bool,
+};
 

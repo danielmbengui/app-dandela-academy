@@ -13,7 +13,6 @@ import { THEME_DARK, THEME_LIGHT, THEME_SYSTEM } from "@/contexts/constants/cons
 import FieldTextComponent from "@/components/elements/FieldTextComponent";
 import SelectComponentDark from "@/components/elements/SelectComponentDark";
 import CheckboxComponent from "@/components/elements/CheckboxComponent";
-import { ClassColor } from "@/classes/ClassColor";
 import { useTranslation } from "react-i18next";
 import FieldPhoneComponent from "../elements/FieldPhoneComponent";
 import TextFieldComponent from "../elements/TextFieldComponent";
@@ -24,8 +23,7 @@ function AccountSettingsComponent() {
     const { lang, changeLang } = useLanguage();
     const { user, update, processing } = useAuth();
     const { t } = useTranslation([NS_SETTINGS, ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
-    const { theme, changeTheme, mode, modeApp } = useThemeMode();
-    const { greyLight } = theme.palette;
+    const { changeTheme, mode, modeApp } = useThemeMode();
 
     const [userEdit, setUserEdit] = useState(user);
     const [errors, setErrors] = useState({});
@@ -247,7 +245,7 @@ function AccountSettingsComponent() {
         .muted {
           margin: 0;
           font-size: 0.9rem;
-          color: ${greyLight.main};
+          color: var(--grey-light);
         }
 
         .grid {
@@ -273,7 +271,7 @@ function AccountSettingsComponent() {
           background: var(--card-color);
           border-radius: 10px;
           padding: 20px;
-          border: 1px solid var(--card-color);
+          border: 1px solid var(--card-border);
           
         }
 
@@ -281,12 +279,14 @@ function AccountSettingsComponent() {
           margin-top: 0;
           margin-bottom: 12px;
           font-size: 1.2rem;
+          color: var(--font-color);
         }
 
         .card h3 {
           margin-top: 16px;
           margin-bottom: 8px;
           font-size: 1rem;
+          color: var(--font-color);
         }
 
         .field {
@@ -311,11 +311,11 @@ function AccountSettingsComponent() {
         input[type="email"],
         input[type="date"],
         select {
-          background: #020617;
+          background: var(--background);
           border-radius: 10px;
-          border: 1px solid #1f2937;
+          border: 1px solid var(--card-border);
           padding: 8px 10px;
-          color: #e5e7eb;
+          color: var(--font-color);
           outline: none;
           font-size: 0.9rem;
         }
@@ -342,7 +342,7 @@ function AccountSettingsComponent() {
         }
 
         .btn.primary {
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
           border-color: transparent;
         }
 
@@ -353,7 +353,7 @@ function AccountSettingsComponent() {
 
         .divider {
           border: none;
-          border-top: 1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          border-top: 1px solid var(--card-border);
           margin: 12px 0;
         }
       `}</style>
@@ -365,8 +365,7 @@ function NotificationSettingsComponent() {
     const { user, isLoading, update, processing } = useAuth();
     const { t } = useTranslation([NS_SETTINGS, ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
     const translateLabels = t('form', { ns: NS_PROFILE, returnObjects: true })
-    const { theme, changeTheme, mode, modeApp } = useThemeMode();
-    const { greyLight } = theme.palette;
+    const { changeTheme, mode, modeApp } = useThemeMode();
 
     const [userEdit, setUserEdit] = useState(user);
     const [errors, setErrors] = useState({});
@@ -554,7 +553,7 @@ function NotificationSettingsComponent() {
         .muted {
           margin: 0;
           font-size: 0.9rem;
-          color: ${greyLight.main};
+          color: var(--grey-light);
         }
 
         .grid {
@@ -580,7 +579,7 @@ function NotificationSettingsComponent() {
           background: var(--card-color);
           border-radius: 10px;
           padding: 20px;
-          border: 1px solid var(--card-color);
+          border: 1px solid var(--card-border);
           
         }
 
@@ -588,12 +587,14 @@ function NotificationSettingsComponent() {
           margin-top: 0;
           margin-bottom: 12px;
           font-size: 1.2rem;
+          color: var(--font-color);
         }
 
         .card h3 {
           margin-top: 16px;
           margin-bottom: 8px;
           font-size: 1rem;
+          color: var(--font-color);
         }
 
         .field {
@@ -618,11 +619,11 @@ function NotificationSettingsComponent() {
         input[type="email"],
         input[type="date"],
         select {
-          background: #020617;
+          background: var(--background);
           border-radius: 10px;
-          border: 1px solid #1f2937;
+          border: 1px solid var(--card-border);
           padding: 8px 10px;
-          color: #e5e7eb;
+          color: var(--font-color);
           outline: none;
           font-size: 0.9rem;
         }
@@ -649,7 +650,7 @@ function NotificationSettingsComponent() {
         }
 
         .btn.primary {
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
           border-color: transparent;
         }
 
@@ -660,7 +661,7 @@ function NotificationSettingsComponent() {
 
         .divider {
           border: none;
-          border-top: 1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          border-top: 1px solid var(--card-border);
           margin: 12px 0;
         }
       `}</style>
@@ -672,8 +673,7 @@ function SettingsPage() {
     const { user, isLoading, update, processing } = useAuth();
     const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_ROLES, NS_PROFILE]);
     const translateLabels = t('form', { ns: NS_PROFILE, returnObjects: true })
-    const { theme, changeTheme, mode, modeApp } = useThemeMode();
-    const { greyLight } = theme.palette;
+    const { changeTheme, mode, modeApp } = useThemeMode();
 
     const [userEdit, setUserEdit] = useState(user);
     const [errors, setErrors] = useState({});
@@ -771,7 +771,7 @@ function SettingsPage() {
         .muted {
           margin: 0;
           font-size: 0.9rem;
-          color: ${greyLight.main};
+          color: var(--grey-light);
         }
 
         .grid {
@@ -797,7 +797,7 @@ function SettingsPage() {
           background: var(--card-color);
           border-radius: 10px;
           padding: 20px;
-          border: 1px solid var(--card-color);
+          border: 1px solid var(--card-border);
           
         }
 
@@ -805,12 +805,14 @@ function SettingsPage() {
           margin-top: 0;
           margin-bottom: 12px;
           font-size: 1.2rem;
+          color: var(--font-color);
         }
 
         .card h3 {
           margin-top: 16px;
           margin-bottom: 8px;
           font-size: 1rem;
+          color: var(--font-color);
         }
 
         .field {
@@ -835,11 +837,11 @@ function SettingsPage() {
         input[type="email"],
         input[type="date"],
         select {
-          background: #020617;
+          background: var(--background);
           border-radius: 10px;
-          border: 1px solid #1f2937;
+          border: 1px solid var(--card-border);
           padding: 8px 10px;
-          color: #e5e7eb;
+          color: var(--font-color);
           outline: none;
           font-size: 0.9rem;
         }
@@ -866,7 +868,7 @@ function SettingsPage() {
         }
 
         .btn.primary {
-          background: linear-gradient(135deg, #2563eb, #4f46e5);
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
           border-color: transparent;
         }
 
@@ -877,7 +879,7 @@ function SettingsPage() {
 
         .divider {
           border: none;
-          border-top: 1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          border-top: 1px solid var(--card-border);
           margin: 12px 0;
         }
       `}</style>

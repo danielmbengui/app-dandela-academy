@@ -19,7 +19,6 @@ import {
   Paper,
   Stack,
   Typography,
-  alpha,
 } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,7 +27,7 @@ import {
   ClassSession,
   ClassSessionSlot,
 } from "@/classes/ClassSession";
-import { ClassLesson } from "@/classes/ClassLesson";
+import { ClassLesson, ClassLessonTeacher } from "@/classes/ClassLesson";
 import {
   NS_SESSIONS,
   NS_SESSIONS_ONE,
@@ -44,12 +43,14 @@ import {
   IconDuration,
   IconLocation,
   IconArrowBack,
+  IconClock,
 } from "@/assets/icons/IconsComponent";
 import BadgeFormatLesson from "@/components/dashboard/lessons/BadgeFormatLesson";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 import ButtonRemove from "@/components/dashboard/elements/ButtonRemove";
 import AlertComponent from "@/components/elements/AlertComponent";
 import Preloader from "@/components/shared/Preloader";
+import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 
 const SLOT_STATUSES_SUBSCRIBE = [
   ClassSessionSlot.STATUS.OPEN,
@@ -106,12 +107,12 @@ function SlotSubscribeBlock({ slot, session, update, user }) {
         sx={{
           p: 2,
           borderRadius: 2,
-          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
-          borderColor: (theme) => alpha(theme.palette.primary.main, 0.2),
+          bgcolor: 'var(--primary-shadow)',
+          borderColor: 'var(--primary-shadow-sm)',
         }}
       >
         <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap">
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: 'var(--grey-light)' }}>
             {t("login_to_subscribe", { ns: NS_SESSIONS_ONE })}
           </Typography>
           <ButtonConfirm
@@ -156,7 +157,7 @@ function SlotSubscribeBlock({ slot, session, update, user }) {
 
   if (slot?.status === ClassSessionSlot.STATUS.FINISHED || slot?.status === ClassSessionSlot.STATUS.DRAFT) {
     return (
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{ color: 'var(--grey-light)' }}>
         {t(slot?.status, { ns: ClassSession.NS_COLLECTION })}
       </Typography>
     );
@@ -164,7 +165,7 @@ function SlotSubscribeBlock({ slot, session, update, user }) {
 
   return (
     <Stack spacing={1.5}>
-      <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+      <Typography variant="subtitle2" sx={{ color: 'var(--grey-light)' }} fontWeight={600}>
         {t("seats_taken", { ns: ClassSession.NS_COLLECTION })}
       </Typography>
       <Grid container spacing={1.5}>
@@ -176,24 +177,24 @@ function SlotSubscribeBlock({ slot, session, update, user }) {
           const full = slot?.isFull?.(format);
           const subscribed = !!slot?.isSubscribe?.(user?.uid, format);
           const barColor =
-            pct >= 100 ? "error.main" : pct >= 80 ? "warning.main" : "success.main";
+            pct >= 100 ? "var(--error)" : pct >= 80 ? "var(--warning)" : "var(--success)";
 
           return (
             <Grid key={format} size={{ xs: 12, sm: formats.length > 1 ? 6 : 12 }}>
-              <Paper
+                <Paper
                 variant="outlined"
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
                   border: "1px solid",
-                  borderColor: "divider",
+                  borderColor: "var(--card-border)",
                   bgcolor: "var(--card-color)",
                 }}
               >
                 <Stack spacing={1}>
                   <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={0.5}>
                     <BadgeFormatLesson format={format} />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{ color: 'var(--grey-light)' }}>
                       {subs} / {total}
                     </Typography>
                   </Stack>
@@ -201,7 +202,7 @@ function SlotSubscribeBlock({ slot, session, update, user }) {
                     sx={{
                       height: 8,
                       borderRadius: 999,
-                      bgcolor: "action.hover",
+                      bgcolor: 'var(--card-border)',
                       overflow: "hidden",
                     }}
                   >
@@ -248,14 +249,14 @@ function MetaRow({ icon, label, value }) {
   if (!value) return null;
   return (
     <Stack direction="row" alignItems="flex-start" spacing={1} sx={{ minWidth: 0 }}>
-      <Box sx={{ color: "text.secondary", mt: 0.25, flexShrink: 0 }}>
+      <Box sx={{ color: 'var(--grey-light)', mt: 0.25, flexShrink: 0 }}>
         {icon}
       </Box>
       <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: 'var(--grey-light)' }}>
           {label}
         </Typography>
-        <Typography variant="body2" fontWeight={500}>
+        <Typography variant="body2" fontWeight={500} sx={{ color: 'var(--font-color)' }}>
           {value}
         </Typography>
       </Stack>
@@ -283,13 +284,13 @@ function SlotCard({ slot, session, update, user }) {
         p: 0,
         borderRadius: 2.5,
         border: "1px solid",
-        borderColor: "divider",
+        borderColor: "var(--card-border)",
         bgcolor: "var(--card-color)",
         overflow: "hidden",
         transition: "border-color 0.2s, box-shadow 0.2s",
         "&:hover": {
-          borderColor: "primary.main",
-          boxShadow: (theme) => `0 4px 20px ${alpha(theme.palette.primary.main, 0.08)}`,
+          borderColor: "var(--primary)",
+          boxShadow: '0 4px 20px var(--primary-shadow-md)',
         },
       }}
     >
@@ -298,8 +299,13 @@ function SlotCard({ slot, session, update, user }) {
           direction="row"
           flexWrap="wrap"
           alignItems="center"
-          gap={1}
-          sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}
+          gap={1.5}
+          sx={{
+            px: { xs: 2, sm: 2.5 },
+            py: 2,
+            borderBottom: "1px solid",
+            borderColor: "var(--card-border)",
+          }}
         >
           {statusCfg && (
             <Chip
@@ -317,7 +323,7 @@ function SlotCard({ slot, session, update, user }) {
           )}
           <BadgeFormatLesson format={slot?.format} />
           {slot?.last_subscribe_time && (
-            <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>
+            <Typography variant="caption" sx={{ color: "var(--grey-light)", ml: "auto" }}>
               {t("slot_subscribe_before", {
                 ns: NS_SESSIONS_ONE,
                 date: getFormattedDateNumeric(slot.last_subscribe_time, lang),
@@ -327,9 +333,9 @@ function SlotCard({ slot, session, update, user }) {
           )}
         </Stack>
 
-        <Stack spacing={1.5} sx={{ p: 2 }}>
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, sm: 6 }}>
+        <Stack spacing={2} sx={{ p: { xs: 2, sm: 2.5 } }}>
+          <Grid container spacing={{ xs: 2, sm: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <MetaRow
                 icon={<IconCalendar {...iconProps} />}
                 label={t("start_date", { ns: ClassSession.NS_COLLECTION })}
@@ -340,7 +346,7 @@ function SlotCard({ slot, session, update, user }) {
                 }
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <MetaRow
                 icon={<IconHour {...iconProps} />}
                 label={t("end_date", { ns: ClassSession.NS_COLLECTION })}
@@ -351,8 +357,17 @@ function SlotCard({ slot, session, update, user }) {
                 }
               />
             </Grid>
+            {slot?.last_subscribe_time && (
+              <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                <MetaRow
+                  icon={<IconClock {...iconProps} />}
+                  label={t("subscribe_deadline", { ns: NS_SESSIONS_ONE })}
+                  value={`${getFormattedDateNumeric(slot.last_subscribe_time, lang)} – ${getFormattedHour(slot.last_subscribe_time, lang)}`}
+                />
+              </Grid>
+            )}
             {slot?.duration > 0 && (
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                 <MetaRow
                   icon={<IconDuration {...iconProps} />}
                   label={t("duration", { ns: ClassSession.NS_COLLECTION })}
@@ -361,7 +376,7 @@ function SlotCard({ slot, session, update, user }) {
               </Grid>
             )}
             {slot?.location && (
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                 <MetaRow
                   icon={<IconLocation {...iconProps} />}
                   label={t("location", { ns: ClassSession.NS_COLLECTION })}
@@ -375,7 +390,7 @@ function SlotCard({ slot, session, update, user }) {
             sx={{
               pt: 1.5,
               borderTop: "1px solid",
-              borderColor: "divider",
+              borderColor: "var(--card-border)",
             }}
           >
             <SlotSubscribeBlock
@@ -394,6 +409,8 @@ function SlotCard({ slot, session, update, user }) {
 export default function OneSessionPage() {
   const params = useParams();
   const { user } = useAuth();
+  const { lang } = useLanguage();
+  const {setUidLesson, lessons, getOneLesson} = useLessonTeacher();
   const { session, update, setUidSession, isLoading } = useSession();
   const { t } = useTranslation([
     ClassSession.NS_COLLECTION,
@@ -405,11 +422,24 @@ export default function OneSessionPage() {
   ]);
 
   const uid = params?.uid;
+  const [lessonTeacher, setLessonTeacher] = useState(null);
 
   useEffect(() => {
     if (uid) setUidSession(uid);
     return () => setUidSession(null);
   }, [uid, setUidSession]);
+
+  useEffect(() => {
+    /*
+    if (!session?.uid_lesson || !session?.uid_teacher) {
+      setLessonTeacher(null);
+      return;
+    }
+    */
+    //setUidLesson(session.uid_lesson);
+  }, [session?.uid_lesson, session?.uid_teacher, lang]);
+
+
 
   const slotsToShow = useMemo(() => {
     if (!session?.slots?.length) return [];
@@ -417,6 +447,10 @@ export default function OneSessionPage() {
       SLOT_STATUSES_SUBSCRIBE.includes(s.status)
     );
   }, [session?.slots]);
+  const lesson = useMemo(() => {
+    if (!session?.uid_lesson) return null;
+    return getOneLesson(session.uid_lesson);
+  }, [session?.uid_lesson]);
 
   const sessionTitle = useMemo(
     () =>
@@ -427,8 +461,35 @@ export default function OneSessionPage() {
   );
 
   const lessonTitle = useMemo(
-    () => session?.lesson?.translate?.title || session?.lesson?.title,
-    [session?.lesson]
+    () =>
+      lesson?.title ?? "yaaaaa" ??
+      session?.lesson?.translate?.title ??
+      session?.lesson?.title,
+    [lesson, session?.lesson]
+  );
+
+  const courseImage = useMemo(
+    () =>
+      lesson?.photo_url ??
+      session?.lesson?.translate?.photo_url ??
+      session?.lesson?.photo_url,
+    [lesson, session?.lesson]
+  );
+
+  const courseDescription = useMemo(
+    () =>
+      lesson?.description ??
+      session?.lesson?.translate?.description ??
+      session?.lesson?.description,
+    [lesson, session?.lesson]
+  );
+
+  const courseSubtitle = useMemo(
+    () =>
+      lesson?.subtitle ??
+      session?.lesson?.translate?.subtitle ??
+      session?.lesson?.subtitle,
+    [lesson, session?.lesson]
   );
 
   if (isLoading && !session) {
@@ -450,16 +511,16 @@ export default function OneSessionPage() {
               width: 80,
               height: 80,
               borderRadius: "50%",
-              bgcolor: (theme) => alpha(theme.palette.text.secondary, 0.12),
+              bgcolor: 'var(--card-border)',
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "text.secondary",
+              color: 'var(--grey-light)',
             }}
           >
             <IconSession width={40} height={40} />
           </Box>
-          <Typography variant="h6" textAlign="center" color="text.secondary">
+          <Typography variant="h6" textAlign="center" sx={{ color: 'var(--grey-light)' }}>
             {t("not_found", { ns: NS_SESSIONS_ONE })}
           </Typography>
           <ButtonConfirm
@@ -491,22 +552,74 @@ export default function OneSessionPage() {
             borderRadius: 2.5,
             overflow: "hidden",
             border: "1px solid",
-            borderColor: "divider",
+            borderColor: "var(--card-border)",
             bgcolor: "var(--card-color)",
           }}
         >
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr minmax(280px, 340px)" },
-              gap: 0,
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: courseImage ? "minmax(360px, 480px) 1fr" : "1fr",
+              },
+              gap: { xs: 0, md: courseImage ? 1.5 : 0 },
               alignItems: "stretch",
+              minWidth: 0,
             }}
           >
-            <Stack spacing={1.5} sx={{ p: { xs: 2, sm: 3 } }} justifyContent="center">
-              <Typography variant="h4" fontWeight={700} sx={{ lineHeight: 1.3 }}>
+            {courseImage && (
+              <Box
+                sx={{
+                  position: "relative",
+                  width: { xs: "100%", md: "100%" },
+                  minWidth: 0,
+                  maxWidth: "100%",
+                  minHeight: { xs: 220, md: 280 },
+                  bgcolor: 'var(--card-color)',
+                  overflow: "hidden",
+                  gridColumn: { xs: "1 / -1", md: "auto" },
+                  "& img": {
+                    objectFit: { xs: "cover", md: "contain" },
+                    objectPosition: { xs: "center center", md: "left center" },
+                  },
+                }}
+              >
+                <Image
+                  src={courseImage}
+                  alt={lessonTitle ?? ""}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 480px"
+                  priority
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "linear-gradient(270deg, transparent 0%, var(--card-color) 70%)",
+                    opacity: { xs: 0.6, md: 0 },
+                    pointerEvents: "none",
+                  }}
+                />
+              </Box>
+            )}
+
+            <Stack
+              spacing={2}
+              sx={{
+                p: { xs: 2, sm: 3, md: 3.5 },
+                pl: { md: courseImage ? 0 : undefined },
+              }}
+              justifyContent="center"
+            >
+              <Typography variant="h4" fontWeight={700} sx={{ lineHeight: 1.3, color: 'var(--font-color)' }}>
                 {lessonTitle}
               </Typography>
+              {courseSubtitle && (
+                <Typography variant="subtitle1" sx={{ color: 'var(--grey-light)', lineHeight: 1.4 }}>
+                  {courseSubtitle}
+                </Typography>
+              )}
               <Stack direction="row" flexWrap="wrap" alignItems="center" gap={1}>
                 {session?.code && (
                   <Chip
@@ -520,57 +633,46 @@ export default function OneSessionPage() {
                   <Chip
                     size="small"
                     label={t(session.lesson.category, { ns: ClassLesson.NS_COLLECTION })}
-                    sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1) }}
+                    sx={{ bgcolor: 'var(--primary-shadow)' }}
                   />
                 )}
               </Stack>
               {session?.teacher && (
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t("teacher", { ns: NS_COMMON })}:
-                  </Typography>
-                  <Typography variant="body2" fontWeight={500}>
-                    {session.teacher.name || session.teacher.email}
-                  </Typography>
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  {session.teacher.showAvatar?.({ size: 40, fontSize: '16px' })}
+                  <Stack spacing={0.25}>
+                    <Typography variant="caption" sx={{ color: 'var(--grey-light)' }}>
+                      {t("teacher", { ns: NS_COMMON })}
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600} sx={{ color: 'var(--font-color)' }}>
+                      {session.teacher.name || session.teacher.email}
+                    </Typography>
+                  </Stack>
                 </Stack>
               )}
-            </Stack>
-
-            {session?.lesson?.photo_url && (
-              <Box
-                sx={{
-                  position: "relative",
-                  width: "100%",
-                  minHeight: { xs: 200, md: 220 },
-                  bgcolor: "action.hover",
-                }}
-              >
-                <Image
-                  src={session.lesson.photo_url}
-                  alt={lessonTitle ?? ""}
-                  fill
-                  style={{ objectFit: "cover" }}
-                  sizes="(max-width: 768px) 100vw, 340px"
-                  priority
-                />
-                <Box
+              {courseDescription && (
+                <Typography
+                  variant="body2"
                   sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(90deg, transparent 0%, var(--card-color) 70%)",
-                    opacity: { xs: 0.6, md: 0 },
-                    pointerEvents: "none",
+                    color: 'var(--grey-light)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 4,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    lineHeight: 1.5,
                   }}
-                />
-              </Box>
-            )}
+                >
+                  {courseDescription}
+                </Typography>
+              )}
+            </Stack>
           </Box>
         </Paper>
 
         {/* Slots */}
         <Stack spacing={2}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h6" fontWeight={700} sx={{ color: 'var(--font-color)' }}>
               {t("slots_plural", { ns: ClassSession.NS_COLLECTION })}
             </Typography>
             <ButtonConfirm
@@ -590,18 +692,18 @@ export default function OneSessionPage() {
                 p: 4,
                 borderRadius: 2.5,
                 textAlign: "center",
-                borderColor: "divider",
+                borderColor: "var(--card-border)",
                 bgcolor: "var(--card-color)",
               }}
             >
-              <Typography color="text.secondary">
+              <Typography sx={{ color: 'var(--grey-light)' }}>
                 {t("not_found", { ns: NS_SESSIONS_ONE })}
               </Typography>
             </Paper>
           ) : (
             <Grid container spacing={2}>
               {slotsToShow.map((slot) => (
-                <Grid key={slot.uid_intern} size={{ xs: 12, lg: 6 }}>
+                <Grid key={slot.uid_intern} size={{ xs: 12 }}>
                   <SlotCard
                     slot={slot}
                     session={session}

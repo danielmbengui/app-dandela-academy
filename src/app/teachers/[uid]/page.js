@@ -98,7 +98,7 @@ function TeacherProfileComponent() {
   }
 
   return (
-    <Container maxWidth="lg" disableGutters sx={{ px: { xs: 2, sm: 3 }, py: 3 }}>
+    <Container maxWidth="lg" disableGutters>
       <Stack spacing={3}>
         {/* Header avec informations du professeur */}
         <Paper

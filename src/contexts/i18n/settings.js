@@ -76,6 +76,7 @@ export const NS_LESSONS_PART_1 = `modules/parts/1/lessons`;
 export const NS_MODULE_1 = `modules/1`;
 export const NS_USERS_LIST = `users/list`;
 export const NS_USERS_FORM = `users/form`;
+export const NS_PWA = `pwa`;
 
 export const namespaces = [
     NS_COMMON,NS_LANGS,NS_BUTTONS,NS_PAGES,NS_FORM,NS_ROLES,NS_LEVELS,NS_CONTACT,NS_ERRORS,NS_WAITING_LIST,NS_HOW_KNOW,
@@ -84,5 +85,6 @@ export const namespaces = [
     NS_DASHBOARD_HOME,NS_DASHBOARD_MENU,NS_DASHBOARD_FIRST_CONNEXION,NS_DASHBOARD_MODULES_LEVELS,
     NS_EMAIL_WELCOME,NS_EMAIL_CONTACT,
     NS_ADMIN_EMAIL_WELCOME,NS_ADMIN_EMAIL_CONTACT,
-    NS_STATS,NS_STATS_ONE
+    NS_STATS,NS_STATS_ONE,
+    NS_PWA
 ];

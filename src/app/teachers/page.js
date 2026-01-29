@@ -2,16 +2,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { IconSearch, IconTeachers } from "@/assets/icons/IconsComponent";
 import { NS_BUTTONS, NS_COMMON, NS_DASHBOARD_MENU, NS_TEACHERS } from "@/contexts/i18n/settings";
-import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 import FieldComponent from '@/components/elements/FieldComponent';
 import { ClassUser, ClassUserTeacher } from '@/classes/users/ClassUser';
 import { useUsers } from '@/contexts/UsersProvider';
-import { useLanguage } from '@/contexts/LangProvider';
 import { useLessonTeacher } from '@/contexts/LessonTeacherProvider';
-import { ClassColor } from '@/classes/ClassColor';
 import { useRouter } from 'next/navigation';
 import { PAGE_TEACHERS } from '@/contexts/constants/constants_pages';
 import { NS_LANGS, NS_ROLES } from '@/contexts/i18n/settings';
@@ -28,9 +25,6 @@ const TABLE_SPACE = `grid-template-columns:
 
 function TeachersComponent() {
   const router = useRouter();
-  const { lang } = useLanguage();
-  const { theme } = useThemeMode();
-  const { text, cardColor } = theme.palette;
   const { t } = useTranslation([ClassUser.NS_COLLECTION, NS_TEACHERS, NS_ROLES, NS_COMMON, ClassLesson.NS_COLLECTION]);
   const { users, isLoading } = useUsers();
   const { lessons } = useLessonTeacher();
@@ -118,7 +112,7 @@ function TeachersComponent() {
             <span className="th th-username">{t('display_name', { ns: ClassUser.NS_COLLECTION })}</span>
             <span className="th th-role">{t('lesson', { ns: ClassLesson.NS_COLLECTION })}</span>
             <span className="th th-email">{t('email', { ns: ClassUser.NS_COLLECTION })}</span>
-            <span className="th th-certified">{t('certified', { ns: ClassUser.NS_COLLECTION })}</span>
+            <span className="th th-certified">{t('certified_short', { ns: ClassUser.NS_COLLECTION })}</span>
           </div>
 
           <div className="table-body">
@@ -166,7 +160,7 @@ function TeachersComponent() {
           min-height: 100vh;
           width:100%;
           padding:0;
-          color: ${text.main};
+          color: var(--font-color);
         }
 
         .container {
@@ -176,7 +170,7 @@ function TeachersComponent() {
         }
 
         .card {
-          background: ${cardColor.main};
+          background: var(--card-color);
           border-radius: 16px;
           border: 0.1px solid var(--card-border);
           padding: 0;
@@ -205,8 +199,6 @@ function TeachersComponent() {
 
         .th {
           white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
         }
 
         .table-body {
@@ -218,7 +210,7 @@ function TeachersComponent() {
           padding: 16px;
           text-align: center;
           font-size: 0.9rem;
-          color: #9ca3af;
+          color: var(--grey-light);
         }
 
         @media (max-width: 900px) {
@@ -232,9 +224,6 @@ function TeachersComponent() {
 }
 
 function TeacherRow({ teacher = null, lastLessonTeacher = null, lastChild = false }) {
-  const { theme } = useThemeMode();
-  const { greyLight, cardColor, text } = theme.palette;
-  const { lang } = useLanguage();
   const { t } = useTranslation([NS_LANGS, NS_ROLES, ClassUser.NS_COLLECTION, ClassLesson.NS_COLLECTION]);
 
   return (
@@ -271,7 +260,7 @@ function TeacherRow({ teacher = null, lastLessonTeacher = null, lastChild = fals
               <p className="text-sub">{lastLessonTeacher.translate?.subtitle || lastLessonTeacher.subtitle || ''}</p>
             </>
           ) : (
-            <p className="text-main" style={{ color: '#6b7280', fontStyle: 'italic' }}>
+            <p className="text-main text-empty">
               -
             </p>
           )}
@@ -286,11 +275,11 @@ function TeacherRow({ teacher = null, lastLessonTeacher = null, lastChild = fals
         {/* Certifié */}
         <div className="cell cell-certified">
           {teacher.certified ? (
-            <p className="text-main" style={{ color: 'var(--primary)', fontWeight: 600 }}>
-              ✓ {t('certified', { ns: ClassUser.NS_COLLECTION })}
+            <p className="text-main text-certified">
+              ✓ {t('certified_short', { ns: ClassUser.NS_COLLECTION })}
             </p>
           ) : (
-            <p className="text-main" style={{ color: '#6b7280' }}>
+            <p className="text-main text-empty">
               -
             </p>
           )}
@@ -305,8 +294,8 @@ function TeacherRow({ teacher = null, lastLessonTeacher = null, lastChild = fals
           gap: 8px;
           padding: 10px 16px;
           font-size: 0.85rem;
-          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
-          align-items: center;
+          border-bottom: 0.1px solid var(--card-border);
+          align-items: start;
           transition: background-color 0.2s;
         }
 
@@ -320,49 +309,66 @@ function TeacherRow({ teacher = null, lastLessonTeacher = null, lastChild = fals
 
         .cell {
           min-width: 0;
+          overflow: visible;
+          color: var(--font-color);
         }
 
         .cell-user {
           display: flex;
-          align-items: center;
+          align-items: start;
           gap: 8px;
+          color: var(--font-color);
         }
 
         .user-text {
           min-width: 0;
+          flex: 1;
+          color: var(--font-color);
         }
 
         .user-name {
           margin: 0;
           font-weight: 500;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          word-break: break-word;
+          color: var(--font-color);
         }
 
         .user-id {
           margin: 0;
           font-size: 0.75rem;
-          color: #6b7280;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          color: var(--grey-light);
+          word-break: break-word;
+          line-height: 1.4;
         }
 
         .text-main {
           margin: 0;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          word-break: break-word;
+          line-height: 1.4;
+          color: var(--font-color);
         }
 
         .text-sub {
           margin: 0;
           font-size: 0.75rem;
-          color: #6b7280;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          color: var(--grey-light);
+          word-break: break-word;
+          line-height: 1.4;
+        }
+        
+        .text-empty {
+          color: var(--grey-light);
+          font-style: italic;
+        }
+        
+        .text-certified {
+          color: var(--primary);
+          font-weight: 600;
+        }
+        
+        .cell-role .text-main,
+        .cell-email .text-main {
+          word-break: break-all;
         }
 
         @media (max-width: 900px) {

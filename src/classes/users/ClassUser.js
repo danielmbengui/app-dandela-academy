@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS, PAGE_SESSIONS, PAGE_TEACHERS } from "@/contexts/constants/constants_pages";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS, PAGE_SESSIONS, PAGE_TEACHERS, PAGE_TEACHER_HOME, PAGE_TEACHER_SESSIONS_LIST } from "@/contexts/constants/constants_pages";
 import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSession, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
@@ -1046,9 +1046,19 @@ export class ClassUserTeacher extends ClassUserIntern {
         if (user instanceof ClassUserTeacher) {
             return [
                 {
+                    name: "dashboard",
+                    path: PAGE_TEACHER_HOME(user.uid),
+                    icon: <IconDashboard width={18} height={18} />,
+                },
+                {
                     name: "lessons",
                     path: PAGE_TEACHER_LESSONS(user.uid),
                     icon: <IconLessons width={18} height={18} />,
+                },
+                {
+                    name: "sessions",
+                    path: PAGE_TEACHER_SESSIONS_LIST(user.uid),
+                    icon: <IconSession width={18} height={18} />,
                 },
             ]
         }

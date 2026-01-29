@@ -1,6 +1,7 @@
 {
   "uid": "Identificador",
   "uid_intern": "Número",
+  "chapter": "Capítulo",
   "duration": "Duração estimada: {{start}} a {{end}} horas",
   "duration_short": "{{start}} a {{end}} horas",
   "level": "Nível",

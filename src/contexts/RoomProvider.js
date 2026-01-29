@@ -55,25 +55,20 @@ export function RoomProvider({ children, uidSchool = '' }) {
         const q = constraints.length
             ? query(colRef, ...constraints)
             : colRef;
-        //console.log("Col ref provider", colRef);
         const snapshotRooms = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
-            //console.log("snap", snap.size);
             if (snap.empty) {
                 setRooms([]);
                 setRoom(null);
                 setIsLoading(false);
                 return;
             }
-            //console.log("is not empty");
 
             var _rooms = [];
             for (const snapshot of snap.docs) {
                 const room = snapshot.data();
                 const school = room.uid_school ? await ClassSchool.fetchFromFirestore(room.uid_school) : null;
                 const computers = await ClassHardware.fetchListFromFirestore([where("uid_room", "==", room.uid)]);
-                //const room = room.uid_room ? await ClassRoom.fetchFromFirestore(room.uid_room) : null;
-                console.log("IS computer", computers)
                 //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
                 const room_new = new ClassRoom({
                     ...room.toJSON(),
@@ -85,7 +80,6 @@ export function RoomProvider({ children, uidSchool = '' }) {
             }
             _rooms.sort((a, b) => a.uid_intern - b.uid_intern);
             setRooms(_rooms);
-            console.log("ROOMS provider", _rooms);
             setIsLoading(false);
         });
         return snapshotRooms;
@@ -104,9 +98,7 @@ export function RoomProvider({ children, uidSchool = '' }) {
         }
         _computers = await ClassHardware.fetchListFromFirestore(constraints);
         _computers = _computers.sort((a, b) => a.uid_intern - b.uid_intern);
-        //console.log("has room", _computers);
         setComputers(_computers);
-        //console.log("ROOM computers", _computers)
     }
 
     function getOneRoom(uid = '') {
@@ -127,7 +119,6 @@ export function RoomProvider({ children, uidSchool = '' }) {
     useEffect(() => {
         if (user) {
             const listener = listenToRooms(uidSchool);
-            //console.log("uid school", uidSchool);
             return () => listener?.();
         }
     }, [user, uidSchool]);

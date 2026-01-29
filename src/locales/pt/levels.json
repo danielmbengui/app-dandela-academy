@@ -1,6 +1,8 @@
 {
     "beginner": "Iniciante",
     "intermediate": "Intermédio",
-    "advanced": "Avançado"
+    "competent": "Competente",
+    "advanced": "Avançado",
+    "expert": "Especialista"
   }
   

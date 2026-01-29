@@ -32,6 +32,7 @@
     "last_name_placeholder": "Entre ton/tes nom(s) de famille",
     "birthday_placeholder": "Sélectionne ta date de naissance",
     "certified":"Vérifié par Dandela Academy",
+    "certified_short": "Vérifié",
     "status": "Statut",
     "connexion": "Connexion",
     "actions": "Actions",

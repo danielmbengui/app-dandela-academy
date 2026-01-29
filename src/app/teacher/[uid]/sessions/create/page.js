@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { Stack, CircularProgress } from "@mui/material";
@@ -9,9 +9,9 @@ import { ClassUserTeacher } from "@/classes/users/ClassUser";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useSession } from "@/contexts/SessionProvider";
 import { useLessonTeacher } from "@/contexts/LessonTeacherProvider";
-import { UsersProvider, useUsers } from "@/contexts/UsersProvider";
+import { useUsers } from "@/contexts/UsersProvider";
 import { NS_DASHBOARD_MENU, NS_BUTTONS } from "@/contexts/i18n/settings";
-import { PAGE_TEACHER_LESSONS } from "@/contexts/constants/constants_pages";
+import { PAGE_TEACHER_SESSIONS_LIST } from "@/contexts/constants/constants_pages";
 import { IconLessons } from "@/assets/icons/IconsComponent";
 import TeacherPageWrapper from "@/components/wrappers/TeacherPageWrapper";
 import SessionCreateComponent from "@/components/dashboard/sessions/SessionCreateComponent";
@@ -25,9 +25,9 @@ function CreateSessionContent() {
     const params = useParams();
     const router = useRouter();
     const { user } = useAuth();
-    const { uidLesson, uid: uidTeacher } = params;
+    const { uid: uidTeacher } = params;
     const { t } = useTranslation([ClassSession.NS_COLLECTION, NS_DASHBOARD_MENU, NS_BUTTONS]);
-    const { lesson, setUidLesson, isLoading: isLoadingLesson } = useLessonTeacher();
+    const { lesson, lessons: lessonsTeacher, isLoading: isLoadingLesson, changeLesson } = useLessonTeacher();
     const { create } = useSession();
     const { getOneUser } = useUsers();
     const errorsTranslate = t('errors', { returnObjects: true });
@@ -47,24 +47,63 @@ function CreateSessionContent() {
         return null;
     }, [uidTeacher, getOneUser, user]);
 
-    // Initialiser la session avec uid_lesson et uid_teacher pré-remplis
+    // Référence pour éviter les réinitialisations multiples
+    const initializedRef = useRef(false);
+    const uidTeacherRef = useRef(uidTeacher);
+
+    // Initialiser la session avec uid_teacher pré-rempli
     useEffect(() => {
-        if (uidLesson && uidTeacher && !isLoadingLesson) {
+        // Réinitialiser le flag si uidTeacher change
+        if (uidTeacherRef.current !== uidTeacher) {
+            uidTeacherRef.current = uidTeacher;
+            initializedRef.current = false;
+        }
+
+        if (uidTeacher && !isLoadingLesson && !initializedRef.current && !sessionNew) {
+            initializedRef.current = true;
             const defaultSlot = new ClassSessionSlot({
                 uid_intern: 1,
                 status: ClassSessionSlot.STATUS.OPEN,
             });
             const newSession = new ClassSession({
-                uid_lesson: uidLesson,
                 uid_teacher: uidTeacher,
-                lesson: lesson,
                 teacher: teacher,
                 slots: [defaultSlot],
             });
             setSessionNew(newSession);
-            setUidLesson(uidLesson);
         }
-    }, [uidLesson, uidTeacher, isLoadingLesson, lesson, teacher, setUidLesson]);
+    }, [uidTeacher, isLoadingLesson]);
+
+    // Mettre à jour le lesson dans useLessonTeacher quand uid_lesson change
+    const lastUidLessonRef = useRef(null);
+    useEffect(() => {
+        const currentUidLesson = sessionNew?.uid_lesson;
+        
+        // Éviter les appels multiples pour la même valeur
+        if (lastUidLessonRef.current === currentUidLesson) {
+            return;
+        }
+        
+        if (currentUidLesson && lessonsTeacher?.length > 0) {
+            // Trouver le ClassLessonTeacher correspondant au uid_lesson sélectionné
+            const lessonTeacher = lessonsTeacher.find(lt => lt.uid_lesson === currentUidLesson);
+            if (lessonTeacher) {
+                lastUidLessonRef.current = currentUidLesson;
+                // Mettre à jour le lesson dans useLessonTeacher
+                changeLesson(lessonTeacher.uid);
+            } else {
+                lastUidLessonRef.current = null;
+                // Si aucun ClassLessonTeacher trouvé, réinitialiser
+                changeLesson('', 'create');
+            }
+        } else if (!currentUidLesson) {
+            if (lastUidLessonRef.current !== null) {
+                lastUidLessonRef.current = null;
+                // Si aucun uid_lesson sélectionné, réinitialiser
+                changeLesson('', 'create');
+            }
+        }
+    }, [sessionNew?.uid_lesson, lessonsTeacher?.length]);
 
     // Vérifier si tous les champs requis sont remplis
     const isFormValid = useMemo(() => {
@@ -177,7 +216,7 @@ function CreateSessionContent() {
             // Calculer last_subscribe_time (3 heures avant le début)
             const start_date = sessionNew?.slots?.[0]?.start_date;
             const last_subscribe_time = new Date(start_date);
-            last_subscribe_time.setHours(start_date.getHours() - 3);
+            last_subscribe_time.setHours(last_subscribe_time.getHours() - 3);
             const slot = sessionNew.slots?.[0] || new ClassSessionSlot();
             slot.update({ last_subscribe_time: last_subscribe_time });
             sessionNew.update({ slots: [slot] });
@@ -186,8 +225,8 @@ function CreateSessionContent() {
             const createdSession = await create(sessionNew);
             
             if (createdSession) {
-                // Rediriger vers la page du cours ou afficher un message de succès
-                router.push(`${PAGE_TEACHER_LESSONS(uidTeacher)}/${params.uidSourceLesson}/${uidLesson}`);
+                // Rediriger vers la page des sessions
+                router.push(PAGE_TEACHER_SESSIONS_LIST(uidTeacher));
             }
         } catch (error) {
             console.log("ERROR", error);
@@ -204,15 +243,14 @@ function CreateSessionContent() {
     };
 
     const isAuthorized = useMemo(() => {
-        return user instanceof ClassUserTeacher && lesson?.uid_teacher === user?.uid;
-    }, [user, lesson]);
+        return user instanceof ClassUserTeacher && user?.uid === uidTeacher;
+    }, [user, uidTeacher]);
 
     if (isLoadingLesson) {
         return (
             <TeacherPageWrapper
                 titles={[
-                    { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_TEACHER_LESSONS(uidTeacher) },
-                    { name: lesson?.title || '', url: '' },
+                    { name: t('sessions', { ns: NS_DASHBOARD_MENU }), url: PAGE_TEACHER_SESSIONS_LIST(uidTeacher) },
                     { name: dialogTranslate['title-create-session'], url: '' }
                 ]}
                 isAuthorized={isAuthorized}
@@ -228,8 +266,7 @@ function CreateSessionContent() {
     return (
         <TeacherPageWrapper
             titles={[
-                { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_TEACHER_LESSONS(uidTeacher) },
-                { name: lesson?.title || '', url: '' },
+                { name: t('sessions', { ns: NS_DASHBOARD_MENU }), url: PAGE_TEACHER_SESSIONS_LIST(uidTeacher) },
                 { name: dialogTranslate['title-create-session'], url: '' }
             ]}
             isAuthorized={isAuthorized}
@@ -274,9 +311,5 @@ function CreateSessionContent() {
 }
 
 export default function CreateSessionPage() {
-    return (
-        <UsersProvider>
-            <CreateSessionContent />
-        </UsersProvider>
-    );
+    return <CreateSessionContent />;
 }

@@ -26,6 +26,8 @@ import { LessonTeacherProvider, useLessonTeacher } from '@/contexts/LessonTeache
 import AdminPageWrapper from '@/components/wrappers/AdminPageWrapper';
 import AccordionComponent from '@/components/dashboard/elements/AccordionComponent';
 import TeacherPageWrapper from '@/components/wrappers/TeacherPageWrapper';
+import TeacherHomeComponent from '@/components/teacher/TeacherHomeComponent';
+import { SessionProvider } from '@/contexts/SessionProvider';
 
 
 const STATUS_CONFIG_1 = {
@@ -813,9 +815,18 @@ function ListComponent({ lessons = [], format = "" }) {
     </>
   );
 }
-export default function LessonsPage() {
+export default function TeacherPage() {
+  const { t } = useTranslation([NS_DASHBOARD_HOME, NS_DASHBOARD_MENU]);
+  const { user } = useAuth();
   
-  return (<div>
-    <Typography>OKAY</Typography>
-  </div>)
+  return (
+    <TeacherPageWrapper
+      titles={[{ name: t('dashboard', { ns: NS_DASHBOARD_MENU }), url: '' }]}
+      subtitle={t('teacher-dashboard-subtitle', { ns: NS_DASHBOARD_HOME })}
+      icon={<IconDashboard />}
+      isAuthorized={user instanceof ClassUserTeacher}
+    >
+      <TeacherHomeComponent />
+    </TeacherPageWrapper>
+  );
 }

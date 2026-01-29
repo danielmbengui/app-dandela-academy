@@ -22,12 +22,7 @@ export function LangProvider({ children }) {
     const [lang, setLang] = useState(defaultLanguage);
     const [i18n, setI18n] = useState(null);
     const [classLang, setClassLang] = useState(null);
-    const ALL_LANGUAGES = [
-        new ClassLang({ id: ClassLang.LANGUAGE_FRENCH, name: 'Français', flag: IMAGE_FRENCH_FLAG }),
-        new ClassLang({ id: ClassLang.LANGUAGE_ENGLISH, name: 'Anglais', flag: IMAGE_BRITISH_FLAG }),
-        new ClassLang({ id: ClassLang.LANGUAGE_PORTUGUESE, name: 'Portugais', flag: IMAGE_PORTUGUESE_FLAG }),
-        //new ClassLang({ id: 'de', name: 'Allemand', flag: IMAGE_GERMAN_FLAG }),
-    ]
+    const ALL_LANGUAGES = ClassLang.ALL_LANGUAGES;
     useEffect(() => {
         if (auth) {
             auth.languageCode = lang;

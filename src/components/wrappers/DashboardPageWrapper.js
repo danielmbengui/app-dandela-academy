@@ -27,7 +27,7 @@ import LoginPageWrapper from './LoginPageWrapper';
 import LoginComponent from '../auth/login/LoginComponent';
 import OtherPageWrapper from './OtherPageWrapper';
 import NotAuthorizedComponent from '../auth/NotAuthorizedComponent';
-import { PAGE_ADMIN_LESSONS, PAGE_NOT_AUTHORIZED, PAGE_TEACHER_LESSONS } from '@/contexts/constants/constants_pages';
+import { PAGE_ADMIN_LESSONS, PAGE_NOT_AUTHORIZED, PAGE_TEACHER_HOME, PAGE_TEACHER_LESSONS } from '@/contexts/constants/constants_pages';
 import { useTheme } from '@mui/material/styles';
 import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -179,13 +179,13 @@ function DashboardPageWrapper({ children, titles = [], title = "", subtitle = ""
                     </List>
                 </Stack>
                 {
-                    user instanceof ClassUserTeacher && <Link href={PAGE_TEACHER_LESSONS(user?.uid)} target='_blank'>
-                <ButtonConfirm label={t('manage-data', {ns:NS_BUTTONS})} />
+                    user instanceof ClassUserTeacher && <Link href={PAGE_TEACHER_HOME(user?.uid)} target={isPwa ? '_self' : '_blank'}>
+                <ButtonConfirm label={t('see-app', {ns:NS_BUTTONS})} />
                 </Link>
                 }
                 {
-                    user instanceof ClassUserDandela && <Link href={PAGE_ADMIN_LESSONS(user?.uid)} target='_blank'>
-                <ButtonConfirm isAdmin={true} label={t('manage-data', {ns:NS_BUTTONS})} />
+                    user instanceof ClassUserDandela && <Link href={PAGE_ADMIN_LESSONS(user?.uid)} target={isPwa ? '_self' : '_blank'}>
+                <ButtonConfirm isAdmin={true} label={t('see-app', {ns:NS_BUTTONS})} />
                 </Link>
                 }
             </Stack>

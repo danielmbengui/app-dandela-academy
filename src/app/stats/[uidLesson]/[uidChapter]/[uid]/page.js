@@ -113,7 +113,7 @@ export default function OneStatPage() {
         ]}
         icon={<IconStats height={18} width={18} />}
       >
-        <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 } }}>
+        <Container maxWidth="lg" disableGutters>
           <NotAuthorizedStatComponent />
         </Container>
       </DashboardPageWrapper>
@@ -130,7 +130,7 @@ export default function OneStatPage() {
       ]}
       icon={<IconStats height={18} width={18} />}
     >
-      <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 } }}>
+      <Container maxWidth="lg" disableGutters>
         {isLoadingStats ? (
           <Stack alignItems="center" justifyContent="center" sx={{ py: 8 }}>
             <CircularProgress size={32} />

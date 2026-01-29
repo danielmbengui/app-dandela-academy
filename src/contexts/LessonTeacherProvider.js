@@ -56,7 +56,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
     // écoute du doc utilisateur
     const listenToLessons = useCallback((uidSourceLesson = "", uidTeacher = "") => {
         //if(!user) return;
-        console.log("start lessons teacher")
         const colRef = ClassLessonTeacher.colRef(); // par ex.
         var constraints = [where("enabled", "==", true)];
         if (path.includes('admin')) {
@@ -81,7 +80,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
             : colRef;
         const snapshotLessons = onSnapshot(q, async (snap) => {
             // snap est un QuerySnapshot
-            console.log("Snap is empty", snap.empty)
             if (snap.empty) {
                 setLessons([]);
                 setLesson(null);
@@ -131,7 +129,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                     });
                     //lesson_new.translate = translate;
                     //lesson_new.teacher = teacher;
-                    //console.log("lessons list provider", lesson_new)
                     _lessons.push(lesson_new);
                 }
                 /*
@@ -146,11 +143,10 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 });
                 */
                 //_lessons = _lessons.sort((a, b) => a.uid_intern - b.uid_intern);
-                console.log("lesson teacher provieder", _lessons)
                 setLessons(_lessons);
                 setIsLoading(false);
             } catch (error) {
-                console.log("ERRROR", error)
+                // Error handled silently
             }
         });
         return snapshotLessons;
@@ -221,7 +217,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 //prev.room = room;
                 return prev.clone();
             });
-            console.log("one lesson teacher provider", lesson_new.clone())
             //setIsConnected(true);
             setIsLoading(false);
             //setUser(fbUser);
@@ -261,7 +256,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -284,7 +278,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -306,7 +299,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);

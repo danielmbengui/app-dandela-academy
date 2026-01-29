@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo } from 'react';
 import { IconSearch, IconSession } from "@/assets/icons/IconsComponent";
-import { NS_BUTTONS, NS_COMMON, NS_DASHBOARD_MENU, NS_LANGS, NS_SESSIONS } from "@/contexts/i18n/settings";
+import { NS_BUTTONS, NS_COMMON, NS_DASHBOARD_MENU, NS_LANGS, NS_SESSIONS, NS_LEVELS } from "@/contexts/i18n/settings";
 import { useThemeMode } from "@/contexts/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/contexts/AuthProvider';
@@ -9,7 +9,7 @@ import DashboardPageWrapper from '@/components/wrappers/DashboardPageWrapper';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 import SelectComponentDark from '@/components/elements/SelectComponentDark';
 import { ClassUser } from '@/classes/users/ClassUser';
-import { formatDuration, getFormattedDateComplete, getFormattedDateNumeric } from '@/contexts/functions';
+import { formatDuration, getFormattedDateComplete, getFormattedDateNumeric, getFormattedHour } from '@/contexts/functions';
 import { useLanguage } from '@/contexts/LangProvider';
 import FieldComponent from '@/components/elements/FieldComponent';
 import { ClassSession, ClassSessionSlot } from '@/classes/ClassSession';
@@ -22,9 +22,9 @@ import { useSession } from '@/contexts/SessionProvider';
 import { useLesson } from '@/contexts/LessonProvider';
 import { ChapterProvider, useChapter } from '@/contexts/ChapterProvider';
 import Image from 'next/image';
-import { ClassColor } from '@/classes/ClassColor';
 import Link from 'next/link';
 import { where } from 'firebase/firestore';
+import { useLessonTeacher } from '@/contexts/LessonTeacherProvider';
 
 const TABLE_SPACE = `grid-template-columns:
             minmax(0, 0.5fr)
@@ -38,9 +38,7 @@ const TABLE_SPACE = `grid-template-columns:
 function SessionsComponent() {
   const router = useRouter();
   const { lang } = useLanguage();
-  const { theme } = useThemeMode();
-  const { text, cardColor } = theme.palette;
-  const { t } = useTranslation([ClassSession.NS_COLLECTION, NS_SESSIONS, NS_COMMON, ClassLesson.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION, NS_LANGS]);
+  const { t } = useTranslation([ClassSession.NS_COLLECTION, NS_SESSIONS, NS_COMMON, ClassLesson.NS_COLLECTION, ClassLessonChapter.NS_COLLECTION, NS_LANGS, NS_LEVELS]);
   const { sessions, isLoading } = useSession();
   const { lessons } = useLesson();
   const [sessionsFilter, setSessionsFilter] = useState([]);
@@ -427,7 +425,7 @@ function SessionsComponent() {
           min-height: 100vh;
           width:100%;
           padding:0;
-          color: ${text.main};
+          color: var(--font-color);
         }
 
         .container {
@@ -437,7 +435,7 @@ function SessionsComponent() {
         }
 
         .card {
-          background: ${cardColor.main};
+          background: var(--card-color);
           border-radius: 16px;
           border: 0.1px solid var(--card-border);
           padding: 0;
@@ -452,10 +450,10 @@ function SessionsComponent() {
           font-size: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.06em;
-          color: white;
+          color: var(--font-color);
           font-weight: 500;
           border-bottom: 0.1px solid var(--card-border);
-          background: var(--blackColor);
+          background: var(--background-menu);
         }
 
         @media (max-width: 900px) {
@@ -479,7 +477,7 @@ function SessionsComponent() {
           padding: 16px;
           text-align: center;
           font-size: 0.9rem;
-          color: #9ca3af;
+          color: var(--grey-light);
         }
       `}</style>
     </div>
@@ -487,12 +485,16 @@ function SessionsComponent() {
 }
 
 function SessionRow({ session = null, lastChild = false }) {
-  const { theme } = useThemeMode();
-  const { greyLight, cardColor, text } = theme.palette;
   const { lang } = useLanguage();
-  const { t } = useTranslation([ClassSession.NS_COLLECTION, ClassLesson.NS_COLLECTION, NS_LANGS, NS_COMMON]);
-  
+  const { t } = useTranslation([ClassSession.NS_COLLECTION, ClassLesson.NS_COLLECTION, NS_LANGS, NS_COMMON, NS_LEVELS]);
+  const {getOneLesson} = useLessonTeacher();
   // Trouver le premier slot disponible ou le plus récent
+  const lesson = useMemo(() => {
+    if (!session?.uid_lesson) return null;
+    // Prioriser les slots ouverts
+    const _lesson = getOneLesson(session?.uid_lesson);
+    return _lesson;
+  }, [session]);
   const mainSlot = useMemo(() => {
     if (!session?.slots || session.slots.length === 0) return null;
     // Prioriser les slots ouverts
@@ -517,10 +519,10 @@ function SessionRow({ session = null, lastChild = false }) {
       <div className={`row ${lastChild ? 'last-child' : ''}`}>
         {/* Image */}
         <div className="cell cell-image">
-          {session?.lesson?.translate?.photo_url && (
+          {lesson?.photo_url && (
             <Box sx={{ background: '', width: { sm: '50%' } }}>
               <Image
-                src={session.lesson.translate.photo_url}
+                src={lesson?.photo_url}
                 alt={`session-${session.uid}`}
                 quality={100}
                 width={300}
@@ -543,7 +545,7 @@ function SessionRow({ session = null, lastChild = false }) {
             <p className="session-name">{session.code || session.title || t('session', { ns: ClassSession.NS_COLLECTION })}</p>
             <p className="session-id">{session.lesson?.translate?.title || session.lesson?.title}</p>
             {session.teacher && (
-              <p className="session-teacher" style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px' }}>
+              <p className="session-teacher" style={{ fontSize: '0.75rem', color: 'var(--grey-light)', marginTop: '4px' }}>
                 {t('teacher', { ns: NS_COMMON })}: {session.teacher.name || session.teacher.email}
               </p>
             )}
@@ -556,8 +558,8 @@ function SessionRow({ session = null, lastChild = false }) {
             <p className="lesson-name">{session.lesson?.translate?.title || session.lesson?.title}</p>
             <p className="lesson-category">{t(session.lesson?.category, { ns: ClassLesson.NS_COLLECTION })}</p>
             {mainSlot && (
-              <p className="lesson-level" style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px' }}>
-                {t('level', { ns: NS_COMMON })}: {t(mainSlot.level)}
+              <p className="lesson-level" style={{ fontSize: '0.75rem', color: 'var(--grey-light)', marginTop: '4px' }}>
+                {t('level', { ns: NS_COMMON })}: {t(mainSlot.level, { ns: NS_LEVELS })}
               </p>
             )}
           </div>
@@ -571,7 +573,7 @@ function SessionRow({ session = null, lastChild = false }) {
                 {getFormattedDateNumeric(mainSlot.start_date, lang)}
               </p>
               <p className="text-sub">
-                {getFormattedDateNumeric(mainSlot.end_date, lang)}
+                {getFormattedHour(mainSlot.start_date, lang)} - {getFormattedHour(mainSlot.end_date, lang)}
               </p>
               {mainSlot.duration > 0 && (
                 <p className="text-sub" style={{ marginTop: '4px' }}>
@@ -587,10 +589,10 @@ function SessionRow({ session = null, lastChild = false }) {
         {/* Format */}
         <div className="cell cell-format">
           {formatConfig ? (
-            <Stack direction={'row'} alignItems={'center'} spacing={0.5} flexWrap="wrap">
+            <Stack direction={'column'} alignItems={'start'} spacing={1} flexWrap="wrap">
               <BadgeFormatLesson format={mainSlot.format} />
               {mainSlot.location && (
-                <Typography sx={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: 'var(--grey-light)'}}>
                   {mainSlot.location}
                 </Typography>
               )}
@@ -615,7 +617,7 @@ function SessionRow({ session = null, lastChild = false }) {
                 {t(mainSlot.status, { ns: ClassSession.NS_COLLECTION })}
               </div>
               {mainSlot.seats_availables_onsite > 0 && (
-                <Typography sx={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: 'var(--grey-light)' }}>
                   {t('seats', { ns: ClassSession.NS_COLLECTION })}: {mainSlot.seats_availables_onsite}
                 </Typography>
               )}
@@ -633,7 +635,7 @@ function SessionRow({ session = null, lastChild = false }) {
           gap: 8px;
           padding: 10px 16px;
           font-size: 0.85rem;
-          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          border-bottom: 0.1px solid var(--card-border);
           align-items: center;
         }
 
@@ -657,13 +659,14 @@ function SessionRow({ session = null, lastChild = false }) {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          color: var(--font-color);
         }
 
         .session-id,
         .lesson-category {
           margin: 0;
           font-size: 0.75rem;
-          color: #6b7280;
+          color: var(--grey-light);
         }
 
         .text-main {
@@ -671,12 +674,13 @@ function SessionRow({ session = null, lastChild = false }) {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          color: var(--font-color);
         }
 
         .text-sub {
           margin: 0;
           font-size: 0.75rem;
-          color: #6b7280;
+          color: var(--grey-light);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;

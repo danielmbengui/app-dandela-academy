@@ -276,7 +276,7 @@ export default function LoginComponent() {
                     }
                 }}
                 startIcon={<IconGoogleColor height={22} />}>
-                    {"Continuer avec Google"}
+                    {t('btn-google')}
                 </Button>
             </Stack>
         }

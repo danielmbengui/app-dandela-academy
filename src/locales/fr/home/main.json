@@ -9,7 +9,7 @@
     "btn-create":"Créer un compte"
   },
   "already-connected": {
-    "message":"<div>Bonjour <b>{{email}}</b> tu es déjà connecté à ton compte.</div>",
+    "message":"<div>Bonjour <b>{{email}}</b>, vous êtes déjà connecté(e) à votre compte.</div>",
     "btn-dashboard":"Accéder à mon espace"
   }
 }

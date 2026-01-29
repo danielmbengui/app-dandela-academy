@@ -409,7 +409,8 @@ function LessonRow({ lesson = null, lastChild = false }) {
             <p className="text-sub" style={{
               marginLeft: "1px",
               fontSize: '0.75rem',
-              color: '#6b7280',
+              color: 'var(--font-color)',
+              opacity: 0.7,
             }}>{t('certified')}</p>
           </Stack>
         </div>
@@ -423,7 +424,7 @@ function LessonRow({ lesson = null, lastChild = false }) {
           gap: 8px;
           padding: 10px 16px;
           font-size: 0.85rem;
-          border-bottom: 0.1px solid ${ClassColor.GREY_HYPER_LIGHT};
+          border-bottom: 0.1px solid var(--card-border);
           align-items: center;
         }
 
@@ -449,6 +450,7 @@ function LessonRow({ lesson = null, lastChild = false }) {
         .user-name {
           margin: 0;
           font-weight: 500;
+          color: var(--font-color);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -457,11 +459,13 @@ function LessonRow({ lesson = null, lastChild = false }) {
         .user-id {
           margin: 0;
           font-size: 0.75rem;
-          color: #6b7280;
+          color: var(--font-color);
+          opacity: 0.7;
         }
 
         .text-main {
           margin: 0;
+          color: var(--font-color);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -470,7 +474,8 @@ function LessonRow({ lesson = null, lastChild = false }) {
         .text-sub {
           margin: 0;
           font-size: 0.75rem;
-          color: #6b7280;
+          color: var(--font-color);
+          opacity: 0.7;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -514,9 +519,9 @@ function LessonRow({ lesson = null, lastChild = false }) {
         .mini-btn {
           border-radius: 999px;
           padding: 4px 8px;
-          border: 1px solid #374151;
-          background: #020617;
-          color: #e5e7eb;
+          border: 1px solid var(--card-border);
+          background: var(--card-color);
+          color: var(--font-color);
           font-size: 0.75rem;
           cursor: pointer;
           margin-right: 4px;

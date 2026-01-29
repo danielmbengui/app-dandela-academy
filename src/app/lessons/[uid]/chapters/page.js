@@ -18,18 +18,18 @@ const CardHeader = () => {
     const { lesson } = useLesson();
     const chipHeader = {
         color: "var(--font-color)",
-        bgcolor: "rgba(255,255,255,0.12)",
+        bgcolor: "var(--primary-shadow-xs)",
         borderColor: "var(--card-border)",
         fontWeight: 900,
     };
-    return (<Stack sx={{ background: '', width: '100%' }}>
+    return (<Stack sx={{ background: 'transparent', width: '100%' }}>
         <Grid container>
             <Grid size={{ xs: 12, sm: 6 }}>
                 <Box>
-                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5 }}>
+                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, my: 0.5, color: "var(--font-color)" }}>
                         {lesson?.translate?.title}
                     </Typography>
-                    <Typography variant="body1" sx={{ color: "text.secondary" }}>
+                    <Typography variant="body1" sx={{ color: "var(--grey-light)" }}>
                     {lesson?.translate?.subtitle}
                     </Typography>
                     <Box sx={{py:0.5}}>
@@ -59,7 +59,7 @@ export default function ChaptersPage() {
         //subtitle={lesson?.translate?.subtitle}
         icon={<IconLessons />}
     >
-        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: '' }}>
+        <Container maxWidth="lg" disableGutters sx={{ p: 0, background: 'transparent' }}>
             {
                 <Grid container spacing={1}>
                     <Grid size={12}>

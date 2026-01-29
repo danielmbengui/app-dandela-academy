@@ -126,7 +126,6 @@ export function AuthProvider({ children }) {
             async function init() {
                 //set(ref(database, `status/${user?.uid}`), { last_connexion_time:serverTimestamp(),logged: true });
               //  const token = await getIdToken(auth.currentUser);
-               // console.log("TOOOKE", token)
                 //Cookies.set("token", token, { secure: false });
             }
             init();
@@ -203,7 +202,6 @@ export function AuthProvider({ children }) {
                 await updateDoc(ref, { email_verified: fbUser.emailVerified });
             }
             const _user = data;
-            console.log("change auth provider", _user)
             setUser(prev => {
                 if (!prev || prev === null) return _user.clone();
                 prev = _user.clone();
@@ -263,7 +261,6 @@ export function AuthProvider({ children }) {
                 //setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             //setIsLoading(false);
@@ -412,7 +409,6 @@ export function AuthProvider({ children }) {
             } else if (errorCode === ClassUser.ERROR.TOO_MANY_REQUESTS) {
                 errorMessage = translateWithVars(t(`${NS_ERRORS}:wrong-password`), { password: password });
             }
-            console.log("ERRRRRROR", errorCode, errorMessage, email, password);
             setUser(null);
             setIsConnected(false);
             //setIsErrorSignIn(false);
@@ -460,7 +456,6 @@ export function AuthProvider({ children }) {
             await verifyBeforeUpdateEmail(auth.currentUser, newEmail, actionCodeSettings);
         }).catch((error) => {
             // An error ocurred
-            console.log("ERRRROR", error)
             // ...
         });
     }
@@ -472,7 +467,7 @@ export function AuthProvider({ children }) {
             const ref = doc(firestore, ClassUser.COLLECTION, uid);
             await updateDoc(ref, { default_password: '', password_changed: true });
         }).catch((error) => {
-            console.log("ERRRROR password", error);
+            // Error handled silently
         });
     }
     const sendVerification = async () => {

@@ -1,6 +1,8 @@
 {
     "beginner": "Beginner",
     "intermediate": "Intermediate",
-    "advanced": "Advanced"
+    "competent": "Competent",
+    "advanced": "Advanced",
+    "expert": "Expert"
   }
   

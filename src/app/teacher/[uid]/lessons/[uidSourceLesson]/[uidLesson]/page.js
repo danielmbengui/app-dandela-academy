@@ -34,8 +34,13 @@ export default function TeacherOneLessonUpdatePage() {
         }
     }, [uidLesson, isLoadingLessons, setUidLesson]);
     const isAuthorized = useMemo(() => {
+        // Si on charge encore, on retourne null pour indiquer qu'on ne sait pas encore
+        if (isLoadingLessons || !lesson) {
+            return null;
+        }
+        // Une fois chargé, on vérifie l'autorisation
         return user instanceof ClassUserTeacher && lesson?.uid_teacher === user?.uid;
-    }, [user, lesson]);
+    }, [user, lesson, isLoadingLessons]);
     return (<TeacherPageWrapper
         titles={[
             { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_TEACHER_LESSONS(user?.uid) },
@@ -46,7 +51,7 @@ export default function TeacherOneLessonUpdatePage() {
         isAuthorized={isAuthorized}
         icon={<IconLessons />}
     >
-        <Stack spacing={2} sx={{ width: '100%' }}>
+        <Stack spacing={2} sx={{ width: '100%' }} alignItems={'center'} justifyContent={'center'}>
             {!isLoadingLessons && isAuthorized && (
                 <Stack spacing={1} direction="row" justifyContent="start" sx={{ width: '100%' }}>
                     <Link 
@@ -68,7 +73,7 @@ export default function TeacherOneLessonUpdatePage() {
                 </Stack>
             )}
             {
-                isLoadingLessons && <CircularProgress size={'16px'} color="warning" />
+                isLoadingLessons && <CircularProgress size={'16px'} color="primary" />
             }
             {
                 !isLoadingLessons && isAuthorized && <LessonTeacherEditComponent />

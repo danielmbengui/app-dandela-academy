@@ -126,6 +126,7 @@ export class ClassSession {
         title = "",
         title_normalized = "",
         price = 0,
+        old_price = 0,
         currency = "",
         start_date = null,
         end_date = null,
@@ -200,6 +201,9 @@ export class ClassSession {
 
     get price() { return this._price; }
     set price(value) { this._price = value; }
+
+    get old_price() { return this._old_price; }
+    set old_price(value) { this._old_price = value; }
 
     get currency() { return this._currency; }
     set currency(value) { this._currency = value; }
@@ -729,9 +733,9 @@ export class ClassSessionSlot {
         this._lang = lang || defaultLanguage;
         this._start_date = ClassSession._toJsDate(start_date);
         this._end_date = ClassSession._toJsDate(end_date);
-        this._duration = duration;
-        this._seats_availables_onsite = seats_availables_onsite;
-        this._seats_availables_online = seats_availables_online;
+        this._duration = parseFloat(duration) || 0;
+        this._seats_availables_onsite = parseInt(seats_availables_onsite) || 0;
+        this._seats_availables_online = parseInt(seats_availables_online) || 0;
         this._status = status;
         this._location = location;
         this._url = url;
@@ -763,13 +767,13 @@ export class ClassSessionSlot {
     set end_date(value) { this._end_date = value; }
 
     get duration() { return this._duration; }
-    set duration(value) { this._duration = value; }
+    set duration(value) { this._duration = parseFloat(value) || 0; }
 
     get seats_availables_onsite() { return this._seats_availables_onsite; }
-    set seats_availables_onsite(value) { this._seats_availables_onsite = value; }
+    set seats_availables_onsite(value) { this._seats_availables_onsite = parseInt(value) || 0; }
 
     get seats_availables_online() { return this._seats_availables_online; }
-    set seats_availables_online(value) { this._seats_availables_online = value; }
+    set seats_availables_online(value) { this._seats_availables_online = parseInt(value) || 0; }
 
     get status() { return this._status; }
     set status(value) { this._status = value; }
@@ -889,7 +893,12 @@ export class ClassSessionSlot {
     update(props = {}) {
         for (const key in props) {
             if (Object.prototype.hasOwnProperty.call(this, `_${key}`) && props[key] !== undefined) {
-                this[`_${key}`] = props[key];
+                // Utiliser le setter si disponible pour appliquer les conversions de type
+                if (typeof this[key] !== 'undefined' || key in this) {
+                    this[key] = props[key];
+                } else {
+                    this[`_${key}`] = props[key];
+                }
             }
         }
     }

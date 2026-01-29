@@ -68,5 +68,19 @@
   "chapters-to-complete": "Chapters to complete",
   "no-results": "No results available",
   "no-data": "No data available",
-  "all-chapters-completed": "All chapters are completed! 🎉"
+  "all-chapters-completed": "All chapters are completed! 🎉",
+  "teacher-dashboard-subtitle": "Manage your created courses, sessions and more",
+  "total-courses-created": "Total courses created",
+  "total-sessions": "Total sessions",
+  "sessions-to-come": "Sessions to come",
+  "completed-sessions": "Completed sessions",
+  "upcoming-sessions": "Upcoming sessions",
+  "past-sessions": "Past sessions",
+  "my-courses": "My courses",
+  "no-courses-created": "No courses created yet",
+  "no-upcoming-sessions": "No upcoming sessions",
+  "create-course": "Create a course",
+  "create-course-desc": "Create a new course for your students",
+  "manage-sessions": "Manage sessions",
+  "manage-sessions-desc": "Organize and manage your course sessions"
 }

@@ -4,5 +4,6 @@
   "back_to_list": "Voltar às sessões",
   "not_found": "Sessão não encontrada",
   "login_to_subscribe": "Inicia sessão para te inscreveres nesta sessão",
-  "slot_subscribe_before": "Inscrição possível até {{date}} às {{hour}}"
+  "slot_subscribe_before": "Inscrição possível até {{date}} às {{hour}}",
+  "subscribe_deadline": "Data limite de inscrição"
 }

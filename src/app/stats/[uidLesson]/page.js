@@ -502,7 +502,7 @@ export default function StatsLessonsPage() {
       ]}
       icon={<IconStats height={18} width={18} />}
     >
-      <Container maxWidth="lg" disableGutters sx={{ px: { xs: 1, sm: 2 }, py: 2, background: 'transparent' }}>
+      <Container maxWidth="lg" disableGutters>
         {isLoadingStats ? (
           <Stack alignItems={'center'} sx={{ py: 4 }}>
             <CircularProgress size={24} sx={{ color: 'var(--primary)' }} />

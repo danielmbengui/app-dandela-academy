@@ -1,6 +1,4 @@
 import { IconHome } from "@/assets/icons/IconsComponent";
-import { ClassColor } from "@/classes/ClassColor";
-import { useThemeMode } from "@/contexts/ThemeProvider";
 import { Button } from "@mui/material";
 import React from "react";
 
@@ -22,8 +20,6 @@ import React from "react";
 */
 export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color = 'primary', loading = false, disabled = false, onClick = null, fullWidth = false, size = 'small',
   variant = 'contained',icon=null,sx={}, ...props }) {
-  const { theme } = useThemeMode();
-  const { primary, background, greyLight } = theme.palette;
   return (<Button
     //disableElevation
     variant={variant}
@@ -40,26 +36,21 @@ export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color
       }
     }}
     sx={{
-      //border: `1px solid ${primary.main}`,
       textTransform: 'none',
       borderRadius: '999px',
       padding: '8px 14px',
-      //border: '1px solid #374151',
-      //background: primary.main,
-      //color: background.main,
-      color: "var(--card-color)",
+      color: variant === 'outlined' ? 'var(--primary)' : 'var(--font-reverse-color)',
       fontSize: '0.9rem',
       height: size === 'small' ? '30px' : size === 'medium' ? '35px' : '40px',
       maxHeight: size === 'small' ? '30px' : size === 'medium' ? '40px' : '50px',
-      //cursor: 'pointer',
+      borderColor: variant === 'outlined' ? 'var(--primary)' : 'transparent',
       '&:hover': {
-        //bgcolor: 'primary.dark',
-        //background: '#1d4ed8',
-        //color: primary.main,
+        borderColor: variant === 'outlined' ? 'var(--primary)' : 'transparent',
       },
       '&.Mui-disabled': {
-        bgcolor: greyLight.main,
-        color: background.main,
+        bgcolor: 'var(--grey-light)',
+        color: 'var(--font-color)',
+        borderColor: 'var(--card-border)',
       },
       ...sx
     }}

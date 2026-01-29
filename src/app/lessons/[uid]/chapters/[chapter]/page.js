@@ -1506,7 +1506,7 @@ export default function ExcelBeginnerCoursePage() {
         //subtitle={lesson?.translate?.subtitle}
         icon={<IconLessons />}
     >
-        <Container maxWidth="lg" disableGutters sx={{ px: { xs: 1, sm: 2 }, py: 2, background: 'transparent' }}>
+        <Container maxWidth="lg" disableGutters>
             <Stack spacing={3}>
                 <CardHeader lesson={lesson} chapter={chapter} />
                 

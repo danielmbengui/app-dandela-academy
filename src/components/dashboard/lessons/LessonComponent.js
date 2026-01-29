@@ -149,7 +149,7 @@ function SlotRow({ slot = null }) {
           boxShadow: `0px 0px 12px ${colorSlot?.glow}`,
         }} />
         <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--font-color)' }}>{`${session?.code} (${session?.uid_intern})`}</Typography>
-        <Typography variant="caption" sx={{ fontSize: '0.85rem', color: 'var(--grey-light)' }}>{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
+        <Typography variant="caption" sx={{ fontSize: '0.85rem', color: 'var(--font-color)', opacity: 0.7 }}>{`${getFormattedDateNumeric(slot?.start_date)} ${getFormattedHour(slot?.start_date)}-${getFormattedHour(slot?.end_date)}`}</Typography>
         <Box
           onClick={() => {
             setMode('read');
@@ -182,134 +182,24 @@ function SlotRow({ slot = null }) {
       }
       .slot-row:hover {
         background: var(--card-color);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transform: translateX(4px);
       }
       .slot-dot {
         width: 8px;
         height: 8px;
-        borderRadius: 999px;
+        border-radius: 999px;
         flex-shrink: 0;
       }
       .slot-view-icon {
         margin-left: auto;
-        color: var(--grey-light);
+        color: var(--font-color);
+        opacity: 0.6;
+      }
+      .slot-view-icon:hover {
+        opacity: 1;
       }
     `}</style>
-  </>)
-}
-function NextSessionsComponent() {
-  const { t } = useTranslation([NS_LESSONS_ONE]);
-  const { slots } = useSession();
-  const today = new Date();
-
-  return (<>
-    <div className="hero-right-top">
-      <Stack spacing={1.5}>
-        <p className="teacher-label">{t('next-sessions')}</p>
-        <Stack spacing={0.5}>
-          {
-            slots.filter(slot => slot.start_date.getTime() > today.getTime())
-              .sort((a, b) => a.start_date.getTime() - b.start_date.getTime())
-              .map((slot, i) => {
-                return (<div key={`${slot.uid_session}-${slot.uid_intern}-${i}`}>
-                  <SlotRow slot={slot} />
-                </div>)
-              })
-          }
-          {
-            slots.filter(slot => slot.start_date.getTime() > today.getTime()).length === 0 && <Stack sx={{ color: 'var(--grey-light)', fontSize: '0.9rem', py: 2 }}>
-              {t('next-sessions-not')}
-            </Stack>
-
-          }
-        </Stack>
-      </Stack>
-    </div>
-    <style jsx>{`
-                  .hero-right-top {
-                  border-radius: 16px;
-                  border: 1px solid var(--card-border);
-                  padding: 20px;
-                  background: var(--card-color);
-                  transition: all 0.3s ease;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                }
-                .hero-right-top:hover {
-                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-                  transform: translateY(-2px);
-                }
-                                  .teacher-label {
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  color: var(--font-color);
-                  letter-spacing: -0.01em;
-                }
-                .teacher-label-text {
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  color: var(--font-color);
-                  margin-bottom: 12px;
-                  letter-spacing: -0.01em;
-                }
-  `}</style>
-  </>)
-}
-function PreviousSessionsComponent() {
-  const { t } = useTranslation([NS_LESSONS_ONE]);
-  const { slots } = useSession();
-  const today = new Date();
-
-  return (<>
-    <div className="hero-right-top">
-      <Stack spacing={1.5}>
-        <p className="teacher-label">{t('previous-sessions')}</p>
-        <Stack spacing={0.5}>
-          {
-            slots.filter(slot => slot.start_date.getTime() <= today.getTime())
-              .sort((a, b) => a.start_date.getTime() - b.start_date.getTime())
-              .map((slot, i) => {
-                return (<div key={`${slot.uid_session}-${slot.uid_intern}-${i}`}>
-                  <SlotRow slot={slot} />
-                </div>)
-              })
-          }
-          {
-            slots.filter(slot => slot.start_date.getTime() <= today.getTime()).length === 0 && <Stack sx={{ color: 'var(--grey-light)', fontSize: '0.9rem', py: 2 }}>
-              {t('previous-sessions-not')}
-            </Stack>
-
-          }
-        </Stack>
-      </Stack>
-    </div>
-    <style jsx>{`
-                  .hero-right-top {
-                  border-radius: 16px;
-                  border: 1px solid var(--card-border);
-                  padding: 20px;
-                  background: var(--card-color);
-                  transition: all 0.3s ease;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                }
-                .hero-right-top:hover {
-                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-                  transform: translateY(-2px);
-                }
-                                  .teacher-label {
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  color: var(--font-color);
-                  letter-spacing: -0.01em;
-                }
-                .teacher-label-text {
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  color: var(--font-color);
-                  margin-bottom: 12px;
-                  letter-spacing: -0.01em;
-                }
-  `}</style>
   </>)
 }
 

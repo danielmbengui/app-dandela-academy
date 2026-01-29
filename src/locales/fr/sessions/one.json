@@ -4,5 +4,6 @@
   "back_to_list": "Retour aux sessions",
   "not_found": "Session introuvable",
   "login_to_subscribe": "Connecte-toi pour t'inscrire à cette session",
-  "slot_subscribe_before": "Inscription possible jusqu'au {{date}} à {{hour}}"
+  "slot_subscribe_before": "Inscription possible jusqu'au {{date}} à {{hour}}",
+  "subscribe_deadline": "Date limite d'inscription"
 }

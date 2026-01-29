@@ -1,6 +1,7 @@
 {
   "uid": "Identifier",
   "uid_intern": "Number",
+  "chapter": "Chapter",
   "duration": "Estimated duration: {{start}} to {{end}} hours",
   "duration_short": "{{start}} to {{end}} hours",
   "level": "Level",

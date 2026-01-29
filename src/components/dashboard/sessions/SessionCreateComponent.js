@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { ClassLesson, ClassLessonTeacher, ClassLessonTranslate } from "@/classes/ClassLesson";
 import { formatDuration, formatPrice, getFormattedDate, getFormattedDateComplete, getFormattedDateCompleteNumeric, getFormattedDateNumeric, getFormattedHour, translateWithVars } from "@/contexts/functions";
 import { languages, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS } from "@/contexts/i18n/settings";
@@ -317,22 +317,19 @@ function CardFormat({ slot = null, setSession = null, format = "", session = nul
         .seats-sub {
           margin: 2px 0 4px;
           font-size: 0.78rem;
-          color: #9ca3af;
+          color: var(--grey-dark);
         }
         .seats-bar {
           width: 100%;
           height: 7px;
           border-radius: 999px;
-          background: #020617;
-          border: 1px solid #111827;
-          border: 1px solid var(--card-bord);
-          background: linear-gradient(90deg, #22c55e, #16a34a);
+          background: var(--card-color);
+          border: 1px solid var(--card-border);
           overflow: hidden;
         }
         .seats-fill {
           height: 100%;
           background: linear-gradient(90deg, #22c55e, #16a34a);
-          background: red;
         }`}
     </style>
   </Grid>)
@@ -386,11 +383,57 @@ function RenderContent({ mode = 'create',
     open: false,
     setOpen: null
   });
-  const defaultSession = new ClassSession({ slots: [slot] });
+  
+  // Synchroniser slot avec sessionNew.slots[0] seulement quand nécessaire
+  const currentSlotRef = useRef(null);
   useEffect(() => {
-    if (mode === 'create') {
-      setSessionNew(defaultSession);
-    } else {
+    if (sessionNew?.slots?.[0]) {
+      const currentSlot = sessionNew.slots[0];
+      const slotKey = `${currentSlot.uid_intern}-${currentSlot.start_date?.getTime()}-${currentSlot.duration}-${currentSlot.format}-${currentSlot.lang}-${currentSlot.level}`;
+      
+      if (currentSlotRef.current !== slotKey) {
+        currentSlotRef.current = slotKey;
+        const needsUpdate = 
+          currentSlot.uid_intern !== slot.uid_intern || 
+          currentSlot.start_date?.getTime() !== slot.start_date?.getTime() ||
+          currentSlot.duration !== slot.duration ||
+          currentSlot.format !== slot.format ||
+          currentSlot.lang !== slot.lang ||
+          currentSlot.level !== slot.level;
+        
+        if (needsUpdate) {
+          setSlot(new ClassSessionSlot(currentSlot));
+        }
+      }
+    } else if (!sessionNew && slot?.uid_intern) {
+      // Réinitialiser slot si sessionNew est null seulement si nécessaire
+      const resetKey = `reset-${initStartDate?.getTime() || 'default'}`;
+      if (currentSlotRef.current !== resetKey) {
+        currentSlotRef.current = resetKey;
+        setSlot(new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate }));
+      }
+    }
+  }, [sessionNew?.slots?.[0]?.uid_intern, sessionNew?.slots?.[0]?.start_date?.getTime(), sessionNew?.slots?.[0]?.duration, sessionNew?.slots?.[0]?.format, sessionNew?.slots?.[0]?.lang, sessionNew?.slots?.[0]?.level]);
+
+  // Initialiser sessionNew seulement au montage ou quand mode change
+  // Ne pas réinitialiser si sessionNew est déjà défini par le parent
+  const modeRef = useRef(mode);
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (modeRef.current !== mode) {
+      modeRef.current = mode;
+      initializedRef.current = false;
+    }
+    // Ne créer une nouvelle session que si elle n'existe pas déjà (laissé au parent de l'initialiser)
+    // Vérifier sessionNew via une fonction pour éviter de l'ajouter aux dépendances
+    if (mode === 'create' && !sessionNew && !initializedRef.current && setSessionNew) {
+      initializedRef.current = true;
+      const initialSlot = new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate });
+      const newDefaultSession = new ClassSession({ slots: [initialSlot] });
+      setSessionNew(newDefaultSession);
+      setSlot(initialSlot);
+    } else if (mode !== 'create' && sessionNew && setSessionNew) {
+      initializedRef.current = false;
       setSessionNew(null);
     }
   }, [mode]);
@@ -403,7 +446,6 @@ function RenderContent({ mode = 'create',
     newDate.setHours(newDate.getHours() + hours);
     newDate.setMinutes(newDate.getMinutes() + minutes);
     newDate.setSeconds(0);
-    // console.log("DURATION",day, slot.start_date, value, newDate, newDate.getHours());
     return newDate;
   }
 
@@ -411,11 +453,12 @@ function RenderContent({ mode = 'create',
     const { value, name, type, property } = e.target;
     setErrors(prev => ({ ...prev, [name]: '', main: '' }));
     setSessionNew(prev => {
-      if (!prev || prev === null) return defaultSession;
-      //IF SESSION
-      //onChange={(e)=>onChangeValue(e, 'session')}
-      //console.log("PROPE", time, time?.getHours(), time?.getMinutes());
-      //const slot = prev.slots[0] || new ClassSessionSlot();
+      if (!prev || prev === null) {
+        const initialSlot = new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate });
+        return new ClassSession({ slots: [initialSlot] });
+      }
+      const currentSlot = prev.slots[0] || new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN });
+      const newSlot = new ClassSessionSlot(currentSlot);
       const hours = time?.getHours() || 0;
       const minutes = time?.getMinutes() || 0;
       var date = value ? new Date(value) : null;
@@ -424,10 +467,9 @@ function RenderContent({ mode = 'create',
         date.setMinutes(minutes);
         date.setSeconds(0);
       }
-      const endDate = calculateEndDate(date, slot?.duration);
-      slot.update({ [name]: date, end_date: endDate });
-      prev.update({ slots: [slot] });
-      //console.log("VALUE", prev, prev.clone())
+      const endDate = calculateEndDate(date, newSlot.duration);
+      newSlot.update({ [name]: date, end_date: endDate });
+      prev.update({ slots: [newSlot] });
       return prev.clone();
     });
   }
@@ -435,22 +477,22 @@ function RenderContent({ mode = 'create',
     const { value, name, } = e.target;
     setErrors(prev => ({ ...prev, [name]: '' }));
     setSessionNew(prev => {
-      if (!prev || prev === null) return defaultSession;
-      //IF SESSION
-      //onChange={(e)=>onChangeValue(e, 'session')}
+      if (!prev || prev === null) {
+        const initialSlot = new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate });
+        return new ClassSession({ slots: [initialSlot] });
+      }
+      const currentSlot = prev.slots[0] || new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN });
+      const newSlot = new ClassSessionSlot(currentSlot);
       var valueData = value ? new Date(value) : null;
-      //const slot = prev.slots[0] || new ClassSessionSlot();
       var date = day || new Date();
       const hours = valueData.getHours();
       const minutes = valueData.getMinutes();
       date.setHours(hours);
       date.setMinutes(minutes);
       date.setSeconds(0);
-      //console.log("PROPE", valueData, hours, minutes, date);
-      const endDate = calculateEndDate(date, slot?.duration);
-      slot.update({ start_date: date, end_date: endDate });
-      prev.update({ slots: [slot] });
-      //console.log("VALUE", date)
+      const endDate = calculateEndDate(date, newSlot.duration);
+      newSlot.update({ start_date: date, end_date: endDate });
+      prev.update({ slots: [newSlot] });
       return prev.clone();
     });
   }
@@ -458,19 +500,17 @@ function RenderContent({ mode = 'create',
     const { value, name, type, property } = e.target;
     setErrors(prev => ({ ...prev, [name]: '' }));
     setSessionNew(prev => {
-      if (!prev || prev === null) return defaultSession;
-      //const slot = prev.slots[0] || new ClassSessionSlot();
+      if (!prev || prev === null) {
+        const initialSlot = new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate });
+        return new ClassSession({ slots: [initialSlot] });
+      }
+      const currentSlot = prev.slots[0] || new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN });
+      const newSlot = new ClassSessionSlot(currentSlot);
       const duration = parseFloat(value);
-      const endDate = calculateEndDate(day, duration);
-      //const hours = parseInt(value);
-      //const minutes = (value - hours) * 60;
-      /// newDate.setHours(newDate.getHours() + hours);
-      //newDate.setMinutes(newDate.getMinutes() + minutes);
-      //newDate.setSeconds(0);
-      //console.log("DURATION",calculateEndDate(day, value))
-      slot.update({ duration: duration, end_date: endDate });
-      prev.update({ slots: [slot] });
-      //console.log("VALUE", date)
+      const startDate = day || newSlot.start_date || new Date();
+      const endDate = calculateEndDate(startDate, duration);
+      newSlot.update({ duration: duration, end_date: endDate });
+      prev.update({ slots: [newSlot] });
       return prev.clone();
     });
   }
@@ -478,48 +518,41 @@ function RenderContent({ mode = 'create',
     const { value, name, type, property } = e.target;
     setErrors(prev => ({ ...prev, [name]: '', main: '' }));
     setSessionNew(prev => {
-      if (!prev || prev === null) return defaultSession;
-      //IF SESSION
-      //onChange={(e)=>onChangeValue(e, 'session')}
+      if (!prev || prev === null) {
+        const initialSlot = new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN, start_date: initStartDate });
+        return new ClassSession({ slots: [initialSlot] });
+      }
 
       if (mode === 'slot') {
-        //const slot = prev.slots[0] || new ClassSessionSlot();
-        slot.update({ [name]: value });
-        prev.update({ slots: [slot] });
+        const currentSlot = prev.slots[0] || new ClassSessionSlot({ uid_intern: 1, status: ClassSessionSlot.STATUS.OPEN });
+        const newSlot = new ClassSessionSlot(currentSlot);
+        newSlot.update({ [name]: value });
+        prev.update({ slots: [newSlot] });
+        
         if (name === 'format') {
           if (value === ClassSessionSlot.FORMAT.HYBRID || value === ClassSessionSlot.FORMAT.ONSITE) {
-            const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
+            const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0]?.uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
-            //const slot = prev.slots[0] || new ClassSessionSlot();
-            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: count });
-            prev.update({ uid_room: room?.uid, room: room });
-            console.log("PROPE", prev);
+            newSlot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: count });
+            prev.update({ uid_room: room?.uid, room: room, slots: [newSlot] });
             return prev.clone();
           }
           if (value === ClassSessionSlot.FORMAT.ONSITE) {
-            const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
+            const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0]?.uid);
             const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
-            //const slot = prev.slots[0] || new ClassSessionSlot();
-            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_online: 0, seats_availables_onsite: count });
-            prev.update({ uid_room: room?.uid, room: room });
-            console.log("PROPE", prev);
+            newSlot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_online: 0, seats_availables_onsite: count });
+            prev.update({ uid_room: room?.uid, room: room, slots: [newSlot] });
             return prev.clone();
           }
           if (value === ClassSessionSlot.FORMAT.ONLINE) {
-            const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0].uid);
-            //const count = room?.computers?.filter(item => item.status === ClassHardware.STATUS.AVAILABLE || item.status === ClassHardware.STATUS.BUSY).length || 0;
-            //const slot = prev.slots[0] || new ClassSessionSlot();
-            slot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: 0 });
-            prev.update({ uid_room: room?.uid, room: room });
-            console.log("PROPE", prev);
+            const room = getOneRoom(rooms.filter(room => room.type === ClassRoom.TYPE.ROOM)?.[0]?.uid);
+            newSlot.update({ location: `${room?.school?.name} - ${room?.name}`, seats_availables_onsite: 0 });
+            prev.update({ uid_room: room?.uid, room: room, slots: [newSlot] });
             return prev.clone();
           }
-          const lesson = getOneLesson(value);
-          prev.update({ uid_lesson: value, lesson: lesson });
         }
-
-
       }
+      
       if (mode === 'session') {
         if (name === 'uid_lesson') {
           const lesson = getOneLesson(value);
@@ -531,7 +564,6 @@ function RenderContent({ mode = 'create',
         }
       }
 
-      console.log("VALUE", prev, prev.clone())
       return prev.clone();
     });
   }
@@ -574,59 +606,52 @@ function RenderContent({ mode = 'create',
                     error={errors?.uid_lesson}
                   />
 
-                  <FieldComponent
-                  required
-                    name={'start_date'}
-                    type="date"
-                    property="slot"
-                    disablePast={true}
-                    disableFuture={false}
-                    label={t('start_date')}
-                    value={slot?.start_date || ""}
-                    onChange={(e) => onChangeDateValue(e, slot?.start_date)}
-                    error={errors?.start_date}
-                  />
+                  <Grid container direction={'row'} spacing={1.5} alignItems={'flex-end'}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <FieldComponent
+                        required
+                        name={'start_date'}
+                        type="date"
+                        property="slot"
+                        disablePast={true}
+                        disableFuture={false}
+                        label={t('start_date')}
+                        value={slot?.start_date || ""}
+                        onChange={(e) => onChangeDateValue(e, slot?.start_date)}
+                        error={errors?.start_date}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <SelectComponentDark
+                        required
+                        name={'duration'}
+                        label={t('duration')}
+                        values={ClassSessionSlot.ALL_DURATIONS.map(duration => ({
+                          value: formatDuration(duration),
+                          id: duration
+                        }))}
+                        value={slot?.duration || 0}
+                        onChange={(e) => onChangeDurationValue(e, slot?.start_date)}
+                        error={errors?.duration}
+                        hasNull={!(slot?.duration)}
+                      />
+                    </Grid>
+                  </Grid>
                   {
                     slot?.start_date && <Stack spacing={1.5}>
-                      <Grid container direction={'row'} spacing={1.5} alignItems={'center'}>
-                        <Grid size={{ xs: 7, sm: 5 }}>
-                          <FieldComponent
-                          required
-                            name={'start_hour'}
-                            type="hour"
-                            //disablePast={true}
-                            disableFuture={false}
-                            label={t('start_hour')}
-                            value={slot?.start_date || ""}
-                            onChange={(e) => onChangeHourValue(e, slot?.start_date)}
-                            error={errors?.start_hour}
-                          />
-                        </Grid>
-                        {
-                          slot?.start_date && <Grid size={'grow'}>
-                            <SelectComponentDark
-                            required
-                              name={'duration'}
-                              label={t('duration')}
-                              values={ClassSessionSlot.ALL_DURATIONS.map(duration => ({
-                                value: formatDuration(duration),
-                                id: duration
-                              }))}
-                              value={slot?.duration || 0}
-                              onChange={(e) => onChangeDurationValue(e, slot?.start_date)}
-                              error={errors?.duration}
-                              hasNull={!(slot?.duration)}
-                            />
-                          </Grid>
-                        }
-
-                      </Grid>
+                      <FieldComponent
+                        required
+                        name={'start_hour'}
+                        type="hour"
+                        disableFuture={false}
+                        label={t('start_hour')}
+                        value={slot?.start_date || ""}
+                        onChange={(e) => onChangeHourValue(e, slot?.start_date)}
+                        error={errors?.start_hour}
+                      />
                       {
-                        slot?.start_date && slot?.end_date && slot?.duration && <FieldTextComponent
+                        slot?.end_date && slot?.duration && <FieldTextComponent
                           name={'end_date'}
-                          //type="hour"
-                          // disablePast={true}
-                          // disableFuture={false}
                           label={t('end_date')}
                           value={`${getFormattedDateNumeric(slot?.end_date)} - ${getFormattedHour(slot?.end_date)}`}
                           error={errors?.end_date}
@@ -791,7 +816,7 @@ function RenderContent({ mode = 'create',
                   margin: 0 0 6px;
                   font-size: 0.75rem;
                   font-size: 1.05rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
         
                 .teacher-main {
@@ -839,29 +864,26 @@ function RenderContent({ mode = 'create',
                 .seats-sub {
                   margin: 2px 0 4px;
                   font-size: 0.78rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
                 .seats-bar {
                   width: 100%;
                   height: 7px;
                   border-radius: 999px;
-                  background: #020617;
-                  border: 1px solid #111827;
-                  border: 1px solid var(--card-bord);
-                  background: linear-gradient(90deg, #22c55e, #16a34a);
+                  background: var(--card-color);
+                  border: 1px solid var(--card-border);
                   overflow: hidden;
                 }
         
                 .seats-fill {
                   height: 100%;
                   background: linear-gradient(90deg, #22c55e, #16a34a);
-                  background: red;
                 }
         
                 .breadcrumb {
                   margin: 0 0 4px;
                   font-size: 0.75rem;
-                  color: #6b7280;
+                  color: var(--grey-dark);
                 }
         
                 h1 {
@@ -873,7 +895,7 @@ function RenderContent({ mode = 'create',
                 .muted {
                   margin: 0;
                   font-size: 0.9rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
         
                 .badges {
@@ -892,7 +914,7 @@ function RenderContent({ mode = 'create',
                   border-style: solid;
                   padding: 2px 9px;
                   font-size: 0.8rem;
-                  background: #020617;
+                  background: var(--card-color);
                 }
         
                 .badge-dot {
@@ -937,20 +959,20 @@ function RenderContent({ mode = 'create',
         
                 .currency {
                   font-size: 1rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                   margin-left: 4px;
                 }
         
                 .price-helper {
                   margin: 4px 0 0;
                   font-size: 0.8rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
         
                 .installments {
                   margin: 8px 0 0;
                   font-size: 0.8rem;
-                  color: #e5e7eb;
+                  color: var(--font-color);
                 }
         
                 .dates {
@@ -963,7 +985,7 @@ function RenderContent({ mode = 'create',
                 .date-label {
                   margin: 0;
                   font-size: 0.75rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
         
                 .date-value {
@@ -982,15 +1004,15 @@ function RenderContent({ mode = 'create',
                 .seats-left {
                   margin: 2px 0 0;
                   font-size: 0.78rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
         
                 .btn {
                   border-radius: 999px;
                   padding: 8px 14px;
-                  border: 1px solid #374151;
-                  background: #020617;
-                  color: #e5e7eb;
+                  border: 1px solid var(--card-border);
+                  background: var(--card-color);
+                  color: var(--font-color);
                   font-size: 0.9rem;
                   cursor: pointer;
                 }
@@ -1006,14 +1028,15 @@ function RenderContent({ mode = 'create',
                 }
         
                 .btn-disabled {
-                  background: #111827;
+                  background: var(--card-color);
                   cursor: not-allowed;
+                  opacity: 0.5;
                 }
         
                 .secure-note {
                   margin: 8px 0 0;
                   font-size: 0.75rem;
-                  color: #9ca3af;
+                  color: var(--grey-dark);
                 }
         
                 .grid {

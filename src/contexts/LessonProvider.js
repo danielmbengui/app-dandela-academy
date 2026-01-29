@@ -62,7 +62,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
             if (user && user instanceof ClassUserIntern) {
                 constraints = constraints.slice(0, -1);
                 //constraints.push(where("enabled", "==", true));
-                //console.log("is not admin")
                 //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
             }
         }
@@ -70,8 +69,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
         if (uidTeacher) {
             constraints.push(where("uid_teacher", "==", uidTeacher));
         }
-
-        // console.log("user lesson proivder", user)
 
         const q = constraints.length > 0
             ? query(colRef, ...constraints)
@@ -85,7 +82,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setIsLoading(false);
                 return;
             }
-            // console.log("constraints provider", snap.size)
             try {
                 const _lessons = [];
                 //await ClassLesson.fetchListFromFirestore(lang, where("enabled", "==", true));
@@ -142,7 +138,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setLessons(_lessons);
                 setIsLoading(false);
             } catch (error) {
-                console.log("ERRROR", error)
+                // Error handled silently
             }
         });
         return snapshotLessons;
@@ -250,7 +246,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -273,7 +268,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -295,7 +289,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);

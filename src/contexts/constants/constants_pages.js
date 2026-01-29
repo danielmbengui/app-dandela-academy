@@ -29,9 +29,16 @@ export const PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER = (uidUser, uidLesson, uidLess
 //export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";
 //export const PAGE_TEACHER_LESSONS = "/teacher/lessons";
 //export const PAGE_TEACHER_UPDATE_ONE_LESSON = "/teacher/lessons/update";
-
+export const PAGE_TEACHER_HOME = (uidUser) =>
+  `/teacher/${uidUser}`;
 export const PAGE_TEACHER_LESSONS = (uidUser) =>
   `/teacher/${uidUser}/lessons`;
+export const PAGE_TEACHER_SESSIONS_LIST = (uidUser) =>
+  `/teacher/${uidUser}/sessions`;
+export const PAGE_TEACHER_CREATE_SESSION_LIST = (uidUser) =>
+  `/teacher/${uidUser}/sessions/create`;
+export const PAGE_TEACHER_EDIT_SESSION = (uidUser, uidSession) =>
+  `/teacher/${uidUser}/sessions/${uidSession}`;
 
 export const PAGE_TEACHER_ONE_LESSON = (uidUser,uidSourceLesson, uidLesson) =>
   `/teacher/${uidUser}/lessons/${uidSourceLesson}/${uidLesson}`;

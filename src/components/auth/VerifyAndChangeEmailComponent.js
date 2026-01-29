@@ -16,7 +16,7 @@ import { isValidDandelaAcademyEmail, isValidEmail } from "@/contexts/functions";
 import { ClassUser } from "@/classes/users/ClassUser";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { NS_FORGOT_PASSWORD } from "@/contexts/i18n/settings";
+import { NS_FORGOT_PASSWORD, NS_BUTTONS } from "@/contexts/i18n/settings";
 import { getValueAsType } from "framer-motion";
 import { getTranslations } from "@/contexts/i18n/init";
 import AlertComponent from "../elements/AlertComponent";
@@ -27,7 +27,7 @@ import OtherPageWrapper from "../wrappers/OtherPageWrapper";
 import { applyActionCode } from "firebase/auth";
 
 const StatusComponent = ({ status, actionConfirm = null }) => {
-    const { t } = useTranslation([NS_FORGOT_PASSWORD]);
+    const { t } = useTranslation([NS_FORGOT_PASSWORD, NS_BUTTONS]);
     const router = useRouter();
     const { user, sendVerification } = useAuth();
     var component = <>
@@ -47,7 +47,7 @@ const StatusComponent = ({ status, actionConfirm = null }) => {
     if (status === "error") {
         title = "Lien invalide";
         subtitle = "Ce lien n'existe pas";
-        component = (<ButtonConfirm label={`Retour`} style={{ minWidth: '200px' }} onClick={() => router.replace(PAGE_DASHBOARD_HOME)} />);
+        component = (<ButtonConfirm label={t('see-app', { ns: NS_BUTTONS })} style={{ minWidth: '200px' }} onClick={() => router.replace(PAGE_DASHBOARD_HOME)} />);
     }
     if (status === "expired") {
         title = `Lien expiré`;
@@ -76,7 +76,7 @@ const StatusComponent = ({ status, actionConfirm = null }) => {
     if (status === 'verified') {
         component = (<>
             <AlertComponent severity="success" subtitle={'Ton adresse email a été validée avec succès !'} />
-            <ButtonConfirm label={`Continuer`} style={{ minWidth: '200px' }} onClick={() => router.replace(PAGE_DASHBOARD_HOME)} />
+            <ButtonConfirm label={t('continuer-dashboard', { ns: NS_BUTTONS })} style={{ minWidth: '200px' }} onClick={() => router.replace(PAGE_DASHBOARD_HOME)} />
         </>);
     }
     return (<CardComponent title={title} subtitle={subtitle}>

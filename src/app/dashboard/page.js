@@ -2872,7 +2872,7 @@ function BestStatsCard({ bestStats = [] }) {
                           <Typography variant="body2" sx={{ fontWeight: 600, color: color?.color || 'var(--font-color)' }}>
                             {lesson?.uid_intern}. {lesson?.translate?.title}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'var(--grey-light)' }}>
+                          <Typography variant="caption" sx={{ color: 'var(--font-color)', opacity: 0.75 }}>
                             {chapter?.uid_intern}. {chapter?.translate?.title}
                           </Typography>
                         </Stack>
@@ -3268,7 +3268,7 @@ setUidUser(user?.uid);
 
   return (
     <DashboardPageWrapper {...wrapperProps}>
-      <Container maxWidth="lg" disableGutters sx={{ px: { xs: 2, sm: 3 }, py: 2 }}>
+      <Container maxWidth="lg" disableGutters >
         <Stack spacing={3}>
           <CardHeader user={user} />
                     {/* KPI Cards */}

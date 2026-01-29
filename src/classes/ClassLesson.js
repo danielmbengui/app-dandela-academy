@@ -1001,6 +1001,16 @@ export class ClassLessonTeacher extends ClassLesson {
         }
         return lessons;
     }
+    /** Retourne le ClassLessonTeacher pour un couple (uid_lesson, uid_teacher), ou null. */
+    static async getByLessonAndTeacher(uidLesson, uidTeacher, lang = defaultLanguage) {
+        if (!uidLesson || !uidTeacher) return null;
+        const list = await this.list(lang, [
+            where("uid_lesson", "==", uidLesson),
+            where("uid_teacher", "==", uidTeacher),
+            limit(1),
+        ]);
+        return list?.[0] ?? null;
+    }
     createTitleNormalized(title = '') {
         var result = "";
         for (let i = 0; i < title.length; i++) {

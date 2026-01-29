@@ -1,11 +1,15 @@
 import { generatePageMetadata } from "@/contexts/seo/metadata";
 import { PAGE_LESSONS, } from "@/contexts/constants/constants_pages";
-import { NS_LESSONS, } from "@/contexts/i18n/settings";
+import { NS_DASHBOARD_HOME, NS_LESSONS, } from "@/contexts/i18n/settings";
+import { LessonProvider } from "@/contexts/LessonProvider";
+import { LessonTeacherProvider } from "@/contexts/LessonTeacherProvider";
+import { SessionProvider } from "@/contexts/SessionProvider";
+import { UsersProvider } from "@/contexts/UsersProvider";
 
 export const dynamic = "force-dynamic";
 
 export const generateMetadata = generatePageMetadata({
-  ns: NS_LESSONS,
+  ns: NS_DASHBOARD_HOME,
   path: PAGE_LESSONS,
   // images: ["https://.../og-inscription.jpg"],
   // overrides: { openGraph: { type: "article" } },
@@ -13,6 +17,15 @@ export const generateMetadata = generatePageMetadata({
 
 export default async function OneTeacherLayout({ children, params }) {
   const {uid} = await params;
-  console.log("uid teacher", uid)
-  return (children);
+  return (
+    <UsersProvider>
+      <LessonProvider>
+        <LessonTeacherProvider uidTeacher={uid}>
+          <SessionProvider uidTeacher={uid}>
+            {children}
+          </SessionProvider>
+        </LessonTeacherProvider>
+      </LessonProvider>
+    </UsersProvider>
+  );
 }
