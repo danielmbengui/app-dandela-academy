@@ -45,8 +45,9 @@ export function LessonProvider({ children, uidTeacher = null }) {
     }, [lang, uidTeacher, user]);
     useEffect(() => {
         if (user && uidLesson) {
-            const _lesson = getOneLesson(uidLesson);
-            setLesson(_lesson);
+            // Ne pas pré-remplir depuis la liste : elle peut être filtrée (ex. enabled === true)
+            // et afficher une valeur incorrecte. On laisse listenToOneLesson fournir le document réel.
+            setLesson(null);
             const listener = listenToOneLesson(uidLesson);
             return () => listener?.();
         } else {

@@ -78,6 +78,10 @@ export const NS_USERS_LIST = `users/list`;
 export const NS_USERS_FORM = `users/form`;
 export const NS_PWA = `pwa`;
 
+
+/*----------------- Admin ----------------------------------------*/
+export const NS_ADMIN_CHAPTERS = `admin/chapters`;
+
 export const namespaces = [
     NS_COMMON,NS_LANGS,NS_BUTTONS,NS_PAGES,NS_FORM,NS_ROLES,NS_LEVELS,NS_CONTACT,NS_ERRORS,NS_WAITING_LIST,NS_HOW_KNOW,
     NS_HOME,NS_HOME_MENU,NS_HOME_FOOTER,

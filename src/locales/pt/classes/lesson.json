@@ -36,6 +36,8 @@
   "title": "Título",
   "subtitle": "Subtítulo",
   "description": "Sobre este curso",
+  "enabled": "Ativado",
+  "enabled_description": "Curso visível no catálogo.",
   "goals": "Objetivos pedagógicos",
   "programs": "Programa",
   "prerequisites": "Pré-requisitos",

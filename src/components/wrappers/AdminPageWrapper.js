@@ -82,10 +82,19 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                     </Toolbar>
                     <Divider />
                     <List sx={{ py: 2, px: 1.5, background: '', width: '100%', height: '100%', }}>
-                        {
-                            ClassUserDandela.menuDashboard(user).map((menuItem, i) => {
+                        {(() => {
+                            const menuItems = ClassUserDandela.menuDashboard(user);
+                            const norm = (p) => (p?.startsWith('/') ? p : `/${p || ''}`);
+                            const currentPath = norm(path);
+                            const activePath = menuItems
+                                .filter((m) => {
+                                    const itemPath = norm(m.path);
+                                    return currentPath === itemPath || currentPath.startsWith(itemPath + '/');
+                                })
+                                .sort((a, b) => norm(b.path).length - norm(a.path).length)[0]?.path ?? null;
+                            return menuItems.map((menuItem, i) => {
                                 const hasSubs = menuItem.subs?.length > 0 || false;
-                                const isPath = path.includes(menuItem.path);
+                                const isPath = activePath === menuItem.path;
                                 return (<ListItem key={`${menuItem.name}-${i}`} disableGutters sx={{ color: "var(--font-color)", background: '' }} disablePadding>
                                     <Stack spacing={1} sx={{ width: '100%', background: '', pb: 0.5 }}>
                                         <Stack sx={{
@@ -162,9 +171,9 @@ export default function AdminPageWrapper({ children, titles = [], title = "", su
                                             </Stack>
                                         }
                                     </Stack>
-                                </ListItem>)
-                            })
-                        }
+                                </ListItem>);
+                            });
+                        })()}
                     </List>
                 </Stack>
             </Stack>

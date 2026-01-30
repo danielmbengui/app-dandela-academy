@@ -25,6 +25,25 @@ export const PAGE_ADMIN_HOME = (uidUser) =>
   `/admin/${uidUser}`;
 export const PAGE_ADMIN_LESSONS = (uidUser) =>
   `/admin/${uidUser}/lessons`;
+export const PAGE_ADMIN_ONE_LESSON = (uidUser, uidLesson) =>
+  `/admin/${uidUser}/lessons/${uidLesson}`;
+export const PAGE_ADMIN_CHAPTERS = (uidUser, uidLesson) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters`;
+export const PAGE_ADMIN_ONE_CHAPTER = (uidUser, uidLesson, uidChapter) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/${uidChapter}`;
+export const PAGE_ADMIN_CREATE_CHAPTER = (uidUser, uidLesson) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/create`;
+export const PAGE_ADMIN_CHAPTER_SUBCHAPTERS = (uidUser, uidLesson, uidChapter) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/${uidChapter}/subchapters`;
+export const PAGE_ADMIN_ONE_SUBCHAPTER = (uidUser, uidLesson, uidChapter, uidSubchapter) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/${uidChapter}/subchapters/${uidSubchapter}`;
+export const PAGE_ADMIN_CREATE_SUBCHAPTER = (uidUser, uidLesson, uidChapter) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/${uidChapter}/subchapters/create`;
+export const PAGE_ADMIN_CHAPTER_QUIZ = (uidUser, uidLesson, uidChapter) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/${uidChapter}/quiz`;
+export const PAGE_ADMIN_ONE_QUIZ = (uidUser, uidLesson, uidChapter, uidQuiz) =>
+  `/admin/${uidUser}/lessons/${uidLesson}/chapters/${uidChapter}/quiz/${uidQuiz}`;
+
 export const PAGE_ADMIN_UPDATE_ONE_LESSON = "/admin/lessons/update";
 export const PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER = (uidUser, uidLesson, uidLessonTeacher) =>
   `/admin/${uidUser}/lessons/${uidLesson}/${uidLessonTeacher}`;

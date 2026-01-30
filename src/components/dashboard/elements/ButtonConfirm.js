@@ -25,7 +25,7 @@ export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color
     variant={variant}
     fullWidth={fullWidth}
     loading={loading}
-    //elevation={0}
+    elevation={0}
     startIcon={icon}
     color={isAdmin ? 'warning' : color}
     disabled={disabled}
@@ -37,6 +37,7 @@ export default function ButtonConfirm({ label = 'Confirmer',isAdmin=false, color
     }}
     sx={{
       textTransform: 'none',
+      boxShadow: 'none',
       borderRadius: '999px',
       padding: '8px 14px',
       color: variant === 'outlined' ? 'var(--primary)' : 'var(--font-reverse-color)',

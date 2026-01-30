@@ -100,12 +100,17 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                     sub.translate = sub.getTranslate(lang);
                     return sub;
                 });
-                const _quiz = chapter.quiz;
-                const _questions = _quiz.questions?.map(sub => {
-                    sub.translate = sub.getTranslate(lang);
-                    return sub;
-                });
-                _quiz.questions = _questions;
+                const _quiz = chapter.quiz || null;
+                console.log("QUIZ", _quiz);
+
+                if (_quiz && _quiz?.questions) {
+                    const _questions = _quiz?.questions?.map(sub => {
+                        sub.translate = sub.getTranslate(lang);
+                        return sub;
+                    });
+                    _quiz.questions = _questions;
+                }
+
                 chapter.quiz = _quiz;
                 chapter.subchapters = _subchapters;
 
@@ -160,19 +165,38 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
             const translate = _chapter.translates?.find(trans => trans.lang === lang);
             _chapter.translate = translate;
+            const title = translate.title;
+            const subtitle = translate.subtitle;
+            const description = translate.description;
+            const photo_url = translate.photo_url;
+            const goals = translate.goals;
+            const subchapters_title = translate.subchapters_title;
+            _chapter.title = title;
+            _chapter.subtitle = subtitle;
+            _chapter.description = description;
+            _chapter.photo_url = photo_url;
+            _chapter.goals = goals;
+            _chapter.subchapters_title = subchapters_title;
             const _subchapters = _chapter.subchapters?.map(sub => {
-                sub.translate = sub.getTranslate(lang);
+                const _translate = sub.getTranslate(lang);
+                sub.translate = _translate;
+                sub.title = _translate.title;
+                sub.goals = _translate.goals;
+                sub.exercises = _translate.exercises;
+                sub.keys = _translate.keys;
                 return sub;
             });
-            const _quiz = _chapter.quiz;
-            const _questions = _quiz.questions?.map(sub => {
-                sub.translate = sub.getTranslate(lang);
-                return sub;
-            });
-            _quiz.questions = _questions;
+            const _quiz = _chapter.quiz || null;
+            if (_quiz && _quiz?.questions) {
+                const _questions = _quiz.questions?.map(sub => {
+                    sub.translate = sub.getTranslate(lang);
+                    return sub;
+                });
+                _quiz.questions = _questions;
+            }
             _chapter.quiz = _quiz;
             _chapter.subchapters = _subchapters;
-
+            console.log("subchaptersss", _subchapters);
             /*
             const _stats = await new ClassUserStat({
                 uid_user: user?.uid,
@@ -251,14 +275,14 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setChapter(null);
         }
     }
-    function getMinLevel(uidLesson="") {
+    function getMinLevel(uidLesson = "") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
-        if (!allLevels.length || chapters.length===0) return {id:0,value:0};
+        if (!allLevels.length || chapters.length === 0) return { id: 0, value: 0 };
         const lastIndex = allLevels.length - 1;
         var minChapter = allLevels[lastIndex];
         var chaptersFiletered = [...chapters];
-        if(uidLesson) {
-            chaptersFiletered = [...chapters].filter(c=>c.uid_lesson === uidLesson);
+        if (uidLesson) {
+            chaptersFiletered = [...chapters].filter(c => c.uid_lesson === uidLesson);
         }
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
         for (const c of chaptersFiletered) {
@@ -269,16 +293,16 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 minChapter = levelChapter;
             }
         }
-        return {id:minChapter.id,value:minChapter.value};
+        return { id: minChapter.id, value: minChapter.value };
     }
-    function getMaxLevel(uidLesson="") {
+    function getMaxLevel(uidLesson = "") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
-        if (!allLevels.length || chapters.length===0) return {id:0,value:0};
+        if (!allLevels.length || chapters.length === 0) return { id: 0, value: 0 };
         const lastIndex = allLevels.length - 1;
         var maxChapter = allLevels[lastIndex];
         var chaptersFiletered = [...chapters];
-        if(uidLesson) {
-            chaptersFiletered = [...chapters].filter(c=>c.uid_lesson === uidLesson);
+        if (uidLesson) {
+            chaptersFiletered = [...chapters].filter(c => c.uid_lesson === uidLesson);
         }
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
         for (const c of chaptersFiletered) {
@@ -288,15 +312,15 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 maxChapter = levelChapter;
             }
         }
-       // console.log("max", maxChapter.value);
+        // console.log("max", maxChapter.value);
 
-       return {id:maxChapter.id,value:maxChapter.value};
+        return { id: maxChapter.id, value: maxChapter.value };
     }
     function getCountSubchapters() {
         var count = 0;
         //const chapters = await ClassLessonChapter.fetchListFromFirestore(lang, [where("uid_lesson", "==", this._uid)]);
         for (const c of chapters) {
-            count+= c.subchapters?.length || 0;
+            count += c.subchapters?.length || 0;
         }
         //console.log("count subchapters", count);
 

@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { PAGE_ADMIN_LESSONS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER } from "@/contexts/constants/constants_pages";
+import { PAGE_ADMIN_LESSONS, PAGE_ADMIN_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER } from "@/contexts/constants/constants_pages";
 import { useLesson } from "@/contexts/LessonProvider";
 import { LessonTeacherProvider, useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 import { useUsers } from "@/contexts/UsersProvider";
@@ -33,7 +33,7 @@ const GRID_COLUMNS_TEACHER = "minmax(0, 0.3fr) minmax(0, 1fr) minmax(0, 1fr) min
 function LessonsComponent() {
   const router = useRouter();
   const params = useParams();
-  const { uid } = params;
+  const { uid: uidUser } = params;
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_LESSONS, ClassLessonChapter.NS_COLLECTION, NS_BUTTONS]);
   const { user } = useAuth();
   const { lessons } = useLesson();
@@ -177,7 +177,7 @@ function LessonsComponent() {
                     lastChild={i === lessonsFilter.length - 1}
                     isSelected={selectedLesson?.uid === lesson.uid}
                     isExpanded={isExpanded}
-                    editUrl={`${PAGE_ADMIN_LESSONS(uid)}/update/${lesson.uid}`}
+                    editUrl={`${PAGE_ADMIN_ONE_LESSON(uidUser, lesson.uid)}`}
                     onToggleExpand={(e) => {
                       e.stopPropagation();
                       toggleLesson(lesson.uid);

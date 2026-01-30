@@ -283,44 +283,7 @@ export class ClassLessonChapter {
 
     // --- Serialization ---
     toJSON() {
-        const out = { ...this };
-        const cleaned = Object.fromEntries(
-            Object.entries(out)
-                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
-                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
-        );
-        //cleaned.translates = this._convertTranslatesToFirestore?.(this._translates || []);
-        //cleaned.quiz = this._quiz?.toJSON();
-        /*
-        cleaned.subchapters = this._subchapters?.map?.((sub) => {
-           // const subClass = new ClassLessonSubchapter(sub);
-            //const translates = subClass._convertTranslatesToFirestore(sub.translates);
-            //subClass.translates = translates;
-            return sub.toJSON();
-        });
-        */
-        cleaned.lesson = null;
-        cleaned.translate = null;
-        cleaned.title = null;
-        cleaned.subchapters_title = null;
-        cleaned.subtitle = null;
-        cleaned.description = null;
-        cleaned.goals = null;
-        //cleaned.translates = null;
-        //cleaned.computers = null;
-        delete cleaned.lesson;
-        delete cleaned.translate;
-        delete cleaned.title;
-        delete cleaned.subchapters_title;
-        delete cleaned.subtitle;
-        delete cleaned.description;
-        delete cleaned.goals;
-
-        //delete cleaned.translates;
-        //delete cleaned.computers;
-        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
-        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
-        return cleaned;
+        return ChapterSerializer.toJSON(this);
     }
     update(props = {}) {
         for (const key in props) {
@@ -330,11 +293,10 @@ export class ClassLessonChapter {
         }
     }
     clone() {
-        return ClassLessonChapter.makeChapterInstance(this._uid, {
+        return ChapterSerializer.fromJSON({
             ...this.toJSON(),
             lesson: this._lesson,
             translate: this._translate,
-            //translates: this._translates,
             title: this._title,
             subtitle: this._subtitle,
             description: this._description,
@@ -342,7 +304,6 @@ export class ClassLessonChapter {
             subchapters_title: this._subchapters_title,
             subchapters: this._subchapters,
             quiz: this._quiz,
-            //computers: this._computers,
         });
     }
     // ---------- VALIDATIONS ----------
@@ -376,36 +337,42 @@ export class ClassLessonChapter {
     static get converter() {
         return {
             toFirestore(chapterInstance) {
-                // chaque classe a un .toJSON() propre
-                /*
-                var translates = {};
-                for (const trans of chapterInstance?.translates) {
-                    translates[trans.lang] = trans;
-                }
-                */
-                //const translates = chapterInstance?.translates?._convertTranslatesToFirestore();
-                //const translates = ClassLessonChapter._convertTranslatesToFirestore(this._translates);
-                //const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates);
-                //console.log("TRANSLATES", translates)
-                // chaque classe a un .toJSON() propre
-                //chapterInstance.quiz = chapterInstance?.quiz?.toJSON ? chapterInstance?.quiz?.toJSON() : chapterInstance?.quiz;
-                return chapterInstance?.toJSON ? chapterInstance.toJSON() : chapterInstance;
-                //return chapterInstance?.toJSON ? chapterInstance.toJSON() : chapterInstance;
+                if (!chapterInstance?.toJSON) return chapterInstance;
+                const base = chapterInstance.toJSON();
+                const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates || []);
+                const subchapters = chapterInstance.subchapters?.map?.(s => s.toJSON?.() || s) ?? [];
+                const quiz = chapterInstance.quiz
+                    ? {
+                        ...chapterInstance.quiz.toJSON(),
+                        questions: chapterInstance.quiz.questions?.map?.(q => q.toJSON?.() || q) ?? [],
+                    }
+                    : null;
+                return { ...base, translates, subchapters, quiz };
             },
             fromFirestore(snapshot, options) {
                 const uid = snapshot.id;
                 const data = snapshot.data(options) || {};
-                var created_time = ClassLessonChapter._toJsDate(data.created_time);
-                var last_edit_time = ClassLessonChapter._toJsDate(data.last_edit_time);
-                const translates = Object.values(data.translates)?.map?.(trans => new ClassLessonChapterTranslation(trans));
-                const subchapters = data.subchapters?.map?.((sub) => {
+                const created_time = ClassLessonChapter._toJsDate(data.created_time);
+                const last_edit_time = ClassLessonChapter._toJsDate(data.last_edit_time);
+                const translates = (data.translates && typeof data.translates === "object" && !Array.isArray(data.translates))
+                    ? Object.values(data.translates).map(trans => new ClassLessonChapterTranslation(trans))
+                    : (data.translates || []).map(trans => new ClassLessonChapterTranslation(trans));
+                const subchapters = (data.subchapters || []).map((sub) => {
                     const subClass = new ClassLessonSubchapter(sub);
-                    const translates = subClass._convertTranslatesFromFirestore(sub.translates);
-                    subClass.translates = translates;
+                    if (sub.translates && typeof sub.translates === "object" && !Array.isArray(sub.translates)) {
+                        subClass.translates = subClass._convertTranslatesFromFirestore(sub.translates);
+                    }
                     return subClass;
                 });
-                const quiz = data.quiz ? new ClassLessonChapterQuiz(data.quiz) : {};
-                return ClassLessonChapter.makeChapterInstance(uid, { ...data, created_time, last_edit_time, translates: translates, subchapters, quiz });
+                const quiz = data.quiz ? new ClassLessonChapterQuiz(data.quiz) : null;
+                return ClassLessonChapter.makeChapterInstance(uid, {
+                    ...data,
+                    created_time,
+                    last_edit_time,
+                    translates,
+                    subchapters,
+                    quiz,
+                });
             },
         };
     }
@@ -509,19 +476,19 @@ export class ClassLessonChapter {
             limit(1)
         );
 
-
         const snaps = await getDocs(q);
         if (snaps.empty) return null;
-
         const docSnap = snaps.docs[0];
         const chapter = docSnap.data();
         const translate = chapter.translates?.find(item => item.lang === lang);
         chapter.translate = translate;
-        chapter.quiz.questions = chapter.quiz.questions?.map(q => {
-            const translate = q.translates?.find(item => item.lang === lang);
-            q.translate = translate;
-            return (q);
-        });
+        if(chapter.quiz && chapter.quiz?.questions) {
+            chapter.quiz.questions = chapter.quiz.questions?.map(q => {
+                const translate = q.translates?.find(item => item.lang === lang);
+                q.translate = translate;
+                return (q);
+            });
+        }
         console.log("chapter get class", chapter)
         return chapter;
     }
@@ -606,8 +573,7 @@ export class ClassLessonChapter {
     }
     async createFirestore() {
         try {
-            console.log("errorrrrrr");
-            var newRef = null;
+            let newRef = null;
             if (this._uid) {
                 newRef = this.constructor.docRef(this._uid_lesson, this._uid);
             } else {
@@ -617,42 +583,36 @@ export class ClassLessonChapter {
                     this._uid_lesson,
                     this.constructor.COLLECTION
                 );
-                newRef = doc(colRef);
+                newRef = doc(colRef).withConverter(this.constructor.converter);
             }
-            //const newRef = doc(this.constructor.colRef()); // id auto
-            console.log("errorrrrrr after")
-            const count = await this.constructor.count(this._uid_lesson) || 0;
-            //const countRoom = await ClassRoom.count() || 0;
-            const idChapter = count + 1;
-            this._uid = newRef.id;
-            this._uid_intern = idChapter;
-            //this._name = this.createRoomName(idRoom);
-            //this._name_normalized = this.createRoomName(idRoom, true);
-            //this._enabled = true;
+            if (!this._uid) {
+                this._uid = newRef.id;
+            }
+            if (!this._uid_intern) {
+                const count = await this.constructor.count(this._uid_lesson) || 0;
+                this._uid_intern = count + 1;
+            }
             this._created_time = new Date();
             this._last_edit_time = new Date();
-            //const translates = new ClassLessonChapterTranslation()._convertTranslatesToFirestore(this._translates);
-            //console.log("TRANSLATES", translates)
-            //const translates = this._convertTranslatesToFirestore(this._translates);
-            await setDoc(newRef, { ...this.toJSON() });
-            const translates = Object.values(this._translates)?.map?.(trans => new ClassLessonChapterTranslation(trans));
-            return this.constructor.makeChapterInstance(this._uid, { ...this.toJSON(), translates: translates }); // -> ClassModule
+            await setDoc(newRef, this, { merge: true });
+            return this.constructor.makeChapterInstance(this._uid, this.toJSON());
         } catch (error) {
-            console.log("ERRRRROROOOORO", error)
+            console.error("ClassLessonChapter.createFirestore", error);
+            return null;
         }
     }
     // Mettre à jour un module
     async updateFirestore(patch = {}) {
         try {
             const ref = this.constructor.docRef(this._uid_lesson, this._uid);
-            const data = { ...patch, last_edit_time: new Date() };
-
-            await updateDoc(ref, data, { merge: true });
-            //console.log("weshtest", await this.constructor.fetchFromFirestore(this._uid))
-            //console.log("UPDATE COMPLETED")
-            return await this.constructor.fetchFromFirestore(this._uid); // -> ClassModule
+            this._last_edit_time = new Date();
+            if (patch && Object.keys(patch).length) {
+                this.update(patch);
+            }
+            await setDoc(ref, this, { merge: true });
+            return this.constructor.makeChapterInstance(this._uid, this.toJSON());
         } catch (e) {
-            console.log("Rrror update chapter", e)
+            console.error("ClassLessonChapter.updateFirestore", e);
             return null;
         }
     }
@@ -689,6 +649,45 @@ export class ClassLessonChapter {
             console.log("ERROR", error?.message || error);
             return null;
         }
+    }
+}
+
+/** Serialiseur pour ClassLessonChapter (inspiré de LessonSerializer dans ClassLesson). */
+class ChapterSerializer {
+    static fieldsToRemove = [
+        "lesson",
+        "translate",
+        "title",
+        "subtitle",
+        "description",
+        "goals",
+        "subchapters_title",
+       // "subchapters",
+       // "quiz",
+    ];
+    static toJSON(chapter) {
+        const fields = [...this.fieldsToRemove];
+        const out = { ...chapter };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v])
+        );
+        for (const field of fields) {
+            delete cleaned[field];
+        }
+        return cleaned;
+    }
+    static fromJSON(data) {
+        const hasUnderscoreKeys = Object.keys(data).some((k) => k.startsWith("_"));
+        const cleaned = hasUnderscoreKeys
+            ? Object.fromEntries(
+                Object.entries(data)
+                    .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                    .map(([k, v]) => [k.replace(/^_/, ""), v])
+            )
+            : { ...data };
+        return ClassLessonChapter.makeChapterInstance(cleaned.uid ?? "", cleaned);
     }
 }
 

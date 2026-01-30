@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLesson } from "@/contexts/LessonProvider";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { NS_BUTTONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
-import { PAGE_ADMIN_CHAPTERS, PAGE_ADMIN_LESSONS } from "@/contexts/constants/constants_pages";
+import { PAGE_ADMIN_CREATE_CHAPTER, PAGE_ADMIN_LESSONS, PAGE_ADMIN_ONE_CHAPTER, PAGE_ADMIN_ONE_LESSON } from "@/contexts/constants/constants_pages";
 import { IconLessons } from "@/assets/icons/IconsComponent";
 import Link from "next/link";
 import { ClassLesson } from "@/classes/ClassLesson";
@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 import LessonAdminEditComponent from "@/components/admin/lessons/LessonAdminEditComponent";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
 import { Box, CircularProgress, List, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
-import { ClassUserAdministrator } from "@/classes/users/ClassUser";
+import { ClassUserAdministrator, ClassUserDandela } from "@/classes/users/ClassUser";
 import { useAuth } from "@/contexts/AuthProvider";
 import AdminPageWrapper from "@/components/wrappers/AdminPageWrapper";
 import { ChapterProvider } from "@/contexts/ChapterProvider";
@@ -21,7 +21,7 @@ import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
 function AdminOneLessonContent() {
     const params = useParams();
     const { user } = useAuth();
-    const { uid, uidLesson } = params;
+    const { uid: uidUser, uidLesson } = params;
     const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_DASHBOARD_MENU, NS_BUTTONS]);
     const { lesson, isLoading: isLoadingLessons, setUidLesson } = useLesson();
     const { chapters, isLoading: isLoadingChapters } = useChapter();
@@ -33,13 +33,13 @@ function AdminOneLessonContent() {
     }, [uidLesson, isLoadingLessons, setUidLesson]);
 
     const isAuthorized = useMemo(() => {
-        return user instanceof ClassUserAdministrator || lesson?.uid_teacher === user?.uid;
+        return user instanceof ClassUserDandela;
     }, [user, lesson]);
 
     return (
         <AdminPageWrapper
             titles={[
-                { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uid) },
+                { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
                 { name: lesson?.title || lesson?.translate?.title || '', url: '' }
             ]}
             isAuthorized={isAuthorized}
@@ -49,7 +49,7 @@ function AdminOneLessonContent() {
                 {!isLoadingLessons && isAuthorized && (
                     <Stack spacing={1} direction="row" justifyContent="start" sx={{ width: '100%' }}>
                         <Link
-                            href={PAGE_ADMIN_LESSONS(uid)}
+                            href={PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson)}
                             style={{ textDecoration: 'none' }}
                         >
                             <ButtonCancel
@@ -58,11 +58,11 @@ function AdminOneLessonContent() {
                             />
                         </Link>
                         <Link
-                            href={PAGE_ADMIN_CHAPTERS(uid, uidLesson)}
+                            href={PAGE_ADMIN_CREATE_CHAPTER(uidUser, uidLesson)}
                             style={{ textDecoration: 'none' }}
                         >
                             <ButtonConfirm
-                                label={t('edit-chapters', { ns: NS_BUTTONS }) || 'Vers chapitres'}
+                                label={t('create-chapter', { ns: NS_BUTTONS }) || 'Créer chapitre'}
                                 isAdmin={true}
                             />
                         </Link>
@@ -71,19 +71,39 @@ function AdminOneLessonContent() {
                 {
                     isLoadingLessons && <CircularProgress size={'16px'} color="warning" />
                 }
-                {!isLoadingLessons && isAuthorized && (
-                    <LessonAdminEditComponent />
-                )}
+                {!isLoadingLessons && isAuthorized && <Stack spacing={1}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'var(--font-color)' }}>
+                                    {t('chapters', { ns: ClassLesson.NS_COLLECTION })}
+                                </Typography>
+                                {isLoadingChapters ? (
+                                    <CircularProgress size={20} color="warning" />
+                                ) : chapters?.length > 0 ? (
+                                    <List disablePadding sx={{ bgcolor: 'var(--card-bg)', borderRadius: 1, border: '1px solid var(--card-border)' }}>
+                                        {chapters.map((chapter) => (
+                                            <ListItemButton
+                                                key={chapter.uid}
+                                                component={Link}
+                                                href={PAGE_ADMIN_ONE_CHAPTER(uidUser, uidLesson, chapter.uid)}
+                                                sx={{ borderBottom: '1px solid var(--card-border)', '&:last-child': { borderBottom: 0 } }}
+                                            >
+                                                <ListItemText
+                                                    primary={`${chapter?.uid_intern ?? ''}. ${chapter?.translate?.title || ''}` || chapter?.title || `${t('chapter', { ns: ClassLesson.NS_COLLECTION })} ${chapter?.uid_intern ?? ''}`}
+                                                    primaryTypographyProps={{ sx: { color: 'var(--font-color)' } }}
+                                                />
+                                            </ListItemButton>
+                                        ))}
+                                    </List>
+                                ) : (
+                                    <Typography variant="body2" sx={{ color: 'var(--grey-light)' }}>
+                                        {t('no_chapters', { ns: ClassLesson.NS_COLLECTION })}
+                                    </Typography>
+                                )}
+                            </Stack>}
             </Stack>
         </AdminPageWrapper>
     );
 }
 
 export default function AdminOneLessonUpdatePage() {
-    const { uidLesson } = useParams();
-    return (
-        <ChapterProvider uidLesson={uidLesson || ''}>
-            <AdminOneLessonContent />
-        </ChapterProvider>
-    );
+    return (<AdminOneLessonContent />);
 }

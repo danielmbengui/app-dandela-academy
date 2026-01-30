@@ -17,6 +17,7 @@ export default function DialogConfirmAction({
   setOpen = null,
   icon = null,
   severity = "info",
+  isAdmin = false,
 }) {
   const { theme } = useThemeMode();
   const { primary, cardColor, text, greyLight } = theme.palette;
@@ -205,6 +206,7 @@ export default function DialogConfirmAction({
               variant="outlined"
               onClick={handleCancel}
               fullWidth
+              isAdmin={isAdmin}
               sx={{ order: { xs: 2, sm: 1 } }}
             />
             <ButtonConfirm
@@ -214,6 +216,7 @@ export default function DialogConfirmAction({
               variant="contained"
               onClick={handleConfirm}
               fullWidth
+              isAdmin={isAdmin}
               sx={{ order: { xs: 1, sm: 2 } }}
             />
           </Stack>

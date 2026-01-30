@@ -15,7 +15,8 @@ import {
     collectionGroup,
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
-import { ClassLesson } from "../ClassLesson";
+import { ClassLesson } from "@/classes/ClassLesson";
+import { ClassLessonChapter } from "./ClassLessonChapter";
 import { defaultLanguage } from "@/contexts/i18n/settings";
 
 export class ClassLessonSubchapter {
@@ -24,6 +25,7 @@ export class ClassLessonSubchapter {
 
     constructor({
         uid_intern = "",
+        uid_lesson = "",
         uid_chapter = "",
         chapter = null,
         title = "",
@@ -35,15 +37,16 @@ export class ClassLessonSubchapter {
         translates = [],
     } = {}) {
         this._uid_intern = uid_intern;
-        this._uid_chapter = uid_chapter;
+        this._uid_lesson = String(uid_lesson ?? "");
+        this._uid_chapter = String(uid_chapter ?? "");
         this._chapter = chapter;
         this._title = title;
         this._photo_url = photo_url;
-        this._exercises = exercises;
-        this._goals = goals;
-        this._keys = keys;
+        this._exercises = Array.isArray(exercises) ? exercises : [];
+        this._goals = Array.isArray(goals) ? goals : [];
+        this._keys = Array.isArray(keys) ? keys : [];
         this._translate = translate && typeof translate === "object" ? translate : {};
-        this._translates = translates;
+        this._translates = translates ?? [];
     }
     // uid_intern
     get uid_intern() {
@@ -54,6 +57,14 @@ export class ClassLessonSubchapter {
     }
 
     // uid_lesson
+    get uid_lesson() {
+        return this._uid_lesson;
+    }
+    set uid_lesson(value) {
+        this._uid_lesson = String(value ?? "");
+    }
+
+    // uid_chapter
     get uid_chapter() {
         return this._uid_chapter;
     }
@@ -61,7 +72,7 @@ export class ClassLessonSubchapter {
         this._uid_chapter = String(value ?? "");
     }
 
-    // lesson
+    // chapter
     get chapter() {
         return this._chapter;
     }
@@ -73,34 +84,33 @@ export class ClassLessonSubchapter {
         return this._title;
     }
     set title(value) {
-        this._title = value ?? null;
+        this._title = value ?? "";
     }
     get photo_url() {
         return this._photo_url;
     }
     set photo_url(value) {
-        this._photo_url = value ?? null;
+        this._photo_url = String(value ?? "");
     }
     get exercises() {
         return this._exercises;
     }
     set exercises(value) {
-        this._exercises = value ?? null;
+        this._exercises = Array.isArray(value) ? value : [];
     }
     get goals() {
         return this._goals;
     }
     set goals(value) {
-        this._goals = value ?? null;
+        this._goals = Array.isArray(value) ? value : [];
     }
     get keys() {
         return this._keys;
     }
     set keys(value) {
-        this._keys = value ?? null;
+        this._keys = Array.isArray(value) ? value : [];
     }
 
-    // translate (objet)
     get translate() {
         return this._translate;
     }
@@ -108,29 +118,25 @@ export class ClassLessonSubchapter {
         this._translate = value && typeof value === "object" ? value : {};
     }
 
-    // translates (array)
     get translates() {
         return this._translates;
     }
     set translates(value) {
-        this._translates = value;
+        this._translates = value ?? [];
     }
-    // 🔁 Getters & Setters
+
     // --- normalisation interne ---
-    _touchLastEdit() {
-        this._last_edit_time = new Date();
-    }
     _convertTranslatesToFirestore(translates = []) {
-        var translatesObj = {};
+        const translatesObj = {};
         for (const trans of translates) {
             translatesObj[trans.lang] = trans.toJSON?.() || trans || {};
         }
         return translatesObj;
     }
     _convertTranslatesFromFirestore(translatesObj = {}) {
-        const translates = Object.values(translatesObj)?.map?.(trans => new ClassLessonSubchapterTranslation(trans)) || [];
-        return translates;
+        return Object.values(translatesObj)?.map?.(trans => new ClassLessonSubchapterTranslation(trans)) || [];
     }
+
     static _toJsDate(v) {
         if (!v) return null;
         if (v instanceof Date) return v;
@@ -139,36 +145,10 @@ export class ClassLessonSubchapter {
         if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
         return null;
     }
+
     // --- Serialization ---
     toJSON() {
-        const out = { ...this };
-        const cleaned = Object.fromEntries(
-            Object.entries(out)
-                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
-                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
-        );
-        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
-        cleaned.chapter = null;
-        cleaned.translate = null;
-        cleaned.title = null;
-        cleaned.photo_url = null;
-        cleaned.exercises = null;
-        cleaned.goals = null;
-        cleaned.keys = null;
-        //cleaned.translates = null;
-        //cleaned.computers = null;
-        delete cleaned.chapter;
-        delete cleaned.translate;
-        delete cleaned.title;
-        delete cleaned.photo_url;
-        delete cleaned.exercises;
-        delete cleaned.goals;
-        delete cleaned.keys;
-        //delete cleaned.translates;
-        //delete cleaned.computers;
-        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
-        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
-        return cleaned;
+        return SubchapterSerializer.toJSON(this);
     }
     update(props = {}) {
         for (const key in props) {
@@ -178,7 +158,7 @@ export class ClassLessonSubchapter {
         }
     }
     clone() {
-        return new ClassLessonSubchapter({
+        return SubchapterSerializer.fromJSON({
             ...this.toJSON(),
             chapter: this._chapter,
             translate: this._translate,
@@ -188,25 +168,178 @@ export class ClassLessonSubchapter {
             exercises: this._exercises,
             goals: this._goals,
             keys: this._keys,
-            //translates: this._translates,
-            //computers: this._computers,
         });
     }
 
-    // ---------- Converter intégré ----------
-    static _toJsDate(v) {
-        if (!v) return null;
-        if (v instanceof Date) return v;
-        if (v instanceof Timestamp) return v.toDate();
-        if (typeof v?.toDate === "function") return v.toDate();
-        if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
-        return null;
+    // ---------- Converter Firestore ----------
+    static makeSubchapterInstance(uid, data = {}) {
+        return new ClassLessonSubchapter({ uid, ...data });
     }
+    static get converter() {
+        return {
+            toFirestore(subchapterInstance) {
+                if (!subchapterInstance?.toJSON) return subchapterInstance;
+                return subchapterInstance.toJSON();
+            },
+            fromFirestore(snapshot, options) {
+                const uid = snapshot.id;
+                const data = snapshot.data(options) || {};
+                const translates = (data.translates && typeof data.translates === "object" && !Array.isArray(data.translates))
+                    ? (() => {
+                        const sub = new ClassLessonSubchapter(data);
+                        return sub._convertTranslatesFromFirestore(data.translates);
+                    })()
+                    : (data.translates || []).map(trans => new ClassLessonSubchapterTranslation(trans));
+                return ClassLessonSubchapter.makeSubchapterInstance(uid, {
+                    ...data,
+                    translates,
+                });
+            },
+        };
+    }
+
+    // ---------- Helpers Firestore ----------
+    static colRef(uidLesson = "", uidChapter = "") {
+        if (!uidLesson || !uidChapter) return null;
+        return collection(
+            firestore,
+            ClassLesson.COLLECTION,
+            uidLesson,
+            ClassLessonChapter.COLLECTION,
+            uidChapter,
+            this.COLLECTION
+        ).withConverter(this.converter);
+    }
+    static docRef(uidLesson = "", uidChapter = "", id = "") {
+        if (!uidLesson || !uidChapter || !id) return null;
+        return doc(
+            firestore,
+            ClassLesson.COLLECTION,
+            uidLesson,
+            ClassLessonChapter.COLLECTION,
+            uidChapter,
+            this.COLLECTION,
+            id
+        ).withConverter(this.converter);
+    }
+    static async count(uidLesson = "", uidChapter = "", constraints = []) {
+        try {
+            const col = this.colRef(uidLesson, uidChapter);
+            if (!col) return 0;
+            const q = constraints.length ? query(col, ...constraints) : query(col);
+            const snap = await getCountFromServer(q);
+            return snap.data().count ?? 0;
+        } catch (error) {
+            console.error("ClassLessonSubchapter.count", error);
+            return 0;
+        }
+    }
+
+    createFirestoreDocUid() {
+        try {
+            const uidLesson = this._uid_lesson || this._chapter?.uid_lesson || "";
+            const uidChapter = this._uid_chapter || "";
+            if (!uidLesson || !uidChapter) return null;
+            const colRef = collection(
+                firestore,
+                ClassLesson.COLLECTION,
+                uidLesson,
+                ClassLessonChapter.COLLECTION,
+                uidChapter,
+                this.constructor.COLLECTION
+            );
+            const newRef = doc(colRef);
+            return newRef.id;
+        } catch (error) {
+            console.error("ClassLessonSubchapter.createFirestoreDocUid", error);
+            return null;
+        }
+    }
+    async createFirestore() {
+        try {
+            const uidLesson = this._uid_lesson || this._chapter?.uid_lesson || "";
+            const uidChapter = this._uid_chapter || "";
+            if (!uidLesson || !uidChapter) {
+                console.error("ClassLessonSubchapter.createFirestore: uid_lesson / uid_chapter manquants");
+                return null;
+            }
+            let newRef = null;
+            if (this._uid) {
+                newRef = this.constructor.docRef(uidLesson, uidChapter, this._uid);
+            } else {
+                const colRef = this.constructor.colRef(uidLesson, uidChapter);
+                if (!colRef) return null;
+                newRef = doc(colRef).withConverter(this.constructor.converter);
+            }
+            if (!this._uid) {
+                this._uid = newRef.id;
+            }
+            if (!this._uid_lesson) this._uid_lesson = uidLesson;
+            if (!this._uid_chapter) this._uid_chapter = uidChapter;
+            await setDoc(newRef, this, { merge: true });
+            return this.constructor.makeSubchapterInstance(this._uid, this.toJSON());
+        } catch (error) {
+            console.error("ClassLessonSubchapter.createFirestore", error);
+            return null;
+        }
+    }
+    async updateFirestore(patch = {}) {
+        try {
+            const uidLesson = this._uid_lesson || this._chapter?.uid_lesson || "";
+            const uidChapter = this._uid_chapter || "";
+            if (!uidLesson || !uidChapter || !this._uid) {
+                console.error("ClassLessonSubchapter.updateFirestore: uid_lesson / uid_chapter / uid manquants");
+                return null;
+            }
+            const ref = this.constructor.docRef(uidLesson, uidChapter, this._uid);
+            if (patch && Object.keys(patch).length) {
+                this.update(patch);
+            }
+            await setDoc(ref, this, { merge: true });
+            return this.constructor.makeSubchapterInstance(this._uid, this.toJSON());
+        } catch (e) {
+            console.error("ClassLessonSubchapter.updateFirestore", e);
+            return null;
+        }
+    }
+
     getTranslate(lang = defaultLanguage) {
         if (!lang) return null;
-        const translate = this._translates?.find(item => item.lang === lang);
-        //if(!translate) return null;
-        return translate;
+        return this._translates?.find(item => item.lang === lang) ?? null;
+    }
+}
+
+/** Serialiseur pour ClassLessonSubchapter (même logique que ChapterSerializer). */
+class SubchapterSerializer {
+    static fieldsToRemove = ["chapter", "translate","exercises","goals","keys","photo_url", "title"];
+    static toJSON(subchapter) {
+        const out = { ...subchapter };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v])
+        );
+        cleaned.translates = subchapter._convertTranslatesToFirestore(subchapter.translates || []);
+        for (const field of this.fieldsToRemove) {
+            delete cleaned[field];
+        }
+        return cleaned;
+    }
+    static fromJSON(data) {
+        const hasUnderscoreKeys = Object.keys(data).some((k) => k.startsWith("_"));
+        const cleaned = hasUnderscoreKeys
+            ? Object.fromEntries(
+                Object.entries(data)
+                    .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                    .map(([k, v]) => [k.replace(/^_/, ""), v])
+            )
+            : { ...data };
+        const translates =
+            cleaned.translates && typeof cleaned.translates === "object" && !Array.isArray(cleaned.translates)
+                ? Object.values(cleaned.translates).map((t) => new ClassLessonSubchapterTranslation(t))
+                : (cleaned.translates || []).map((t) => (t && (t.lang != null || t._lang != null) ? new ClassLessonSubchapterTranslation(t) : t));
+        const uid = cleaned.uid ?? "";
+        return ClassLessonSubchapter.makeSubchapterInstance(uid, { ...cleaned, translates });
     }
 }
 export class ClassLessonSubchapterTranslation {

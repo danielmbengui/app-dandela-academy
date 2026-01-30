@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { IconArrowDown, IconArrowUp, IconCamera, IconCheck, IconPicture, IconRemove } from "@/assets/icons/IconsComponent";
 import { ClassLesson, ClassLessonTeacher, ClassLessonTranslate } from "@/classes/ClassLesson";
 import { languages, NS_BUTTONS, NS_DASHBOARD_MENU, NS_DAYS, NS_LANGS, NS_LESSONS_ONE } from "@/contexts/i18n/settings";
-import { Box, Chip, Container, Grid, IconButton, Stack, Typography } from "@mui/material";
+import { Box, Chip, Container, Grid, IconButton, Stack, Switch, Typography } from "@mui/material";
 
 import { Trans, useTranslation } from "react-i18next";
 import { useLesson } from "@/contexts/LessonProvider";
@@ -744,6 +744,93 @@ function ImageComponent({ src = null, uid = '' }) {
     </Box>
   );
 }
+
+function EnabledBlock() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS]);
+  const { lesson, update: updateLesson } = useLesson();
+  const [saving, setSaving] = useState(false);
+  const enabled = lesson?.enabled === true;
+
+  const handleToggle = useCallback(async () => {
+    if (!lesson) return;
+    setSaving(true);
+    try {
+      const patched = lesson.clone();
+      patched.update({ enabled: !enabled });
+      await updateLesson(patched);
+    } finally {
+      setSaving(false);
+    }
+  }, [lesson, enabled, updateLesson]);
+
+  if (!lesson) return null;
+
+  const cardSx = {
+    bgcolor: 'var(--card-color)',
+    color: 'var(--font-color)',
+    borderRadius: 2,
+    border: '1px solid var(--card-border)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    p: 2.5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 2,
+    flexWrap: 'wrap',
+    transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+    '&:hover': { boxShadow: '0 4px 14px rgba(0,0,0,0.06)' },
+  };
+
+  return (
+    <Box sx={cardSx}>
+      <Stack direction="row" alignItems="center" spacing={2} flex={1} minWidth={0}>
+        <Box
+          sx={{
+            width: 44,
+            height: 44,
+            borderRadius: 2,
+            bgcolor: enabled ? 'var(--warning-shadow-sm)' : 'var(--grey-hyper-light)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background 0.2s ease',
+          }}
+        >
+          <Icon
+            icon={enabled ? 'mdi:eye-check' : 'mdi:eye-off-outline'}
+            width={26}
+            height={26}
+            style={{ color: enabled ? 'var(--warning)' : 'var(--grey)' }}
+          />
+        </Box>
+        <Stack spacing={0.25}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'var(--font-color)' }}>
+            {t('enabled')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'var(--grey)', fontSize: '0.875rem' }}>
+            {t('enabled_description')}
+          </Typography>
+        </Stack>
+      </Stack>
+      <Switch
+        checked={enabled}
+        onChange={handleToggle}
+        disabled={saving}
+        size="medium"
+        sx={{
+          '& .MuiSwitch-switchBase.Mui-checked': {
+            color: 'var(--warning)',
+            '& + .MuiSwitch-track': { bgcolor: 'var(--warning) !important', opacity: 0.4 },
+          },
+          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+            bgcolor: 'var(--warning) !important',
+          },
+        }}
+      />
+    </Box>
+  );
+}
+
 function InfosComponent() {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
   const { lang } = useLanguage();
@@ -765,6 +852,7 @@ function InfosComponent() {
     if (lesson?.subtitle !== lessonEdit?.subtitle) return false;
     if (lesson?.description !== lessonEdit?.description) return false;
     if (lesson?.certified !== lessonEdit?.certified) return false;
+    if (lesson?.enabled !== lessonEdit?.enabled) return false;
     if (files.length > 0 || lesson?.photo_url !== lessonEdit?.photo_url) return false;
     return true;
   }, [lesson, lessonEdit, files.length]);
@@ -1656,7 +1744,7 @@ function OnsiteLessonsListComponent() {
   );
 }
 
-export default function LessonAdminEditComponent() {
+export default function LessonAdminEditComponent({ renderAfterContent = null }) {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS, NS_LESSONS_ONE, NS_LANGS, NS_DAYS, NS_DASHBOARD_MENU, NS_LESSONS]);
   //const [lesson, setLesson] = useState(null);
   const { lesson } = useLesson();
@@ -1686,9 +1774,15 @@ export default function LessonAdminEditComponent() {
   return (
     <Container disableGutters sx={{ width: "100%" }}>
       <Grid container spacing={1} sx={{ width: "100%" }}>
+        {lesson?.uid && (
+          <Grid size={12}>
+            <EnabledBlock />
+          </Grid>
+        )}
         <Grid size={12}>
           <Box component="div" onClick={() => setOpenedView("infos")} sx={{ cursor: "pointer" }}>
             <AccordionComponent
+            isAdmin={true}
               title={t("infos")}
               onChange={() => setOpenedView("infos")}
               expanded={openedView === "infos"}
@@ -1700,6 +1794,7 @@ export default function LessonAdminEditComponent() {
         <Grid size={12}>
           <Box component="div" onClick={() => setOpenedView("photos")} sx={{ cursor: "pointer" }}>
             <AccordionComponent
+            isAdmin={true}
               title={t("photos")}
               onChange={() => setOpenedView("photos")}
               expanded={openedView === "photos"}
@@ -1733,6 +1828,11 @@ export default function LessonAdminEditComponent() {
             </Stack>
 </Stack>
         </Grid>
+        {renderAfterContent && (
+          <Grid size={12} sx={{ mt: 1.5 }} spacing={1}>
+            {renderAfterContent}
+          </Grid>
+        )}
         {lesson?.uid && (
           <Grid size={12} sx={{ mt: 3 }} spacing={1}>
             <Stack spacing={1}>
