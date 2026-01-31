@@ -226,6 +226,7 @@ function AddGoalsComponent({ subchapter = null, setSubchapter = null }) {
                             minRows={3}
                             maxRows={10}
                             fullWidth
+                            isAdmin={true}
                             style={{ width: '100%' }}
                         />
                     </div>)
@@ -246,6 +247,7 @@ function AddGoalsComponent({ subchapter = null, setSubchapter = null }) {
                 minRows={3}
                 maxRows={10}
                 fullWidth
+                isAdmin={true}
                 style={{ width: '100%' }}
             />
         </Stack>
@@ -346,6 +348,7 @@ function AddKeysComponent({ subchapter = null, setSubchapter = null }) {
                             minRows={3}
                             maxRows={10}
                             fullWidth
+                            isAdmin={true}
                             style={{ width: '100%' }}
                         />
                     </div>)
@@ -367,6 +370,7 @@ function AddKeysComponent({ subchapter = null, setSubchapter = null }) {
                 minRows={3}
                 maxRows={10}
                 fullWidth
+                isAdmin={true}
                 style={{ width: '100%' }}
             />
         </Stack>
@@ -457,6 +461,7 @@ function AddExercicesComponent({ subchapter = null, setSubchapter = null }) {
                             minRows={3}
                             maxRows={10}
                             fullWidth
+                            isAdmin={true}
                             style={{ width: '100%' }}
                         />
                     </div>)
@@ -478,6 +483,7 @@ function AddExercicesComponent({ subchapter = null, setSubchapter = null }) {
                 minRows={3}
                 maxRows={10}
                 fullWidth
+                isAdmin={true}
                 style={{ width: '100%' }}
             />
         </Stack>
@@ -622,6 +628,7 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
                                     minRows={3}
                                     maxRows={10}
                                     fullWidth
+                                    isAdmin={true}
                                     style={{ width: '100%' }}
                                 />
                             </div>)
@@ -657,6 +664,7 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
                         minRows={3}
                         maxRows={10}
                         fullWidth
+                        isAdmin={true}
                         style={{ width: '100%' }}
                     />
                 </Stack>
@@ -837,6 +845,7 @@ function CreateSubchaptersComponent({ chapter = null, setChapter = null, setMode
                 onChange={onChangeValue}
                 onClear={() => onClearValue('title')}
                 fullWidth
+                isAdmin={true}
                 style={{ width: '100%' }}
             />
             <AddGoalsComponent subchapter={subchapter} setSubchapter={setSubchapter} />

@@ -461,6 +461,7 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
                         minRows={1}
                         maxRows={10}
                         fullWidth
+                        isAdmin={true}
                         style={{ width: '100%' }}
                     />)
                 })
@@ -494,6 +495,7 @@ function GoalsComponent({ chapter = null, setChapter = null, setMode = null }) {
                 minRows={3}
                 maxRows={10}
                 fullWidth
+                isAdmin={true}
                 style={{ width: '100%' }}
             />
 

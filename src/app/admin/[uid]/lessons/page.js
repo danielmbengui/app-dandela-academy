@@ -115,6 +115,7 @@ function LessonsComponent() {
               setFilter((prev) => ({ ...prev, search: e.target.value }))
             }
             onClear={() => setFilter((prev) => ({ ...prev, search: "" }))}
+            isAdmin={true}
           />
         </Grid>
       </Grid>

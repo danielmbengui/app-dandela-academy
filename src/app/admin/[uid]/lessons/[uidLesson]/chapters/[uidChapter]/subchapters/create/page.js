@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Box, Chip, CircularProgress, IconButton, Slide, Snackbar, Stack, Typography } from "@mui/material";
+import { Alert, Box, Chip, CircularProgress, Grid, IconButton, Slide, Snackbar, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -17,7 +17,7 @@ import { ClassLang } from "@/classes/ClassLang";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useLesson } from "@/contexts/LessonProvider";
 import { useChapter } from "@/contexts/ChapterProvider";
-import { defaultLanguage, languages } from "@/contexts/i18n/settings";
+import { languages } from "@/contexts/i18n/settings";
 import { NS_ADMIN_CHAPTERS, NS_BUTTONS, NS_DASHBOARD_MENU, NS_LANGS } from "@/contexts/i18n/settings";
 import {
   PAGE_ADMIN_CHAPTERS,
@@ -26,7 +26,7 @@ import {
   PAGE_ADMIN_LESSONS,
   PAGE_ADMIN_ONE_LESSON,
 } from "@/contexts/constants/constants_pages";
-import { IconCamera, IconLessons, IconRemove } from "@/assets/icons/IconsComponent";
+import { IconArrowDown, IconArrowUp, IconCamera, IconLessons, IconRemove } from "@/assets/icons/IconsComponent";
 
 import AdminPageWrapper from "@/components/wrappers/AdminPageWrapper";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
@@ -35,6 +35,7 @@ import DialogConfirmAction from "@/components/dashboard/elements/DialogConfirmAc
 import FieldComponent from "@/components/elements/FieldComponent";
 import TextFieldComponent from "@/components/elements/TextFieldComponent";
 import ButtonImportFiles from "@/components/elements/ButtonImportFiles";
+import { useLanguage } from "@/contexts/LangProvider";
 
 function SlideTransition(props) {
   return <Slide {...props} direction="up" />;
@@ -181,6 +182,7 @@ function OnePhotoByLangComponent({ lang, photoUrl, photoFile, setPhotoUrl, setPh
               />
             </Stack>
             <ButtonImportFiles
+              isAdmin={true}
               disabled={processing}
               files={[]}
               setFiles={(files) => setPhotoFile(files?.length ? files[0] : null)}
@@ -217,6 +219,7 @@ export default function CreateSubchapterPage() {
   const params = useParams();
   const router = useRouter();
   const { uid: uidUser, uidLesson, uidChapter } = params;
+  const {lang} = useLanguage();
   const { user } = useAuth();
   const { lesson, isLoading: isLoadingLesson, setUidLesson } = useLesson();
   const { chapter, isLoading: isLoadingChapter, setUidChapter } = useChapter();
@@ -233,7 +236,6 @@ export default function CreateSubchapterPage() {
   const [newExercise, setNewExercise] = useState("");
   const [translates, setTranslates] = useState([]);
   const [processing, setProcessing] = useState(false);
-  const [translating, setTranslating] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [errors, setErrors] = useState({});
@@ -247,43 +249,6 @@ export default function CreateSubchapterPage() {
   useEffect(() => {
     if (uidChapter) setUidChapter(uidChapter);
   }, [uidChapter, setUidChapter]);
-
-  const handleTranslate = async () => {
-    setTranslating(true);
-    setErrors({});
-    try {
-      const payload = {
-        title: title || "",
-        goals: goals?.filter(Boolean) || [],
-        keys: keys?.filter(Boolean) || [],
-        exercises: exercises?.filter(Boolean) || [],
-      };
-      const qs = encodeURIComponent(JSON.stringify(payload));
-      const res = await fetch(`/api/test?lang=${defaultLanguage}&translations=${qs}`);
-      if (!res.ok) throw new Error("Translation API error");
-      const result = await res.json();
-      const langs = Object.keys(result);
-
-      const translated = langs.map((lang) => {
-        const data = result[lang] || {};
-        return new ClassLessonSubchapterTranslation({
-          lang,
-          title: typeof data.title === "string" ? data.title : title || "",
-          goals: Array.isArray(data.goals) ? data.goals : (data.goals ? [data.goals] : goals?.filter(Boolean) || []),
-          keys: Array.isArray(data.keys) ? data.keys : (data.keys ? [data.keys] : keys?.filter(Boolean) || []),
-          exercises: Array.isArray(data.exercises) ? data.exercises : (data.exercises ? [data.exercises] : exercises?.filter(Boolean) || []),
-          photo_url: data.photo_url ?? photoUrls[lang] ?? "",
-        });
-      });
-      setTranslates(translated);
-      setSnackbar({ open: true, message: t("success-translated", { ns: NS_ADMIN_CHAPTERS }), severity: "success" });
-    } catch (err) {
-      console.error(err);
-      setSnackbar({ open: true, message: t("error-add-subchapter", { ns: NS_ADMIN_CHAPTERS }), severity: "error" });
-    } finally {
-      setTranslating(false);
-    }
-  };
 
   const validate = () => {
     const e = {};
@@ -313,7 +278,7 @@ export default function CreateSubchapterPage() {
           exercises: exercisesFiltered,
         };
         const qs = encodeURIComponent(JSON.stringify(payload));
-        const res = await fetch(`/api/test?lang=${defaultLanguage}&translations=${qs}`);
+        const res = await fetch(`/api/test?lang=${lang}&translations=${qs}`);
         if (res.ok) {
           const result = await res.json();
           const langs = Object.keys(result);
@@ -360,7 +325,7 @@ export default function CreateSubchapterPage() {
         return new ClassLessonSubchapterTranslation({ ...tr.toJSON(), photo_url: url });
       });
 
-      const defaultPhotoUrl = photoUrlByLang[defaultLanguage] || Object.values(photoUrlByLang).find(Boolean) || "";
+      const defaultPhotoUrl = photoUrlByLang[lang] || Object.values(photoUrlByLang).find(Boolean) || "";
 
       const nextIndex = (chapter.subchapters?.length ?? 0) + 1;
       const newSubchapter = new ClassLessonSubchapter({
@@ -402,6 +367,34 @@ export default function CreateSubchapterPage() {
     setSnackbar((s) => ({ ...s, open: false }));
   };
 
+  const onMoveGoals = (fromIndex, toIndex) => {
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= goals.length || toIndex >= goals.length) return;
+    setGoals((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+  const onMoveKeys = (fromIndex, toIndex) => {
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= keys.length || toIndex >= keys.length) return;
+    setKeys((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+  const onMoveExercises = (fromIndex, toIndex) => {
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= exercises.length || toIndex >= exercises.length) return;
+    setExercises((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+
   const lessonTitle = lesson?.title ?? lesson?.translate?.title ?? "";
   const chapterTitle = chapter?.translate?.title ?? chapter?.title ?? "";
   const loading = Boolean(uidChapter && isLoadingChapter);
@@ -422,7 +415,7 @@ export default function CreateSubchapterPage() {
         titles={[
           { name: t("lessons", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
           { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
-          { name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
+          { name: t("chapters", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
           { name: t("subchapters-button", { ns: NS_ADMIN_CHAPTERS }) },
         ]}
         isAuthorized={isAuthorized}
@@ -440,7 +433,7 @@ export default function CreateSubchapterPage() {
       titles={[
         { name: t("lessons", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
         { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
-        { name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
+        { name: t("chapters", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
         ...(chapterTitle ? [{ name: chapterTitle, url: PAGE_ADMIN_ONE_CHAPTER(uidUser, uidLesson, uidChapter) }] : []),
         { name: t("subchapters-button", { ns: NS_ADMIN_CHAPTERS }), url: PAGE_ADMIN_CHAPTER_SUBCHAPTERS(uidUser, uidLesson, uidChapter) },
         { name: t("create-subchapter", { ns: NS_BUTTONS }) },
@@ -453,13 +446,6 @@ export default function CreateSubchapterPage() {
           <Link href={PAGE_ADMIN_CHAPTER_SUBCHAPTERS(uidUser, uidLesson, uidChapter)} style={{ textDecoration: "none" }}>
             <ButtonCancel label={t("back", { ns: NS_BUTTONS })} isAdmin />
           </Link>
-          <ButtonConfirm
-            label={t("translate", { ns: NS_ADMIN_CHAPTERS })}
-            isAdmin
-            loading={translating}
-            disabled={!title?.trim() || translating}
-            onClick={handleTranslate}
-          />
           <ButtonConfirm
             label={t("add-subchapter", { ns: NS_ADMIN_CHAPTERS })}
             isAdmin
@@ -512,26 +498,43 @@ export default function CreateSubchapterPage() {
             {t("goals", { ns: ClassLessonChapter.NS_COLLECTION })}
           </Typography>
           {goals.map((goal, i) => (
-            <FieldComponent
-              key={`goal-${i}`}
-              label={`${t("goal n°", { ns: ClassLessonChapter.NS_COLLECTION })} ${i + 1}`}
-              value={goal}
-              name={`goal_${i}`}
-              type="multiline"
-              onChange={(e) => {
-                const v = e.target.value;
-                setGoals((prev) => {
-                  const next = [...prev];
-                  next[i] = v;
-                  return next;
-                });
-              }}
-              removable
-              onRemove={() => setGoals((prev) => prev.filter((_, idx) => idx !== i))}
-              minRows={1}
-              maxRows={4}
-              fullWidth
-            />
+            <Grid key={`goal-${i}`} container alignItems="center" justifyContent="stretch" direction="row" spacing={1.5} sx={{ width: "100%", "&:hover": { bgcolor: "var(--warning-shadow-sm)" }, borderRadius: 1, p: 0.5 }}>
+              {goal?.trim?.() && (
+                <Grid size="auto">
+                  <Box onClick={() => i > 0 && onMoveGoals(i, i - 1)} sx={{ cursor: i > 0 ? "pointer" : "default", display: "flex" }}>
+                    <IconArrowUp color={i > 0 ? "var(--warning)" : "var(--grey-light)"} width={20} height={20} />
+                  </Box>
+                  <Box onClick={() => i < goals.length - 1 && onMoveGoals(i, i + 1)} sx={{ cursor: i < goals.length - 1 ? "pointer" : "default", display: "flex" }}>
+                    <IconArrowDown color={i < goals.length - 1 ? "var(--warning)" : "var(--grey-light)"} width={20} height={20} />
+                  </Box>
+                </Grid>
+              )}
+              <Grid size="auto">
+                <Typography variant="body2" sx={{ color: "var(--grey)", fontWeight: 600, minWidth: 24 }}>{i + 1}.</Typography>
+              </Grid>
+              <Grid size="grow">
+                <FieldComponent
+                  label={`${t("goal n°", { ns: ClassLessonChapter.NS_COLLECTION })} ${i + 1}`}
+                  value={goal}
+                  name={`goal_${i}`}
+                  type="multiline"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setGoals((prev) => {
+                      const next = [...prev];
+                      next[i] = v;
+                      return next;
+                    });
+                  }}
+                  removable
+                  onRemove={() => setGoals((prev) => prev.filter((_, idx) => idx !== i))}
+                  minRows={1}
+                  maxRows={4}
+                  fullWidth
+                  isAdmin
+                />
+              </Grid>
+            </Grid>
           ))}
           <FieldComponent
             label={t("new-goal", { ns: NS_ADMIN_CHAPTERS })}
@@ -550,32 +553,50 @@ export default function CreateSubchapterPage() {
             minRows={1}
             maxRows={4}
             fullWidth
+            isAdmin={true}
           />
 
           <Typography variant="subtitle2" sx={{ color: "var(--font-color)", fontWeight: 600 }}>
             {t("keys", { ns: ClassLessonChapter.NS_COLLECTION })}
           </Typography>
           {keys.map((keyVal, i) => (
-            <FieldComponent
-              key={`key-${i}`}
-              label={`${t("keys", { ns: ClassLessonChapter.NS_COLLECTION })} ${i + 1}`}
-              value={keyVal}
-              name={`key_${i}`}
-              type="multiline"
-              onChange={(e) => {
-                const v = e.target.value;
-                setKeys((prev) => {
-                  const next = [...prev];
-                  next[i] = v;
-                  return next;
-                });
-              }}
-              removable
-              onRemove={() => setKeys((prev) => prev.filter((_, idx) => idx !== i))}
-              minRows={1}
-              maxRows={2}
-              fullWidth
-            />
+            <Grid key={`key-${i}`} container alignItems="center" justifyContent="stretch" direction="row" spacing={1.5} sx={{ width: "100%", "&:hover": { bgcolor: "var(--warning-shadow-sm)" }, borderRadius: 1, p: 0.5 }}>
+              {keyVal?.trim?.() && (
+                <Grid size="auto">
+                  <Box onClick={() => i > 0 && onMoveKeys(i, i - 1)} sx={{ cursor: i > 0 ? "pointer" : "default", display: "flex" }}>
+                    <IconArrowUp color={i > 0 ? "var(--warning)" : "var(--grey-light)"} width={20} height={20} />
+                  </Box>
+                  <Box onClick={() => i < keys.length - 1 && onMoveKeys(i, i + 1)} sx={{ cursor: i < keys.length - 1 ? "pointer" : "default", display: "flex" }}>
+                    <IconArrowDown color={i < keys.length - 1 ? "var(--warning)" : "var(--grey-light)"} width={20} height={20} />
+                  </Box>
+                </Grid>
+              )}
+              <Grid size="auto">
+                <Typography variant="body2" sx={{ color: "var(--grey)", fontWeight: 600, minWidth: 24 }}>{i + 1}.</Typography>
+              </Grid>
+              <Grid size="grow">
+                <FieldComponent
+                  label={`${t("keys", { ns: ClassLessonChapter.NS_COLLECTION })} ${i + 1}`}
+                  value={keyVal}
+                  name={`key_${i}`}
+                  type="multiline"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setKeys((prev) => {
+                      const next = [...prev];
+                      next[i] = v;
+                      return next;
+                    });
+                  }}
+                  removable
+                  onRemove={() => setKeys((prev) => prev.filter((_, idx) => idx !== i))}
+                  minRows={1}
+                  maxRows={2}
+                  fullWidth
+                  isAdmin
+                />
+              </Grid>
+            </Grid>
           ))}
           <FieldComponent
             label={t("new-key", { ns: NS_ADMIN_CHAPTERS })}
@@ -594,32 +615,50 @@ export default function CreateSubchapterPage() {
             minRows={1}
             maxRows={2}
             fullWidth
+            isAdmin={true}
           />
 
           <Typography variant="subtitle2" sx={{ color: "var(--font-color)", fontWeight: 600 }}>
             {t("exercises", { ns: ClassLessonChapter.NS_COLLECTION })}
           </Typography>
           {exercises.map((ex, i) => (
-            <FieldComponent
-              key={`exercise-${i}`}
-              label={`${t("exercises", { ns: ClassLessonChapter.NS_COLLECTION })} ${i + 1}`}
-              value={ex}
-              name={`exercise_${i}`}
-              type="multiline"
-              onChange={(e) => {
-                const v = e.target.value;
-                setExercises((prev) => {
-                  const next = [...prev];
-                  next[i] = v;
-                  return next;
-                });
-              }}
-              removable
-              onRemove={() => setExercises((prev) => prev.filter((_, idx) => idx !== i))}
-              minRows={2}
-              maxRows={6}
-              fullWidth
-            />
+            <Grid key={`exercise-${i}`} container alignItems="center" justifyContent="stretch" direction="row" spacing={1.5} sx={{ width: "100%", "&:hover": { bgcolor: "var(--warning-shadow-sm)" }, borderRadius: 1, p: 0.5 }}>
+              {ex?.trim?.() && (
+                <Grid size="auto">
+                  <Box onClick={() => i > 0 && onMoveExercises(i, i - 1)} sx={{ cursor: i > 0 ? "pointer" : "default", display: "flex" }}>
+                    <IconArrowUp color={i > 0 ? "var(--warning)" : "var(--grey-light)"} width={20} height={20} />
+                  </Box>
+                  <Box onClick={() => i < exercises.length - 1 && onMoveExercises(i, i + 1)} sx={{ cursor: i < exercises.length - 1 ? "pointer" : "default", display: "flex" }}>
+                    <IconArrowDown color={i < exercises.length - 1 ? "var(--warning)" : "var(--grey-light)"} width={20} height={20} />
+                  </Box>
+                </Grid>
+              )}
+              <Grid size="auto">
+                <Typography variant="body2" sx={{ color: "var(--grey)", fontWeight: 600, minWidth: 24 }}>{i + 1}.</Typography>
+              </Grid>
+              <Grid size="grow">
+                <FieldComponent
+                  label={`${t("exercises", { ns: ClassLessonChapter.NS_COLLECTION })} ${i + 1}`}
+                  value={ex}
+                  name={`exercise_${i}`}
+                  type="multiline"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setExercises((prev) => {
+                      const next = [...prev];
+                      next[i] = v;
+                      return next;
+                    });
+                  }}
+                  removable
+                  onRemove={() => setExercises((prev) => prev.filter((_, idx) => idx !== i))}
+                  minRows={2}
+                  maxRows={6}
+                  fullWidth
+                  isAdmin
+                />
+              </Grid>
+            </Grid>
           ))}
           <FieldComponent
             label={t("new-exercise", { ns: NS_ADMIN_CHAPTERS })}
@@ -638,6 +677,7 @@ export default function CreateSubchapterPage() {
             minRows={2}
             maxRows={6}
             fullWidth
+            isAdmin={true}
           />
         </Stack>
       </Stack>
@@ -649,6 +689,7 @@ export default function CreateSubchapterPage() {
         labelConfirm={t("add-subchapter", { ns: NS_ADMIN_CHAPTERS })}
         labelCancel={t("cancel", { ns: NS_BUTTONS })}
         severity="warning"
+        isAdmin={true}
         actionCancel={() => setConfirmOpen(false)}
         actionConfirm={handleAddSubchapter}
       />

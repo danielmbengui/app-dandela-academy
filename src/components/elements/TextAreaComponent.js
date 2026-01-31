@@ -224,10 +224,14 @@ export default function TextAreaComponent({
                         {icon}
                     </InputAdornment>
                 ),
-                endAdornment: value.length > 0 && !disabled && (
+                endAdornment: value.length > 0 && !disabled && onClear && (
                     <InputAdornment position="end">
                         <IconButton
-                            onClick={onClear}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (onClear) onClear();
+                            }}
                             edge="end"
                             size="small"
                         >
@@ -244,7 +248,7 @@ export default function TextAreaComponent({
 TextAreaComponent.propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
-    onClear: PropTypes.func.isRequired,
+    onClear: PropTypes.func,
     onSubmit: PropTypes.func,
     label: PropTypes.string,
     icon: PropTypes.node,

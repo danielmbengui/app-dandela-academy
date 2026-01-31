@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Box,
   CircularProgress,
   Divider,
+  Grid,
   IconButton,
   Slide,
   Snackbar,
@@ -42,7 +43,7 @@ import {
   PAGE_ADMIN_LESSONS,
   PAGE_ADMIN_ONE_LESSON,
 } from "@/contexts/constants/constants_pages";
-import { IconLessons } from "@/assets/icons/IconsComponent";
+import { IconArrowDown, IconArrowUp, IconLessons } from "@/assets/icons/IconsComponent";
 
 import AdminPageWrapper from "@/components/wrappers/AdminPageWrapper";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
@@ -60,6 +61,7 @@ function QuestionComponent({
   index,
   onUpdateQuestion,
   onRemoveQuestion,
+  onConfirmRemoveQuestion,
   isCollapsed = false,
   onExpand,
   onCollapse,
@@ -69,6 +71,14 @@ function QuestionComponent({
   const [proposals, setProposals] = useState(question?.proposals || []);
   const [answer, setAnswer] = useState(question?.answer || {});
   const [newProposal, setNewProposal] = useState("");
+  const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
+  const initialQuestionRef = useRef(null);
+
+  useEffect(() => {
+    if (question != null && initialQuestionRef.current === null) {
+      initialQuestionRef.current = JSON.parse(JSON.stringify(question));
+    }
+  }, [question]);
 
   useEffect(() => {
     setQuestionText(question?.question || "");
@@ -129,6 +139,40 @@ function QuestionComponent({
     onUpdateQuestion(index, { ...question, proposals: newProposals });
   };
 
+  const handleMoveProposalUp = (pIndex) => {
+    if (pIndex <= 0) return;
+    const newProposals = [...proposals];
+    [newProposals[pIndex - 1], newProposals[pIndex]] = [newProposals[pIndex], newProposals[pIndex - 1]];
+    const updatedProposals = newProposals.map((p, i) => ({ ...p, uid_intern: i + 1 }));
+    const answerValue = answer?.value;
+    const newAnswer = answerValue
+      ? (() => {
+          const found = updatedProposals.find((p) => p.value === answerValue);
+          return found ? { uid_intern: found.uid_intern, value: found.value } : answer;
+        })()
+      : answer;
+    setProposals(updatedProposals);
+    setAnswer(newAnswer);
+    onUpdateQuestion(index, { ...question, proposals: updatedProposals, answer: newAnswer });
+  };
+
+  const handleMoveProposalDown = (pIndex) => {
+    if (pIndex >= proposals.length - 1) return;
+    const newProposals = [...proposals];
+    [newProposals[pIndex], newProposals[pIndex + 1]] = [newProposals[pIndex + 1], newProposals[pIndex]];
+    const updatedProposals = newProposals.map((p, i) => ({ ...p, uid_intern: i + 1 }));
+    const answerValue = answer?.value;
+    const newAnswer = answerValue
+      ? (() => {
+          const found = updatedProposals.find((p) => p.value === answerValue);
+          return found ? { uid_intern: found.uid_intern, value: found.value } : answer;
+        })()
+      : answer;
+    setProposals(updatedProposals);
+    setAnswer(newAnswer);
+    onUpdateQuestion(index, { ...question, proposals: updatedProposals, answer: newAnswer });
+  };
+
   const handleAnswerChange = (e) => {
     const selectedUidIntern = parseInt(e.target.value, 10);
     const selectedProposal = proposals.find(
@@ -144,15 +188,53 @@ function QuestionComponent({
     }
   };
 
-  const answerOptions = proposals.map((p) => ({
+  const handleReset = () => {
+    const initial = initialQuestionRef.current;
+    if (!initial) return;
+    const origQuestion = initial.question ?? "";
+    const origProposals = Array.isArray(initial.proposals) ? [...initial.proposals] : [];
+    const origAnswer = initial.answer ? { ...initial.answer } : {};
+    setQuestionText(origQuestion);
+    setProposals(origProposals);
+    setAnswer(origAnswer);
+    setNewProposal("");
+    onUpdateQuestion(index, {
+      ...question,
+      question: origQuestion,
+      proposals: origProposals,
+      answer: origAnswer,
+    });
+  };
+
+  const answerOptions = proposals.sort((a, b) => a.uid_intern - b.uid_intern).map((p) => ({
     value: p.uid_intern,
     label: p.value || `${t("proposal-n", { ns: NS_ADMIN_CHAPTERS })}${p.uid_intern}`,
   }));
 
+  const initial = initialQuestionRef.current;
+  const hasQuestionChanged = initial
+    ? !questionContentEqual(
+        { question: questionText, proposals, answer },
+        {
+          question: initial.question ?? "",
+          proposals: initial.proposals ?? [],
+          answer: initial.answer ?? {},
+        }
+      )
+    : false;
+
+  /** L’icône reset est active seulement si les propositions ou la réponse ont changé (pas le texte de la question) */
+  const hasProposalOrAnswerChanged = initial
+    ? !proposalsAndAnswerEqual(
+        { proposals, answer },
+        { proposals: initial.proposals ?? [], answer: initial.answer ?? {} }
+      )
+    : false;
+
   const isValid = questionText?.trim() && proposals.length >= 2 && answer?.uid_intern;
 
   const questionTitle = `${t("question-n", { ns: NS_ADMIN_CHAPTERS })}${index + 1}${
-    questionText ? `: ${questionText.substring(0, 50)}${questionText.length > 50 ? "..." : ""}` : ""
+    questionText ? ` : ${questionText.substring(0, 50)}${questionText.length > 50 ? "..." : ""}` : ""
   }`;
 
   const questionContent = (
@@ -179,18 +261,52 @@ function QuestionComponent({
       </Typography>
 
       {proposals.map((proposal, pIndex) => (
-        <FieldComponent
+        <Grid
           key={`proposal-${index}-${pIndex}`}
-          label={`${t("proposal-n", { ns: NS_ADMIN_CHAPTERS })}${pIndex + 1}`}
-          value={proposal.value || ""}
-          name={`proposal_${index}_${pIndex}`}
-          type="text"
-          onChange={(e) => handleProposalChange(pIndex, e.target.value)}
-          removable
-          onRemove={() => handleRemoveProposal(pIndex)}
-          fullWidth
-          isAdmin
-        />
+          container
+          alignItems="center"
+          spacing={1}
+          sx={{ width: "100%" }}
+        >
+          <Grid size="auto">
+            <Stack direction="column" spacing={0}>
+              <Box
+                onClick={() => handleMoveProposalUp(pIndex)}
+                sx={{
+                  cursor: pIndex > 0 ? "pointer" : "default",
+                  display: "flex",
+                  color: pIndex > 0 ? "var(--warning)" : "var(--grey-light)",
+                }}
+              >
+                <IconArrowUp width={18} height={18} />
+              </Box>
+              <Box
+                onClick={() => handleMoveProposalDown(pIndex)}
+                sx={{
+                  cursor: pIndex < proposals.length - 1 ? "pointer" : "default",
+                  display: "flex",
+                  color: pIndex < proposals.length - 1 ? "var(--warning)" : "var(--grey-light)",
+                }}
+              >
+                <IconArrowDown width={18} height={18} />
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid size="grow">
+            <FieldComponent
+              label={`${t("proposal-n", { ns: NS_ADMIN_CHAPTERS })}${pIndex + 1}`}
+              value={proposal.value || ""}
+              name={`proposal_${index}_${pIndex}`}
+              type="text"
+              onChange={(e) => handleProposalChange(pIndex, e.target.value)}
+              onClear={() => handleProposalChange(pIndex, "")}
+              removable
+              onRemove={() => handleRemoveProposal(pIndex)}
+              fullWidth
+              isAdmin
+            />
+          </Grid>
+        </Grid>
       ))}
 
       <FieldComponent
@@ -222,21 +338,48 @@ function QuestionComponent({
         onChange={handleAnswerChange}
         values={answerOptions}
         disabled={proposals.length === 0}
+        fullWidth={false}
       />
 
       <Stack
         direction="row"
         justifyContent="flex-end"
         alignItems="center"
+        spacing={1}
         sx={{ pt: 1 }}
       >
         <IconButton
-          onClick={() => onRemoveQuestion(index)}
+          onClick={handleReset}
+          disabled={!hasProposalOrAnswerChanged}
+          sx={{
+            color: hasProposalOrAnswerChanged ? "var(--warning)" : "var(--grey-light)",
+          }}
+          title={t("reset", { ns: NS_BUTTONS })}
+        >
+          <Icon icon="mdi:restore" width={20} height={20} />
+        </IconButton>
+        <IconButton
+          onClick={() => setConfirmRemoveOpen(true)}
           sx={{ color: "var(--error)" }}
+          title={t("remove-question", { ns: NS_ADMIN_CHAPTERS })}
         >
           <Icon icon="mdi:delete-outline" width={20} height={20} />
         </IconButton>
       </Stack>
+
+      <DialogConfirmAction
+        open={confirmRemoveOpen}
+        setOpen={setConfirmRemoveOpen}
+        title={t("confirm-remove-question", { ns: NS_ADMIN_CHAPTERS })}
+        labelConfirm={t("remove-question", { ns: NS_ADMIN_CHAPTERS })}
+        labelCancel={t("cancel", { ns: NS_BUTTONS })}
+        severity="error"
+        actionCancel={() => setConfirmRemoveOpen(false)}
+        actionConfirm={async () => {
+          if (onConfirmRemoveQuestion) await onConfirmRemoveQuestion(index);
+        }}
+        isAdmin
+      />
     </>
   );
 
@@ -248,7 +391,7 @@ function QuestionComponent({
         onChange={onExpand}
         isAdmin={true}
       >
-        <Stack spacing={2} sx={{ p: 2 }}>
+        <Stack spacing={1} sx={{ p: 2 }}>
           {questionContent}
         </Stack>
       </AccordionComponent>
@@ -257,7 +400,7 @@ function QuestionComponent({
 
   return (
     <Stack
-      spacing={2}
+      spacing={1}
       sx={{
         p: 2,
         background: "var(--card-color)",
@@ -289,6 +432,36 @@ function QuestionComponent({
     </Stack>
   );
 }
+
+/** Compare le contenu de deux questions (énoncé, propositions, réponse) sans les traductions */
+function questionContentEqual(a, b) {
+  if ((a?.question ?? "") !== (b?.question ?? "")) return false;
+  const pa = a?.proposals ?? [];
+  const pb = b?.proposals ?? [];
+  if (pa.length !== pb.length) return false;
+  for (let i = 0; i < pa.length; i++) {
+    if ((pa[i]?.value ?? "") !== (pb[i]?.value ?? "")) return false;
+    if ((pa[i]?.uid_intern ?? 0) !== (pb[i]?.uid_intern ?? 0)) return false;
+  }
+  if ((a?.answer?.uid_intern ?? null) !== (b?.answer?.uid_intern ?? null)) return false;
+  if ((a?.answer?.value ?? "") !== (b?.answer?.value ?? "")) return false;
+  return true;
+}
+
+/** Compare uniquement propositions et réponse (pour l’état actif de l’icône reset) */
+function proposalsAndAnswerEqual(a, b) {
+  const pa = a?.proposals ?? [];
+  const pb = b?.proposals ?? [];
+  if (pa.length !== pb.length) return false;
+  for (let i = 0; i < pa.length; i++) {
+    if ((pa[i]?.value ?? "") !== (pb[i]?.value ?? "")) return false;
+    if ((pa[i]?.uid_intern ?? 0) !== (pb[i]?.uid_intern ?? 0)) return false;
+  }
+  if ((a?.answer?.uid_intern ?? null) !== (b?.answer?.uid_intern ?? null)) return false;
+  if ((a?.answer?.value ?? "") !== (b?.answer?.value ?? "")) return false;
+  return true;
+}
+
 export default function ChapterQuizPage() {
   const params = useParams();
   const router = useRouter();
@@ -305,15 +478,26 @@ export default function ChapterQuizPage() {
   ]);
 
   const [questions, setQuestions] = useState([]);
+  const [initialQuestions, setInitialQuestions] = useState([]);
   const [expandedQuestion, setExpandedQuestion] = useState(null);
   const [processing, setProcessing] = useState(false);
-  const [translating, setTranslating] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
+
+  /** Compare le contenu de deux questions (énoncé, propositions, réponse) sans les traductions */
+
+  /** True si une nouvelle question a été ajoutée ou si le contenu d’une question a changé */
+  const hasQuizChanged = useMemo(() => {
+    if (initialQuestions.length === 0) {
+      return questions.length > 0;
+    }
+    if (questions.length !== initialQuestions.length) return true;
+    return questions.some((q, i) => !questionContentEqual(q, initialQuestions[i]));
+  }, [questions, initialQuestions]);
 
   const isAuthorized = useMemo(
     () => user instanceof ClassUserDandela,
@@ -339,6 +523,9 @@ export default function ChapterQuizPage() {
         translates: q.translates || [],
       }));
       setQuestions(existingQuestions);
+      setInitialQuestions(JSON.parse(JSON.stringify(existingQuestions)));
+    } else {
+      setInitialQuestions([]);
     }
   }, [chapter]);
 
@@ -367,7 +554,6 @@ export default function ChapterQuizPage() {
 
   const handleRemoveQuestion = (index) => {
     const newQuestions = questions.filter((_, i) => i !== index);
-    // Recalculer les uid_intern
     const updatedQuestions = newQuestions.map((q, i) => ({
       ...q,
       uid_intern: i + 1,
@@ -375,13 +561,17 @@ export default function ChapterQuizPage() {
     setQuestions(updatedQuestions);
   };
 
-  const handleTranslate = async () => {
-    if (questions.length === 0) return;
-
-    setTranslating(true);
-    try {
-      const translatedQuestions = await Promise.all(
-        questions.map(async (q) => {
+  /** Enregistre le quiz (liste de questions) dans Firestore */
+  const persistQuizToFirestore = async (questionsList) => {
+    if (!chapter || !uidChapter || !uidLesson) return false;
+    if (chapter.uid_lesson !== uidLesson) {
+      chapter.update({ uid_lesson: uidLesson });
+    }
+    let finalQuestions = questionsList;
+    if (questionsList.length > 0 && questionsList.some((q) => !q.translates || q.translates.length === 0)) {
+      finalQuestions = await Promise.all(
+        questionsList.map(async (q) => {
+          if (q.translates && q.translates.length > 0) return q;
           const payload = {
             question: q.question,
             proposals: q.proposals,
@@ -391,35 +581,59 @@ export default function ChapterQuizPage() {
           const res = await fetch(
             `/api/test?lang=${defaultLanguage}&translations=${qs}`
           );
-          if (!res.ok) throw new Error("Translation API error");
+          if (!res.ok) return q;
           const result = await res.json();
           const langs = Object.keys(result);
-
           const translates = langs.map((lang) => {
             const data = result[lang] || {};
             return new ClassLessonChapterQuestionTranslation({
               lang,
-              question:
-                typeof data.question === "string"
-                  ? data.question
-                  : q.question || "",
-              proposals: Array.isArray(data.proposals)
-                ? data.proposals
-                : q.proposals || [],
+              question: typeof data.question === "string" ? data.question : q.question || "",
+              proposals: Array.isArray(data.proposals) ? data.proposals : q.proposals || [],
               answer: data.answer || q.answer || {},
             });
           });
-
           return { ...q, translates };
         })
       );
-
-      setQuestions(translatedQuestions);
-      setSnackbar({
-        open: true,
-        message: t("success-translated", { ns: NS_ADMIN_CHAPTERS }),
-        severity: "success",
+    }
+    const questionObjects = finalQuestions.map((q) => {
+      const questionObj = new ClassLessonChapterQuestion({
+        uid_intern: q.uid_intern,
+        question: q.question,
+        proposals: q.proposals,
+        answer: q.answer,
+        translates: q.translates,
       });
+      return questionObj.toJSON();
+    });
+    const quiz = new ClassLessonChapterQuiz({
+      uid_intern: 1,
+      uid_chapter: uidChapter,
+      questions: questionObjects,
+    });
+    return chapter.updateFirestore({ quiz });
+  };
+
+  const handleRemoveQuestionAndSave = async (index) => {
+    const newQuestions = questions.filter((_, i) => i !== index).map((q, i) => ({
+      ...q,
+      uid_intern: i + 1,
+    }));
+    setProcessing(true);
+    try {
+      const updated = await persistQuizToFirestore(newQuestions);
+      if (updated) {
+        setQuestions(newQuestions);
+        setInitialQuestions(JSON.parse(JSON.stringify(newQuestions)));
+        setSnackbar({
+          open: true,
+          message: t("success-update-quiz", { ns: NS_ADMIN_CHAPTERS }),
+          severity: "success",
+        });
+      } else {
+        throw new Error("Update failed");
+      }
     } catch (err) {
       console.error(err);
       setSnackbar({
@@ -428,7 +642,7 @@ export default function ChapterQuizPage() {
         severity: "error",
       });
     } finally {
-      setTranslating(false);
+      setProcessing(false);
     }
   };
 
@@ -444,6 +658,10 @@ export default function ChapterQuizPage() {
 
   const handleSaveQuiz = async () => {
     if (!chapter || !uidChapter || !uidLesson) return;
+    // S'assurer que le chapitre a uid_lesson pour le chemin Firestore
+    if (!chapter.uid_lesson && uidLesson) {
+      chapter.update({ uid_lesson: uidLesson });
+    }
     if (!validate()) {
       setSnackbar({
         open: true,
@@ -514,8 +732,9 @@ export default function ChapterQuizPage() {
         questions: questionObjects,
       });
 
-      // Mettre à jour le chapitre
-      const updated = await chapter.updateFirestore({ quiz: quiz.toJSON() });
+      // Mettre à jour le chapitre (passer l'instance pour que le converter Firestore fonctionne)
+      const updated = await chapter.updateFirestore({ quiz });
+      console.log("UPDATED", updated)
 
       if (updated) {
         setSnackbar({
@@ -524,6 +743,7 @@ export default function ChapterQuizPage() {
           severity: "success",
         });
         setConfirmOpen(false);
+        setInitialQuestions(JSON.parse(JSON.stringify(questions)));
       } else {
         throw new Error("Update failed");
       }
@@ -573,7 +793,7 @@ export default function ChapterQuizPage() {
           },
           { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
           {
-            name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }),
+            name: t("chapters", { ns: NS_DASHBOARD_MENU }),
             url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson),
           },
           { name: t("quiz-button", { ns: NS_ADMIN_CHAPTERS }) },
@@ -597,7 +817,7 @@ export default function ChapterQuizPage() {
         },
         { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
         {
-          name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }),
+          name: t("chapters", { ns: NS_DASHBOARD_MENU }),
           url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson),
         },
         ...(chapterTitle
@@ -613,7 +833,7 @@ export default function ChapterQuizPage() {
       isAuthorized={isAuthorized}
       icon={<IconLessons width={22} height={22} />}
     >
-      <Stack spacing={2} sx={{ width: "100%", maxWidth: 1024 }}>
+      <Stack spacing={1} sx={{ width: "100%", maxWidth: 1024 }}>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           <Link
             href={PAGE_ADMIN_ONE_CHAPTER(uidUser, uidLesson, uidChapter)}
@@ -628,13 +848,6 @@ export default function ChapterQuizPage() {
             onClick={handleAddQuestion}
           />
           <ButtonConfirm
-            label={t("translate", { ns: NS_ADMIN_CHAPTERS })}
-            isAdmin
-            loading={translating}
-            disabled={questions.length === 0 || translating}
-            onClick={handleTranslate}
-          />
-          <ButtonConfirm
             label={
               chapter?.quiz
                 ? t("update-quiz", { ns: NS_ADMIN_CHAPTERS })
@@ -642,26 +855,9 @@ export default function ChapterQuizPage() {
             }
             isAdmin
             loading={processing}
-            disabled={!validate() || processing}
+            disabled={!validate() || processing || !hasQuizChanged}
             onClick={() => setConfirmOpen(true)}
           />
-          {chapter?.quiz && (
-            <ButtonConfirm
-              label={t("edit-quiz", { ns: NS_ADMIN_CHAPTERS })}
-              isAdmin
-              icon={<Icon icon="mdi:pencil" width={18} height={18} />}
-              onClick={() =>
-                router.push(
-                  PAGE_ADMIN_ONE_QUIZ(
-                    uidUser,
-                    uidLesson,
-                    uidChapter,
-                    chapter.quiz.uid_intern
-                  )
-                )
-              }
-            />
-          )}
         </Stack>
 
         <Stack
@@ -723,6 +919,7 @@ export default function ChapterQuizPage() {
               index={index}
               onUpdateQuestion={handleUpdateQuestion}
               onRemoveQuestion={handleRemoveQuestion}
+              onConfirmRemoveQuestion={handleRemoveQuestionAndSave}
               isCollapsed={isCollapsed}
               onExpand={() => setExpandedQuestion(index)}
               onCollapse={() => setExpandedQuestion(null)}

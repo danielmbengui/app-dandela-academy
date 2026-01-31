@@ -311,7 +311,8 @@ export class ClassLessonSubchapter {
 
 /** Serialiseur pour ClassLessonSubchapter (même logique que ChapterSerializer). */
 class SubchapterSerializer {
-    static fieldsToRemove = ["chapter", "translate","exercises","goals","keys","photo_url", "title"];
+    static fieldsToRemove = ["chapter", "translate", "goals", "keys", "exercises", "photo_url"];
+    //static fieldsToRemove = ["chapter", "translate"];
     static toJSON(subchapter) {
         const out = { ...subchapter };
         const cleaned = Object.fromEntries(

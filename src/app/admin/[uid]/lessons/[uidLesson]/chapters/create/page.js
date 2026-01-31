@@ -44,7 +44,6 @@ export default function CreateChapterPage() {
   const [goals, setGoals] = useState([""]);
   const [newGoal, setNewGoal] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [translating, setTranslating] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [errors, setErrors] = useState({});
@@ -75,57 +74,6 @@ export default function CreateChapterPage() {
       );
     }
   }, [uidLesson, chapter]);
-
-  const handleTranslate = async () => {
-    if (!chapter) return;
-    setTranslating(true);
-    setErrors({});
-    try {
-      const transChapter = {
-        title: chapter.title || "",
-        subtitle: chapter.subtitle || "",
-        description: chapter.description || "",
-        subchapters_title: chapter.subchapters_title || "",
-      };
-      const qsChapter = encodeURIComponent(JSON.stringify(transChapter));
-      const resChapter = await fetch(`/api/test?lang=${defaultLanguage}&translations=${qsChapter}`);
-      if (!resChapter.ok) throw new Error("Translation API error");
-      const resultChapter = await resChapter.json();
-      const langsChapter = Object.keys(resultChapter);
-
-      const goalsTrans = goals?.filter(Boolean) || [];
-      let translatesChapter = [];
-      if (goalsTrans.length > 0) {
-        const qsGoals = encodeURIComponent(JSON.stringify(goalsTrans));
-        const resGoals = await fetch(`/api/test?lang=${defaultLanguage}&translations=${qsGoals}`);
-        if (!resGoals.ok) throw new Error("Translation API error");
-        const resultGoals = await resGoals.json();
-        translatesChapter = langsChapter.map((lang) => {
-          const ch = resultChapter[lang] || {};
-          const g = resultGoals[lang] || goalsTrans;
-          return new ClassLessonChapterTranslation({ ...ch, goals: Array.isArray(g) ? g : [g], lang });
-        });
-      } else {
-        translatesChapter = langsChapter.map((lang) => {
-          const ch = resultChapter[lang] || {};
-          return new ClassLessonChapterTranslation({ ...ch, goals: [], lang });
-        });
-      }
-
-      setChapter((prev) => {
-        if (!prev) return prev;
-        const next = prev.clone();
-        next.translates = translatesChapter;
-        return next;
-      });
-      setSnackbar({ open: true, message: t("success-added", { ns: NS_ADMIN_CHAPTERS }), severity: "success" });
-    } catch (err) {
-      console.error(err);
-      setSnackbar({ open: true, message: t("error-add", { ns: NS_ADMIN_CHAPTERS }), severity: "error" });
-    } finally {
-      setTranslating(false);
-    }
-  };
 
   const validate = () => {
     const e = {};
@@ -225,13 +173,6 @@ export default function CreateChapterPage() {
             <ButtonCancel label={t("back", { ns: NS_BUTTONS })} isAdmin />
           </Link>
           <ButtonConfirm
-            label={t("translate", { ns: NS_ADMIN_CHAPTERS })}
-            isAdmin
-            loading={translating}
-            disabled={!chapter?.title || translating}
-            onClick={handleTranslate}
-          />
-          <ButtonConfirm
             label={t("add-chapter", { ns: NS_ADMIN_CHAPTERS })}
             isAdmin
             loading={processing}
@@ -252,6 +193,7 @@ export default function CreateChapterPage() {
             onChange={(e) => setChapter((p) => (p ? (p.update({ title: e.target.value }), p.clone()) : p))}
             error={errors.title}
             fullWidth
+            isAdmin={true}
           />
           <TextFieldComponent
             label={t("subtitle", { ns: ClassLesson.NS_COLLECTION })}
@@ -259,6 +201,7 @@ export default function CreateChapterPage() {
             name="subtitle"
             onChange={(e) => setChapter((p) => (p ? (p.update({ subtitle: e.target.value }), p.clone()) : p))}
             fullWidth
+            isAdmin={true}
           />
           <FieldComponent
             label={t("description", { ns: ClassLesson.NS_COLLECTION })}
@@ -269,6 +212,7 @@ export default function CreateChapterPage() {
             minRows={2}
             maxRows={6}
             fullWidth
+            isAdmin={true}
           />
           <SelectComponentDark
             label={t("level", { ns: ClassLesson.NS_COLLECTION })}
@@ -283,6 +227,7 @@ export default function CreateChapterPage() {
             name="subchapters_title"
             onChange={(e) => setChapter((p) => (p ? (p.update({ subchapters_title: e.target.value }), p.clone()) : p))}
             fullWidth
+            isAdmin={true}
           />
           <TextFieldComponent
             label={t("duration-start", { ns: NS_ADMIN_CHAPTERS })}
@@ -291,6 +236,7 @@ export default function CreateChapterPage() {
             type="number"
             onChange={(e) => setChapter((p) => (p ? (p.update({ estimated_start_duration: Number(e.target.value) || 0 }), p.clone()) : p))}
             fullWidth
+            isAdmin={true}
           />
           <TextFieldComponent
             label={t("duration-end", { ns: NS_ADMIN_CHAPTERS })}
@@ -299,6 +245,7 @@ export default function CreateChapterPage() {
             type="number"
             onChange={(e) => setChapter((p) => (p ? (p.update({ estimated_end_duration: Number(e.target.value) || 0 }), p.clone()) : p))}
             fullWidth
+            isAdmin={true}
           />
 
           <Typography variant="subtitle2" sx={{ color: "var(--font-color)", fontWeight: 600 }}>
@@ -348,6 +295,7 @@ export default function CreateChapterPage() {
               minRows={1}
               maxRows={4}
               fullWidth
+              isAdmin={true}
             />
           ))}
           <FieldComponent
@@ -368,6 +316,7 @@ export default function CreateChapterPage() {
             minRows={2}
             maxRows={4}
             fullWidth
+            isAdmin={true}
           />
         </Stack>
       </Stack>

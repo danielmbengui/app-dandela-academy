@@ -39,34 +39,8 @@ export function ChapterProvider({ children, uidLesson = "" }) {
     const [stats, setStats] = useState([]);
     const [stat, setStat] = useState(null);
     const [lastStat, setLastStat] = useState(null);
-
-    const [filterType, setFilterType] = useState('all');
-    const [filterStatus, setFilterStatus] = useState('all');
-
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingSlots, setIsLoadingSlots] = useState(true);
-    // const errorsTranslate = t('errors', { returnObjects: true });
-    //  const successTranslate = t('success', { returnObjects: true });
-    const [success, setSuccess] = useState(false);
-    const [textSuccess, setTextSuccess] = useState(false);
-    useEffect(() => {
-        if (user) {
-            const listener = listenToChapters(uidLesson);
-            return () => listener?.();
-        }
-    }, [user, uidLesson]);
-
-    useEffect(() => {
-        if (user && uidLesson && uidChapter) {
-            const _chapter = getOneChapter(uidChapter);
-            setChapter(_chapter);
-            const listener = listenToOneChapter(uidLesson, uidChapter);
-            return () => listener?.();
-        } else {
-            setChapter(null);
-        }
-    }, [user, uidLesson, uidChapter]);
-
     // écoute du doc utilisateur
     const listenToChapters = useCallback((uidLesson = "") => {
         //if (!user || user === null) return;
@@ -95,9 +69,27 @@ export function ChapterProvider({ children, uidLesson = "" }) {
 
             for (const snapshot of snap.docs) {
                 const chapter = snapshot.data();
-                chapter.translate = chapter.translates?.find(trans => trans.lang === lang);
+                const translate = chapter.translates?.find(trans => trans.lang === lang);
+                chapter.translate = translate;
+                const title = translate?.title ?? "";
+                const subtitle = translate?.subtitle ?? "";
+                const description = translate?.description ?? "";
+                const photo_url = translate?.photo_url ?? "";
+                const goals = translate?.goals ?? [];
+                const subchapters_title = translate?.subchapters_title ?? "";
+                chapter.title = title;
+                chapter.subtitle = subtitle;
+                chapter.description = description;
+                chapter.photo_url = photo_url;
+                chapter.goals = goals;
+                chapter.subchapters_title = subchapters_title;
                 const _subchapters = chapter.subchapters?.map(sub => {
-                    sub.translate = sub.getTranslate(lang);
+                    const _translate = sub.getTranslate(lang);
+                    sub.translate = _translate;
+                    sub.title = _translate?.title;
+                    sub.goals = _translate?.goals;
+                    sub.exercises = _translate?.exercises;
+                    sub.keys = _translate?.keys;
                     return sub;
                 });
                 const _quiz = chapter.quiz || null;
@@ -137,7 +129,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             setIsLoadingSlots(false);
         });
         return snapshotChapters;
-    }, [uidLesson]);
+    }, [uidLesson, lang]);
     const listenToOneChapter = useCallback((uidLesson = "", uidChapter = "") => {
         if (!uidChapter) {
             setChapter(null);
@@ -165,12 +157,12 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
             const translate = _chapter.translates?.find(trans => trans.lang === lang);
             _chapter.translate = translate;
-            const title = translate.title;
-            const subtitle = translate.subtitle;
-            const description = translate.description;
-            const photo_url = translate.photo_url;
-            const goals = translate.goals;
-            const subchapters_title = translate.subchapters_title;
+            const title = translate?.title ?? "";
+            const subtitle = translate?.subtitle ?? "";
+            const description = translate?.description ?? "";
+            const photo_url = translate?.photo_url ?? "";
+            const goals = translate?.goals ?? [];
+            const subchapters_title = translate?.subchapters_title ?? "";
             _chapter.title = title;
             _chapter.subtitle = subtitle;
             _chapter.description = description;
@@ -215,7 +207,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                 //prev.room = room;
                 return prev.clone();
             });
-            setSubchapters(_chapter.subchapters.map(sub => {
+            setSubchapters((_chapter.subchapters || []).map(sub => {
                 sub.translate = sub.getTranslate(lang);
                 return sub;
             }));
@@ -227,31 +219,39 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         });
         return unsubscribe;
     }, [uidChapter, uidLesson]);
+    useEffect(() => {
+        if (user) {
+            const listener = listenToChapters(uidLesson);
+            return () => listener?.();
+        }
+    }, [user, uidLesson, lang, listenToChapters]);
+    useEffect(() => {
+        if (user && uidLesson && uidChapter) {
+            const _chapter = getOneChapter(uidChapter);
+            setChapter(_chapter);
+            // Si le chapitre n'est pas dans la liste (arrivée directe, autre leçon), on affiche le chargement
+            // jusqu'à ce que listenToOneChapter ait récupéré le document.
+            if (!_chapter) {
+                setIsLoading(true);
+            }
+            const listener = listenToOneChapter(uidLesson, uidChapter);
+            return () => listener?.();
+        } else {
+            setChapter(null);
+        }
+    }, [user, uidLesson, uidChapter]);
 
-    async function refreshList() {
-        var _sessions = [];
-        const constraints = [];
-        /*
-        if (filterStatus !== 'all') {
-            constraints.push(where("status", '==', filterStatus));
+    // Quand la liste des chapitres arrive (ex: après remontage du provider au 1er clic depuis la liste),
+    // remplir "chapter" depuis la liste pour que le formulaire s'initialise tout de suite.
+    useEffect(() => {
+        if (!user || !uidLesson || !uidChapter || !chapters?.length) return;
+        const found = chapters.find((c) => c.uid === uidChapter);
+        if (found) {
+            setChapter((prev) => (prev?.uid === uidChapter ? prev : found));
+            setIsLoading(false);
         }
-        if (filterType !== 'all') {
-            constraints.push(where("type", '==', filterType));
-        }
-        */
-        _sessions = await ClassSession.fetchListFromFirestore(constraints);
-        for (const session of _sessions) {
-            //const lesson = snapshot.data();
-            //const translate = await ClassLessonSessionTranslate.fetchFromFirestore(lesson.uid, lang);
-            _sessions.push(new ClassSession({
-                ...session.toJSON(),
-                // translate: translate,
-            }));
-        }
+    }, [user, uidLesson, uidChapter, chapters]);
 
-        _sessions = _sessions.sort((a, b) => a.uid_intern - b.uid_intern);
-        setChapters(_sessions);
-    }
     function getOneChapter(uid = '') {
         if (!uid || uid === '' || uid === null) {
             return null;
@@ -336,8 +336,9 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         chapterCount,
         level = "beginner", // "beginner" | "intermediate" | "advanced"
     }) {
-        if (!Number.isFinite(chapterCount) || chapterCount <= 0) {
-            throw new Error("chapterCount invalide");
+        const count = Number(chapterCount) || 0;
+        if (!Number.isFinite(count) || count <= 0) {
+            return [];
         }
         if (![totalMinHours, totalMaxHours].every(Number.isFinite) || totalMinHours <= 0 || totalMaxHours <= 0) {
             throw new Error("totalMinHours/totalMaxHours invalides");
@@ -359,8 +360,8 @@ export function ChapterProvider({ children, uidLesson = "" }) {
 
         // Poids progressifs (les chapitres plus loin sont souvent plus denses)
         // Tu peux remplacer ça par des poids venant de tes datas (nb de leçons, vidéos, mots, etc.)
-        const baseWeights = Array.from({ length: chapterCount }, (_, i) => {
-            const t = chapterCount === 1 ? 1 : i / (chapterCount - 1); // 0..1
+        const baseWeights = Array.from({ length: count }, (_, i) => {
+            const t = count === 1 ? 1 : i / (count - 1); // 0..1
             return 1 + (t - 0.5) * 2 * levelVariance; // autour de 1, un peu + vers la fin
         });
 
@@ -393,7 +394,7 @@ export function ChapterProvider({ children, uidLesson = "" }) {
         //var min = 0;
         //var totalMax = 0;
 
-        return Array.from({ length: chapterCount }, (_, i) => ({
+        return Array.from({ length: count }, (_, i) => ({
             chapterIndex: i + 1,
             duration_min: chapterMin[i],
             duration_max: chapterMax[i],

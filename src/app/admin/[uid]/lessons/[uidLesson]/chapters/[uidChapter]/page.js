@@ -6,8 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { ClassLessonChapter, ClassLessonChapterTranslation } from "@/classes/lessons/ClassLessonChapter";
-import { defaultLanguage } from "@/contexts/i18n/settings";
+import { ClassLessonChapter } from "@/classes/lessons/ClassLessonChapter";
 import { ClassLesson } from "@/classes/ClassLesson";
 import { ClassUserDandela } from "@/classes/users/ClassUser";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -16,6 +15,7 @@ import { useChapter } from "@/contexts/ChapterProvider";
 import { NS_ADMIN_CHAPTERS, NS_BUTTONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
 import {
   PAGE_ADMIN_CHAPTERS,
+  PAGE_ADMIN_CHAPTER_QUIZ,
   PAGE_ADMIN_CHAPTER_SUBCHAPTERS,
   PAGE_ADMIN_LESSONS,
   PAGE_ADMIN_ONE_CHAPTER,
@@ -50,7 +50,6 @@ export default function EditChapterPage() {
   const [initialSnapshot, setInitialSnapshot] = useState(null);
   const loadingChapter = Boolean(uidChapter && isLoadingChapterContext);
   const [processing, setProcessing] = useState(false);
-  const [translating, setTranslating] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [errors, setErrors] = useState({});
@@ -81,16 +80,11 @@ export default function EditChapterPage() {
   }, [localChapter, goals, initialSnapshot]);
 
   useEffect(() => {
-    if (uidLesson && !isLoadingLesson) {
+    if (uidLesson && uidChapter) {
       setUidLesson(uidLesson);
-    }
-  }, [uidLesson, isLoadingLesson, setUidLesson]);
-
-  useEffect(() => {
-    if (uidChapter) {
       setUidChapter(uidChapter);
     }
-  }, [uidChapter, setUidChapter]);
+  }, [uidLesson, uidChapter]);
 
   // Initialiser le formulaire à partir du chapitre fourni par useChapter
   useEffect(() => {
@@ -121,58 +115,6 @@ export default function EditChapterPage() {
       setInitialSnapshot(null);
     }
   }, [chapter, uidChapter]);
-
-  const handleTranslate = async () => {
-    if (!localChapter) return;
-    setTranslating(true);
-    setErrors({});
-    try {
-      const transChapter = {
-        title: localChapter.title || "",
-        subtitle: localChapter.subtitle || "",
-        description: localChapter.description || "",
-        subchapters_title: localChapter.subchapters_title || "",
-      };
-      const qsChapter = encodeURIComponent(JSON.stringify(transChapter));
-      const resChapter = await fetch(`/api/test?lang=${defaultLanguage}&translations=${qsChapter}`);
-      if (!resChapter.ok) throw new Error("Translation API error");
-      const resultChapter = await resChapter.json();
-      const langsChapter = Object.keys(resultChapter);
-
-      const goalsTrans = goals?.filter(Boolean) || [];
-      let translatesChapter = [];
-      if (goalsTrans.length > 0) {
-        const qsGoals = encodeURIComponent(JSON.stringify(goalsTrans));
-        const resGoals = await fetch(`/api/test?lang=${defaultLanguage}&translations=${qsGoals}`);
-        if (!resGoals.ok) throw new Error("Translation API error");
-        const resultGoals = await resGoals.json();
-        translatesChapter = langsChapter.map((lang) => {
-          const ch = resultChapter[lang] || {};
-          const g = resultGoals[lang] || goalsTrans;
-          return new ClassLessonChapterTranslation({ ...ch, goals: Array.isArray(g) ? g : [g], lang });
-        });
-      } else {
-        translatesChapter = langsChapter.map((lang) => {
-          const ch = resultChapter[lang] || {};
-          return new ClassLessonChapterTranslation({ ...ch, goals: [], lang });
-        });
-      }
-
-      setLocalChapter((prev) => {
-        if (!prev) return prev;
-        const next = prev.clone();
-        next.translates = translatesChapter;
-        return next;
-      });
-      setInitialSnapshot((prev) => (prev ? { ...prev, translatesSig: getTranslatesSig(translatesChapter) } : prev));
-      setSnackbar({ open: true, message: t("success-updated", { ns: NS_ADMIN_CHAPTERS }), severity: "success" });
-    } catch (err) {
-      console.error(err);
-      setSnackbar({ open: true, message: t("error-update", { ns: NS_ADMIN_CHAPTERS }), severity: "error" });
-    } finally {
-      setTranslating(false);
-    }
-  };
 
   const validate = () => {
     const e = {};
@@ -251,13 +193,14 @@ export default function EditChapterPage() {
 
   const lessonTitle = lesson?.title || lesson?.translate?.title || lesson?.uid || "";
 
+  // Chargement du chapitre (contexte ou en cours de fetch quand on arrive d'ailleurs)
   if (uidChapter && loadingChapter) {
     return (
       <AdminPageWrapper
         titles={[
           { name: t("lessons", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
           { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
-          { name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
+          { name: t("chapters", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
           { name: t("edit-title", { ns: NS_ADMIN_CHAPTERS }) },
         ]}
         isAuthorized={isAuthorized}
@@ -276,7 +219,7 @@ export default function EditChapterPage() {
         titles={[
           { name: t("lessons", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
           { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
-          { name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
+          { name: t("chapters", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
         ]}
         isAuthorized={isAuthorized}
         icon={<IconLessons width={22} height={22} />}
@@ -291,7 +234,7 @@ export default function EditChapterPage() {
       titles={[
         { name: t("lessons", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
         { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
-        { name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
+        { name: t("chapters", { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) },
         { name: t("edit-title", { ns: NS_ADMIN_CHAPTERS }) },
       ]}
       isAuthorized={isAuthorized}
@@ -302,16 +245,13 @@ export default function EditChapterPage() {
           <Link href={PAGE_ADMIN_CHAPTERS(uidUser, uidLesson)} style={{ textDecoration: "none" }}>
             <ButtonCancel label={t("back", { ns: NS_BUTTONS })} isAdmin />
           </Link>
+          <Link href={PAGE_ADMIN_CHAPTER_QUIZ(uidUser, uidLesson, uidChapter)} style={{ textDecoration: "none" }}>
+            <ButtonConfirm label={t("quiz-button", { ns: NS_ADMIN_CHAPTERS })} isAdmin />
+          </Link>
           <Link href={PAGE_ADMIN_CHAPTER_SUBCHAPTERS(uidUser, uidLesson, uidChapter)} style={{ textDecoration: "none" }}>
             <ButtonConfirm label={t("subchapters-button", { ns: NS_ADMIN_CHAPTERS })} isAdmin />
           </Link>
-          <ButtonConfirm
-            label={t("translate", { ns: NS_ADMIN_CHAPTERS })}
-            isAdmin
-            loading={translating}
-            disabled={!localChapter?.title || translating || !hasChanges}
-            onClick={handleTranslate}
-          />
+
           <ButtonConfirm
             label={t("update-chapter", { ns: NS_ADMIN_CHAPTERS })}
             isAdmin
@@ -352,6 +292,7 @@ export default function EditChapterPage() {
             minRows={2}
             maxRows={6}
             fullWidth
+            isAdmin={true}
           />
           <SelectComponentDark
             label={t("level", { ns: ClassLesson.NS_COLLECTION })}
@@ -434,6 +375,7 @@ export default function EditChapterPage() {
               minRows={1}
               maxRows={4}
               fullWidth
+              isAdmin={true}
             />
           ))}
           <FieldComponent
@@ -454,6 +396,7 @@ export default function EditChapterPage() {
             minRows={2}
             maxRows={4}
             fullWidth
+            isAdmin={true}
           />
         </Stack>
       </Stack>
@@ -465,6 +408,7 @@ export default function EditChapterPage() {
         labelConfirm={t("update-chapter", { ns: NS_ADMIN_CHAPTERS })}
         labelCancel={t("cancel", { ns: NS_BUTTONS })}
         severity="warning"
+        isAdmin
         actionCancel={() => setConfirmOpen(false)}
         actionConfirm={handleSaveChapter}
       />

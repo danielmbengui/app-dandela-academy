@@ -22,7 +22,7 @@ import { useThemeMode } from '@/contexts/ThemeProvider';
 import { IconRemove, IconReset } from '@/assets/icons/IconsComponent';
 import { max } from 'date-fns';
 const inputBase = 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500';
-export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = () => { }, type = 'text', error, placeholder, minRows = 1, maxRows = 5,
+export default function FieldComponent({ label, name, value, disabled = false, onChange = () => { }, onClear = null, type = 'text', error, placeholder, minRows = 1, maxRows = 5,
     icon = "", fullWidth = false,
     disablePast = false,
     disableFuture = false,

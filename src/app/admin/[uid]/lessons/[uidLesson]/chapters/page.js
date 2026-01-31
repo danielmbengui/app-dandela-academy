@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLesson } from "@/contexts/LessonProvider";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { NS_BUTTONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
-import { PAGE_ADMIN_CREATE_CHAPTER, PAGE_ADMIN_LESSONS, PAGE_ADMIN_ONE_CHAPTER, PAGE_ADMIN_ONE_LESSON } from "@/contexts/constants/constants_pages";
+import { PAGE_ADMIN_CHAPTERS, PAGE_ADMIN_CREATE_CHAPTER, PAGE_ADMIN_LESSONS, PAGE_ADMIN_ONE_CHAPTER, PAGE_ADMIN_ONE_LESSON } from "@/contexts/constants/constants_pages";
 import { IconLessons } from "@/assets/icons/IconsComponent";
 import Link from "next/link";
 import { ClassLesson } from "@/classes/ClassLesson";
@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthProvider";
 import AdminPageWrapper from "@/components/wrappers/AdminPageWrapper";
 import { ChapterProvider } from "@/contexts/ChapterProvider";
 import ButtonConfirm from "@/components/dashboard/elements/ButtonConfirm";
+import { ClassLessonChapter } from "@/classes/lessons/ClassLessonChapter";
 
 function AdminOneLessonContent() {
     const params = useParams();
@@ -40,7 +41,8 @@ function AdminOneLessonContent() {
         <AdminPageWrapper
             titles={[
                 { name: t('lessons', { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_LESSONS(uidUser) },
-                { name: lesson?.title || lesson?.translate?.title || '', url: '' }
+                { name: lesson?.title || lesson?.translate?.title || '', url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
+                { name: t('chapters', { ns: NS_DASHBOARD_MENU }), url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson) }
             ]}
             isAuthorized={isAuthorized}
             icon={<IconLessons width={22} height={22} />}

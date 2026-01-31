@@ -1,0 +1,33 @@
+{
+  "uid": "Identifiant",
+  "uid_intern": "Numéro",
+  "title": "Titre",
+  "description": "Description",
+  "start_date": "Date de début",
+  "end_date": "Date de fin",
+  "location": "Lieu",
+  "max_attendees": "Places disponibles",
+  "subscribers": "Inscrits",
+  "status": "Statut",
+  "open": "Inscriptions ouvertes",
+  "full": "Complet",
+  "finished": "Terminé",
+  "draft": "Brouillon",
+  "event": "Événement",
+  "events": "Événements",
+  "photo_url": "URL de la photo",
+  "created_time": "Date de création",
+  "last_edit_time": "Dernière modification",
+  "seats": "Places",
+  "seats_availables": "{{count}} place(s) restante(s)",
+  "btn-subscribe": "S'inscrire",
+  "btn-unsubscribe": "Se désinscrire",
+  "errors": {
+    "title": "Indique un titre",
+    "start_date": "Indique une date de début",
+    "end_date": "Indique une date de fin",
+    "full": "L'événement est complet",
+    "finished": "L'événement est terminé",
+    "main": "Une erreur est survenue. Veuillez réessayer."
+  }
+}

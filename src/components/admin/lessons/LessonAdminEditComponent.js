@@ -831,6 +831,92 @@ function EnabledBlock() {
   );
 }
 
+function CertifiedBlock() {
+  const { t } = useTranslation([ClassLesson.NS_COLLECTION, NS_BUTTONS]);
+  const { lesson, update: updateLesson } = useLesson();
+  const [saving, setSaving] = useState(false);
+  const certified = lesson?.certified === true;
+
+  const handleToggle = useCallback(async () => {
+    if (!lesson) return;
+    setSaving(true);
+    try {
+      const patched = lesson.clone();
+      patched.update({ certified: !certified });
+      await updateLesson(patched);
+    } finally {
+      setSaving(false);
+    }
+  }, [lesson, certified, updateLesson]);
+
+  if (!lesson) return null;
+
+  const cardSx = {
+    bgcolor: 'var(--card-color)',
+    color: 'var(--font-color)',
+    borderRadius: 2,
+    border: '1px solid var(--card-border)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    p: 2.5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 2,
+    flexWrap: 'wrap',
+    transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+    '&:hover': { boxShadow: '0 4px 14px rgba(0,0,0,0.06)' },
+  };
+
+  return (
+    <Box sx={cardSx}>
+      <Stack direction="row" alignItems="center" spacing={2} flex={1} minWidth={0}>
+        <Box
+          sx={{
+            width: 44,
+            height: 44,
+            borderRadius: 2,
+            bgcolor: certified ? 'var(--warning-shadow-sm)' : 'var(--grey-hyper-light)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background 0.2s ease',
+          }}
+        >
+          <Icon
+            icon="qlementine-icons:certified-16"
+            width={26}
+            height={26}
+            style={{ color: certified ? 'var(--warning)' : 'var(--grey)' }}
+          />
+        </Box>
+        <Stack spacing={0.25}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'var(--font-color)' }}>
+            {t('certified')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'var(--grey)', fontSize: '0.875rem' }}>
+            {t('certified_short')}
+          </Typography>
+        </Stack>
+      </Stack>
+      <Switch
+        checked={certified}
+        onChange={handleToggle}
+        disabled={saving}
+        size="medium"
+        sx={{
+          '& .MuiSwitch-switchBase.Mui-checked': {
+            color: 'var(--warning)',
+            '& + .MuiSwitch-track': { bgcolor: 'var(--warning) !important', opacity: 0.4 },
+          },
+          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+            bgcolor: 'var(--warning) !important',
+          },
+        }}
+      />
+    </Box>
+  );
+}
+
 function InfosComponent() {
   const { t } = useTranslation([ClassLesson.NS_COLLECTION]);
   const { lang } = useLanguage();
@@ -956,6 +1042,19 @@ function InfosComponent() {
         <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid size={{ xs: 12, sm: 7 }}>
             <Stack spacing={2}>
+              <SelectComponentDark
+                required
+                name="category"
+                label={t('category')}
+                value={lessonEdit?.category}
+                values={ClassLesson.ALL_CATEGORIES.map(category => ({
+                  id: category,
+                  value: t(category),
+                }))}
+                onChange={onChangeValue}
+                hasNull={false}
+                disabled={state.processing}
+              />
               <FieldComponent
                 label={t('title')}
                 required
@@ -1775,9 +1874,14 @@ export default function LessonAdminEditComponent({ renderAfterContent = null }) 
     <Container disableGutters sx={{ width: "100%" }}>
       <Grid container spacing={1} sx={{ width: "100%" }}>
         {lesson?.uid && (
-          <Grid size={12}>
-            <EnabledBlock />
-          </Grid>
+          <>
+            <Grid size={12}>
+              <EnabledBlock />
+            </Grid>
+            <Grid size={12}>
+              <CertifiedBlock />
+            </Grid>
+          </>
         )}
         <Grid size={12}>
           <Box component="div" onClick={() => setOpenedView("infos")} sx={{ cursor: "pointer" }}>

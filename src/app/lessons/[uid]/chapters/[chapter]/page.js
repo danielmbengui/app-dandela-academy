@@ -904,7 +904,20 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
     }, [lesson, chapter, user, isLoadingStats]);
     useEffect(() => {
         if (user && lesson && chapter && chapter?.quiz?.questions?.length > 0) {
-            const _questions = chapter.quiz.questions;
+            // Mélanger les propositions pour chaque question (difficulté accrue)
+            const _questions = chapter.quiz.questions.map(q => {
+                const proposals = q.translate?.proposals;
+                if (Array.isArray(proposals) && proposals.length > 0) {
+                    return {
+                        ...q,
+                        translate: {
+                            ...q.translate,
+                            proposals: mixArray([...proposals]),
+                        },
+                    };
+                }
+                return q;
+            });
             const _answers = _questions.map(q => ({
                 uid_question: q.uid_intern,
                 uid_answer: q.translate?.answer?.uid_intern,
@@ -1223,7 +1236,20 @@ const CardQuizz = ({
     }, [lesson, chapter, user, isLoadingStats])
     useEffect(() => {
         if (chapter?.quiz?.questions?.length > 0) {
-            const _questions = chapter.quiz.questions;
+            // Mélanger les propositions pour chaque question (difficulté accrue)
+            const _questions = chapter.quiz.questions.map(q => {
+                const proposals = q.translate?.proposals;
+                if (Array.isArray(proposals) && proposals.length > 0) {
+                    return {
+                        ...q,
+                        translate: {
+                            ...q.translate,
+                            proposals: mixArray([...proposals]),
+                        },
+                    };
+                }
+                return q;
+            });
             setQuestions(_questions);
             const arr = Array(chapter.quiz.questions.length).fill({});
 

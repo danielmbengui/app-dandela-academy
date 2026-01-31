@@ -342,10 +342,12 @@ export class ClassLessonChapter {
                 const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates || []);
                 const subchapters = chapterInstance.subchapters?.map?.(s => s.toJSON?.() || s) ?? [];
                 const quiz = chapterInstance.quiz
-                    ? {
-                        ...chapterInstance.quiz.toJSON(),
-                        questions: chapterInstance.quiz.questions?.map?.(q => q.toJSON?.() || q) ?? [],
-                    }
+                    ? (() => {
+                        const q = chapterInstance.quiz;
+                        const quizData = typeof q.toJSON === "function" ? q.toJSON() : q;
+                        const questions = (q.questions || []).map?.(item => item?.toJSON?.() ?? item) ?? [];
+                        return { ...quizData, questions };
+                    })()
                     : null;
                 return { ...base, translates, subchapters, quiz };
             },
@@ -406,9 +408,12 @@ export class ClassLessonChapter {
         return countSnap.data().count > 0;
     }
     static colRef() {
-        // if (!uidLesson) return;
         return collectionGroup(firestore, this.COLLECTION).withConverter(this.converter);
-        //return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
+    }
+    /** Référence à la sous-collection chapitres d'une leçon (pour compter / lister par leçon). */
+    static colRefForLesson(uidLesson = "") {
+        if (!uidLesson) return null;
+        return collection(firestore, ClassLesson.COLLECTION, uidLesson, this.COLLECTION).withConverter(this.converter);
     }
     static docRef(uidLesson = "", id = "") {
         if (!uidLesson || !id) return;
@@ -416,41 +421,21 @@ export class ClassLessonChapter {
     }
     static async count(uidLesson = "", constraints = []) {
         try {
-            const q = query(this.colRef(), [where("uid_lesson", "==", uidLesson), ...constraints]);        //const qSnap = await getDocs(q);
-            //const coll = collection(firestore, ClassUser.COLLECTION);
-            //const coll = this.colRef();
-            //console.log("waaaa", q)
+            if (uidLesson) {
+                const col = this.colRefForLesson(uidLesson);
+                if (!col) return 0;
+                const q = constraints.length ? query(col, ...constraints) : query(col);
+                const snap = await getCountFromServer(q);
+                return snap.data().count;
+            }
+            const finalConstraints = [...constraints];
+            const q = query(this.colRef(), ...finalConstraints);
             const snap = await getCountFromServer(q);
-            return snap.data().count; // -> nombre total
+            return snap.data().count;
         } catch (error) {
-            console.log("Errror", error)
+            console.log("Errror", error);
         }
     }
-    /*
-    static async countByDates(start_date = null, end_date = null) {
-        //const coll = collection(firestore, ClassUser.COLLECTION);
-        const day_s = start_date.getDate();
-        const month_s = start_date.getMonth();
-        const year_s = start_date.getFullYear();
-        const day_e = end_date.getDate();
-        const month_e = end_date.getMonth();
-        const year_e = end_date.getFullYear();
-        const _start_date = new Date(year_s, month_s, day_s, 0, 0);
-        const _end_date = new Date(year_e, month_e, day_e, 23, 59, 59);
-        console.log("DATTE", start_date)
-
-        const q = query(
-            collection(firestore, this.COLLECTION).withConverter(ClassUser.converter),
-            where("created_time", ">=", _start_date),
-            where("created_time", "<=", _end_date),
-            //limit(1),
-        );
-        const snap = await getDocs(q);
-        if (snap.empty) return 0;
-        console.log("OUUTN", snap.size, snap.docs[0].data().uid)
-        return snap.size;
-    }
-*/
     // Récupérer un module par id
     static indexOf(array = [], uid) {
         if (array.length === 0 || !(array[0] instanceof ClassLessonChapter)) {

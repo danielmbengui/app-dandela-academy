@@ -1,0 +1,33 @@
+{
+  "uid": "Identifier",
+  "uid_intern": "Number",
+  "title": "Title",
+  "description": "Description",
+  "start_date": "Start date",
+  "end_date": "End date",
+  "location": "Location",
+  "max_attendees": "Available seats",
+  "subscribers": "Registered",
+  "status": "Status",
+  "open": "Registrations open",
+  "full": "Full",
+  "finished": "Finished",
+  "draft": "Draft",
+  "event": "Event",
+  "events": "Events",
+  "photo_url": "Photo URL",
+  "created_time": "Creation date",
+  "last_edit_time": "Last update",
+  "seats": "Seats",
+  "seats_availables": "{{count}} seat(s) remaining",
+  "btn-subscribe": "Register",
+  "btn-unsubscribe": "Unregister",
+  "errors": {
+    "title": "Enter a title",
+    "start_date": "Enter a start date",
+    "end_date": "Enter an end date",
+    "full": "The event is full",
+    "finished": "The event has ended",
+    "main": "An error occurred. Please try again."
+  }
+}

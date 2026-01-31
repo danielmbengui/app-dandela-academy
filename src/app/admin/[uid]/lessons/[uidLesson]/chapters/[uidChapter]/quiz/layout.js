@@ -13,10 +13,13 @@ export const generateMetadata = generatePageMetadata({
   // overrides: { openGraph: { type: "article" } },
 });
 
-export default async function ChapterLayout({ children }) {
-  return (<LessonProvider>
-    <ChapterProvider uidLesson="zlUoi3t14wzC5cNhfS3J">
-      {children}
-    </ChapterProvider>
-  </LessonProvider>);
+export default async function QuizLayout({ children, params }) {
+  const { uidLesson } = await params;
+  return (
+    <LessonProvider>
+      <ChapterProvider uidLesson={uidLesson || ""}>
+        {children}
+      </ChapterProvider>
+    </LessonProvider>
+  );
 }

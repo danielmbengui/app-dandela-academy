@@ -1,0 +1,33 @@
+{
+  "uid": "Identificador",
+  "uid_intern": "Número",
+  "title": "Título",
+  "description": "Descrição",
+  "start_date": "Data de início",
+  "end_date": "Data de fim",
+  "location": "Local",
+  "max_attendees": "Vagas disponíveis",
+  "subscribers": "Inscritos",
+  "status": "Estado",
+  "open": "Inscrições abertas",
+  "full": "Completo",
+  "finished": "Terminado",
+  "draft": "Rascunho",
+  "event": "Evento",
+  "events": "Eventos",
+  "photo_url": "URL da foto",
+  "created_time": "Data de criação",
+  "last_edit_time": "Última atualização",
+  "seats": "Vagas",
+  "seats_availables": "{{count}} vaga(s) restante(s)",
+  "btn-subscribe": "Inscrever-se",
+  "btn-unsubscribe": "Desinscrever-se",
+  "errors": {
+    "title": "Indique um título",
+    "start_date": "Indique uma data de início",
+    "end_date": "Indique uma data de fim",
+    "full": "O evento está completo",
+    "finished": "O evento terminou",
+    "main": "Ocorreu um erro. Tente novamente."
+  }
+}

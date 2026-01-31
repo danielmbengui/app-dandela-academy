@@ -1,0 +1,9 @@
+{
+  "title": "Event details",
+  "login_to_subscribe": "Log in to register for this event.",
+  "connect": "Log in",
+  "back_to_list": "Back to events",
+  "subscribed": "You are registered for this event.",
+  "subscribe_success": "Registration saved.",
+  "unsubscribe_success": "Unregistration saved."
+}

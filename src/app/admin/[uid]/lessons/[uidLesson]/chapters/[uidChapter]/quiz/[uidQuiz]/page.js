@@ -6,6 +6,7 @@ import {
   Box,
   CircularProgress,
   Divider,
+  Grid,
   IconButton,
   Slide,
   Snackbar,
@@ -41,7 +42,7 @@ import {
   PAGE_ADMIN_LESSONS,
   PAGE_ADMIN_ONE_LESSON,
 } from "@/contexts/constants/constants_pages";
-import { IconLessons } from "@/assets/icons/IconsComponent";
+import { IconArrowDown, IconArrowUp, IconLessons } from "@/assets/icons/IconsComponent";
 
 import AdminPageWrapper from "@/components/wrappers/AdminPageWrapper";
 import ButtonCancel from "@/components/dashboard/elements/ButtonCancel";
@@ -126,6 +127,40 @@ function QuestionComponent({
     onUpdateQuestion(index, { ...question, proposals: newProposals });
   };
 
+  const handleMoveProposalUp = (pIndex) => {
+    if (pIndex <= 0) return;
+    const newProposals = [...proposals];
+    [newProposals[pIndex - 1], newProposals[pIndex]] = [newProposals[pIndex], newProposals[pIndex - 1]];
+    const updatedProposals = newProposals.map((p, i) => ({ ...p, uid_intern: i + 1 }));
+    const answerValue = answer?.value;
+    const newAnswer = answerValue
+      ? (() => {
+          const found = updatedProposals.find((p) => p.value === answerValue);
+          return found ? { uid_intern: found.uid_intern, value: found.value } : answer;
+        })()
+      : answer;
+    setProposals(updatedProposals);
+    setAnswer(newAnswer);
+    onUpdateQuestion(index, { ...question, proposals: updatedProposals, answer: newAnswer });
+  };
+
+  const handleMoveProposalDown = (pIndex) => {
+    if (pIndex >= proposals.length - 1) return;
+    const newProposals = [...proposals];
+    [newProposals[pIndex], newProposals[pIndex + 1]] = [newProposals[pIndex + 1], newProposals[pIndex]];
+    const updatedProposals = newProposals.map((p, i) => ({ ...p, uid_intern: i + 1 }));
+    const answerValue = answer?.value;
+    const newAnswer = answerValue
+      ? (() => {
+          const found = updatedProposals.find((p) => p.value === answerValue);
+          return found ? { uid_intern: found.uid_intern, value: found.value } : answer;
+        })()
+      : answer;
+    setProposals(updatedProposals);
+    setAnswer(newAnswer);
+    onUpdateQuestion(index, { ...question, proposals: updatedProposals, answer: newAnswer });
+  };
+
   const handleAnswerChange = (e) => {
     const selectedUidIntern = parseInt(e.target.value, 10);
     const selectedProposal = proposals.find(
@@ -176,18 +211,51 @@ function QuestionComponent({
       </Typography>
 
       {proposals.map((proposal, pIndex) => (
-        <FieldComponent
+        <Grid
           key={`proposal-${index}-${pIndex}`}
-          label={`${t("proposal-n", { ns: NS_ADMIN_CHAPTERS })}${pIndex + 1}`}
-          value={proposal.value || ""}
-          name={`proposal_${index}_${pIndex}`}
-          type="text"
-          onChange={(e) => handleProposalChange(pIndex, e.target.value)}
-          removable
-          onRemove={() => handleRemoveProposal(pIndex)}
-          fullWidth
-          isAdmin
-        />
+          container
+          alignItems="center"
+          spacing={1}
+          sx={{ width: "100%" }}
+        >
+          <Grid size="auto">
+            <Stack direction="column" spacing={0}>
+              <Box
+                onClick={() => handleMoveProposalUp(pIndex)}
+                sx={{
+                  cursor: pIndex > 0 ? "pointer" : "default",
+                  display: "flex",
+                  color: pIndex > 0 ? "var(--warning)" : "var(--grey-light)",
+                }}
+              >
+                <IconArrowUp width={18} height={18} />
+              </Box>
+              <Box
+                onClick={() => handleMoveProposalDown(pIndex)}
+                sx={{
+                  cursor: pIndex < proposals.length - 1 ? "pointer" : "default",
+                  display: "flex",
+                  color: pIndex < proposals.length - 1 ? "var(--warning)" : "var(--grey-light)",
+                }}
+              >
+                <IconArrowDown width={18} height={18} />
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid size="grow">
+            <FieldComponent
+              label={`${t("proposal-n", { ns: NS_ADMIN_CHAPTERS })}${pIndex + 1}`}
+              value={proposal.value || ""}
+              name={`proposal_${index}_${pIndex}`}
+              type="text"
+              onChange={(e) => handleProposalChange(pIndex, e.target.value)}
+              removable
+              onRemove={() => handleRemoveProposal(pIndex)}
+              fullWidth
+              isAdmin
+            />
+          </Grid>
+        </Grid>
       ))}
 
       <FieldComponent
@@ -580,7 +648,7 @@ export default function EditQuizPage() {
           },
           { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
           {
-            name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }),
+            name: t("chapters", { ns: NS_DASHBOARD_MENU }),
             url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson),
           },
           { name: t("edit-quiz", { ns: NS_ADMIN_CHAPTERS }) },
@@ -605,7 +673,7 @@ export default function EditQuizPage() {
           },
           { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
           {
-            name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }),
+            name: t("chapters", { ns: NS_DASHBOARD_MENU }),
             url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson),
           },
           {
@@ -641,7 +709,7 @@ export default function EditQuizPage() {
         },
         { name: lessonTitle, url: PAGE_ADMIN_ONE_LESSON(uidUser, uidLesson) },
         {
-          name: t("chapters", { ns: ClassLessonChapter.NS_COLLECTION }),
+          name: t("chapters", { ns: NS_DASHBOARD_MENU }),
           url: PAGE_ADMIN_CHAPTERS(uidUser, uidLesson),
         },
         ...(chapterTitle
