@@ -1,4 +1,10 @@
 {
+  "title-page": "As minhas certificações",
+  "subtitle": "Lista de todas as certificações que obtiveste.",
+  "list_empty_title": "Nenhuma certificação",
+  "list_empty_hint": "Ainda não tens certificações. Conclui os percursos para as obter.",
+  "list_loading": "A carregar certificações…",
+
   "header_title": "Certificado obtido",
   "header_subtitle": "Parabéns! Concluíste o teu percurso. Descarrega ou partilha o teu certificado.",
   "download_pdf": "Descarregar PDF",
@@ -63,5 +69,15 @@
   "average_label": "Média geral",
   "score_label": "Nota",
   "badge_excellent": "Parabéns! Resultado excelente",
-  "badge_certified": "Percurso concluído — Certificado emitido"
+  "badge_certified": "Percurso concluído — Certificado emitido",
+
+  "cert_id_missing": "Identificador do certificado em falta.",
+  "pdf_export_error": "Não foi possível gerar o PDF. Verifica se as dependências estão instaladas (npm install jspdf html2canvas).",
+  "share_default_title": "O meu certificado Dandela Academy",
+  "share_title_with_course": "Certificado {{lessonTitle}} – {{issuer}}",
+  "share_title_generic": "Certificado – {{issuer}}",
+  "share_text_with_course": "Obtive o meu certificado « {{lessonTitle}} » com {{percentage}} % na {{issuer}}.",
+  "share_text_generic": "Obtive o meu certificado na {{issuer}}.",
+
+  "cert_load_failed": "Certificado não encontrado ou impossível de carregar."
 }

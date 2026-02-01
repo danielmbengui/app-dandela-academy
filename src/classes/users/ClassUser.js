@@ -16,8 +16,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/contexts/firebase/config";
 import { defaultLanguage } from "@/contexts/i18n/settings";
-import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS, PAGE_SESSIONS, PAGE_TEACHERS, PAGE_TEACHER_HOME, PAGE_TEACHER_SESSIONS_LIST, PAGE_ADMIN_HOME } from "@/contexts/constants/constants_pages";
-import { IconCalendar, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSession, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
+import { PAGE_DASHBOARD_CALENDAR, PAGE_DASHBOARD_COMPUTERS, PAGE_DASHBOARD_HOME, PAGE_LESSONS, PAGE_DASHBOARD_PROFILE, PAGE_DASHBOARD_STUDENTS, PAGE_DASHBOARD_TUTORS, PAGE_DASHBOARD_USERS, PAGE_STATS, PAGE_SETTINGS, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_LESSONS, PAGE_TEACHER_LESSONS, PAGE_SESSIONS, PAGE_TEACHERS, PAGE_TEACHER_HOME, PAGE_TEACHER_SESSIONS_LIST, PAGE_ADMIN_HOME, PAGE_CERTIFICATIONS } from "@/contexts/constants/constants_pages";
+import { IconCalendar, IconCertificate, IconComputers, IconDashboard, IconHome, IconLessons, IconProfile, IconSession, IconSettings, IconStats, IconStudents, IconTeachers, IconUsers } from "@/assets/icons/IconsComponent";
 import { capitalizeFirstLetter, getStartOfDay, isValidEmail, parseAndValidatePhone } from "@/contexts/functions";
 import { Avatar, Typography } from "@mui/material";
 import { ClassColor } from "../ClassColor";
@@ -320,7 +320,7 @@ export class ClassUser {
 
     // --- GETTER utils ---
     getCompleteName() {
-        return (`${this._first_name} ${this.last_name?.toUpperCase()}`)
+        return (`${this._last_name?.toUpperCase()} ${this._first_name}`)
     }
     createDisplayName() {
         const firstNames = this._first_name.replace(/-/g, " ").split(/\s+/).slice(0, ClassUser.MAX_LENGTH_DISPLAY_NAME_FN).map(item => item.charAt(0)).join("");
@@ -555,6 +555,11 @@ export class ClassUser {
                 icon: <IconStats width={16} height={16} />,
             },
             {
+                name: "certifications",
+                path: PAGE_CERTIFICATIONS,
+                icon: <IconCertificate width={18} height={18} />,
+            },
+            {
                 name: "teachers",
                 path: PAGE_TEACHERS,
                 icon: <IconTeachers width={16} height={16} />,
@@ -564,7 +569,6 @@ export class ClassUser {
                 path: PAGE_SESSIONS,
                 icon: <IconSession width={20} height={20} />,
             },
-
 
             /*
             {

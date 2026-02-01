@@ -70,6 +70,7 @@ export const PAGE_TEACHER_SESSIONS = (uidUser, uidSourceLesson, uidLesson) =>
 export const PAGE_TEACHER_CREATE_SESSION = (uidUser, uidSourceLesson, uidLesson) =>
   `/teacher/${uidUser}/lessons/${uidSourceLesson}/${uidLesson}/sessions/create`;
 
+export const PAGE_CERTIFICATIONS = "/certifications";
 export const PAGE_CONTACT = "/contact";
 
 

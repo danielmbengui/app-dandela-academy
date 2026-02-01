@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { EB_Garamond } from "next/font/google";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { IconLogoImage } from "@/assets/icons/IconsComponent";
@@ -16,6 +17,14 @@ import { ClassCountry } from "@/classes/ClassCountry";
 import SelectLanguageComponent from "@/components/elements/SelectLanguageComponent";
 import { useChapter } from "@/contexts/ChapterProvider";
 import { useSchool } from "@/contexts/SchoolProvider";
+
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-cert-academic",
+});
+
 // Données fictives : certificat obtenu après ≥ 75 % sur le cours Excel
 const mockCertificate = {
   id: "CERT-2025-EXCEL-0842",
@@ -162,15 +171,50 @@ function formatDate(str, locale = "fr") {
   });
 }
 /**
+ * Précharge une image externe via le proxy et retourne une data URL.
+ */
+async function preloadImageAsDataUrl(origin, imageUrl) {
+  if (!origin || !imageUrl || (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://"))) return null;
+  try {
+    const res = await fetch(`${origin}/api/proxy-image?url=${encodeURIComponent(imageUrl)}`);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.warn("[PDF] Impossible de précharger la signature:", e);
+    return null;
+  }
+}
+
+/**
  * Exporte le certificat (élément DOM) en PDF et déclenche le téléchargement.
  * Utilise html2canvas pour capturer le rendu puis jspdf pour générer le PDF.
- * Les images externes (ex. Firebase Storage) sont passées par /api/proxy-image pour éviter CORS.
+ * La signature externe est préchargée via /api/proxy-image puis injectée en data URL pour garantir son rendu.
  */
 async function exportCertificateToPdf(element, filename = "certificat-dandela-academy.pdf") {
   if (!element) return false;
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   try {
+    const signatureImg = element.querySelector(".cert-director-signature-img");
+    const signatureSrc = signatureImg?.getAttribute?.("src") || signatureImg?.src || "";
+    const formatIconImg = element.querySelector(".cert-format-icon");
+    const formatIconSrc = formatIconImg?.getAttribute?.("src") || formatIconImg?.src || "";
+
+    const [signatureDataUrl, formatIconDataUrl] = await Promise.all([
+      preloadImageAsDataUrl(origin, signatureSrc),
+      preloadImageAsDataUrl(origin, formatIconSrc),
+    ]);
+
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      await document.fonts.ready;
+    }
+
     const html2canvas = (await import("html2canvas")).default;
     const { jsPDF } = await import("jspdf");
 
@@ -188,19 +232,25 @@ async function exportCertificateToPdf(element, filename = "certificat-dandela-ac
       scrollX: 0,
       scrollY: 0,
       onclone: (clonedDoc, clonedElement) => {
+        const fontLink = clonedDoc.createElement("link");
+        fontLink.href = "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap";
+        fontLink.rel = "stylesheet";
+        clonedDoc.head.appendChild(fontLink);
+
         const style = clonedDoc.createElement("style");
-        style.textContent = `.cert-pdf-fix { width: ${pdfWidth}px !important; min-width: ${pdfWidth}px !important; box-sizing: border-box !important; }`;
+        style.textContent = `.cert-pdf-fix { width: ${pdfWidth}px !important; min-width: ${pdfWidth}px !important; box-sizing: border-box !important; font-family: "EB Garamond", Garamond, "Times New Roman", serif !important; }
+.cert-pdf-fix .cert-seal, .cert-pdf-fix .cert-format { display: inline-flex !important; align-items: center !important; }
+.cert-pdf-fix .cert-inefop-text, .cert-pdf-fix .cert-line-floral { display: flex !important; align-items: center !important; }
+.cert-pdf-fix .cert-icon-wrap { display: inline-flex !important; align-items: center !important; justify-content: center !important; align-self: center !important; }
+.cert-pdf-fix .cert-icon-wrap svg, .cert-pdf-fix .cert-icon-wrap img { display: block !important; width: 1em !important; height: 1em !important; }`;
         clonedDoc.head.appendChild(style);
         clonedElement.classList.add("cert-pdf-fix");
 
-        if (origin) {
-          const imgs = clonedElement.querySelectorAll(".cert-director-signature-img[src^='http']");
-          imgs.forEach((img) => {
-            const src = img.getAttribute("src") || "";
-            if (src.startsWith("http://") || src.startsWith("https://")) {
-              img.src = `${origin}/api/proxy-image?url=${encodeURIComponent(src)}`;
-            }
-          });
+        if (signatureDataUrl) {
+          clonedElement.querySelectorAll(".cert-director-signature-img").forEach((img) => { img.src = signatureDataUrl; });
+        }
+        if (formatIconDataUrl) {
+          clonedElement.querySelectorAll(".cert-format-icon").forEach((img) => { img.src = formatIconDataUrl; });
         }
       },
     });
@@ -331,7 +381,7 @@ const {getOneChapter} = useChapter();
     setExporting(true);
     const ok = await exportCertificateToPdf(
       certificateRef.current,
-      `certificat-${mockCertificate.id}.pdf`
+      `${reference}.pdf` ||`certificat-${certification?.uid}.pdf`
     );
     setExporting(false);
     if (!ok) alert("Impossible de générer le PDF. Vérifiez que les dépendances sont installées (npm install jspdf html2canvas).");
@@ -347,7 +397,7 @@ const {getOneChapter} = useChapter();
   };
 
   return (
-    <div className="page">
+    <div className={`page ${ebGaramond.variable}`}>
       <main className="container">
         <div className="select-lang-top">
           <SelectLanguageComponent />
@@ -426,7 +476,7 @@ const {getOneChapter} = useChapter();
               </select>
             </div>
           </div>
-          <div className={`certificate-card cert-theme-${scorePreviewMode === "100" ? "max" : scorePreviewMode === "85" ? "excellent" : "certified"} ${scoreDisplay.isMax ? "cert-max" : ""} ${formatPreviewMode === "hybride" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-hybride-excellent" : ""} ${formatPreviewMode === "online" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-online-excellent" : ""} ${formatPreviewMode === "presentiel" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-presentiel-excellent" : ""}`} ref={certificateRef}>
+          <div className={`certificate-card ${ebGaramond.className} cert-theme-${scorePreviewMode === "100" ? "max" : scorePreviewMode === "85" ? "excellent" : "certified"} ${scoreDisplay.isMax ? "cert-max" : ""} ${formatPreviewMode === "hybride" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-hybride-excellent" : ""} ${formatPreviewMode === "online" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-online-excellent" : ""} ${formatPreviewMode === "presentiel" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-presentiel-excellent" : ""}`} ref={certificateRef}>
             <div className={`certificate-paper cert-floral cert-theme-${scorePreviewMode === "100" ? "max" : scorePreviewMode === "85" ? "excellent" : "certified"} ${scoreDisplay.isMax ? "cert-paper-max" : ""} ${formatPreviewMode === "hybride" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-hybride-excellent" : ""} ${formatPreviewMode === "online" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-online-excellent" : ""} ${formatPreviewMode === "presentiel" && scoreDisplay.isExcellent && !scoreDisplay.isMax ? "cert-presentiel-excellent" : ""}`}>
               {scoreDisplay.isMax && (
                 <div className="cert-max-ribbon">
@@ -477,22 +527,32 @@ const {getOneChapter} = useChapter();
                   {!scoreDisplay.isMax && (!scoreDisplay.isExcellent || !["hybride", "online", "presentiel"].includes(formatPreviewMode)) && t("title_diploma")}
                 </h1>
                 <div className="cert-line-floral">
-                  <Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:flower"} width={18} height={18} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} />
+                  <span className="cert-icon-wrap"><Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:flower"} width={18} height={18} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} /></span>
                   <span className="line" />
-                  <Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:flower"} width={18} height={18} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} />
+                  <span className="cert-icon-wrap"><Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:flower"} width={18} height={18} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} /></span>
                 </div>
                 <p className="cert-intro">{t("intro_awarded_to")}</p>
                 <h2 className="cert-name">{userCertification?.getCompleteName()}</h2>
                 <p className="cert-for">{t("for_successfully_completed")}</p>
                 <h3 className="cert-course">{lessonTitle}</h3>
                 <p className={`cert-format cert-format-${formatPreviewMode}`}>
-                  <Icon icon={CERTIFICATE_FORMAT_CONFIG[formatPreviewMode]?.icon || "ph:circle"} width={14} height={14} />
+                  <span className="cert-icon-wrap">
+                    {/* img pour PDF : l'Icon SVG ne s'affiche pas dans html2canvas */}
+                    <img
+                      src={`https://api.iconify.design/${CERTIFICATE_FORMAT_CONFIG[formatPreviewMode]?.icon || "ph:circle"}.svg`}
+                      alt=""
+                      className="cert-format-icon"
+                      width={14}
+                      height={14}
+                      aria-hidden
+                    />
+                  </span>
                   {t(`format_${formatPreviewMode}`)} · {t(formatPreviewMode === "online" ? "mode_standard" : formatPreviewMode === "presentiel" ? "mode_standard_plus" : "mode_premium")}
                 </p>
                 <div className="cert-line-floral cert-line-small">
-                  <Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:leaf"} width={14} height={14} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} />
+                  <span className="cert-icon-wrap"><Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:leaf"} width={14} height={14} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} /></span>
                   <span className="line" />
-                  <Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:leaf"} width={14} height={14} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} />
+                  <span className="cert-icon-wrap"><Icon icon={scoreDisplay.isMax ? "ph:sparkle-fill" : scoreDisplay.isExcellent && ["hybride", "online", "presentiel"].includes(formatPreviewMode) ? "ph:sparkle" : "ph:leaf"} width={14} height={14} color={scoreDisplay.isMax ? "var(--max-gold)" : scoreDisplay.isExcellent ? (formatPreviewMode === "online" ? "var(--primary)" : formatPreviewMode === "presentiel" ? "var(--success)" : "var(--winner)") : "#6366f1"} /></span>
                 </div>
 
                 <p className="cert-date-issued">{t("issued_on")} {formatDate(date, lang)}</p>
@@ -560,7 +620,7 @@ const {getOneChapter} = useChapter();
 
                 <p className="cert-ref">{t("ref")} {reference}</p>
                 <p className="cert-seal">
-                    <Icon icon="ph:seal-check-fill" width={16} height={16} color="var(--font-color)" />
+                    <span className="cert-icon-wrap"><Icon icon="ph:seal-check-fill" width={16} height={16} color="var(--font-color)" /></span>
                     {t("verifiable_by_employers")} · {issuer}
                   </p>
 
@@ -581,7 +641,7 @@ const {getOneChapter} = useChapter();
                       <img src={IMAGE_PARTNER_INEFOP.src} alt="INEFOP" width={120} height={60} style={{ objectFit: "contain", maxWidth: 120 }} />
                     </div>
                     <p className="cert-inefop-text">
-                      <Icon icon="ph:seal-check-fill" width={18} height={18} />
+                      <span className="cert-icon-wrap"><Icon icon="ph:seal-check-fill" width={18} height={18} /></span>
                       {t("recognized_inefop")}
                     </p>
                     <p className="cert-inefop-sublabel">{t("inefop_full_name")}</p>
@@ -691,6 +751,7 @@ const {getOneChapter} = useChapter();
           border-radius: 20px;
           overflow: hidden;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+          font-family: var(--font-cert-academic), "EB Garamond", Garamond, "Times New Roman", serif;
         }
 
         .certificate-paper {
@@ -1091,6 +1152,12 @@ const {getOneChapter} = useChapter();
           gap: 12px;
           margin-bottom: 20px;
           color: #64748b;
+          font-size: 1.125rem;
+        }
+
+        .cert-line-floral svg {
+          flex-shrink: 0;
+          vertical-align: middle;
         }
 
         .cert-line-floral .line {
@@ -1116,7 +1183,7 @@ const {getOneChapter} = useChapter();
         }
 
         .cert-line-small .line { width: 50px; }
-        .cert-line-small { margin: 12px 0 16px; }
+        .cert-line-small { margin: 12px 0 16px; font-size: 0.875rem; }
 
         .cert-intro,
         .cert-for {
@@ -1155,6 +1222,13 @@ const {getOneChapter} = useChapter();
           color: var(--font-color);
           background: var(--background);
           border-radius: 20px;
+        }
+
+        .cert-format-icon {
+          flex-shrink: 0;
+          object-fit: contain;
+          vertical-align: middle;
+          align-self: center;
         }
 
         .certificate-paper.cert-theme-certified .cert-format {
@@ -1724,6 +1798,30 @@ const {getOneChapter} = useChapter();
           gap: 6px;
         }
 
+        .cert-icon-wrap {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          align-self: center;
+          flex-shrink: 0;
+          line-height: 0;
+          font-size: inherit;
+        }
+
+        .cert-icon-wrap svg,
+        .cert-icon-wrap img {
+          display: block;
+          width: 1em !important;
+          height: 1em !important;
+          min-width: 1em !important;
+          min-height: 1em !important;
+        }
+
+        .cert-seal svg {
+          flex-shrink: 0;
+          vertical-align: middle;
+        }
+
         .cert-director {
           margin-top: 28px;
           text-align: right;
@@ -1853,6 +1951,11 @@ const {getOneChapter} = useChapter();
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+
+        .cert-inefop-text svg {
+          flex-shrink: 0;
+          vertical-align: middle;
         }
 
         .cert-inefop-sublabel {

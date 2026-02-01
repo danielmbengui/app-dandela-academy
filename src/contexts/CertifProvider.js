@@ -85,7 +85,7 @@ export function CertifProvider({ children, uidUser = null }) {
             setCertification(null);
             return () => { };
         }
-        //console.log("listenToOneCertification", uidForUser, uidCert);
+        console.log("listenToOneCertification OKAY", uidForUser, uidCert);
         const docRef = ClassUserCertification.docRef(uidForUser, uidCert);
         if (!docRef) {
             setCertification(null);

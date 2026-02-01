@@ -1,4 +1,10 @@
 {
+  "title-page": "My certifications",
+  "subtitle": "List of all certifications you have obtained.",
+  "list_empty_title": "No certifications",
+  "list_empty_hint": "You don't have any certifications yet. Complete courses to earn them.",
+  "list_loading": "Loading certifications…",
+
   "header_title": "Certificate obtained",
   "header_subtitle": "Congratulations! You have completed your course. Download or share your certificate.",
   "download_pdf": "Download PDF",
@@ -64,5 +70,15 @@
   "average_label": "Overall average",
   "score_label": "Score",
   "badge_excellent": "Congratulations! Excellent result",
-  "badge_certified": "Course completed — Certificate issued"
+  "badge_certified": "Course completed — Certificate issued",
+
+  "cert_id_missing": "Certificate ID missing.",
+  "pdf_export_error": "Unable to generate PDF. Please ensure dependencies are installed (npm install jspdf html2canvas).",
+  "share_default_title": "My Dandela Academy certificate",
+  "share_title_with_course": "Certificate {{lessonTitle}} – {{issuer}}",
+  "share_title_generic": "Certificate – {{issuer}}",
+  "share_text_with_course": "I obtained my certificate \"{{lessonTitle}}\" with {{percentage}}% on {{issuer}}.",
+  "share_text_generic": "I obtained my certificate on {{issuer}}.",
+
+  "cert_load_failed": "Certificate not found or unable to load."
 }

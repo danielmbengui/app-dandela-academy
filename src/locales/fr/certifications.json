@@ -1,4 +1,10 @@
 {
+  "title-page": "Mes certifications",
+  "subtitle": "Liste de toutes les certifications que vous avez obtenues.",
+  "list_empty_title": "Aucune certification",
+  "list_empty_hint": "Vous n'avez pas encore de certification. Passez les parcours pour en obtenir.",
+  "list_loading": "Chargement des certifications…",
+
   "header_title": "Diplôme obtenu",
   "header_subtitle": "Félicitations ! Tu as réussi ton parcours. Télécharge ou partage ton diplôme.",
   "download_pdf": "Télécharger en PDF",
@@ -64,5 +70,15 @@
   "average_label": "Moyenne générale",
   "score_label": "Score",
   "badge_excellent": "Félicitations ! Résultat excellent",
-  "badge_certified": "Parcours réussi — Certificat délivré"
+  "badge_certified": "Parcours réussi — Certificat délivré",
+
+  "cert_id_missing": "Identifiant de certificat manquant.",
+  "pdf_export_error": "Impossible de générer le PDF. Vérifiez que les dépendances sont installées (npm install jspdf html2canvas).",
+  "share_default_title": "Mon certificat Dandela Academy",
+  "share_title_with_course": "Certificat {{lessonTitle}} – {{issuer}}",
+  "share_title_generic": "Certificat – {{issuer}}",
+  "share_text_with_course": "J'ai obtenu mon certificat « {{lessonTitle }} » avec {{percentage}} % sur {{issuer}}.",
+  "share_text_generic": "J'ai obtenu mon certificat sur {{issuer}}.",
+
+  "cert_load_failed": "Certificat introuvable ou impossible à charger."
 }
