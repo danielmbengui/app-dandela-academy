@@ -43,13 +43,13 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
         }
         init();
     }, []);
-    /*
-    useEffect(()=>{
-        if(user) {
+    useEffect(() => {
+        if (user?.uid) {
             setUidUser(user.uid);
+        } else {
+            setUidUser("");
         }
-    }, [user]);
-    */
+    }, [user?.uid]);
     
     const [countHourTotalLessons, setCountHourTotalLessons] = useState(0);
     //const { t } = useTranslation([ClassSession.NS_COLLECTION]);
@@ -185,28 +185,7 @@ export function StatProvider({ children, uidLesson = "", uidChapter = "" }) {
             //setUidChapter(_stat.uid_chapter);
             _stat.lesson = getOneLesson(_stat.uid_lesson);
             _stat.chapter = getOneChapter(_stat.uid_chapter);
-            //console.log("ONE STAT", _stat, chapters);
-            //const lesson = _session.uid_lesson ? await ClassLesson.fetchFromFirestore(_session.uid_lesson, lang) : null;
-            //const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
-            //const room = _session.uid_room ? await ClassRoom.fetchFromFirestore(_session.uid_room) : null;
-            //const translate = _stat.translates?.find(trans => trans.lang === lang);
-            //_stat.translate = translate;
-            /*
-            const _quiz = _stat.quiz;
-            const _questions = _quiz?.questions?.map(sub => {
-                sub.translate = sub.getTranslate(lang);
-                return sub;
-            });
-            _quiz.questions = _questions || [];
-            _stat.quiz = _quiz;
-            */
-            /*
-            const _stats = await new ClassUserStat({
-                uid_user: user?.uid,
-                uid_lesson: uidLesson,
-                uid_chapter: _stat.uid,
-            }).getStats();
-            */
+
 
             setStat(_stat);
             /*

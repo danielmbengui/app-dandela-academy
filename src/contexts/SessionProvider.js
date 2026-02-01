@@ -117,7 +117,6 @@ export function SessionProvider({ children, uidLesson = "", uidTeacher = null })
                 setIsLoading(false);
                 return;
             }
-            console.log("SESSION provider listen one", uidSession);
             const _session = snap.data();
             //const lesson = _session.uid_lesson ? await ClassLessonTeacher.fetchFromFirestore(_session.uid_lesson, lang) : null;
            // const teacher = _session.uid_teacher ? await ClassUser.fetchFromFirestore(_session.uid_teacher) : null;
@@ -168,7 +167,6 @@ export function SessionProvider({ children, uidLesson = "", uidTeacher = null })
             setSession(null);
             setIsLoading(false);
         }
-        console.log("SESSION provider", uidSession);
     }, [user, uidSession, listenToOneSession]);
     useEffect(() => {
         if (uidSlot && session) {
@@ -222,7 +220,6 @@ export function SessionProvider({ children, uidLesson = "", uidTeacher = null })
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -245,7 +242,6 @@ export function SessionProvider({ children, uidLesson = "", uidTeacher = null })
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -267,7 +263,6 @@ export function SessionProvider({ children, uidLesson = "", uidTeacher = null })
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);

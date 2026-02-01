@@ -111,6 +111,7 @@ export class ClassLesson {
     ]
     constructor({
         uid = "",
+        code = "",
         uid_intern = "",
         uid_teacher = "",
         teacher = null,
@@ -134,6 +135,7 @@ export class ClassLesson {
         last_edit_time = new Date(),
     } = {}) {
         this._uid = uid;
+        this._code = code;
         this._uid_intern = uid_intern;
         this._uid_teacher = uid_teacher;
         this._teacher = teacher;
@@ -177,6 +179,13 @@ export class ClassLesson {
     }
     set uid_intern(value) {
         this._uid_intern = value;
+    }
+    // code
+    get code() {
+        return this._code;
+    }
+    set code(value) {
+        this._code = value;
     }
     // uid_teacher
     get uid_teacher() {

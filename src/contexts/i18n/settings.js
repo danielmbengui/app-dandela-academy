@@ -22,6 +22,7 @@ export const NS_TERMS_USAGE = `terms/usage`;
 
 export const NS_LANGS = `langs`;
 export const NS_BUTTONS = `buttons`;
+export const NS_CERTIFICATIONS = `certifications`;
 
 export const NS_DAYS = `days`;
 export const NS_TEACHERS = `dashboard/teachers`;

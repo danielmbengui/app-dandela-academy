@@ -127,7 +127,6 @@ export function TeachersProvider({ children }) {
                 prev.update(teacher.toJSON());
                 return prev.clone();
             });
-             console.log("0bject teacher", teacher);
             //setIsConnected(true);
             //setIsLoading(false);
             //setUser(fbUser);

@@ -91,7 +91,6 @@ export function DeviceProvider({ children, uidRoom = '' }) {
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -114,7 +113,6 @@ export function DeviceProvider({ children, uidRoom = '' }) {
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);
@@ -136,7 +134,6 @@ export function DeviceProvider({ children, uidRoom = '' }) {
                 setTextSuccess('');
             }
         } catch (error) {
-            console.log("ERROR", error)
             return;
         } finally {
             setIsLoading(false);

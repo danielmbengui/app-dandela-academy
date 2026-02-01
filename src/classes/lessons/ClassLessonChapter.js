@@ -342,12 +342,7 @@ export class ClassLessonChapter {
                 const translates = chapterInstance._convertTranslatesToFirestore(chapterInstance.translates || []);
                 const subchapters = chapterInstance.subchapters?.map?.(s => s.toJSON?.() || s) ?? [];
                 const quiz = chapterInstance.quiz
-                    ? (() => {
-                        const q = chapterInstance.quiz;
-                        const quizData = typeof q.toJSON === "function" ? q.toJSON() : q;
-                        const questions = (q.questions || []).map?.(item => item?.toJSON?.() ?? item) ?? [];
-                        return { ...quizData, questions };
-                    })()
+                    ? ClassLessonChapterQuiz.converter.toFirestore(chapterInstance.quiz)
                     : null;
                 return { ...base, translates, subchapters, quiz };
             },
@@ -366,7 +361,7 @@ export class ClassLessonChapter {
                     }
                     return subClass;
                 });
-                const quiz = data.quiz ? new ClassLessonChapterQuiz(data.quiz) : null;
+                const quiz = data.quiz ? ClassLessonChapterQuiz.makeQuizInstance(data.quiz) : null;
                 return ClassLessonChapter.makeChapterInstance(uid, {
                     ...data,
                     created_time,
@@ -467,7 +462,7 @@ export class ClassLessonChapter {
         const chapter = docSnap.data();
         const translate = chapter.translates?.find(item => item.lang === lang);
         chapter.translate = translate;
-        if(chapter.quiz && chapter.quiz?.questions) {
+        if (chapter.quiz && chapter.quiz?.questions) {
             chapter.quiz.questions = chapter.quiz.questions?.map(q => {
                 const translate = q.translates?.find(item => item.lang === lang);
                 q.translate = translate;
@@ -494,23 +489,9 @@ export class ClassLessonChapter {
     // Lister des modules (passer des contraintes Firestore : where(), orderBy(), limit()…)
     static async list(lang = defaultLanguage, constraints = []) {
         const ref = ClassLessonChapter.colRef(); // par ex.;
-        //const constraints = [];
-        /*
-        if (uidLesson) {
-            constraints.push(where("uid_lesson", "==", uidLesson));
-        }
-        */
-        /*           //const coll = this.colRef();
-        const q = constraints.length
-            ? query(colRef, ...constraints)
-            : colRef;
-            */
         const q = constraints.length ? query(ref, constraints) : query(ref);
-        //const finalConstraints = [...constraints];
-        //if(!uidLesson)return;
-        //const q = constraints.length ? query(this.colRef(), ...constraints) : query(this.colRef());
         const qSnap = await getDocs(q);
-        if(qSnap.size === 0) return [];
+        if (qSnap.size === 0) return [];
         console.log("REEEF", qSnap.size)
 
         const chapters = qSnap.docs.map(docSnap => {
@@ -647,8 +628,8 @@ class ChapterSerializer {
         "description",
         "goals",
         "subchapters_title",
-       // "subchapters",
-       // "quiz",
+        // "subchapters",
+        // "quiz",
     ];
     static toJSON(chapter) {
         const fields = [...this.fieldsToRemove];
@@ -760,7 +741,7 @@ export class ClassLessonChapterTranslation {
         subtitle = "",
         description = "",
         goals = [],
-        subchapters_title="",
+        subchapters_title = "",
     } = {}) {
         this._lang = lang;
         this._subtitle = subtitle;
@@ -817,7 +798,7 @@ export class ClassLessonChapterTranslation {
         this._subchapters_title = value || "";
     }
 
-    
+
 
     // 🔁 Getters & Setters
     // --- normalisation interne ---

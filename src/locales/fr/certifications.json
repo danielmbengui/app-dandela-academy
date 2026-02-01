@@ -1,0 +1,68 @@
+{
+  "header_title": "Diplôme obtenu",
+  "header_subtitle": "Félicitations ! Tu as réussi ton parcours. Télécharge ou partage ton diplôme.",
+  "download_pdf": "Télécharger en PDF",
+  "generating": "Génération…",
+  "share": "Partager",
+  "link_copied": "Lien copié !",
+  "create_certificate": "Créer un certificat",
+
+  "preview_score": "Aperçu score",
+  "preview_certified_70": "Certifié (70 %)",
+  "preview_excellent_85": "Excellent (85 % ou plus)",
+  "preview_max_100": "MAX (100 % — exceptionnel)",
+  "format_label": "Format",
+  "format_online_opt": "En ligne — Standard",
+  "format_presentiel_opt": "Présentiel — Standard+",
+  "format_hybride_opt": "Hybride — ⭐⭐⭐ Premium",
+
+  "title_diploma": "Diplôme",
+  "title_diploma_max": "Diplôme d'excellence parfaite",
+  "title_diploma_premium": "Diplôme Premium Excellent",
+  "title_diploma_standard": "Diplôme Excellent — Standard",
+  "title_diploma_standard_plus": "Diplôme Excellent — Standard+",
+  "ribbon_max": "PARFAIT — 100 %",
+  "score_max": "MAX",
+  "badge_max": "Score maximum — Félicitations exceptionnelles !",
+
+  "intro_awarded_to": "Ce diplôme est décerné à",
+  "for_successfully_completed": "pour avoir réussi avec succès le cours",
+
+  "format_online": "En ligne",
+  "format_presentiel": "Présentiel",
+  "format_hybride": "Hybride",
+  "mode_standard": "Standard",
+  "mode_standard_plus": "Standard+",
+  "mode_premium": "⭐⭐⭐ Premium",
+
+  "issued_on": "Délivré le",
+  "valid_until": "Valide jusqu'au",
+
+  "section_training": "Excel – Formation Bureautique",
+  "score_general": "Score général",
+  "percentage_general": "Pourcentage général",
+  "points": "points",
+
+  "results_by_chapter": "Résultats par chapitre",
+  "level_excellent": "Excellent",
+  "level_certified": "Certifié",
+  "level_mediocre": "Médiocre",
+  "level_low": "Faible",
+  "level_bad": "Mauvais",
+
+  "ref": "Réf.",
+  "director_name": "Daniel M Bengui",
+  "director_title": "Directeur — Dandela Academy",
+  "verifiable_by_employers": "Vérifiable par les employeurs",
+  "recognized_inefop": "Certificat reconnu par l'INEFOP",
+  "inefop_full_name": "Institut National pour l'Emploi et la Formation Professionnelle",
+
+  "ribbon_excellent_premium": "EXCELLENT PREMIUM",
+  "ribbon_excellent_standard": "EXCELLENT STANDARD",
+  "ribbon_excellent_standard_plus": "EXCELLENT STANDARD+",
+
+  "average_label": "Moyenne générale",
+  "score_label": "Score",
+  "badge_excellent": "Félicitations ! Résultat excellent",
+  "badge_certified": "Parcours réussi — Certificat délivré"
+}

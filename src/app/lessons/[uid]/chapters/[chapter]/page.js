@@ -906,23 +906,32 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
         if (user && lesson && chapter && chapter?.quiz?.questions?.length > 0) {
             // Mélanger les propositions pour chaque question (difficulté accrue)
             const _questions = chapter.quiz.questions.map(q => {
+                const question = q.translate?.question;
+                const answer = q.translate?.answer;
                 const proposals = q.translate?.proposals;
                 if (Array.isArray(proposals) && proposals.length > 0) {
                     return {
                         ...q,
+                        uid_intern: q.uid_intern,
                         translate: {
                             ...q.translate,
+                            question: question,
+                            answer: answer,
                             proposals: mixArray([...proposals]),
                         },
                     };
                 }
                 return q;
             });
-            const _answers = _questions.map(q => ({
-                uid_question: q.uid_intern,
-                uid_answer: q.translate?.answer?.uid_intern,
-                uid_proposal: '',
-            }));
+            const _answers = _questions.map(q => {
+                //const ans = q.translate?.answer;
+                //const uidAnswer = (typeof ans === 'object' && ans?.uid_intern) ? ans.uid_intern : (ans || '');
+                return {
+                    uid_question: q.uid_intern ?? '',
+                    uid_answer: q.translate?.answer?.uid_intern ?? '',
+                    uid_proposal: '',
+                };
+            });
             setQuestions(_questions);
             setStat(new ClassUserStat({
                 uid_user: user.uid,
@@ -953,9 +962,7 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
             setDuration(prev => {
                 const _duration = prev + 1;
                 setStat(prev => {
-                    if (!prev || prev === null) return new ClassUserStat({
-                        start_date: new Date(),
-                    });
+                    if (!prev?.uid_user) return prev;
                     prev.update({ duration: _duration });
                     return prev.clone();
                 })
@@ -982,30 +989,25 @@ const NewQuizComponent = ({ setIndexSub = null }) => {
         setIndex(prev => prev + 1);
     }
     const submitQuiz = async () => {
+        if (!stat) {
+            console.error('[submitQuiz] stat est null, impossible d\'enregistrer');
+            return;
+        }
         try {
             setProcess(true);
             var _score = answers.filter(item => item.uid_proposal === item.uid_answer).length || 0;
-            //const _user_stat_object = new ClassUserStat(stat.toJSON());
             stat.update({
                 end_date: new Date(),
                 answers: answers,
-                /*
-                uid_user: user.uid,
-                user: user,
-                uid_lesson: chapter?.uid_lesson,
-                lesson: lesson,
-                uid_chapter: chapter?.uid,
-                chapter: chapter,
-                */
                 next_trying_date: _score === answers.length ? new Date() : null,
                 score: _score,
             });
-            
+
             const user_stat = await stat.createFirestore();
             setStat(user_stat.clone());
             setFinished(true);
         } catch (error) {
-
+            console.error('[submitQuiz] Erreur lors de l\'enregistrement du quiz dans Firestore:', error);
         } finally {
             setProcess(false);
         }
@@ -1386,7 +1388,7 @@ const CardQuizz = ({
                                                                 t={t}
                                                                 i18nKey={'finished.next-trying-date'}
                                                                 values={{
-                                                                    nextDate: getFormattedDateCompleteNumeric(stats?.[0]?.next_trying_date)
+                                                                    nextDate: getFormattedDateCompleteNumeric(mostResentStat?.next_trying_date)
                                                                 }}
                                                                 components={{
                                                                     b: <strong />

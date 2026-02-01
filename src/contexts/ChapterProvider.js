@@ -93,11 +93,14 @@ export function ChapterProvider({ children, uidLesson = "" }) {
                     return sub;
                 });
                 const _quiz = chapter.quiz || null;
-                console.log("QUIZ", _quiz);
 
                 if (_quiz && _quiz?.questions) {
                     const _questions = _quiz?.questions?.map(sub => {
-                        sub.translate = sub.getTranslate(lang);
+                        const translate = sub.getTranslate(lang);
+                        sub.translate = translate;
+                        sub.question = translate?.question;
+                        sub.proposals = translate?.proposals;
+                        sub.answer = translate?.answer;
                         return sub;
                     });
                     _quiz.questions = _questions;
@@ -105,22 +108,9 @@ export function ChapterProvider({ children, uidLesson = "" }) {
 
                 chapter.quiz = _quiz;
                 chapter.subchapters = _subchapters;
-
-                //console.log("chap", chapter, uidLesson)
                 _chapters.push(chapter);
-                /*
-                const stats = await new ClassUserStat({
-                    uid_user: user.uid,
-                    uid_lesson: uidLesson,
-                    uid_chapter: chapter.uid,
-                }).getStats();
-                */
-                //console.log("staaats", stats)
-                //_stats.push(...stats);
             }
             _chapters = _chapters.sort((a, b) => a.uid_intern - b.uid_intern);
-            //_stats = _stats.sort((a, b) => b.end_date.getTime() - a.end_date.getTime());
-            //console.log("providers CHAPTER", _chapters)
             setChapters(_chapters);
             //setStats(_stats);
             //setLastStat(_stats.length > 0 ? _stats[0] : null);
@@ -181,21 +171,17 @@ export function ChapterProvider({ children, uidLesson = "" }) {
             const _quiz = _chapter.quiz || null;
             if (_quiz && _quiz?.questions) {
                 const _questions = _quiz.questions?.map(sub => {
-                    sub.translate = sub.getTranslate(lang);
+                    const translate = sub.getTranslate(lang);
+                    sub.translate = translate;
+                    sub.question = translate?.question;
+                    sub.proposals = translate?.proposals;
+                    sub.answer = translate?.answer;
                     return sub;
                 });
                 _quiz.questions = _questions;
             }
             _chapter.quiz = _quiz;
             _chapter.subchapters = _subchapters;
-            console.log("subchaptersss", _subchapters);
-            /*
-            const _stats = await new ClassUserStat({
-                uid_user: user?.uid,
-                uid_lesson: uidLesson,
-                uid_chapter: _chapter.uid,
-            }).getStats();
-            */
             setChapter(prev => {
                 if (!prev || prev === null) return _chapter.clone();
                 prev.update(_chapter.toJSON());

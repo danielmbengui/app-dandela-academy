@@ -37,23 +37,6 @@ export function LessonProvider({ children, uidTeacher = null }) {
     const successTranslate = t('success', { returnObjects: true });
     const [success, setSuccess] = useState(false);
     const [textSuccess, setTextSuccess] = useState(false);
-    useEffect(() => {
-        if (user) {
-            const listener = listenToLessons(uidTeacher);
-            return () => listener?.();
-        }
-    }, [lang, uidTeacher, user]);
-    useEffect(() => {
-        if (user && uidLesson) {
-            // Ne pas pré-remplir depuis la liste : elle peut être filtrée (ex. enabled === true)
-            // et afficher une valeur incorrecte. On laisse listenToOneLesson fournir le document réel.
-            setLesson(null);
-            const listener = listenToOneLesson(uidLesson);
-            return () => listener?.();
-        } else {
-            setLesson(null);
-        }
-    }, [user, uidLesson]);
     // écoute du doc utilisateur
     const listenToLessons = useCallback((uidTeacher) => {
         //if(!user) return;
@@ -143,7 +126,7 @@ export function LessonProvider({ children, uidTeacher = null }) {
             }
         });
         return snapshotLessons;
-    }, [user]);
+    }, [user, lang]);
     const listenToOneLesson = useCallback((uidLesson) => {
         if (!uidLesson) {
             setLesson(null);
@@ -215,7 +198,25 @@ export function LessonProvider({ children, uidTeacher = null }) {
             //setIsLoading(false);
         });
         return unsubscribe;
-    }, [uidLesson]);
+    }, [uidLesson, lang]);
+    useEffect(() => {
+        if (user) {
+            const listener = listenToLessons(uidTeacher);
+            return () => listener?.();
+        }
+    }, [lang, uidTeacher, user]);
+    useEffect(() => {
+        if (user && uidLesson) {
+            // Ne pas pré-remplir depuis la liste : elle peut être filtrée (ex. enabled === true)
+            // et afficher une valeur incorrecte. On laisse listenToOneLesson fournir le document réel.
+            setLesson(null);
+            const listener = listenToOneLesson(uidLesson);
+            return () => listener?.();
+        } else {
+            setLesson(null);
+        }
+    }, [user, uidLesson, lang]);
+
     async function refreshList() {
         var _lessons = [];
         const constraints = [];

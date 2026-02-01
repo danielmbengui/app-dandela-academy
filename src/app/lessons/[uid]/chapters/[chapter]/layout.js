@@ -14,8 +14,10 @@ export const generateMetadata = generatePageMetadata({
 });
 
 export default async function OneLessonLayout({ children, params }) {
-  const {uid:uidLesson, chapter:uidChapter} = await params;
-  return (<StatProvider>
-    {children}
-  </StatProvider>);
+  const { uid: uidLesson } = await params;
+  return (
+    <StatProvider uidLesson={uidLesson} uidChapter="">
+      {children}
+    </StatProvider>
+  );
 }

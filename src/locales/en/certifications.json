@@ -1,0 +1,68 @@
+{
+  "header_title": "Certificate obtained",
+  "header_subtitle": "Congratulations! You have completed your course. Download or share your certificate.",
+  "download_pdf": "Download PDF",
+  "generating": "Generating…",
+  "share": "Share",
+  "link_copied": "Link copied!",
+  "create_certificate": "Create certificate",
+
+  "preview_score": "Score preview",
+  "preview_certified_70": "Certified (70%)",
+  "preview_excellent_85": "Excellent (85% or more)",
+  "preview_max_100": "MAX (100% — exceptional)",
+  "format_label": "Format",
+  "format_online_opt": "Online — Standard",
+  "format_presentiel_opt": "In-person — Standard+",
+  "format_hybride_opt": "Hybrid — ⭐⭐⭐ Premium",
+
+  "title_diploma": "Certificate",
+  "title_diploma_max": "Perfect Excellence Certificate",
+  "title_diploma_premium": "Premium Excellent Certificate",
+  "title_diploma_standard": "Excellent Certificate — Standard",
+  "title_diploma_standard_plus": "Excellent Certificate — Standard+",
+  "ribbon_max": "PERFECT — 100%",
+  "score_max": "MAX",
+  "badge_max": "Maximum score — Exceptional congratulations!",
+
+  "intro_awarded_to": "This certificate is awarded to",
+  "for_successfully_completed": "for having successfully completed the course",
+
+  "format_online": "Online",
+  "format_presentiel": "In-person",
+  "format_hybride": "Hybrid",
+  "mode_standard": "Standard",
+  "mode_standard_plus": "Standard+",
+  "mode_premium": "⭐⭐⭐ Premium",
+
+  "issued_on": "Issued on",
+  "valid_until": "Valid until",
+
+  "section_training": "Excel – Office Training",
+  "score_general": "Overall score",
+  "percentage_general": "Overall percentage",
+  "points": "points",
+
+  "results_by_chapter": "Results by chapter",
+  "level_excellent": "MAX",
+  "level_certified": "Certified",
+  "level_mediocre": "Average",
+  "level_low": "Low",
+  "level_bad": "Poor",
+
+  "ref": "Ref.",
+  "director_name": "Daniel M Bengui",
+  "director_title": "Director — Dandela Academy",
+  "verifiable_by_employers": "Verifiable by employers",
+  "recognized_inefop": "Certificate recognized by INEFOP",
+  "inefop_full_name": "National Institute for Employment and Vocational Training",
+
+  "ribbon_excellent_premium": "EXCELLENT PREMIUM",
+  "ribbon_excellent_standard": "EXCELLENT STANDARD",
+  "ribbon_excellent_standard_plus": "EXCELLENT STANDARD+",
+
+  "average_label": "Overall average",
+  "score_label": "Score",
+  "badge_excellent": "Congratulations! Excellent result",
+  "badge_certified": "Course completed — Certificate issued"
+}

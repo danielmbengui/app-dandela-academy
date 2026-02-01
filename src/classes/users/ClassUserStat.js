@@ -370,6 +370,25 @@ export class ClassUserStat {
     }
 
     // --- Serialization ---
+    /** Supprime récursivement les undefined (Firestore les refuse) */
+    static _stripUndefined(obj) {
+        if (obj === undefined) return null;
+        if (obj === null) return null;
+        if (Array.isArray(obj)) {
+            return obj.map((v) => ClassUserStat._stripUndefined(v)).filter((v) => v !== undefined);
+        }
+        if (obj instanceof Date) return obj;
+        if (typeof obj === "object") {
+            const out = {};
+            for (const [k, v] of Object.entries(obj)) {
+                if (v === undefined) continue;
+                const stripped = ClassUserStat._stripUndefined(v);
+                if (stripped !== undefined) out[k] = stripped;
+            }
+            return out;
+        }
+        return obj;
+    }
     toJSON() {
         const out = { ...this };
         const cleaned = Object.fromEntries(
@@ -377,21 +396,13 @@ export class ClassUserStat {
                 .filter(([k, v]) => k.startsWith("_") && v !== undefined)
                 .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
         );
-        cleaned.user = null;
-        cleaned.lesson = null;
-        cleaned.chapter = null;
-        cleaned.score = null;
-        cleaned.duration = null;
-        cleaned.percentage =null;
         delete cleaned.user;
         delete cleaned.lesson;
         delete cleaned.chapter;
         delete cleaned.score;
         delete cleaned.duration;
         delete cleaned.percentage;
-        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
-        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
-        return cleaned;
+        return ClassUserStat._stripUndefined(cleaned) || {};
     }
     update(props = {}) {
         for (const key in props) {
@@ -669,16 +680,18 @@ export class ClassUserStat {
     }
     // Créer un user (avec option timestamps serveur)
     async createFirestore() {
-        const newRef = doc(this.constructor.colRef(this._uid_user)); // id auto
+        if (!this._uid_user) {
+            throw new Error("createFirestore: uid_user est requis pour enregistrer la stat.");
+        }
+        const colRef = this.constructor.colRef(this._uid_user);
+        if (!colRef) {
+            throw new Error("createFirestore: colRef invalide (uid_user manquant).");
+        }
+        const newRef = doc(colRef);
         const count = await this.constructor.count(this._uid_user) || 0;
-        //const countRoom = await ClassRoom.count() || 0;
-        const idStat = count + 1;
         this._uid = newRef.id;
-        //this._uid_intern = idStat;
-        //this._name = this.createRoomName(idStat);
-        //this._name_normalized = this.createRoomName(idStat, true);
-        //this._enabled = true;
-        this._next_trying_date = this._next_trying_date ? this._next_trying_date : addDaysToDate(new Date(), this._chapter.quiz_delay_days || 30);
+        const quizDelayDays = this._chapter?.quiz_delay_days ?? 30;
+        this._next_trying_date = this._next_trying_date ? this._next_trying_date : addDaysToDate(new Date(), quizDelayDays);
         this._created_time = new Date();
         this._last_edit_time = new Date();
         await setDoc(newRef, this.toJSON());

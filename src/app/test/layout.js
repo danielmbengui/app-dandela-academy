@@ -3,6 +3,8 @@ import { PAGE_TEACHERS } from "@/contexts/constants/constants_pages";
 import { NS_TEACHERS } from "@/contexts/i18n/settings";
 import { ClassLessonChapter } from "@/classes/lessons/ClassLessonChapter";
 import PwaProvider from "@/contexts/PwaProvider";
+import { CertifProvider } from "@/contexts/CertifProvider";
+import ProviderCertifs from "@/contexts/providers/providercertifs";
 
 export const dynamic = "force-dynamic";
 
@@ -15,5 +17,7 @@ export const generateMetadata = generatePageMetadata({
 
 export default async function TestLayout({ children }) {
 
-  return (children);
+  return (<ProviderCertifs uidUser="aCZaAjvtK0PKichqLeLoqMvIPX13">
+    {children}
+  </ProviderCertifs>);
 }

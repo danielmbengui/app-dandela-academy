@@ -23,6 +23,11 @@ export class ClassLessonChapterQuiz {
     static COLLECTION = "QUIZ";
     static NS_COLLECTION = `classes/quiz`;
 
+    static ERROR = Object.freeze({
+        ALREADY_EXISTS: 'already-exists',
+        UNKNOWN: 'unknown',
+    });
+
     constructor({
         uid_intern = "",
         uid_chapter = "",
@@ -98,23 +103,7 @@ export class ClassLessonChapterQuiz {
     }
     // --- Serialization ---
     toJSON() {
-        const out = { ...this };
-        const cleaned = Object.fromEntries(
-            Object.entries(out)
-                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
-                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
-        );
-        cleaned.chapter = null;
-        // cleaned.translate = null;
-        //cleaned.translates = null;
-        //cleaned.computers = null;
-        delete cleaned.chapter;
-        // delete cleaned.translate;
-        //delete cleaned.translates;
-        //delete cleaned.computers;
-        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
-        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
-        return cleaned;
+        return QuizSerializer.toJSON(this);
     }
     update(props = {}) {
         for (const key in props) {
@@ -124,34 +113,75 @@ export class ClassLessonChapterQuiz {
         }
     }
     clone() {
-        return new ClassLessonChapterQuiz({
+        return QuizSerializer.fromJSON({
             ...this.toJSON(),
-            lesson: this._lesson,
-            translate: this._translate,
-            //translates: this._translates,
-            //computers: this._computers,
+            chapter: this._chapter,
         });
     }
 
-    // ---------- Converter intégré ----------
-    static _toJsDate(v) {
-        if (!v) return null;
-        if (v instanceof Date) return v;
-        if (v instanceof Timestamp) return v.toDate();
-        if (typeof v?.toDate === "function") return v.toDate();
-        if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
-        return null;
+    static makeQuizInstance(data = {}) {
+        return new ClassLessonChapterQuiz(data);
     }
+
+    static get converter() {
+        return {
+            toFirestore(quizInstance) {
+                if (!quizInstance?.toJSON) return quizInstance;
+                const base = quizInstance.toJSON();
+                const questions = (quizInstance.questions || []).map?.(item => item?.toJSON?.() ?? item) ?? [];
+                return { ...base, questions };
+            },
+            fromFirestore(snapshot, options) {
+                const data = snapshot.data(options) || {};
+                return ClassLessonChapterQuiz.makeQuizInstance(data);
+            },
+        };
+    }
+
     getTranslate(lang = defaultLanguage) {
         if (!lang) return null;
         const translate = this._translates?.find(item => item.lang === lang);
-        //if(!translate) return null;
         return translate;
     }
 }
+
+/** Serialiseur pour ClassLessonChapterQuiz (même logique que ChapterSerializer). */
+class QuizSerializer {
+    static fieldsToRemove = ["chapter"];
+    static toJSON(quiz) {
+        const out = { ...quiz };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v])
+        );
+        for (const field of this.fieldsToRemove) {
+            delete cleaned[field];
+        }
+        cleaned.questions = (quiz.questions || []).map?.(q => q?.toJSON?.() ?? q) ?? [];
+        return cleaned;
+    }
+    static fromJSON(data) {
+        const hasUnderscoreKeys = Object.keys(data).some((k) => k.startsWith("_"));
+        const cleaned = hasUnderscoreKeys
+            ? Object.fromEntries(
+                Object.entries(data)
+                    .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                    .map(([k, v]) => [k.replace(/^_/, ""), v])
+            )
+            : { ...data };
+        return ClassLessonChapterQuiz.makeQuizInstance(cleaned);
+    }
+}
+
 export class ClassLessonChapterQuizTranslation {
     static COLLECTION = "i18n";
-    static NS_COLLECTION = `classes/lesson`;
+    static NS_COLLECTION = `classes/quiz`;
+
+    static ERROR = Object.freeze({
+        ALREADY_EXISTS: 'already-exists',
+        UNKNOWN: 'unknown',
+    });
 
     constructor({
         lang = "",
@@ -228,13 +258,21 @@ export class ClassLessonChapterQuizTranslation {
         }
     }
     clone() {
-        return new ClassLessonChapterQuizTranslation(this.toJSON());
-        //return new ClassUser(this.toJSON());
+        return ClassLessonChapterQuizTranslation.makeTranslateInstance(this.toJSON());
+    }
+
+    static makeTranslateInstance(data = {}) {
+        return new ClassLessonChapterQuizTranslation(data);
     }
 }
 export class ClassLessonChapterQuestion {
     static COLLECTION = "QUESTION";
     static NS_COLLECTION = `classes/quiz`;
+
+    static ERROR = Object.freeze({
+        ALREADY_EXISTS: 'already-exists',
+        UNKNOWN: 'unknown',
+    });
 
     constructor({
         uid_intern = "",
@@ -319,26 +357,7 @@ export class ClassLessonChapterQuestion {
     }
     // --- Serialization ---
     toJSON() {
-        const out = { ...this };
-        const cleaned = Object.fromEntries(
-            Object.entries(out)
-                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
-                .map(([k, v]) => [k.replace(/^_/, ""), v]) // <-- paires [key, value], pas {key, value}
-        );
-        //cleaned.chapter = null;
-        cleaned.translates = this._convertTranslatesToFirestore(this._translates);
-        cleaned.translate = null;
-        cleaned.question = null;
-        cleaned.proposals = null;
-        cleaned.answer = null;
-        //delete cleaned.chapter;
-        delete cleaned.translate;
-        delete cleaned.question;
-        delete cleaned.proposals;
-        delete cleaned.answer;
-        //console.log("to json session", cleaned.slots.map(slot => slot.toJSON()))
-        //cleaned.slots = cleaned.slots.map(slot => slot.toJSON?.());
-        return cleaned;
+        return QuestionSerializer.toJSON(this);
     }
     update(props = {}) {
         for (const key in props) {
@@ -348,37 +367,64 @@ export class ClassLessonChapterQuestion {
         }
     }
     clone() {
-        return new ClassLessonChapterQuestion({
+        return QuestionSerializer.fromJSON({
             ...this.toJSON(),
-            //lesson: this._lesson,
             translate: this._translate,
             translates: this._translates,
             question: this._question,
             proposals: this._proposals,
             answer: this._answer,
-            //computers: this._computers,
         });
     }
 
-    // ---------- Converter intégré ----------
-    static _toJsDate(v) {
-        if (!v) return null;
-        if (v instanceof Date) return v;
-        if (v instanceof Timestamp) return v.toDate();
-        if (typeof v?.toDate === "function") return v.toDate();
-        if (typeof v?.seconds === "number") return new Date(v.seconds * 1000);
-        return null;
+    static makeQuestionInstance(data = {}) {
+        return new ClassLessonChapterQuestion(data);
     }
+
     getTranslate(lang = defaultLanguage) {
         if (!lang) return null;
         const translate = this._translates?.find(item => item.lang === lang);
-        //if(!translate) return null;
         return translate;
     }
 }
+
+/** Serialiseur pour ClassLessonChapterQuestion (même logique que QuizSerializer). */
+class QuestionSerializer {
+    static fieldsToRemove = ["translate", "question", "proposals", "answer"];
+    static toJSON(question) {
+        const out = { ...question };
+        const cleaned = Object.fromEntries(
+            Object.entries(out)
+                .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                .map(([k, v]) => [k.replace(/^_/, ""), v])
+        );
+        for (const field of this.fieldsToRemove) {
+            delete cleaned[field];
+        }
+        cleaned.translates = question._convertTranslatesToFirestore(question.translates || []);
+        return cleaned;
+    }
+    static fromJSON(data) {
+        const hasUnderscoreKeys = Object.keys(data).some((k) => k.startsWith("_"));
+        const cleaned = hasUnderscoreKeys
+            ? Object.fromEntries(
+                Object.entries(data)
+                    .filter(([k, v]) => k.startsWith("_") && v !== undefined)
+                    .map(([k, v]) => [k.replace(/^_/, ""), v])
+            )
+            : { ...data };
+        return ClassLessonChapterQuestion.makeQuestionInstance(cleaned);
+    }
+}
+
 export class ClassLessonChapterQuestionTranslation {
     static COLLECTION = "i18n";
-    static NS_COLLECTION = `classes/lesson`;
+    static NS_COLLECTION = `classes/quiz`;
+
+    static ERROR = Object.freeze({
+        ALREADY_EXISTS: 'already-exists',
+        UNKNOWN: 'unknown',
+    });
 
     constructor({
         lang = "",
@@ -437,7 +483,10 @@ export class ClassLessonChapterQuestionTranslation {
         }
     }
     clone() {
-        return new ClassLessonChapterQuestionTranslation(this.toJSON());
-        //return new ClassUser(this.toJSON());
+        return ClassLessonChapterQuestionTranslation.makeTranslateInstance(this.toJSON());
+    }
+
+    static makeTranslateInstance(data = {}) {
+        return new ClassLessonChapterQuestionTranslation(data);
     }
 }

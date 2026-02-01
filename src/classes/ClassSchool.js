@@ -34,6 +34,8 @@ export class ClassSchool {
         bank_express = "",
         bank_name = "",
         iban = "",
+        director = "",
+        certificat_sign = "",
         emails = [],
         phones = [],
         schedule = [
@@ -62,6 +64,8 @@ export class ClassSchool {
         this._bank_express = bank_express;
         this._bank_name = bank_name;
         this._iban = iban;
+        this._director = director;
+        this._certificat_sign = certificat_sign;
         this._schedule = this._normalizeSchedule(schedule);
         this._enabled = Boolean(enabled);
 
@@ -156,6 +160,13 @@ export class ClassSchool {
     get iban() {
         return this._iban;
     }
+    get director() {
+        return this._director;
+    }
+
+    get certificat_sign() {
+        return this._certificat_sign;
+    }
 
     get schedule() {
         // on renvoie une copie pour éviter les mutations directes
@@ -228,6 +239,14 @@ export class ClassSchool {
     }
     set iban(value) {
         this._iban = value;
+        this._touchLastEdit();
+    }
+    set director(value) {
+        this._director = value;
+        this._touchLastEdit();
+    }
+    set certificat_sign(value) {
+        this._certificat_sign = value;
         this._touchLastEdit();
     }
     set schedule(value) {

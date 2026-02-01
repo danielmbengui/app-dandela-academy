@@ -70,7 +70,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 setIsLoading(false);
                 return;
             }
-            console.log("constraints provider", snap.size)
             try {
                 const _lessons = [];
                 //await ClassLessonTeacher.fetchListFromFirestore(lang, where("enabled", "==", true));
@@ -204,7 +203,6 @@ export function LessonTeacherProvider({ children, uidSourceLesson = "", uidTeach
                 return prev.clone();
             });
             //setIsConnected(true);
-            console.log("one lesson teacher provider", lesson_new.clone())
             setIsLoading(false);
             //setUser(fbUser);
             //setIsConnected(true);

@@ -1,0 +1,67 @@
+{
+  "header_title": "Certificado obtido",
+  "header_subtitle": "Parabéns! Concluíste o teu percurso. Descarrega ou partilha o teu certificado.",
+  "download_pdf": "Descarregar PDF",
+  "generating": "A gerar…",
+  "share": "Partilhar",
+  "link_copied": "Ligação copiada!",
+  "create_certificate": "Criar certificado",
+
+  "preview_score": "Pré-visualizar nota",
+  "preview_certified_70": "Certificado (70%)",
+  "preview_excellent_85": "MAX (85% ou mais)",
+  "format_label": "Formato",
+  "format_online_opt": "Online — Standard",
+  "format_presentiel_opt": "Presencial — Standard+",
+  "format_hybride_opt": "Híbrido — ⭐⭐⭐ Premium",
+
+  "title_diploma": "Certificado",
+  "title_diploma_max": "Certificado de excelência perfeita",
+  "title_diploma_premium": "Certificado Premium Excelente",
+  "title_diploma_standard": "Certificado Excelente — Standard",
+  "title_diploma_standard_plus": "Certificado Excelente — Standard+",
+  "ribbon_max": "PERFEITO — 100%",
+  "score_max": "MAX",
+  "badge_max": "Nota máxima — Parabéns excecionais!",
+
+  "intro_awarded_to": "Este certificado é atribuído a",
+  "for_successfully_completed": "por ter concluído com sucesso o curso",
+
+  "format_online": "Online",
+  "format_presentiel": "Presencial",
+  "format_hybride": "Híbrido",
+  "mode_standard": "Standard",
+  "mode_standard_plus": "Standard+",
+  "mode_premium": "⭐⭐⭐ Premium",
+
+  "issued_on": "Emitido em",
+  "valid_until": "Válido até",
+
+  "section_training": "Excel – Formação em Bureática",
+  "score_general": "Nota geral",
+  "percentage_general": "Percentagem geral",
+  "points": "pontos",
+
+  "results_by_chapter": "Resultados por capítulo",
+  "level_excellent": "Excelente",
+  "level_certified": "Certificado",
+  "level_mediocre": "Médio",
+  "level_low": "Baixo",
+  "level_bad": "Fraco",
+
+  "ref": "Ref.",
+  "director_name": "Daniel M Bengui",
+  "director_title": "Diretor — Dandela Academy",
+  "verifiable_by_employers": "Verificável pelos empregadores",
+  "recognized_inefop": "Certificado reconhecido pelo INEFOP",
+  "inefop_full_name": "Instituto Nacional do Emprego e da Formação Profissional",
+
+  "ribbon_excellent_premium": "EXCELENTE PREMIUM",
+  "ribbon_excellent_standard": "EXCELENTE STANDARD",
+  "ribbon_excellent_standard_plus": "EXCELENTE STANDARD+",
+
+  "average_label": "Média geral",
+  "score_label": "Nota",
+  "badge_excellent": "Parabéns! Resultado excelente",
+  "badge_certified": "Percurso concluído — Certificado emitido"
+}
