@@ -55,7 +55,7 @@ export class ClassUserCertification {
         score = 0,
         count_questions = 0,
         percentage = 0,
-        stats=[],
+        stats = [],
         obtained_date = null,
         expires_date = null,
         created_time = null,
@@ -170,7 +170,7 @@ export class ClassUserCertification {
         return new ClassUserCertification({ uid, ...data });
     }
     static calculatePercentage(score, count_questions) {
-        if(count_questions === 0) return 0;
+        if (count_questions === 0) return 0;
         return (score / count_questions) * 100;
     }
     static getStatusFromPercentage(percentage) {
@@ -181,11 +181,11 @@ export class ClassUserCertification {
         return ClassUserCertification.STATUS_STATS.NOT_GOOD;
     }
     static countQuestions(stats = []) {
-        if(!stats || stats.length === 0) return 0;
+        if (!stats || stats.length === 0) return 0;
         return stats.reduce((acc, stat) => acc + stat.answers.length, 0);
     }
     static countScore(stats = []) {
-        if(!stats || stats.length === 0) return 0;
+        if (!stats || stats.length === 0) return 0;
         return stats.reduce((acc, stat) => acc + stat.score, 0);
     }
     static get converter() {
@@ -203,7 +203,7 @@ export class ClassUserCertification {
                 const percentage = ClassUserCertification.calculatePercentage(data.score, data.count_questions);
                 const status = ClassUserCertification.getStatusFromPercentage(percentage);
                 const is_excellent = status === ClassUserCertification.STATUS_STATS.EXCELLENT || status === ClassUserCertification.STATUS_STATS.MAX;
-                return ClassUserCertification.makeUserCertification(uid, { ...data,percentage, status, is_excellent, created_time, obtained_date, expires_date});
+                return ClassUserCertification.makeUserCertification(uid, { ...data, percentage, status, is_excellent, created_time, obtained_date, expires_date });
             },
         };
     }
@@ -314,8 +314,8 @@ export class ClassUserCertification {
             this._created_time = new Date();
             this._obtained_date = new Date();
             this._expires_date = addDaysToDate(new Date(), ClassUserCertification.VALIDITY_DAYS);
-            if(!this._reference) {
-                this._reference = this.constructor.createReference(this._code ?? "",this._uid_user, this._uid_lesson, this._uid);
+            if (!this._reference) {
+                this._reference = this.constructor.createReference(this._code ?? "", this._uid_user, this._uid_lesson, this._uid);
             }
             await setDoc(newRef, this, { merge: true });
             return this.constructor.makeUserCertification(this._uid, this.toJSON());

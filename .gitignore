@@ -38,6 +38,7 @@ functions/.gitignore
 
 # Environnements
 *.env
+*.env.*
 *.env.local
 
 # vercel

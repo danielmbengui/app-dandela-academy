@@ -29,11 +29,20 @@ export function CertifProvider({ children, uidUser = null }) {
 
     // Écoute en temps réel des certifications de l'utilisateur
     const listenToCertifications = useCallback((uidForUser = '') => {
-        if (!uidForUser || isLoadingLesson || isLoadingUser || isLoadingStat || isLoadingChapter) {
+        // Si les providers dépendants chargent encore, on garde isLoading à true
+        console.log("Is loading start function", isLoading)
+        if (isLoadingLesson || isLoadingUser || isLoadingStat || isLoadingChapter) {
+            return () => { };
+        }
+        console.log("Is loading start 2", isLoading)
+        // Si pas d'utilisateur, on peut mettre isLoading à false
+        if (!uidForUser) {
+            console.log("Is loading uid user", isLoading)
             setCertifications([]);
             setIsLoading(false);
             return () => { };
         }
+        console.log("Is loading certif", isLoading)
         const colRef = ClassUserCertification.colRefForUser(uidForUser);
         if (!colRef) {
             setCertifications([]);
@@ -132,11 +141,6 @@ export function CertifProvider({ children, uidUser = null }) {
         if (uid) {
             const unsubscribe = listenToCertifications(uid);
             return () => unsubscribe?.();
-        } else {
-            setCertifications([]);
-            setCertification(null);
-            setUidCertification(null);
-            setIsLoading(false);
         }
     }, [uid,lang, listenToCertifications]);
 

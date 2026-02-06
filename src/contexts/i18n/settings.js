@@ -84,6 +84,8 @@ export const NS_PWA = `pwa`;
 
 /*----------------- Admin ----------------------------------------*/
 export const NS_ADMIN_CHAPTERS = `admin/chapters`;
+export const NS_DIPLOMAS = `diplomas/list`;
+export const NS_DIPLOMAS_ONE = `diplomas/one`;
 
 export const namespaces = [
     NS_COMMON,NS_LANGS,NS_BUTTONS,NS_PAGES,NS_FORM,NS_ROLES,NS_LEVELS,NS_CONTACT,NS_ERRORS,NS_WAITING_LIST,NS_HOW_KNOW,

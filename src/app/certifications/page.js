@@ -13,9 +13,18 @@ import { IconCertificate } from "@/assets/icons/IconsComponent";
 import { Stack } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { NS_CERTIFICATIONS, NS_DASHBOARD_MENU } from "@/contexts/i18n/settings";
+import LoadingComponent from "@/components/shared/LoadingComponent";
 
 const NS_CLASS_CERT = "classes/certification";
-
+function EmptyCertificationsList() {
+  return (
+    <Stack alignItems={'center'} sx={{ width: 'fit-content'}}>
+      <Icon icon="ph:certificate-duotone" className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{tCertPage("list_empty_title")}</h2>
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{tCertPage("list_empty_hint")}</p>
+    </Stack>
+  );
+}
 /** Libellé et style du statut (excellent, good, etc.) */
 function getStatusConfig(status) {
   if (!status) return null;
@@ -25,13 +34,11 @@ function getStatusConfig(status) {
     null
   );
 }
-
 function formatCertDate(date, lang) {
   if (!date) return "—";
   const d = date instanceof Date ? date : new Date(date);
   return getFormattedDateNumeric(d, lang);
 }
-
 /** Carte certificat moderne : bandeau de statut, score circulaire, dates et CTA */
 function CertificationCard({ cert, lang, tCert }) {
   const statusConfig = getStatusConfig(cert.status);
@@ -131,27 +138,23 @@ function CertificationCard({ cert, lang, tCert }) {
     </article>
   );
 }
-
-function CertificationsListContent() {
+function CertificationsListContent({isLoadingUser}) {
   const { lang } = useLanguage();
   const { certifications, isLoading } = useCertif();
   const { t: tCert } = useTranslation(NS_CLASS_CERT);
   const { t: tCertPage } = useTranslation(NS_CERTIFICATIONS);
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Icon icon="ph:spinner-gap" className="w-12 h-12 animate-spin text-primary" />
-        <p className="text-sm text-gray-500 dark:text-gray-400">{tCertPage("list_loading")}</p>
-      </div>
-    );
+    return (<LoadingComponent />);
   }
 
   if (certifications.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-10 text-center max-w-md mx-auto">
-        <div className="w-16 h-16 rounded-2xl bg-gray-200/80 dark:bg-gray-700/80 flex items-center justify-center mx-auto mb-4">
-          <Icon icon="ph:certificate-duotone" className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+      <Stack className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-10 text-center w-fit"
+      style={{borderColor: 'var(--primary-shadow-sm)', backgroundColor: 'var(--primary-shadow)'}}>
+        <div className="w-16 h-16 rounded-2xl bg-gray-200/80 dark:bg-gray-700/80 flex items-center justify-center mx-auto mb-4"
+        style={{backgroundColor: 'var(--primary-shadow)'}}>
+          <Icon color="var(--primary)" icon="ph:certificate-duotone" className="w-8 h-8 text-gray-500 dark:text-gray-400" />
         </div>
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
           {tCertPage("list_empty_title")}
@@ -159,7 +162,7 @@ function CertificationsListContent() {
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           {tCertPage("list_empty_hint")}
         </p>
-      </div>
+      </Stack>
     );
   }
 
@@ -173,9 +176,8 @@ function CertificationsListContent() {
     </ul>
   );
 }
-
 export default function CertificationsPage() {
-  const { user } = useAuth();
+  const { user, isLoading: isLoadingUser } = useAuth();
   const { t } = useTranslation([NS_CERTIFICATIONS, NS_DASHBOARD_MENU]);
 
   return (
@@ -189,7 +191,7 @@ export default function CertificationsPage() {
         icon={<IconCertificate width={22} height={22} />}
       >
         <Stack sx={{ width: "100%" }}>
-          <CertificationsListContent />
+          <CertificationsListContent isLoadingUser={isLoadingUser} />
         </Stack>
       </DashboardPageWrapper>
     </ProviderCertifs>

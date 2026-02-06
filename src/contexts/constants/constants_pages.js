@@ -73,6 +73,16 @@ export const PAGE_TEACHER_CREATE_SESSION = (uidUser, uidSourceLesson, uidLesson)
 export const PAGE_CERTIFICATIONS = "/certifications";
 export const PAGE_CONTACT = "/contact";
 
+// Diplômes (Admin)
+export const PAGE_ADMIN_DIPLOMAS = (uidUser) =>
+  `/admin/${uidUser}/diplomas`;
+export const PAGE_ADMIN_CREATE_DIPLOMA = (uidUser) =>
+  `/admin/${uidUser}/diplomas/create`;
+export const PAGE_ADMIN_ONE_DIPLOMA = (uidUser, uidDiploma) =>
+  `/admin/${uidUser}/diplomas/${uidDiploma}`;
+export const PAGE_ADMIN_EDIT_DIPLOMA = (uidUser, uidDiploma) =>
+  `/admin/${uidUser}/diplomas/${uidDiploma}/edit`;
+
 
 
 
