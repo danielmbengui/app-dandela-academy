@@ -552,6 +552,26 @@ export default function ChapterQuizPage() {
     setQuestions(newQuestions);
   };
 
+  const handleMoveQuestionUp = (index) => {
+    if (index <= 0) return;
+    setQuestions((prev) => {
+      const newArr = [...prev];
+      const [moved] = newArr.splice(index, 1);
+      newArr.splice(index - 1, 0, moved);
+      return newArr.map((q, i) => ({ ...q, uid_intern: i + 1 }));
+    });
+  };
+
+  const handleMoveQuestionDown = (index) => {
+    if (index >= questions.length - 1) return;
+    setQuestions((prev) => {
+      const newArr = [...prev];
+      const [moved] = newArr.splice(index, 1);
+      newArr.splice(index + 1, 0, moved);
+      return newArr.map((q, i) => ({ ...q, uid_intern: i + 1 }));
+    });
+  };
+
   const handleRemoveQuestion = (index) => {
     const newQuestions = questions.filter((_, i) => i !== index);
     const updatedQuestions = newQuestions.map((q, i) => ({
@@ -913,18 +933,51 @@ export default function ChapterQuizPage() {
           const isCollapsed = isValid && expandedQuestion !== index;
           
           return (
-            <QuestionComponent
-              key={`question-${index}`}
-              question={question}
-              index={index}
-              onUpdateQuestion={handleUpdateQuestion}
-              onRemoveQuestion={handleRemoveQuestion}
-              onConfirmRemoveQuestion={handleRemoveQuestionAndSave}
-              isCollapsed={isCollapsed}
-              onExpand={() => setExpandedQuestion(index)}
-              onCollapse={() => setExpandedQuestion(null)}
-              t={t}
-            />
+            <Grid
+              key={`question-wrapper-${index}`}
+              container
+              alignItems="flex-start"
+              spacing={1}
+              sx={{ width: "100%" }}
+            >
+              <Grid size="auto">
+                <Stack direction="column" spacing={0} sx={{ pt: 1 }}>
+                  <Box
+                    onClick={() => handleMoveQuestionUp(index)}
+                    sx={{
+                      cursor: index > 0 ? "pointer" : "default",
+                      display: "flex",
+                      color: index > 0 ? "var(--warning)" : "var(--grey-light)",
+                    }}
+                  >
+                    <IconArrowUp width={20} height={20} />
+                  </Box>
+                  <Box
+                    onClick={() => handleMoveQuestionDown(index)}
+                    sx={{
+                      cursor: index < questions.length - 1 ? "pointer" : "default",
+                      display: "flex",
+                      color: index < questions.length - 1 ? "var(--warning)" : "var(--grey-light)",
+                    }}
+                  >
+                    <IconArrowDown width={20} height={20} />
+                  </Box>
+                </Stack>
+              </Grid>
+              <Grid size="grow">
+                <QuestionComponent
+                  question={question}
+                  index={index}
+                  onUpdateQuestion={handleUpdateQuestion}
+                  onRemoveQuestion={handleRemoveQuestion}
+                  onConfirmRemoveQuestion={handleRemoveQuestionAndSave}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setExpandedQuestion(index)}
+                  onCollapse={() => setExpandedQuestion(null)}
+                  t={t}
+                />
+              </Grid>
+            </Grid>
           );
         })}
       </Stack>
