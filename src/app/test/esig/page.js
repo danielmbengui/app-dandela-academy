@@ -548,7 +548,7 @@ export default function DiplomeESIG() {
                   </span>
                 </div>
                 <p className="diploma-exam-duration">
-                  Examen d'une durée de <strong>{diplomaData.examDuration}</strong>
+                  {"Examen d'une durée de"} <strong>{diplomaData.examDuration}</strong>
                 </p>
               </div>
 
