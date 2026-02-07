@@ -11,7 +11,8 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { PAGE_ADMIN_LESSONS, PAGE_ADMIN_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER } from "@/contexts/constants/constants_pages";
+import { PAGE_ADMIN_LESSONS, PAGE_ADMIN_CREATE_LESSON, PAGE_ADMIN_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON, PAGE_ADMIN_UPDATE_ONE_LESSON_TEACHER } from "@/contexts/constants/constants_pages";
+import { Icon } from "@iconify/react";
 import { useLesson } from "@/contexts/LessonProvider";
 import { LessonTeacherProvider, useLessonTeacher } from "@/contexts/LessonTeacherProvider";
 import { useUsers } from "@/contexts/UsersProvider";
@@ -117,6 +118,15 @@ function LessonsComponent() {
             onClear={() => setFilter((prev) => ({ ...prev, search: "" }))}
             isAdmin={true}
           />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }} sx={{ display: "flex", justifyContent: { xs: "flex-start", sm: "flex-end" } }}>
+          <Link href={PAGE_ADMIN_CREATE_LESSON(uidUser)} style={{ textDecoration: "none" }}>
+            <ButtonConfirm
+              label={t("create-lesson", { ns: NS_LESSONS }) || t("create", { ns: NS_BUTTONS })}
+              isAdmin={true}
+              icon={<Icon icon="ph:plus-bold" width={18} />}
+            />
+          </Link>
         </Grid>
       </Grid>
 

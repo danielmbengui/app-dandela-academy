@@ -657,7 +657,7 @@ export class ClassLesson {
         this._created_time = new Date();
         this._last_edit_time = new Date();
         //const path = { ...model.toJSON(), uid, uid_intern, created_time, last_edit_time };
-        await setDoc(newRef, { ...this.toJSON() }, { merge: true });
+        await setDoc(newRef, this, { merge: true });
         return this.constructor.makeLessonInstance(this._uid, this.toJSON());// -> ClassModule
     }
     async updateFirestore() {

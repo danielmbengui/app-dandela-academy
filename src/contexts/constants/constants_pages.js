@@ -27,6 +27,8 @@ export const PAGE_ADMIN_HOME = (uidUser) =>
   `/admin/${uidUser}`;
 export const PAGE_ADMIN_LESSONS = (uidUser) =>
   `/admin/${uidUser}/lessons`;
+export const PAGE_ADMIN_CREATE_LESSON = (uidUser) =>
+  `/admin/${uidUser}/lessons/create`;
 export const PAGE_ADMIN_ONE_LESSON = (uidUser, uidLesson) =>
   `/admin/${uidUser}/lessons/${uidLesson}`;
 export const PAGE_ADMIN_CHAPTERS = (uidUser, uidLesson) =>

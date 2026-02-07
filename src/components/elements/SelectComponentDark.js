@@ -13,6 +13,8 @@ export default function SelectComponentDark({
     selectorColor,
     /** Si false, le select prend une largeur auto au lieu de 100% */
     fullWidth = true,
+    // Props à ne pas passer au DOM
+    isAdmin,
     ...props
  }) {
 const {theme} = useThemeMode();

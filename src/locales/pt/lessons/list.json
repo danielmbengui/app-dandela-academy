@@ -4,6 +4,12 @@
     "title": "Cursos",
     "subtitle": "Consulta todos os cursos da Dandela Academy: formatos, certificações e muito mais.",
     "placeholder_search": "Pesquisar por curso, categoria, nível...",
-    "not-found": "Nenhum curso corresponde à pesquisa"
+    "placeholder_title": "Título do curso...",
+    "placeholder_subtitle": "Subtítulo do curso...",
+    "not-found": "Nenhum curso corresponde à pesquisa",
+    "create-lesson": "Criar um curso",
+    "confirm-delete-lesson": "Tem certeza de que deseja excluir este curso?",
+    "title-create": "Novo curso",
+    "subtitle-create": "Preencha as informações abaixo para criar um novo curso na plataforma."
   }
   

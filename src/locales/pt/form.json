@@ -30,5 +30,15 @@
   "login-step-login": "Informações de login",
   "password": "Palavra-passe",
   "repeat-password": "Repetir palavra-passe",
-  "forgot-password": "Esqueceu a palavra-passe?"
+  "forgot-password": "Esqueceu a palavra-passe?",
+  "code": "Código",
+  "title": "Título",
+  "subtitle": "Subtítulo",
+  "description": "Descrição",
+  "category": "Categoria",
+  "status": "Estado",
+  "enabled": "Ativado",
+  "general_information": "Informações gerais",
+  "configuration": "Configuração",
+  "photos_by_language": "Fotos por idioma"
 }

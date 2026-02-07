@@ -4,6 +4,12 @@
     "title": "Courses",
     "subtitle": "Browse all Dandela Academy courses: formats, certifications, and more.",
     "placeholder_search": "Search by course, category, level...",
-    "not-found": "No courses match your search"
+    "placeholder_title": "Course title...",
+    "placeholder_subtitle": "Course subtitle...",
+    "not-found": "No courses match your search",
+    "create-lesson": "Create a course",
+    "confirm-delete-lesson": "Are you sure you want to delete this course?",
+    "title-create": "New course",
+    "subtitle-create": "Fill in the information below to create a new course on the platform."
   }
   
