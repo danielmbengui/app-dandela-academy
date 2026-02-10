@@ -10,7 +10,8 @@
   "trainings_body": "Percursos práticos orientados para o emprego: bureautica, ferramentas digitais, introdução à programação e competências digitais essenciais para o mercado de trabalho angolano.",
   "cert_body": "As formações da Dandela Academy são certificadas pelo INEFOP. No fim do percurso, os alunos recebem um diploma reconhecido a nível nacional, que lhes permite trabalhar em toda a Angola.",
   "contacts_hint": "Chamadas e WhatsApp para informações, inscrições e reservas.",
-  "pdf_hint": "Para guardar este cartaz, utiliza a função « Imprimir » do teu navegador e depois escolhe « Guardar como PDF ».",
+  "pdf_hint": "Para guardar este cartaz, utiliza « Imprimir » e depois « Guardar como PDF ». Para mais informações, visita o site Dandela Academy: ",
+  "pdf_link_text": "visita o site Dandela Academy",
   "pdf_button": "Imprimir / Guardar em PDF",
   "website_line": "Site: {{url}}"
 }

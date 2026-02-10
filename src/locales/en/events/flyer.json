@@ -10,8 +10,8 @@
   "trainings_body": "Hands-on, job-oriented tracks: office tools, digital tools, introduction to programming and essential digital skills for the Angolan job market.",
   "cert_body": "Dandela Academy trainings are certified by INEFOP. At the end of the program, learners receive a diploma recognized at national level, allowing them to work anywhere in Angola.",
   "contacts_hint": "Calls and WhatsApp for information, registrations and bookings.",
-  "pdf_hint": "To keep this flyer, use your browser’s “Print” function and then choose “Save as PDF”.",
+  "pdf_hint": "To keep this flyer, use « Print » then « Save as PDF ». For more information, ",
+  "pdf_link_text": "visit the Dandela Academy website",
   "pdf_button": "Print / Save as PDF",
   "website_line": "Website: {{url}}"
 }
-

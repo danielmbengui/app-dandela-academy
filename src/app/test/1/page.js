@@ -186,20 +186,7 @@ const styles = {
     backgroundColor: "#f9fafb",
     cursor: "pointer",
   },
-  printFooter: {
-    marginTop: "0.4rem",
-    fontSize: "0.75rem",
-    color: "#6b7280",
-    textAlign: "center",
-  },
   responsive: `
-    .da-print-footer {
-      display: none;
-      font-size: 0.75rem;
-      color: #6b7280;
-      text-align: center;
-      margin-top: 0.4rem;
-    }
     @media (max-width: 768px) {
       .da-flyer {
         padding: 1.2rem 1.1rem;
@@ -240,9 +227,6 @@ const styles = {
       }
       .da-select-lang {
         display: none !important;
-      }
-      .da-print-footer {
-        display: block !important;
       }
     }
   `,
@@ -344,7 +328,17 @@ export default function CeremonyPresentationPage() {
           </div>
 
           <footer style={styles.footer}>
-            <p style={styles.footerNote}>{t("pdf_hint")}</p>
+            <p style={styles.footerNote}>
+              {t("pdf_hint")}
+              <a
+                href="https://academy.dandela.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--primary)", fontWeight: 600 }}
+              >
+                https://academy.dandela.com
+              </a>
+            </p>
             <button
               type="button"
               style={styles.printButton}
@@ -355,9 +349,6 @@ export default function CeremonyPresentationPage() {
             </button>
           </footer>
         </section>
-        <div style={styles.printFooter} className="da-print-footer">
-          {t("website_line",{ url: "https://academy.dandela.co" })}
-        </div>
       </main>
     </>
   );
