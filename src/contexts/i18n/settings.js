@@ -37,6 +37,7 @@ export const NS_SESSIONS = `sessions/list`;
 export const NS_SESSIONS_ONE = `sessions/one`;
 export const NS_EVENTS = `events/list`;
 export const NS_EVENTS_ONE = `events/one`;
+export const NS_EVENT_FLYER = `events/flyer`;
 export const NS_CHAPTERS = `chapters/main`;
 export const NS_CHAPTER_ONE = `chapters/one`;
 export const NS_STATS = `stats/main`;

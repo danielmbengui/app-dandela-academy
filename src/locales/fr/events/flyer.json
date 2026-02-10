@@ -1,0 +1,17 @@
+{
+  "tagline": "Formations en informatique",
+  "badge": "Cérémonie de présentation",
+  "title": "Présentation officielle de Dandela Academy – centre de formation en informatique",
+  "subtitle": "Venez découvrir un nouveau centre de formation moderne à Zango 3, dédié aux compétences numériques dont les Angolais ont besoin pour travailler partout dans le pays.",
+  "section_location": "Lieu",
+  "section_trainings": "Formations en informatique",
+  "section_cert": "Certification & diplôme",
+  "section_contacts": "Contacts",
+  "trainings_body": "Parcours pratiques orientés vers l’emploi : bureautique, outils digitaux, introduction à la programmation et compétences numériques essentielles pour le marché du travail angolais.",
+  "cert_body": "Les formations de Dandela Academy sont certifiées par l’INEFOP. À la fin du parcours, les élèves obtiennent un diplôme reconnu au niveau national, leur permettant de travailler dans toute l’Angola.",
+  "contacts_hint": "Appels et WhatsApp pour informations, inscriptions et réservations.",
+  "pdf_hint": "Pour garder cette affiche, utilisez la fonction « Imprimer » de votre navigateur puis « Enregistrer au format PDF ».",
+  "pdf_button": "Imprimer / Enregistrer en PDF",
+  "website_line": "Site web : {{url}}"
+}
+
