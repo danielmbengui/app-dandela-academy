@@ -356,7 +356,7 @@ export default function CeremonyPresentationPage() {
           </footer>
         </section>
         <div style={styles.printFooter} className="da-print-footer">
-          {t("website_line", { url: "https://academy.dandela.co" })}
+          {t("website_line",{ url: "https://academy.dandela.co" })}
         </div>
       </main>
     </>
