@@ -28,23 +28,55 @@ const styles = {
   },
   header: {
     display: "flex",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "1.5rem",
+    gap: "0.75rem 1rem",
     borderBottom: "1px solid #e5e7eb",
     paddingBottom: "1rem",
     marginBottom: "1.5rem",
+  },
+  headerRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.9rem",
+    flex: "1 1 auto",
+    minWidth: 0,
   },
   logosLeft: {
     display: "flex",
     alignItems: "center",
     gap: "0.9rem",
+    flexShrink: 0,
+    marginRight: "1.25rem",
+  },
+  headerBrand: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: "0.15rem",
+  },
+  headerBrandName: {
+    fontSize: "1rem",
+    fontWeight: 800,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    color: "#111827",
+    lineHeight: 1.2,
+  },
+  headerBrandTagline: {
+    fontSize: "0.75rem",
+    textTransform: "uppercase",
+    letterSpacing: "0.14em",
+    color: "#6b7280",
+    lineHeight: 1.2,
   },
   headerRight: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end",
     gap: "0.4rem",
+    flexShrink: 0,
   },
   languageBar: {
     display: "flex",
@@ -80,17 +112,15 @@ const styles = {
     width: "auto",
     objectFit: "contain",
   },
+  logoNgLearning: {
+    height: "48px",
+    width: "auto",
+    objectFit: "contain",
+  },
   logoInefop: {
     height: "44px",
     width: "auto",
     objectFit: "contain",
-  },
-  headerText: {
-    textAlign: "right",
-    fontSize: "0.8rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.16em",
-    color: "#6b7280",
   },
   badge: {
     display: "inline-block",
@@ -113,7 +143,37 @@ const styles = {
   subtitle: {
     fontSize: "0.98rem",
     color: "#4b5563",
+    marginBottom: "1rem",
+  },
+  dateHero: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.6rem",
+    padding: "0.75rem 1rem",
     marginBottom: "1.4rem",
+    borderRadius: "0.75rem",
+    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    border: "1px solid rgba(220, 38, 38, 0.4)",
+  },
+  dateHeroIcon: {
+    flexShrink: 0,
+    color: "#b91c1c",
+  },
+  dateHeroText: {
+    fontSize: "1.05rem",
+    fontWeight: 700,
+    color: "#b91c1c",
+  },
+  dateBoxHighlight: {
+    borderRadius: "0.75rem",
+    border: "1px solid rgba(220, 38, 38, 0.4)",
+    padding: "0.8rem 0.95rem",
+    marginBottom: "0.7rem",
+    fontSize: "1rem",
+    fontWeight: 600,
+    lineHeight: 1.5,
+    backgroundColor: "rgba(220, 38, 38, 0.08)",
+    color: "#b91c1c",
   },
   main: {
     display: "grid",
@@ -157,8 +217,28 @@ const styles = {
     lineHeight: 1.6,
     marginTop: "0.6rem",
     display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    gap: "0.75rem",
+  },
+  certInefopLogo: {
+    display: "flex",
+    flexDirection: "column",
     alignItems: "flex-start",
-    gap: "0.5rem",
+    gap: "0.35rem",
+    marginTop: "0.25rem",
+    marginLeft: "26px", /* aligné avec le texte cert_body (icône 18px + gap 0.5rem) */
+  },
+  certInefopText: {
+    fontSize: "0.8rem",
+    fontWeight: 600,
+    color: "#166534",
+    lineHeight: 1.4,
+  },
+  logoInefopInCert: {
+    height: "36px",
+    width: "auto",
+    objectFit: "contain",
   },
   certIcon: {
     flexShrink: 0,
@@ -199,28 +279,137 @@ const styles = {
         flex-direction: column;
         align-items: flex-start;
       }
-      .da-flyer-header-text {
-        text-align: left;
+      .da-flyer-header-row {
+        width: 100%;
       }
       .da-flyer-header-right {
         align-items: flex-start;
       }
     }
     @media print {
+      @page {
+        size: A4 landscape;
+        margin: 5mm;
+      }
       body {
         margin: 0 !important;
         padding: 0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        height: 100%;
       }
       .da-page {
         background: #ffffff !important;
         padding: 0 !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        max-height: 210mm !important;
+        overflow: hidden !important;
+        display: block !important;
       }
       .da-flyer {
         box-shadow: none !important;
         border-radius: 0 !important;
         max-width: 100% !important;
+        width: 100% !important;
+        padding: 14px 18px !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
+      .da-flyer-header {
+        padding-bottom: 14px !important;
+        margin-bottom: 18px !important;
+        border-bottom-width: 1px !important;
+        gap: 10px 12px !important;
+      }
+      .da-flyer-header .da-flyer-header-right {
+        gap: 0 !important;
+      }
+      .da-flyer-header-row {
+        justify-content: space-between !important;
+      }
+      .da-flyer-header-brand span:first-child {
+        font-size: 0.75rem !important;
+        letter-spacing: 0.08em !important;
+      }
+      .da-flyer-header-brand span:last-child {
+        font-size: 0.6rem !important;
+        letter-spacing: 0.1em !important;
+      }
+      .da-flyer .da-flyer-date-hero {
+        padding: 10px 12px !important;
+        margin-bottom: 16px !important;
+      }
+      .da-flyer-main {
+        gap: 18px !important;
+        margin-top: 8px !important;
+      }
+      .da-flyer > div:first-of-type {
+        margin-bottom: 14px !important;
+      }
+      .da-flyer-title {
+        font-size: 1.05rem !important;
+        margin-bottom: 12px !important;
+        line-height: 1.25 !important;
+      }
+      .da-flyer-date-hero span:last-child {
+        font-size: 0.8rem !important;
+      }
+      .da-flyer-section-title,
+      .da-flyer h2 {
+        font-size: 0.7rem !important;
+        margin-bottom: 10px !important;
+      }
+      .da-flyer-subtitle,
+      .da-flyer-box,
+      .da-flyer-main .da-flyer-box {
+        font-size: 0.72rem !important;
+        line-height: 1.5 !important;
+      }
+      .da-flyer-subtitle {
+        margin-bottom: 12px !important;
+      }
+      .da-flyer-badge {
+        font-size: 0.6rem !important;
+        padding: 4px 8px !important;
+        margin-bottom: 10px !important;
+      }
+      .da-flyer-box {
+        padding: 10px 12px !important;
+        margin-bottom: 14px !important;
+      }
+      .da-flyer-footer {
+        margin-top: 18px !important;
+        padding-top: 12px !important;
+        border-top-width: 1px !important;
+      }
+      .da-flyer-footer-note {
+        font-size: 0.62rem !important;
+      }
+      .da-flyer-certification {
+        padding: 10px 12px !important;
+        margin-top: 14px !important;
+        gap: 10px !important;
+      }
+      .da-flyer-main > div > .da-flyer-section-title,
+      .da-flyer-main > div > .da-flyer-box {
+        margin-bottom: 14px !important;
+      }
+      .da-flyer-main aside .da-flyer-section-title {
+        margin-top: 12px !important;
+      }
+      .da-flyer-main aside .da-flyer-section-title:first-child {
+        margin-top: 0 !important;
+      }
+      .da-flyer-certification img {
+        max-height: 28px !important;
+      }
+      .da-flyer-cert-inefop-text {
+        font-size: 0.68rem !important;
+      }
+      .da-flyer-header img[alt*="Logo"],
+      .da-flyer-header img[alt*="NG"] {
+        max-height: 28px !important;
       }
       .da-flyer-print-button {
         display: none !important;
@@ -246,18 +435,23 @@ export default function CeremonyPresentationPage() {
       <main style={styles.page} className="da-page">
         <section style={styles.flyer} className="da-flyer">
           <header style={styles.header} className="da-flyer-header">
-            <div style={styles.logosLeft}>
-              {/* Remplacez les chemins ci-dessous par les vrais fichiers de logo */}
-              <img
-                src="/images/logo.png"
-                alt="Logo Dandela Academy"
-                style={styles.logo}
-              />
-              <img
-                src="/images/partners/inefop.png"
-                alt="Logo INEFOP"
-                style={styles.logoInefop}
-              />
+            <div style={styles.headerRow} className="da-flyer-header-row">
+              <div style={styles.logosLeft}>
+                <img
+                  src="/images/logo.png"
+                  alt="Logo Dandela Academy"
+                  style={styles.logo}
+                />
+                <img
+                  src="/images/partners/ng-learning.png"
+                  alt="Logo NG Learning"
+                  style={styles.logoNgLearning}
+                />
+              </div>
+              <div style={styles.headerBrand} className="da-flyer-header-brand">
+                <span style={styles.headerBrandName}>Dandela Academy</span>
+                <span style={styles.headerBrandTagline}>{t("tagline")}</span>
+              </div>
             </div>
             <div
               style={styles.headerRight}
@@ -266,55 +460,46 @@ export default function CeremonyPresentationPage() {
               <div className="da-select-lang">
                 <SelectLanguageComponent />
               </div>
-              <div
-                style={styles.headerText}
-                className="da-flyer-header-text"
-              >
-                Dandela Academy
-                <br />
-                {t("tagline")}
-              </div>
             </div>
           </header>
 
           <div>
-            <span style={styles.badge}>{t("badge")}</span>
-            <h1 style={styles.title}>{t("title")}</h1>
-            <p style={styles.subtitle}>{t("subtitle")}</p>
+            <span style={styles.badge} className="da-flyer-badge">{t("badge")}</span>
+            <h1 style={styles.title} className="da-flyer-title">{t("title")}</h1>
+            <p style={styles.subtitle} className="da-flyer-subtitle">{t("subtitle")}</p>
+            <div style={styles.dateHero} className="da-flyer-date-hero">
+              <span style={styles.dateHeroIcon} aria-hidden>
+                <Icon icon="ph:calendar-blank-fill" width={22} height={22} />
+              </span>
+              <span style={styles.dateHeroText}>{t("date_full")}</span>
+            </div>
           </div>
 
           <div style={styles.main} className="da-flyer-main">
             <div>
-              <h2 style={styles.sectionTitle}>{t("section_location")}</h2>
-              <div style={styles.box}>
+              <h2 style={styles.sectionTitle} className="da-flyer-section-title">{t("section_location")}</h2>
+              <div style={styles.box} className="da-flyer-box">
                 <div>
                   <span style={styles.strong}>Centro Dandela Academy</span>
                   <br />
-                  Rua do esferovite, Zango 3
+                  Rua do esferovite
+                  <br />
+                  Zango III - {t("address_last_stop")}
                   <br />
                   Luanda – Angola
                 </div>
               </div>
 
-              <h2 style={styles.sectionTitle}>{t("section_trainings")}</h2>
-              <div style={styles.box}>{t("trainings_body")}</div>
-            </div>
-
-            <aside aria-label="Informations clés">
-              <h2 style={styles.sectionTitle}>{t("section_cert")}</h2>
-              <div style={styles.certification}>
-                <span style={styles.certIcon} aria-hidden>
-                  <Icon icon="ph:certificate-fill" width={18} height={18} />
-                </span>
-                <span>{t("cert_body")}</span>
-              </div>
+              <h2 style={styles.sectionTitle} className="da-flyer-section-title">{t("section_trainings")}</h2>
+              <div style={styles.box} className="da-flyer-box">{t("trainings_body")}</div>
 
               <h2
                 style={{ ...styles.sectionTitle, marginTop: "1.25rem" }}
+                className="da-flyer-section-title"
               >
                 {t("section_contacts")}
               </h2>
-              <div style={styles.box}>
+              <div style={styles.box} className="da-flyer-box">
                 <div style={styles.contacts}>
                   +244 974 502 709
                   <br />
@@ -324,11 +509,33 @@ export default function CeremonyPresentationPage() {
                   {t("contacts_hint")}
                 </div>
               </div>
+            </div>
+
+            <aside aria-label="Informations clés">
+              <h2 style={styles.sectionTitle} className="da-flyer-section-title">{t("section_cert")}</h2>
+              <div style={styles.certification} className="da-flyer-certification">
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                  <span style={styles.certIcon} aria-hidden>
+                    <Icon icon="ph:certificate-fill" width={18} height={18} />
+                  </span>
+                  <span>{t("cert_body")}</span>
+                </div>
+                <div style={styles.certInefopLogo}>
+                  <span style={styles.certInefopText} className="da-flyer-cert-inefop-text">
+                    {t("cert_inefop_accredited")} — {t("cert_license")}
+                  </span>
+                  <img
+                    src="/images/partners/inefop.png"
+                    alt="INEFOP"
+                    style={styles.logoInefopInCert}
+                  />
+                </div>
+              </div>
             </aside>
           </div>
 
-          <footer style={styles.footer}>
-            <p style={styles.footerNote}>
+          <footer style={styles.footer} className="da-flyer-footer">
+            <p style={styles.footerNote} className="da-flyer-footer-note">
               {t("pdf_hint")}
               <a
                 href="https://academy.dandela.com"
