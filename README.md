@@ -204,7 +204,7 @@ npm run dev
 
 ## 👨🏾‍💻 Auteur
 
-**Daniel Mbengui**  
+**Daniel Slaver Mbengui**  
 Fondateur – Dandela Academy  
 Luanda, Angola 🇦🇴
 
