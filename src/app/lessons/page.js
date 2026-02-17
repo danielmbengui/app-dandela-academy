@@ -334,7 +334,7 @@ function LessonRow({ lesson = null, lastChild = false }) {
   const FORMAT_CONFIG = ClassLesson.FORMAT_CONFIG;
   const roleCfg = FORMAT_CONFIG[lesson?.format];
   const statusCfg = STATUS_CONFIG_1[lesson.status || (lesson.activated ? 'activated' : 'no-activated')];
-  console.log("min level", getMinLevel(lesson?.uid));
+  console.log("min level", getMinLevel(lesson?.uid), "max level", getMaxLevel(lesson?.uid));
 
   const { minLevelId, minLevelValue, maxLevelId, maxLevelValue } = useMemo(() => {
     if (!lesson) return {

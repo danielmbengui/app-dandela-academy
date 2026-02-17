@@ -140,7 +140,6 @@ export function DeviceProvider({ children, uidRoom = '' }) {
         }
         return _removed;
     }
-
     function getOneDevice(uid = '') {
         if (!uid || uid === '' || uid === null) {
             return null;
@@ -148,8 +147,6 @@ export function DeviceProvider({ children, uidRoom = '' }) {
         const _room = devices.find(item => item.uid === uid);
         return _room;
     }
-
-    // session
     function changeDevice(uid = '', mode = '') {
         var _device = devices.find(item => item.uid === uid) || null;
         if (mode === 'create') {

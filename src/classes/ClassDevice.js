@@ -119,6 +119,7 @@ export class ClassDevice {
         brand = "",
         enabled = false,
         status = "",
+        status_text="",
         category = "",
         type = "",
         buy_time = null,
@@ -136,6 +137,7 @@ export class ClassDevice {
         this._enabled = Boolean(enabled);
 
         this._status = this._normalizeStatus(status);
+        this._status_text = status_text;
         this._type = this._normalizeType(type);
         this._category = this._normalizeCategory(category);
 
@@ -224,6 +226,9 @@ export class ClassDevice {
     get status() {
         return this._status;
     }
+    get status_text() {
+        return this._status_text;
+    }
 
     get type() {
         return this._type;
@@ -290,6 +295,10 @@ export class ClassDevice {
 
     set status(value) {
         this._status = this._normalizeStatus(value);
+        this._touchLastEdit();
+    }
+    set status_text(value) {
+        this._status_text = value;
         this._touchLastEdit();
     }
 

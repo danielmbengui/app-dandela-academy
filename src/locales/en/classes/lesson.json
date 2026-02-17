@@ -50,6 +50,8 @@
   "content": "Course content",
   "photos": "Photos",
   "certification": "Certification",
+  "teacher": "Teacher",
+  "teachers": "Teachers",
   "certification_official": "✅ Certification officially recognized within Dandela Academy programs.",
   "certification_block": {
     "title": "This course grants a certificate issued by Dandela Academy.",

@@ -93,7 +93,6 @@ function DevicesContent({}) {
     setMode('read');
     changeDevice(pc?.uid, mode);
   };
-
   return (<Stack >
     {
       device && <DialogDevice
@@ -303,7 +302,6 @@ export default function ComputersComponent() {
   return (<DeviceProvider uidRoom={room?.uid || ''}>
     <Stack ref={componentRef} sx={{ width: '100%', height: '100%' }}>
     <DevicesContent />
-
     </Stack>
   </DeviceProvider>)
 }

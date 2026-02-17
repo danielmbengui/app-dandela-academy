@@ -28,7 +28,7 @@ import { Box, Grid, Stack, Typography, IconButton, Tooltip } from "@mui/material
 import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 import Image from "next/image";
 
-const GRID_COLUMNS = "minmax(0, 0.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 0.3fr)";
+const GRID_COLUMNS = "minmax(0, 0.3fr) minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 0.75fr) minmax(0, 0.3fr)";
 const GRID_COLUMNS_TEACHER = "minmax(0, 0.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 1fr)";
 
 function LessonsComponent() {
@@ -134,7 +134,7 @@ function LessonsComponent() {
         <Box sx={headerSx}>
           <span />
           <span>{t("lesson")}</span>
-          <span>{t("title")}</span>
+          <span>{t("level")}</span>
           <span>{t("certified_short")}</span>
           <span>{t("actions", { ns: NS_BUTTONS }) || "Actions"}</span>
         </Box>
@@ -176,7 +176,7 @@ function LessonsComponent() {
                     });
                   }
                 }}
-                sx={{ 
+                sx={{
                   cursor: "pointer",
                   bgcolor: selectedLesson?.uid === lesson.uid ? "rgba(255, 152, 0, 0.1)" : "transparent",
                   transition: "background 0.2s ease",
@@ -220,11 +220,26 @@ function LessonRow({ lesson = null, lastChild = false, isSelected = false, isExp
   ]);
   const { getOneLesson } = useLesson();
   const { isMobile } = useUserDevice();
+  const { chapters, getMinLevel, getMaxLevel, getCountSubchapters } = useChapter();
 
   const lessonSource = useMemo(() => {
     if (!lesson) return null;
     return getOneLesson(lesson.uid);
   }, [lesson, getOneLesson]);
+  const { minLevelId, minLevelValue, maxLevelId, maxLevelValue } = useMemo(() => {
+    if (!lesson) return {
+      minLevelId: 0,
+      minLevelValue: 0,
+      maxLevelId: 0,
+      maxLevelValue: 0
+    }
+    return {
+      minLevelId: getMinLevel(lesson?.uid)?.id,
+      minLevelValue: getMinLevel(lesson?.uid)?.value,
+      maxLevelId: getMaxLevel(lesson?.uid)?.id,
+      maxLevelValue: getMaxLevel(lesson?.uid)?.value,
+    };
+  }, [lesson, chapters]);
 
   const rowSx = {
     display: "grid",
@@ -313,22 +328,17 @@ function LessonRow({ lesson = null, lastChild = false, isSelected = false, isExp
       <Box sx={cellSx}>
         <Box>
           <Typography component="p" sx={nameSx}>
-            {lesson?.translate?.title || lesson?.title}
+            {t(minLevelValue)} - {t(maxLevelValue)}
           </Typography>
           {lesson?.translate?.subtitle && (
             <Typography component="p" sx={subSx}>
-              {t(lesson.translate.subtitle)}
+              {t('level')} : {minLevelId} - {maxLevelId}
             </Typography>
           )}
         </Box>
       </Box>
 
       <Box sx={{ ...cellSx, display: "flex", flexDirection: "column", gap: 0.5 }}>
-        {lesson?.level && (
-          <Typography component="p" sx={{ ...subSx, m: 0 }}>
-            {lesson.level}
-          </Typography>
-        )}
         {lesson?.certified && (
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <IconCertificate
@@ -361,7 +371,7 @@ function LessonRow({ lesson = null, lastChild = false, isSelected = false, isExp
           </Tooltip>
         )}
         {editUrl && (
-          <Link 
+          <Link
             href={editUrl}
             onClick={(e) => e.stopPropagation()}
             style={{ textDecoration: "none" }}
@@ -474,7 +484,7 @@ function LessonsTeacherComponent({ selectedLesson }) {
         <span />
         <span>{t("lesson")}</span>
         <span>{t("title")}</span>
-        <span>{t("teacher", { ns: NS_DASHBOARD_MENU })}</span>
+        <span>{t("teacher")}</span>
         <span>{t("certified_short")}</span>
       </Box>
 

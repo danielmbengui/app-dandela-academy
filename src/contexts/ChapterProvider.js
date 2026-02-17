@@ -284,8 +284,8 @@ export function ChapterProvider({ children, uidLesson = "" }) {
     function getMaxLevel(uidLesson = "") {
         const allLevels = ClassLessonChapter.ALL_LEVELS.map((level, i) => ({ id: i + 1, value: level })) || [];
         if (!allLevels.length || chapters.length === 0) return { id: 0, value: 0 };
-        const lastIndex = allLevels.length - 1;
-        var maxChapter = allLevels[lastIndex];
+        const firstIndex = 0;
+        var maxChapter = allLevels[firstIndex];
         var chaptersFiletered = [...chapters];
         if (uidLesson) {
             chaptersFiletered = [...chapters].filter(c => c.uid_lesson === uidLesson);

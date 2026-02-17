@@ -49,6 +49,8 @@
   "content": "Conteúdo do curso",
   "photos": "Fotos",
   "certification": "Certificação",
+  "teacher": "Professor",
+  "teachers": "Professores",
   "certification_official": "✅ Certificação reconhecida no âmbito dos percursos da Dandela Academy.",
   "certification_block": {
     "title": "Este curso dá direito a um certificado emitido pela Dandela Academy.",
