@@ -47,7 +47,7 @@ export default function InstallPwaBanner({ showPwaComponent = false, skipAction 
       }}
     >
       <Stack spacing={2.5} alignItems={'center'}>
-        <Stack direction={'row'} spacing={1.5} alignItems={'center'} sx={{ width: '100%', justifyContent: 'center' }}>
+        <Stack direction={'row'} spacing={1.5} alignItems={'center'} justifyContent={'center'} sx={{ width: '100%', justifyContent: 'center' }}>
           <Box sx={{ 
             p: 1, 
             borderRadius: '12px', 
@@ -140,11 +140,16 @@ export default function InstallPwaBanner({ showPwaComponent = false, skipAction 
         onClick={(e) => e.stopPropagation()}
         sx={{ 
           p: { xs: 0, sm: 2 }, 
-          background: '', 
+          //background: 'red', 
           height: '100%', 
           width: '100%',
         }}>
-        <div className="pwa-banner" style={{ color: 'white' }}>
+        <div className="pwa-banner"   style={{
+    color: "white",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+  }}>
           {
             !isPWA && <>
               {
@@ -233,7 +238,7 @@ export default function InstallPwaBanner({ showPwaComponent = false, skipAction 
                 </>
               }
               {
-                !isSafari && <CardContent t={t}>
+                !isSafari && canInstall && <CardContent t={t}>
                   <Stack direction={'row'} spacing={1.5} alignItems={'center'} sx={{ width: '100%', justifyContent: 'center', pt: 1 }}>
                     <ButtonCancel label={t('later', { ns: NS_PWA })} onClick={skipAction} />
                     <ButtonConfirm label={t('install', { ns: NS_PWA })} onClick={installPwa} />
