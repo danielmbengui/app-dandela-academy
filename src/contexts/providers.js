@@ -1,6 +1,7 @@
 // app/providers.js
 'use client';
 import { AuthProvider } from "./AuthProvider";
+import InternetProvider from "./InternetProvider";
 import { LangProvider } from "./LangProvider";
 import PwaProvider from "./PwaProvider";
 import { SchoolProvider } from "./SchoolProvider";
@@ -14,6 +15,7 @@ import { UserDeviceProvider } from "./UserDeviceProvider";
 export default function Providers({ children }) {
     return (<ThemeProvider>
         <UserDeviceProvider>
+        <InternetProvider>
         <PwaProvider>
         <LangProvider>
            <AuthProvider>
@@ -23,6 +25,7 @@ export default function Providers({ children }) {
            </AuthProvider>
         </LangProvider>
         </PwaProvider>
+        </InternetProvider>
         </UserDeviceProvider>
     </ThemeProvider>);
 }

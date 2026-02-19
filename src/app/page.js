@@ -18,8 +18,14 @@ import { useRouter } from 'next/navigation';
 import { PAGE_ACTIVE_ACCOUNT, PAGE_DASHBOARD_HOME, PAGE_LOGIN } from '@/contexts/constants/constants_pages';
 import { ClassColor } from '@/classes/ClassColor';
 import HomeComponent from '@/components/home/HomeComponent';
+import { useInternet } from '@/contexts/InternetProvider';
+import NoInternetComponent from '@/components/not-internet/NoInternetComponent';
 
 export default function Home() {
+  const {isOnline} = useInternet();
+  if(!isOnline) {
+    return(<NoInternetComponent />)
+  }
   return (<LoginPageWrapper>
     <HomeComponent />
   </LoginPageWrapper>);

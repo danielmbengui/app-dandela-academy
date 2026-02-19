@@ -282,7 +282,7 @@ export default function AccountMenu() {
             >
               <ListItemIcon>
                 {
-                  hasScreen ? <IconDownloadDesktopApp width={20} height={20} /> : isMobile ? <IconDownloadMobileApp width={20} height={20} /> : null
+                  hasScreen ? <IconDownloadDesktopApp width={20} height={20} /> : <IconDownloadMobileApp width={20} height={20} />
                 }
               </ListItemIcon>
               <Typography sx={{ fontSize: '0.9rem', color: 'var(--font-color)' }}>
